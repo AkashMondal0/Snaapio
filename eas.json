@@ -1,5 +1,13 @@
 {
     "build": {
+      "development": {
+        "developmentClient": true,
+        "distribution": "internal",
+        "android": {
+          "gradleCommand": ":app:assembleDebug",
+          "buildType": "apk"
+        }
+      },
       "preview": {
         "android": {
           "buildType": "apk"

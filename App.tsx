@@ -4,12 +4,11 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Provider, useSelector } from 'react-redux';
-import { RootState, store } from '@/redux/store';
+import { RootState, store } from '@/app/redux/store';
 import * as SplashScreen from 'expo-splash-screen';
-import ThemeProvider from '@/provider/ThemeProvider'
-import { SettingScreen, ThemeSettingScreen, CameraScreen, MessageScreen } from '@/app/screen';
-import BottomTab from '@/app/screen/home/bottomTabs';
-
+import ThemeProvider from '@/app/provider/ThemeProvider'
+import { SettingScreen, ThemeSettingScreen } from '@/app/screens/setting';
+import { HomeScreen, CameraScreen, MessageScreen } from '@/app/screens/home';
 SplashScreen.preventAutoHideAsync();
 const Stack = createNativeStackNavigator();
 const Tab = createMaterialTopTabNavigator();
@@ -20,9 +19,9 @@ const TopTabBar = ({ navigation }: any) => {
       style={{ flex: 1 }}
       initialRouteName='home_2'
       overScrollMode={'never'}
-      screenOptions={{ tabBarStyle: { height: 0 } }}>
+      screenOptions={{ tabBarStyle: { display: "none" } }}>
       <Tab.Screen name="camera" component={CameraScreen} />
-      <Tab.Screen name="home_2" component={BottomTab} />
+      <Tab.Screen name="home_2" component={HomeScreen} />
       <Tab.Screen name="message" component={MessageScreen} />
     </Tab.Navigator>
   )
