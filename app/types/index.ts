@@ -7,7 +7,7 @@ export interface Route {
     path: undefined
 }
 
-export interface Navigation {
+export interface NavigationProps {
     addListener: (type: string, callback: () => void) => void,
     canGoBack: () => boolean,
     dangerouslyGetParent: () => any,

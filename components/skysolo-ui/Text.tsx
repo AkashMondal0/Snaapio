@@ -1,20 +1,23 @@
-import { RootState } from "@/redux/store"
-import { View, type ViewProps } from 'react-native';
+import { RootState } from '@/app/redux/store';
+import { Text, type TextProps } from 'react-native';
 import { useSelector } from "react-redux"
 
-export type Props = ViewProps & {
-    variant?: any
+export type Props = TextProps & {
+    variant?: "heading1" | "heading2" | "heading3" | "heading4";
     lightColor?: string;
     darkColor?: string;
 };
 
 
-const SkysoloView = ({ style, ...otherProps }: Props) => {
+const SkysoloText = ({ style, variant, ...otherProps }: Props) => {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme, (prev, next) => prev?.primary === next?.primary)
     if (!currentTheme) return null
     return (
-        <View style={[{ backgroundColor: `hsl(${currentTheme.destructive})` }, style]} {...otherProps} />
+        <Text style={[{
+            color: currentTheme.accent_foreground,
+            fontSize: variant === "heading1" ? 32 : variant === "heading2" ? 24 : variant === "heading3" ? 18 : variant === "heading4" ? 16 : 14
+        }, style]} {...otherProps} />
     )
 }
 
-export default SkysoloView
+export default SkysoloText

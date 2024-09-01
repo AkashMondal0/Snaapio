@@ -8,7 +8,11 @@ export type ThemeState = {
   themeName: ThemeNames | null,
   themeLoaded?: boolean,
   currentTheme: ColorsProp | null
-  // onlineThemes: Themes[]
+  themeColors: {
+    name: string,
+    light: ColorsProp,
+    dark: ColorsProp
+  }[]
 }
 
 
@@ -17,6 +21,7 @@ const initialState: ThemeState = {
   themeLoaded: false,
   currentTheme: null,
   themeName: null,
+  themeColors: [],
 }
 
 export const ThemeSlice = createSlice({
@@ -25,24 +30,28 @@ export const ThemeSlice = createSlice({
   reducers: {
     changeColorSchema: (state, { payload }: PayloadAction<ThemeSchema>) => {
       if (!state.themeName) return state
-      state.currentTheme = Colors[state.themeName][payload]
+      state.currentTheme = Colors.find((color) => color.name === state.themeName)?.[payload] || null
       state.themeSchema = payload
     },
     changeTheme: (state, { payload }: PayloadAction<ThemeNames>) => {
-      // console.log("Changing Theme", state.themeSchema)
       if (!state.themeSchema) return state
-      state.currentTheme = Colors[payload][state.themeSchema]
+      const index = Colors.findIndex((color) => color.name === payload)
+      if (index === -1) return state
+      state.currentTheme = Colors[index][state.themeSchema]
       state.themeName = payload
     },
     setThemeLoaded: (state, { payload: { userColorScheme, userThemeName } }: PayloadAction<{
       userColorScheme: ThemeSchema,
       userThemeName: ThemeNames
     }>) => {
-      // console.log("Setting Theme", userColorScheme, userThemeName)
-      state.currentTheme = Colors[userThemeName][userColorScheme]
+      if (!userColorScheme || !userThemeName) return state
+      const index = Colors.findIndex((color) => color.name === userThemeName)
+      if (index === -1) return state
+      state.themeColors = Colors
       state.themeSchema = userColorScheme
       state.themeName = userThemeName
       state.themeLoaded = true
+      state.currentTheme = Colors[index][userColorScheme]
     }
   },
 })

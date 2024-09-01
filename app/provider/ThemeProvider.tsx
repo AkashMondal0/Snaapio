@@ -15,9 +15,21 @@ const ThemeProvider = () => {
     const GetLocalStorageThemeValue = useCallback(async () => {
         const localValueSchema = await localStorage("get", "skysolo-theme") as Theme
         const localValueTheme = await localStorage("get", "skysolo-theme-name") as ThemeNames
+        // first time
+        if (!localValueSchema && !localValueTheme) {
+            await localStorage("set", "skysolo-theme", "light")
+            await localStorage("set", "skysolo-theme-name", "Zinc")
+            dispatch(setThemeLoaded({
+                userThemeName: localValueTheme ?? "Zinc",
+                userColorScheme: localValueSchema ?? "light"
+            }))
+            return
+        }
+        // if system theme is selected
         if (localValueSchema === "system") {
             return
         }
+        // 
         // console.log("Local Value Schema", localValueSchema, localValueTheme)
         dispatch(setThemeLoaded({
             userThemeName: localValueTheme ?? "Zinc",

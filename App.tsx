@@ -16,12 +16,13 @@ const Tab = createMaterialTopTabNavigator();
 const TopTabBar = ({ navigation }: any) => {
   return (
     <Tab.Navigator
+      backBehavior='initialRoute'
       style={{ flex: 1 }}
-      initialRouteName='home_2'
+      initialRouteName='main'
       overScrollMode={'never'}
       screenOptions={{ tabBarStyle: { display: "none" } }}>
       <Tab.Screen name="camera" component={CameraScreen} />
-      <Tab.Screen name="home_2" component={HomeScreen} />
+      <Tab.Screen name="main" component={HomeScreen} />
       <Tab.Screen name="message" component={MessageScreen} />
     </Tab.Navigator>
   )
@@ -63,9 +64,9 @@ function Routes() {
   //   }
   // }
   return (
-    <Stack.Navigator initialRouteName='home_1'>
+    <Stack.Navigator initialRouteName='home'>
       {/* feeds */}
-      <Stack.Screen name="home_1" component={TopTabBar} options={{ headerShown: false }} />
+      <Stack.Screen name="home" component={TopTabBar} options={{ headerShown: false }} />
       {/* <Stack.Screen name="notification" component={SettingScreen} options={{ headerShown: false }} /> */}
       {/* settings */}
       <Stack.Screen name="setting" component={SettingScreen} options={{ headerShown: false }} />
@@ -85,7 +86,6 @@ function Routes() {
 
 function Root() {
   const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
-  // console.log(currentTheme?.accent)
   return (<GestureHandlerRootView style={{ flex: 1, backgroundColor: `hsl(${currentTheme?.background})` }}>
     <NavigationContainer>
       <ThemeProvider />
@@ -95,12 +95,10 @@ function Root() {
 
 }
 
-function App() {
+export default function App() {
   return (
     <Provider store={store}>
       <Root />
     </Provider>
   );
-}
-
-export default App;
+};

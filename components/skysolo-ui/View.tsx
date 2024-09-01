@@ -1,4 +1,4 @@
-import { RootState } from "@/redux/store"
+import { RootState } from '@/app/redux/store';
 import { View, type ViewProps } from 'react-native';
 import { useSelector } from "react-redux"
 
@@ -13,7 +13,7 @@ const SkysoloView = ({ style, ...otherProps }: Props) => {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
     if (!currentTheme) return <View />
     return (
-        <View style={[{ backgroundColor: `hsl(${currentTheme.primary})` }, style]} {...otherProps} />
+        <View style={[{ backgroundColor: currentTheme.background }, style]} {...otherProps} />
     )
 }
 
