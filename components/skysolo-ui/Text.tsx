@@ -14,7 +14,7 @@ const SkysoloText = ({ style, variant, ...otherProps }: Props) => {
     if (!currentTheme) return null
     return (
         <Text style={[{
-            color: currentTheme.accent_foreground,
+            color: currentTheme.accent,
             fontSize: variant === "heading1" ? 32 : variant === "heading2" ? 24 : variant === "heading3" ? 18 : variant === "heading4" ? 16 : 14
         }, style]} {...otherProps} />
     )

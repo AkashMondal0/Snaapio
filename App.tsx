@@ -13,16 +13,16 @@ SplashScreen.preventAutoHideAsync();
 const Stack = createNativeStackNavigator();
 const Tab = createMaterialTopTabNavigator();
 
-const TopTabBar = ({ navigation }: any) => {
+const TopTabBar = () => {
   return (
     <Tab.Navigator
       backBehavior='initialRoute'
       style={{ flex: 1 }}
-      initialRouteName='main'
+      initialRouteName='Home'
       overScrollMode={'never'}
       screenOptions={{ tabBarStyle: { display: "none" } }}>
       <Tab.Screen name="camera" component={CameraScreen} />
-      <Tab.Screen name="main" component={HomeScreen} />
+      <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="message" component={MessageScreen} />
     </Tab.Navigator>
   )
@@ -64,9 +64,9 @@ function Routes() {
   //   }
   // }
   return (
-    <Stack.Navigator initialRouteName='home'>
+    <Stack.Navigator initialRouteName='Root'>
       {/* feeds */}
-      <Stack.Screen name="home" component={TopTabBar} options={{ headerShown: false }} />
+      <Stack.Screen name="Root" component={TopTabBar} options={{ headerShown: false }} />
       {/* <Stack.Screen name="notification" component={SettingScreen} options={{ headerShown: false }} /> */}
       {/* settings */}
       <Stack.Screen name="setting" component={SettingScreen} options={{ headerShown: false }} />

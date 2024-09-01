@@ -1,98 +1,126 @@
 import React from 'react'
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { CircleDashed, CircleUserRound, MessageSquareText, Phone } from "lucide-react-native"
+import { BottomTabBarProps, createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { CircleUserRound, Film, HomeIcon, PlusCircle, Search } from "lucide-react-native"
 import { View } from '@/components/skysolo-ui';
 // screens
 import FeedsScreen from "./feeds";
 import ProfileScreen from "./profile";
 import ReelsScreen from "./reels";
 import SearchScreen from "./search";
-
+import { useSelector } from 'react-redux';
+import { RootState } from '@/app/redux/store';
+import CameraScreen from '../camera';
+import { TouchableOpacity } from 'react-native';
 const Tab = createBottomTabNavigator();
 
-const BottomTab = ({ navigation }: any) => {
-
-    const seenCount = 0
-    const totalUnseen = 0
-
+const BottomTab = () => {
 
     return (
-        <View style={{
-            flex: 1,
-        }}>
-            <Tab.Navigator
-                sceneContainerStyle={{
-                }}
-                screenOptions={({ route }) => ({
-                    // tabBarActiveTintColor: useTheme.primary,
-                    // tabBarInactiveTintColor: useTheme.iconColor,
-                    tabBarStyle: {
-                        height: 70,
-                        elevation: 0,
-                        borderTopWidth: 0,
-                    },
-                    tabBarIcon: ({ focused }) => {
-                        let iconSize;
-                        let iconColor;
-                        if (focused) {
-                            iconSize = 30;
-                            // iconColor = useTheme.primary;
-                        } else {
-                            iconSize = 25;
-                            // iconColor = useTheme.iconColor;
-                        }
-                        if (route.name === 'Chats') {
-                            return <MessageSquareText size={iconSize} color={iconColor} />
-                        }
-                        else if (route.name === 'Status') {
-                            return <CircleDashed size={iconSize} color={iconColor} />
-                        }
-                        else if (route.name === 'Calls') {
-                            return <Phone size={iconSize} color={iconColor} />
-                        }
-                        else if (route.name === 'Profile') {
-                            return <CircleUserRound size={iconSize} color={iconColor} />
-                        }
-                    },
-                    tabBarLabelStyle: {
-                        fontSize: 14,
-                        paddingBottom: 8,
-                    },
-                    // notification badge
-                    tabBarBackground() {
-                        return (
-                            <View style={{
-                                flex: 1,
-                                width: "100%",
-                                height: "100%",
-                            }}/>
-                        )
-                    },
-                })}>
-                <Tab.Screen name="feeds" component={FeedsScreen} options={{
-                    tabBarBadge: totalUnseen,
-                    headerShown: false,
-                    tabBarBadgeStyle: {
-                        opacity: totalUnseen > 0 ? 1 : 0,
-                        fontSize: 14,
-                        // backgroundColor: useTheme.badge,
-                        // color: useTheme.color,
-                        borderRadius: 50,
-                    },}} />
-                <Tab.Screen name="search" component={SearchScreen} options={{
-                    headerShown: false,
-                }} />
-                <Tab.Screen name="reels" component={ReelsScreen} options={{
-                    headerShown: false,
-                }} />
-                <Tab.Screen name="Profile" component={ProfileScreen} options={{
-                    headerShown: false,
-                    tabBarBadge: "new",
-                }} />
-
+        <View style={{ flex: 1 }}>
+            <Tab.Navigator tabBar={(props) => <MyTabBar {...props} />}>
+                <Tab.Screen name="feeds" component={FeedsScreen} options={{ headerShown: false }} />
+                <Tab.Screen name="search" component={SearchScreen} options={{ headerShown: false }} />
+                <Tab.Screen name="create" component={CameraScreen} options={{ headerShown: false }} />
+                <Tab.Screen name="reels" component={ReelsScreen} options={{ headerShown: false }} />
+                <Tab.Screen name="profile" component={ProfileScreen} options={{ headerShown: false }} />
             </Tab.Navigator>
         </View>
     )
 }
 
 export default BottomTab
+
+
+function MyTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+
+    const getIcon = (routeName: string, isFocused: boolean) => {
+        let iconSize = 28;
+        let iconColor = currentTheme?.accent_foreground;
+        if (isFocused) {
+            iconColor = currentTheme?.primary;
+        }
+        if (routeName === 'feeds') {
+            return <HomeIcon size={iconSize} color={iconColor} />
+        }
+        else if (routeName === 'search') {
+            return <Search size={iconSize} color={iconColor} />
+        }
+        else if (routeName === 'create') {
+            return <PlusCircle size={iconSize} color={iconColor} />
+        }
+        else if (routeName === 'reels') {
+            return <Film size={iconSize} color={iconColor} />
+        }
+        else if (routeName === 'profile') {
+            return <CircleUserRound size={iconSize} color={iconColor} />
+        }
+    }
+
+    return (
+        <View style={{
+            flexDirection: 'row',
+            justifyContent: 'space-around',
+            alignItems: 'center',
+            padding: 10,
+            borderTopWidth: 0.6,
+            borderTopColor: currentTheme?.border,
+            backgroundColor: currentTheme?.background,
+            elevation: 0,
+            height: 70,
+        }}>
+            {state.routes.map((route, index) => {
+                const { options } = descriptors[route.key];
+                const isFocused = state.index === index;
+                const onPress = () => {
+                    const event = navigation.emit({
+                        type: 'tabPress',
+                        target: route.key,
+                        canPreventDefault: true,
+                    });
+                    if (!isFocused && !event.defaultPrevented) {
+                        navigation.navigate(route.name, route.params);
+                    }
+                };
+
+                const onLongPress = () => {
+                    navigation.emit({
+                        type: 'tabLongPress',
+                        target: route.key,
+                    });
+                };
+                if (route.name === "create") {
+                    return (
+                        <TouchableOpacity
+                            key={index}
+                            accessibilityRole="button"
+                            accessibilityState={isFocused ? { selected: true } : {}}
+                            accessibilityLabel={options.tabBarAccessibilityLabel}
+                            testID={options.tabBarTestID}
+                            onPress={() => { navigation.navigate("Root", { screen: 'camera' }) }}
+                            onLongPress={() => { navigation.navigate("Root", { screen: 'camera' }) }}
+                            style={{ flex: 1, alignItems: 'center' }}
+                        >
+                            {getIcon(route.name, isFocused)}
+                        </TouchableOpacity>
+                    );
+                }
+
+                return (
+                    <TouchableOpacity
+                        key={index}
+                        accessibilityRole="button"
+                        accessibilityState={isFocused ? { selected: true } : {}}
+                        accessibilityLabel={options.tabBarAccessibilityLabel}
+                        testID={options.tabBarTestID}
+                        onPress={onPress}
+                        onLongPress={onLongPress}
+                        style={{ flex: 1, alignItems: 'center' }}
+                    >
+                        {getIcon(route.name, isFocused)}
+                    </TouchableOpacity>
+                );
+            })}
+        </View>
+    );
+}
