@@ -36,7 +36,7 @@ function MyTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 
     const getIcon = (routeName: string, isFocused: boolean) => {
         let iconSize = 28;
-        let iconColor = currentTheme?.accent_foreground;
+        let iconColor = currentTheme?.foreground;
         if (isFocused) {
             iconColor = currentTheme?.primary;
         }

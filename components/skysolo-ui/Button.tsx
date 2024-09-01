@@ -46,18 +46,18 @@ const SkysoloButton = ({
                 color = ThemeColor.find((color) => color.name === "Yellow")
                 return {
                     backgroundColor: color?.light.primary,
-                    color: currentTheme.accent,
+                    color: currentTheme.primary_foreground,
                 }
             case "success":
                 color = ThemeColor.find((color) => color.name === "Green")
                 return {
                     backgroundColor: color?.light.primary,
-                    color: currentTheme.accent,
+                    color: color?.light.primary_foreground,
                 }
             default:
                 return {
                     backgroundColor: currentTheme.primary,
-                    color: currentTheme.accent,
+                    color: currentTheme.primary_foreground,
                 }
         }
     }, [variant, currentTheme])
