@@ -27,6 +27,16 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "splash": {
+        "image": "./assets/splash.png",
+        "resizeMode": "cover",
+        "backgroundColor": "#ffffff",
+        "dark": {
+          "image": "./assets/splash.png",
+          "resizeMode": "cover",
+          "backgroundColor": "#000000"
+        }
+      },
       "usesCleartextTraffic": true,
       "package": "com.akashmondal0.skylight",
       "permissions": [
@@ -47,7 +57,6 @@
       }
     },
     "plugins": [
-      "./configs/night-colors.js",
       [
         "expo-build-properties",
         {
