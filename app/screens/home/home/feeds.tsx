@@ -1,4 +1,4 @@
-import { View, Text, Button, Card, Switch, CheckBox } from "@/components/skysolo-ui";
+import { View, Text, Button, Card, Switch, CheckBox, Input } from "@/components/skysolo-ui";
 import { memo } from "react";
 
 
@@ -18,7 +18,11 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: any) {
                 <Text variant="heading3">Feed Screen</Text>
             </Card>
             <Switch />
+            <Input />
             <CheckBox />
+            <Button>
+                Go to Home
+            </Button>
         </View>
     )
 })

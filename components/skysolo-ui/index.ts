@@ -6,7 +6,7 @@ import Card from "./Card";
 import CheckBox from "./CheckBox";
 import Skeleton from "./Skeleton";
 import Switch from "./Switch";
-// import Input from "./Input";
+import Input from "./Input";
 // import Radio from "./Radio";
 // import Modal from "./Modal";
 // import Toast from "./Toast";
@@ -28,5 +28,6 @@ export {
     Skeleton,
     CheckBox,
     Switch,
+    Input,
     ScrollView
 }

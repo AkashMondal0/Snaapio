@@ -23,9 +23,10 @@ const SkysoloButton = ({
     variant = "default",
     size = "medium",
     icon,
+    disabled = false,
     ...otherProps }: Props) => {
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme, (prev, next) => prev?.primary === next?.primary)
-    const ThemeColor = useSelector((state: RootState) => state.ThemeState.themeColors)
+    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+    const ThemeColor = useSelector((state: RootState) => state.ThemeState.themeColors, (prev, next) => prev?.length === next?.length)
 
     if (!currentTheme) return null
 
@@ -94,13 +95,16 @@ const SkysoloButton = ({
 
     return (
         <TouchableOpacity
+            {...otherProps}
             activeOpacity={0.6}
+            disabled={disabled}
             style={[{
                 alignItems: 'center',
                 justifyContent: 'center',
                 elevation: 4,
                 flexDirection: 'row',
                 gap: 5,
+                opacity: disabled ? 0.4 : 1,
                 backgroundColor: getButtonVariant().backgroundColor,
                 ...getButtonSize(),
             }, style]}

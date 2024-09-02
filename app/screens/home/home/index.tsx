@@ -17,7 +17,11 @@ const BottomTab = () => {
 
     return (
         <View style={{ flex: 1 }}>
-            <Tab.Navigator tabBar={(props) => <MyTabBar {...props} />}>
+            <Tab.Navigator 
+            screenOptions={{
+                tabBarHideOnKeyboard: true,
+            }}
+            tabBar={(props) => <MyTabBar {...props} />}>
                 <Tab.Screen name="feeds" component={FeedsScreen} options={{ headerShown: false }} />
                 <Tab.Screen name="search" component={SearchScreen} options={{ headerShown: false }} />
                 <Tab.Screen name="create" component={CameraScreen} options={{ headerShown: false }} />
@@ -62,12 +66,12 @@ function MyTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
             flexDirection: 'row',
             justifyContent: 'space-around',
             alignItems: 'center',
-            padding: 10,
+            padding: 8,
             borderTopWidth: 0.6,
             borderTopColor: currentTheme?.border,
             backgroundColor: currentTheme?.background,
             elevation: 0,
-            height: 70,
+            height: 60,
         }}>
             {state.routes.map((route, index) => {
                 const { options } = descriptors[route.key];

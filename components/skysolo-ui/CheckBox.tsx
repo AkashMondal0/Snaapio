@@ -19,6 +19,7 @@ const SkySoloCheckBox = ({ ...props }: Props) => {
             fillColor={currentTheme?.primary}
             iconStyle={{ borderColor: currentTheme?.primary }}
             innerIconStyle={{ borderWidth: 2 }}
+            textStyle={{ color: currentTheme?.foreground }}
         // textStyle={{ fontFamily: "JosefinSans-Regular" }}
         // onPress={(isChecked: boolean) => { console.log(isChecked) }}
         />

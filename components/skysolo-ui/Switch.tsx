@@ -16,7 +16,7 @@ const SkySoloSwitch = ({ ...props }: Props) => {
 
     return (
         <View
-            style={{
+            style={[{
                 alignItems: 'center',
                 justifyContent: 'center',
                 height: 30,
@@ -25,7 +25,8 @@ const SkySoloSwitch = ({ ...props }: Props) => {
                 backgroundColor: isEnabled ? currentTheme?.primary : currentTheme?.muted,
                 borderWidth: 0.6,
                 borderColor: currentTheme?.border,
-            }}>
+                opacity: props.disabled ? 0.5 : 1,
+            }]}>
             <Switch
                 {...props}
                 value={isEnabled}
@@ -36,6 +37,7 @@ const SkySoloSwitch = ({ ...props }: Props) => {
                 style={{
                     transform: [{ scaleX: 1 }, { scaleY: 1 }],
                     elevation: 5,
+                    opacity: props.disabled ? 0.5 : 1,
                 }} />
         </View>
     )
