@@ -13,7 +13,10 @@ const SkysoloText = ({ style, variant, ...otherProps }: Props) => {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
     if (!currentTheme) return null
     return (
-        <Text style={[{
+        <Text 
+        ellipsizeMode='tail'
+        numberOfLines={1}
+        style={[{
             color: currentTheme.foreground,
             fontSize: variant === "heading1" ? 32 : variant === "heading2" ? 24 : variant === "heading3" ? 18 : variant === "heading4" ? 16 : 14
         }, style]} {...otherProps} />

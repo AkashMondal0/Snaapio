@@ -11,6 +11,10 @@ import { ThemeNames } from '@/components/skysolo-ui/colors';
 const ThemeProvider = () => {
     const dispatch = useDispatch()
     const themeLoaded = useSelector((state: RootState) => state.ThemeState.themeLoaded, (prev, next) => prev === next)
+    const themeSchema = useSelector((state: RootState) => state.ThemeState.themeSchema, (prev, next) => prev === next)
+    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+
+
 
     const GetLocalStorageThemeValue = useCallback(async () => {
         const localValueSchema = await localStorage("get", "skysolo-theme") as Theme
@@ -68,6 +72,10 @@ const ThemeProvider = () => {
 
 
     return <View style={{ paddingTop: StatusBar.currentHeight }} >
+        <StatusBar barStyle={themeSchema === "dark" ? "light-content" : "dark-content"}
+            showHideTransition={"fade"}
+            backgroundColor={currentTheme?.background}
+        />
     </View>
 }
 

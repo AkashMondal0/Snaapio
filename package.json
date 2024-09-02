@@ -21,7 +21,6 @@
     "@react-navigation/native-stack": "^6.9.17",
     "@reduxjs/toolkit": "^2.0.1",
     "@shopify/flash-list": "1.6.4",
-    "axios": "^1.6.5",
     "babel-plugin-module-resolver": "^5.0.2",
     "expo": "^51.0.31",
     "expo-av": "~14.0.4",
