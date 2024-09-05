@@ -1,4 +1,4 @@
-import { RootState } from '@/app/redux/store';
+import { RootState } from '@/redux-stores/store';
 import { Loader2 } from 'lucide-react-native';
 import { useCallback } from 'react';
 import { Text, TouchableOpacity, type TouchableOpacityProps, TextProps } from 'react-native';

@@ -1,4 +1,4 @@
-import { RootState } from '@/app/redux/store';
+import { RootState } from '@/redux-stores/store';
 import { TouchableOpacity, type TouchableOpacityProps } from 'react-native';
 import { useSelector } from "react-redux"
 

@@ -2,17 +2,16 @@ export type Theme = "light" | "dark" | "system";
 import * as SplashScreen from 'expo-splash-screen';
 import { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/app/redux/store";
-import { changeColorSchema, setThemeLoaded } from "@/app/redux/slice/theme";
+import { RootState } from "@/redux-stores/store";
+import { changeColorSchema, setThemeLoaded } from "@/redux-stores/slice/theme";
 import { StatusBar, View, Appearance } from 'react-native';
-import { localStorage } from '@/app/lib/LocalStorage';
+import { localStorage } from '@/lib/LocalStorage';
 import { ThemeNames } from '@/components/skysolo-ui/colors';
 
 const ThemeProvider = () => {
     const dispatch = useDispatch()
     const themeLoaded = useSelector((state: RootState) => state.ThemeState.themeLoaded, (prev, next) => prev === next)
     const themeSchema = useSelector((state: RootState) => state.ThemeState.themeSchema, (prev, next) => prev === next)
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
 
 
 
@@ -33,8 +32,6 @@ const ThemeProvider = () => {
         if (localValueSchema === "system") {
             return
         }
-        // 
-        // console.log("Local Value Schema", localValueSchema, localValueTheme)
         dispatch(setThemeLoaded({
             userThemeName: localValueTheme ?? "Zinc",
             userColorScheme: localValueSchema ?? "light"
@@ -42,7 +39,6 @@ const ThemeProvider = () => {
     }, [themeLoaded])
 
     const onChangeTheme = useCallback(async (theme: Theme) => {
-        // console.log("Change Theme", theme)
         if (!theme) return console.error("Theme is not defined")
         if (theme === "system") {
             await localStorage("remove", "skysolo-theme")
@@ -57,13 +53,11 @@ const ThemeProvider = () => {
 
     useEffect(() => {
         if (themeLoaded) {
-            // console.log("Theme Loaded", themeLoaded)
             SplashScreen.hideAsync()
         }
     }, [themeLoaded])
 
     useEffect(() => {
-        // console.log("Theme Provider")
         GetLocalStorageThemeValue()
         Appearance.addChangeListener(({ colorScheme }) => {
             onChangeTheme(colorScheme as Theme)
@@ -72,10 +66,7 @@ const ThemeProvider = () => {
 
 
     return <View style={{ paddingTop: StatusBar.currentHeight }} >
-        <StatusBar barStyle={themeSchema === "dark" ? "light-content" : "dark-content"}
-            showHideTransition={"fade"}
-            backgroundColor={currentTheme?.background}
-        />
+        <StatusBar barStyle={themeSchema === "dark" ? "light-content" : "dark-content"} backgroundColor={"transparent"} />
     </View>
 }
 

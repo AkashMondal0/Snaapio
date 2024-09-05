@@ -1,20 +1,15 @@
 {
   "expo": {
-    "name": "Skylight",
-    "slug": "skylight",
-    "version": "2.0.0",
+    "name": "Sky Light",
+    "slug": "sky-light",
+    "version": "1.0.0",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "cover",
-      "backgroundColor": "#ffffff",
-      "dark": {
-        "image": "./assets/splash.png",
-        "resizeMode": "cover",
-        "backgroundColor": "#000000"
-      }
+      "backgroundColor": "#ffffff"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -37,7 +32,6 @@
           "backgroundColor": "#000000"
         }
       },
-      "usesCleartextTraffic": true,
       "package": "com.akashmondal0.skylight",
       "permissions": [
         "android.permission.RECORD_AUDIO",
@@ -53,7 +47,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "4a5248dd-ed06-4672-a5f0-852393917930"
+        "projectId": "c8c8fbc6-74dc-41aa-b540-7ec9ed7132da"
       }
     },
     "plugins": [

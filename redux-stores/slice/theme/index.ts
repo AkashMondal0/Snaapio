@@ -8,6 +8,7 @@ export type ThemeState = {
   themeName: ThemeNames | null,
   themeLoaded?: boolean,
   currentTheme: ColorsProp | null
+  tabIndex: number
   themeColors: {
     name: string,
     light: ColorsProp,
@@ -22,6 +23,7 @@ const initialState: ThemeState = {
   currentTheme: null,
   themeName: null,
   themeColors: [],
+  tabIndex: 1
 }
 
 export const ThemeSlice = createSlice({
@@ -52,15 +54,20 @@ export const ThemeSlice = createSlice({
       state.themeName = userThemeName
       state.themeLoaded = true
       state.currentTheme = Colors[index][userColorScheme]
+    },
+    tabChange: (state, { payload }: PayloadAction<number>) => {
+      state.tabIndex = payload
     }
   },
+
 })
 
 // Action creators are generated for each case reducer function
 export const {
   changeTheme,
   setThemeLoaded,
-  changeColorSchema
+  changeColorSchema,
+  tabChange
 } = ThemeSlice.actions
 
 export default ThemeSlice.reducer

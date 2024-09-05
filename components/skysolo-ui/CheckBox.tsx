@@ -1,4 +1,4 @@
-import { RootState } from '@/app/redux/store';
+import { RootState } from '@/redux-stores/store';
 import React from 'react'
 import BouncyCheckbox, { IBouncyCheckboxProps } from "react-native-bouncy-checkbox";
 import { useSelector } from 'react-redux';

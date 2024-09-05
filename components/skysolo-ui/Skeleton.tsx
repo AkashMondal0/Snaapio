@@ -1,4 +1,4 @@
-import { RootState } from '@/app/redux/store'
+import { RootState } from '@/redux-stores/store'
 import ContentLoader, { Rect } from 'react-content-loader/native'
 import { View, ViewProps } from 'react-native'
 import { useSelector } from 'react-redux'

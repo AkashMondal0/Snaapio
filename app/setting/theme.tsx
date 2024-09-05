@@ -2,9 +2,9 @@ import { View } from "@/components/skysolo-ui";
 import { memo, useCallback } from "react";
 import { Button, Text, TouchableOpacity } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import { changeTheme } from "@/app/redux/slice/theme";
-import { localStorage } from "@/app/lib/LocalStorage";
-import { RootState } from "@/app/redux/store";
+import { changeTheme } from "@/redux-stores/slice/theme";
+import { localStorage } from "@/lib/LocalStorage";
+import { RootState } from "@/redux-stores/store";
 
 
 const ThemeSettingScreen = memo(function HomeScreen({ navigation }: any) {

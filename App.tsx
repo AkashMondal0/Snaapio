@@ -1,31 +1,44 @@
 import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { Provider, useSelector } from 'react-redux';
-import { RootState, store } from '@/app/redux/store';
+import { Provider, useDispatch, useSelector } from 'react-redux';
+import { RootState, store } from '@/redux-stores/store';
 import * as SplashScreen from 'expo-splash-screen';
-import ThemeProvider from '@/app/provider/ThemeProvider'
-import { SettingScreen, ThemeSettingScreen } from '@/app/screens/setting';
-import { HomeScreen, CameraScreen, MessageScreen } from '@/app/screens/home';
+import ThemeProvider from '@/provider/ThemeProvider'
+import { SettingScreen, ThemeSettingScreen } from '@/app/setting';
+import { HomeScreen, CameraScreen, MessageScreen } from '@/app/home';
+import { useWindowDimensions } from 'react-native';
+import { TabView, SceneMap } from 'react-native-tab-view';
+import { tabChange } from '@/redux-stores/slice/theme';
 SplashScreen.preventAutoHideAsync();
 const Stack = createNativeStackNavigator();
-const Tab = createMaterialTopTabNavigator();
 
-const TopTabBar = () => {
+
+export function TopTabBar() {
+  const layout = useWindowDimensions();
+  const tabIndex = useSelector((state: RootState) => state.ThemeState.tabIndex)
+  const dispatch = useDispatch()
+
   return (
-    <Tab.Navigator
-      backBehavior='initialRoute'
-      style={{ flex: 1 }}
-      initialRouteName='Home'
-      overScrollMode={'never'}
-      screenOptions={{ tabBarStyle: { display: "none" } }}>
-      <Tab.Screen name="camera" component={CameraScreen} />
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="message" component={MessageScreen} />
-    </Tab.Navigator>
-  )
+    <TabView
+      navigationState={{
+        index: tabIndex, routes: [
+          { key: 'camera', title: 'camera' },
+          { key: 'home', title: 'home' },
+          { key: 'message', title: 'message' },
+        ]
+      }}
+      renderScene={SceneMap({
+        camera: CameraScreen,
+        home: HomeScreen,
+        message: MessageScreen,
+      })}
+      renderTabBar={() => null}
+      onIndexChange={(e) => { dispatch(tabChange(e)) }}
+      initialLayout={{ width: layout.width }}
+    />
+  );
 }
 
 function Routes() {
@@ -86,7 +99,7 @@ function Routes() {
 
 function Root() {
   const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
-  return (<GestureHandlerRootView style={{ flex: 1, backgroundColor: `hsl(${currentTheme?.background})` }}>
+  return (<GestureHandlerRootView style={{ flex: 1, backgroundColor: currentTheme?.background }}>
     <NavigationContainer>
       <ThemeProvider />
       <Routes />
