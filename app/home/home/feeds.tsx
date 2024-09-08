@@ -1,4 +1,4 @@
-import { View, Text, Button, Card, Switch, Image, CheckBox, Input, Skeleton, VirtualizedList, Modal } from "@/components/skysolo-ui";
+import { View, Text, Button, Card, Switch, Image, CheckBox, Input, Skeleton, VirtualizedList, Modal, Dropdown,Collapsible } from "@/components/skysolo-ui";
 import React from "react";
 import { memo } from "react";
 
@@ -10,7 +10,7 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: any) {
             width: '100%',
             height: '100%',
         }}>
-            <Modal trigger={<Button>Click</Button>} />
+            <Collapsible title={"akash"} description="akashakashakashakashakashakashakashakashakashakashakashakash"/>
         </View>
     )
 })

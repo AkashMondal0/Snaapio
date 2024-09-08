@@ -14,7 +14,6 @@ const SkysoloText = ({ style, variant, ...otherProps }: Props) => {
     if (!currentTheme) return null
     return (
         <Text
-            ellipsizeMode='tail'
             numberOfLines={1}
             style={[{
                 color: currentTheme,

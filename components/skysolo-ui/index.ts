@@ -9,7 +9,7 @@ import Switch from "./Switch";
 import Input from "./Input";
 import Image from "./Image";
 import VirtualizedList from "./VirtualizedList";
-import Accordion from "./Accordion"
+import Collapsible from "./Collapsible"
 import Modal from "./Modal";
 // import Radio from "./Radio";
 // import Toast from "./Toast";
@@ -20,10 +20,11 @@ import Modal from "./Modal";
 // import Audio from "./Audio";
 // import Icon from "./Icon";
 // import Progress from "./Progress";
-// import Slider from "./Slider";
+import Dropdown from "./DropDown";
 
 export {
     View,
+    Dropdown,
     Text,
     Button,
     Card,
@@ -34,6 +35,6 @@ export {
     Image,
     ScrollView,
     VirtualizedList,
-    Accordion,
+    Collapsible,
     Modal
 }
