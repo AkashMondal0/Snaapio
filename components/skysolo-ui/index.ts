@@ -8,8 +8,10 @@ import Skeleton from "./Skeleton";
 import Switch from "./Switch";
 import Input from "./Input";
 import Image from "./Image";
+import VirtualizedList from "./VirtualizedList";
+import Accordion from "./Accordion"
+import Modal from "./Modal";
 // import Radio from "./Radio";
-// import Modal from "./Modal";
 // import Toast from "./Toast";
 // import Loading from "./Loading";
 // import Picker from "./Picker";
@@ -30,5 +32,8 @@ export {
     Switch,
     Input,
     Image,
-    ScrollView
+    ScrollView,
+    VirtualizedList,
+    Accordion,
+    Modal
 }

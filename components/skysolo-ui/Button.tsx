@@ -17,7 +17,7 @@ export type Props = TouchableOpacityProps & {
 
 const SkysoloButton = ({
     onPress,
-    children = "Button",
+    children = "",
     style,
     textStyle,
     variant = "default",
@@ -111,7 +111,7 @@ const SkysoloButton = ({
             onPress={onPress}
             {...otherProps}>
             {icon}
-            <Text style={[{
+            {children ? <Text style={[{
                 color: getButtonVariant().color,
                 textAlign: 'center',
                 textAlignVertical: 'center',
@@ -120,7 +120,7 @@ const SkysoloButton = ({
             },
             textStyle as TextProps["style"]]}>
                 {children}
-            </Text>
+            </Text> : <></>}
         </TouchableOpacity>
     )
 }

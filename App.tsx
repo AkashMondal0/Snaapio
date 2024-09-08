@@ -8,7 +8,6 @@ import * as SplashScreen from 'expo-splash-screen';
 import ThemeProvider from '@/provider/ThemeProvider'
 import { SettingScreen, ThemeSettingScreen } from '@/app/setting';
 import { HomeScreen, CameraScreen, MessageScreen } from '@/app/home';
-import { useWindowDimensions } from 'react-native';
 import { TabView, SceneMap } from 'react-native-tab-view';
 import { tabChange } from '@/redux-stores/slice/theme';
 SplashScreen.preventAutoHideAsync();
@@ -16,8 +15,7 @@ const Stack = createNativeStackNavigator();
 
 
 export function TopTabBar() {
-  const layout = useWindowDimensions();
-  const tabIndex = useSelector((state: RootState) => state.ThemeState.tabIndex)
+  const tabIndex = useSelector((state: RootState) => state.ThemeState.tabIndex, (prev, next) => prev === next)
   const dispatch = useDispatch()
 
   return (
@@ -35,9 +33,7 @@ export function TopTabBar() {
         message: MessageScreen,
       })}
       renderTabBar={() => null}
-      onIndexChange={(e) => { dispatch(tabChange(e)) }}
-      initialLayout={{ width: layout.width }}
-    />
+      onIndexChange={(e) => { dispatch(tabChange(e)) }} />
   );
 }
 
@@ -98,8 +94,8 @@ function Routes() {
 }
 
 function Root() {
-  const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
-  return (<GestureHandlerRootView style={{ flex: 1, backgroundColor: currentTheme?.background }}>
+  const background = useSelector((state: RootState) => state.ThemeState.currentTheme?.background, (prev, next) => prev === next)
+  return (<GestureHandlerRootView style={{ flex: 1, backgroundColor: background }}>
     <NavigationContainer>
       <ThemeProvider />
       <Routes />

@@ -19,7 +19,6 @@
       "production": {
         "android": {
           "buildType": "apk",
-          "releaseChannel": "default",
           "gradleCommand": ":app:assembleRelease"
         }
       }

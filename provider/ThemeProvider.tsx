@@ -12,6 +12,7 @@ const ThemeProvider = () => {
     const dispatch = useDispatch()
     const themeLoaded = useSelector((state: RootState) => state.ThemeState.themeLoaded, (prev, next) => prev === next)
     const themeSchema = useSelector((state: RootState) => state.ThemeState.themeSchema, (prev, next) => prev === next)
+    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
 
 
 
@@ -64,9 +65,15 @@ const ThemeProvider = () => {
         })
     }, [])
 
+    if (!themeLoaded) {
+        return <View style={{ }} >
+            <StatusBar barStyle={themeSchema === "dark" ? "light-content" : "dark-content"} backgroundColor={"transparent"} />
+        </View>
+    }
 
-    return <View style={{ paddingTop: StatusBar.currentHeight }} >
-        <StatusBar barStyle={themeSchema === "dark" ? "light-content" : "dark-content"} backgroundColor={"transparent"} />
+    return <View style={{ }} >
+        <StatusBar barStyle={themeSchema === "dark" ? "light-content" : "dark-content"}
+            backgroundColor={currentTheme?.background} />
     </View>
 }
 
