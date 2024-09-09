@@ -9,7 +9,7 @@ export type Props = ViewProps & {
 };
 
 
-const SkysoloAlert = ({ style, ...otherProps }: Props) => {
+const SkysoloProgress = ({ style, ...otherProps }: Props) => {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme?.background, (prev, next) => prev === next)
     const showAlert = () =>
         Alert.alert(
@@ -17,16 +17,18 @@ const SkysoloAlert = ({ style, ...otherProps }: Props) => {
             'My Alert Msg',
             [
                 {
-                    text: 'yes',
-                    onPress: () => {},
-                    style: "default",
-                },
-                {
                     text: 'Cancel',
-                    onPress: () => {},
+                    onPress: () => Alert.alert('Cancel Pressed'),
                     style: 'cancel',
                 },
             ],
+            {
+                cancelable: true,
+                onDismiss: () =>
+                    Alert.alert(
+                        'This alert was dismissed by tapping outside of the alert dialog.',
+                    ),
+            },
         );
     if (!currentTheme) return <View />
     return (
@@ -34,4 +36,4 @@ const SkysoloAlert = ({ style, ...otherProps }: Props) => {
     )
 }
 
-export default SkysoloAlert
+export default SkysoloProgress
