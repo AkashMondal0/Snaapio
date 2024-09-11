@@ -1,9 +1,8 @@
 import React, { useCallback, useMemo, useRef } from 'react';
-import { View, Text, StyleSheet, Button } from 'react-native';
+import { Text, Button } from 'react-native';
 import {
     BottomSheetModal,
     BottomSheetView,
-    BottomSheetModalProvider,
 } from '@gorhom/bottom-sheet';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
@@ -28,33 +27,30 @@ const SkysoloActionSheet = () => {
 
     // renders
     return (
-        <BottomSheetModalProvider>
-            <View style={{
-                flex: 1,
-                padding: 24,
-                justifyContent: 'center',
-            }}>
-                <Button
-                    onPress={handlePresentModalPress}
-                    title="Present Modal"
-                    color="black"
-                />
-                <BottomSheetModal
-                    ref={bottomSheetModalRef}
-                    index={1}
-                    snapPoints={snapPoints}
-                    handleComponent={() => null}
-                    onChange={handleSheetChanges}>
-                    <BottomSheetView style={{
-                        backgroundColor: currentTheme?.secondary,
-                        flex: 1,
-                        borderRadius: 20,
-                    }}>
-                        <Text>Awesome 🎉</Text>
-                    </BottomSheetView>
-                </BottomSheetModal>
-            </View>
-        </BottomSheetModalProvider>
+        <>
+         <Button
+                onPress={handlePresentModalPress}
+                title="Present Modal"
+                color="black"
+            />
+            <BottomSheetModal
+                ref={bottomSheetModalRef}
+                index={1}
+                snapPoints={snapPoints}
+                handleIndicatorStyle={{
+                    backgroundColor: currentTheme?.secondary_foreground,
+                }}
+                backgroundStyle={{
+                    borderTopRightRadius: 30,
+                    borderTopLeftRadius: 30,
+                    backgroundColor: currentTheme?.secondary,
+                }}
+                onChange={handleSheetChanges}>
+                <BottomSheetView style={{ flex: 1 }}>
+                    <Text>Awesome 🎉</Text>
+                </BottomSheetView>
+            </BottomSheetModal>
+        </>
     );
 };
 

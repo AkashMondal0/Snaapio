@@ -10,6 +10,7 @@ import { SettingScreen, ThemeSettingScreen } from '@/app/setting';
 import { HomeScreen, CameraScreen, MessageScreen } from '@/app/home';
 import { TabView, SceneMap } from 'react-native-tab-view';
 import { tabChange } from '@/redux-stores/slice/theme';
+import BottomSheetProvider from '@/provider/BottomSheetProvider';
 SplashScreen.preventAutoHideAsync();
 const Stack = createNativeStackNavigator();
 
@@ -97,8 +98,10 @@ function Root() {
   const background = useSelector((state: RootState) => state.ThemeState.currentTheme?.background, (prev, next) => prev === next)
   return (<GestureHandlerRootView style={{ flex: 1, backgroundColor: background }}>
     <NavigationContainer>
-      <ThemeProvider />
-      <Routes />
+      <BottomSheetProvider>
+        <ThemeProvider />
+        <Routes />
+      </BottomSheetProvider>
     </NavigationContainer>
   </GestureHandlerRootView>)
 
