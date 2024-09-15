@@ -1,32 +1,33 @@
 import { RootState } from '@/redux-stores/store';
 import React from 'react';
-import { TextInputProps, TextInput } from 'react-native';
+import { TextInputProps, TextInput, View } from 'react-native';
 import { useSelector } from 'react-redux';
 
 export type Props = TextInputProps & {
-    variant?: "heading1" | "heading2" | "heading3" | "heading4";
     lightColor?: string;
     darkColor?: string;
     disabled?: boolean;
+    secondaryColor?: boolean;
 };
 
-const SkySoloInput = ({ disabled, ...props }: Props) => {
+const SkySoloInput = ({ disabled, secondaryColor, style, ...props }: Props) => {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
     const [isFocused, setIsFocused] = React.useState(false)
+    const inputRef = React.useRef<TextInput>(null)
 
     return (
         <TextInput
+            ref={inputRef}
             style={{
-                height: 40,
-                margin: 12,
-                borderWidth: 1,
                 padding: 10,
-                minWidth: "60%",
-                borderRadius: 10,
-                marginBottom: 16,
+                borderRadius: 14,
+                borderWidth: 1,
                 borderColor: disabled || !isFocused ? currentTheme?.border : currentTheme?.primary,
+                backgroundColor: secondaryColor ? currentTheme?.input : currentTheme?.foreground,
                 color: currentTheme?.foreground,
+                fontSize: 16,
                 opacity: disabled ? 0.5 : 1,
+                ...style as any
             }}
             selectionColor={currentTheme?.primary}
             placeholderTextColor={currentTheme?.muted_foreground}

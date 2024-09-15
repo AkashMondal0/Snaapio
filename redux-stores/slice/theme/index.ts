@@ -10,6 +10,8 @@ export type ThemeState = {
   currentTheme: ColorsProp | null
   tabIndex: number
   tabSwipeEnabled: boolean
+  appRadius: number,
+  appIconSize: number,
   themeColors: {
     name: string,
     light: ColorsProp,
@@ -22,6 +24,8 @@ const initialState: ThemeState = {
   themeSchema: null,
   themeLoaded: false,
   currentTheme: null,
+  appRadius: 20,
+  appIconSize: 32,
   themeName: null,
   themeColors: [],
   tabIndex: 1,

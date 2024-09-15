@@ -1,13 +1,14 @@
 import { FlashList } from '@shopify/flash-list';
 import chatList from "@/data/chatlist.json"
 import { memo, useContext, useMemo, useRef } from 'react';
-import { TouchableOpacity, View as RNView } from 'react-native';
+import { View as RNView } from 'react-native';
 import { Conversation } from '@/types';
-import { Avatar, Text, View } from '@/components/skysolo-ui';
+import { Avatar, Text, TouchableOpacity, View } from '@/components/skysolo-ui';
 import { useDispatch } from 'react-redux';
 import { tabSwipeEnabled } from '@/redux-stores/slice/theme';
 import debouncing from '@/lib/debouncing';
 import { NavigationContext } from '@react-navigation/native';
+const paddingVertical = 10
 
 const ChatListScreen = memo(function ChatListScreen() {
     const navigation = useContext(NavigationContext);
@@ -30,7 +31,6 @@ const ChatListScreen = memo(function ChatListScreen() {
     return <View style={{
         width: "100%",
         height: "100%",
-        paddingHorizontal: 5
     }}>
         <FlashList
             onScroll={(e) => {
@@ -50,31 +50,35 @@ export default ChatListScreen;
 
 const Item = memo(function ({ data, onClick }: { data: Conversation, onClick: (id: string) => void }) {
 
-    return <TouchableOpacity
-        activeOpacity={0.8}
-        onPress={() => { onClick(data?.id) }}
-        style={{
-            width: "100%",
-            paddingVertical: 10,
-            display: 'flex',
-            flexDirection: "row",
-            alignItems: "center",
-            gap: 10
-        }}>
-        <Avatar
-            size={55}
-            url={data.user?.profilePicture} />
-        <RNView>
-            <Text
-                style={{ fontWeight: "600" }}
-                variant="heading3">
-                {data?.user?.name}
-            </Text>
-            <Text
-                style={{ fontWeight: "200" }}
-                variant="heading4">
-                {data?.lastMessageContent ?? "new chat"}
-            </Text>
-        </RNView>
-    </TouchableOpacity>
+
+    return <View style={{
+        paddingHorizontal: 6,
+    }}>
+        <TouchableOpacity
+            onPress={() => { onClick(data?.id) }}
+            style={{
+                width: "100%",
+                padding: 10,
+                display: 'flex',
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 10,
+                borderRadius: 15
+            }}>
+            <Avatar size={55} url={data.user?.profilePicture} />
+            <RNView>
+                <Text
+                    style={{ fontWeight: "600" }}
+                    variant="heading3">
+                    {data?.user?.name}
+                </Text>
+                <Text
+                    secondaryColor
+                    style={{ fontWeight: "400" }}
+                    variant="heading4">
+                    {data?.lastMessageContent ?? "new chat"}
+                </Text>
+            </RNView>
+        </TouchableOpacity>
+    </View>
 }, ((prev, next) => prev.data.id === next.data.id))

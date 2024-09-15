@@ -16,10 +16,9 @@ import ToastAndroid from "./ToastAndroid";
 import Loader from "./Loader";
 import ActionSheet from "./ActionSheet";
 import Avatar from "./Avatar";
-// import DatePicker from "./DatePicker";
-// import Video from "./Video";
+import TouchableOpacity from "./TouchableOpacity";
+import Icon from "./Icon";
 // import Audio from "./Audio";
-// import Icon from "./Icon";
 // import Progress from "./Progress";
 // import Dropdown from "./DropDown";
 
@@ -41,5 +40,7 @@ export {
     ToastAndroid,
     Loader,
     ActionSheet,
-    Avatar
+    Avatar,
+    Icon,
+    TouchableOpacity
 }
