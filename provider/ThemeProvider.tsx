@@ -61,7 +61,7 @@ const ThemeProvider = () => {
     useEffect(() => {
         GetLocalStorageThemeValue()
         Appearance.addChangeListener(({ colorScheme }) => {
-            onChangeTheme(colorScheme as Theme)
+            dispatch(changeColorSchema(colorScheme as any))
         })
     }, [])
 

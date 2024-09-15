@@ -7,16 +7,19 @@ import { RootState, store } from '@/redux-stores/store';
 import * as SplashScreen from 'expo-splash-screen';
 import ThemeProvider from '@/provider/ThemeProvider'
 import { SettingScreen, ThemeSettingScreen } from '@/app/setting';
-import { HomeScreen, CameraScreen, MessageScreen } from '@/app/home';
+import { HomeScreen, CameraScreen } from '@/app/home';
 import { TabView, SceneMap } from 'react-native-tab-view';
 import { tabChange } from '@/redux-stores/slice/theme';
 import BottomSheetProvider from '@/provider/BottomSheetProvider';
+import { Dimensions } from 'react-native';
+import { ChatListScreen, ChatScreen } from '@/app/home/message';
 SplashScreen.preventAutoHideAsync();
 const Stack = createNativeStackNavigator();
 
 
 export function TopTabBar() {
   const tabIndex = useSelector((state: RootState) => state.ThemeState.tabIndex, (prev, next) => prev === next)
+  const tabSwipeEnabled = useSelector((state: RootState) => state.ThemeState.tabSwipeEnabled, (prev, next) => prev === next)
   const dispatch = useDispatch()
 
   return (
@@ -28,12 +31,17 @@ export function TopTabBar() {
           { key: 'message', title: 'message' },
         ]
       }}
+      swipeEnabled={tabSwipeEnabled}
       renderScene={SceneMap({
         camera: CameraScreen,
         home: HomeScreen,
-        message: MessageScreen,
+        message: ChatListScreen,
       })}
       renderTabBar={() => null}
+      initialLayout={{
+        width: Dimensions.get('window').width,
+        height: 100,
+      }}
       onIndexChange={(e) => { dispatch(tabChange(e)) }} />
   );
 }
@@ -90,6 +98,9 @@ function Routes() {
       {/* <Stack.Screen name="post" component={SettingScreen} options={{ headerShown: false }} />
       <Stack.Screen name="like" component={SettingScreen} options={{ headerShown: false }} /> */}
 
+
+      {/* chat */}
+      <Stack.Screen name="chat" component={ChatScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 }

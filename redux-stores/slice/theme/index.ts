@@ -9,6 +9,7 @@ export type ThemeState = {
   themeLoaded?: boolean,
   currentTheme: ColorsProp | null
   tabIndex: number
+  tabSwipeEnabled: boolean
   themeColors: {
     name: string,
     light: ColorsProp,
@@ -23,13 +24,17 @@ const initialState: ThemeState = {
   currentTheme: null,
   themeName: null,
   themeColors: [],
-  tabIndex: 1
+  tabIndex: 1,
+  tabSwipeEnabled: true
 }
 
 export const ThemeSlice = createSlice({
   name: 'Theme',
   initialState,
   reducers: {
+    tabSwipeEnabled: (state, { payload }: PayloadAction<boolean>) => {
+      state.tabSwipeEnabled = payload
+    },
     changeColorSchema: (state, { payload }: PayloadAction<ThemeSchema>) => {
       if (!state.themeName) return state
       state.currentTheme = Colors.find((color) => color.name === state.themeName)?.[payload] || null
@@ -67,7 +72,8 @@ export const {
   changeTheme,
   setThemeLoaded,
   changeColorSchema,
-  tabChange
+  tabChange,
+  tabSwipeEnabled
 } = ThemeSlice.actions
 
 export default ThemeSlice.reducer

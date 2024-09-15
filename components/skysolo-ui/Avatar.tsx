@@ -1,20 +1,28 @@
-import { RootState } from '@/redux-stores/store';
-import { View, type ViewProps } from 'react-native';
-import { useSelector } from "react-redux"
+import { memo } from 'react';
+import { type ImageProps, Image } from 'react-native';
 
-export type Props = ViewProps & {
-    variant?: any
+export type Props = ImageProps & {
     lightColor?: string;
     darkColor?: string;
+    url?: string | null;
+    size?: number | string;
 };
 
 
-const SkysoloAvatar = ({ style, ...otherProps }: Props) => {
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme?.background, (prev, next) => prev === next)
-    if (!currentTheme) return <View />
+const SkysoloAvatar = memo(function SkysoloAvatar({ style, size = 40, url, ...otherProps }: Props) {
+    size = Number(size)
     return (
-        <View style={[{ backgroundColor: currentTheme }, style]} {...otherProps} />
+        <Image
+            source={url ? { uri: url } : require('../../assets/images/user.jpg')}
+            style={{
+                width: size,
+                height: size,
+                borderRadius: size / 2,
+                justifyContent: 'center',
+                resizeMode: 'cover',
+                ...style as any,
+            }}{...otherProps} />
     )
-}
+})
 
 export default SkysoloAvatar

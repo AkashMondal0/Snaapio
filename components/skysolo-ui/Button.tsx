@@ -25,7 +25,7 @@ const SkysoloButton = ({
     disabled = false,
     ...otherProps }: Props) => {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
-    const ThemeColor = useSelector((state: RootState) => state.ThemeState.themeColors, (prev, next) => prev?.length === next?.length)
+    const ThemeColor = useSelector((state: RootState) => state.ThemeState.themeColors)
 
     if (!currentTheme) return null
 

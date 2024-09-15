@@ -10,7 +10,7 @@ export type Props = ActivityIndicatorProps & {
 
 
 const SkysoloLoader = (Props: Props) => {
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme?.primary, (prev, next) => prev === next)
+    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme?.primary)
 
     if (!currentTheme) return <></>
     return (

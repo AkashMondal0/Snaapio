@@ -37,3 +37,4 @@ yarn-error.*
 *.env
 /data
 /android
+/project

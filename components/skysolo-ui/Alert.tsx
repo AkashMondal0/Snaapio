@@ -1,6 +1,4 @@
-import { RootState } from '@/redux-stores/store';
-import { Alert, Button, View, type ViewProps } from 'react-native';
-import { useSelector } from "react-redux"
+import { Alert, Button, type ViewProps } from 'react-native';
 
 export type Props = ViewProps & {
     variant?: any
@@ -10,7 +8,6 @@ export type Props = ViewProps & {
 
 
 const SkysoloAlert = ({ style, ...otherProps }: Props) => {
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme?.background, (prev, next) => prev === next)
     const showAlert = () =>
         Alert.alert(
             'Alert Title',
@@ -18,17 +15,16 @@ const SkysoloAlert = ({ style, ...otherProps }: Props) => {
             [
                 {
                     text: 'yes',
-                    onPress: () => {},
+                    onPress: () => { },
                     style: "default",
                 },
                 {
                     text: 'Cancel',
-                    onPress: () => {},
+                    onPress: () => { },
                     style: 'cancel',
                 },
             ],
         );
-    if (!currentTheme) return <View />
     return (
         <Button title='click' onPress={showAlert} />
     )

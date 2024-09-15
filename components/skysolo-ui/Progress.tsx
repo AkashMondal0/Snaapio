@@ -10,7 +10,7 @@ export type Props = ViewProps & {
 
 
 const SkysoloProgress = ({ style, ...otherProps }: Props) => {
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme?.background, (prev, next) => prev === next)
+    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme?.background)
     const showAlert = () =>
         Alert.alert(
             'Alert Title',
