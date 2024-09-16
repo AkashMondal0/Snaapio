@@ -25,6 +25,7 @@ const ChatScreenNavbar = memo(function ChatScreenNavbar({
             alignItems: "center",
             justifyContent: "space-between",
             paddingVertical: 6,
+            paddingHorizontal: 3,
             borderBottomWidth: 1,
             borderColor: currentTheme?.border,
         }}>
@@ -34,7 +35,7 @@ const ChatScreenNavbar = memo(function ChatScreenNavbar({
                 alignItems: "center",
                 gap: 6,
             }}>
-                <Icon iconName={"ChevronLeft"} size={36} onPress={pressBack} />
+                <Icon iconName={"ArrowLeft"} size={30} onPress={pressBack} />
                 <View style={{
                     display: 'flex',
                     flexDirection: "row",
@@ -42,12 +43,12 @@ const ChatScreenNavbar = memo(function ChatScreenNavbar({
                     gap: 10,
                 }}>
                     <Avatar
-                        size={50}
+                        size={40}
                         url={conversation.user?.profilePicture} />
                     <View>
                         <Text
                             style={{ fontWeight: "600" }}
-                            variant="heading3">
+                            variant="heading4">
                             {conversation?.user?.name}
                         </Text>
                         <Text
@@ -60,7 +61,7 @@ const ChatScreenNavbar = memo(function ChatScreenNavbar({
                 </View>
             </View>
             <View style={{ paddingRight: 10 }}>
-                <Icon iconName={"Info"} isButton variant="secondary"/>
+                <Icon iconName={"Info"} isButton variant="secondary" size={26} style={{ elevation: 2 }} />
             </View>
         </View>
     )

@@ -13,6 +13,7 @@ export type Props = TouchableOpacityProps & {
     iconName: keyof typeof Icons;
     isButton?: boolean;
     disabled?: boolean;
+    color?: string;
     variant?: "default" | "secondary" | "danger" | "warning" | "success";
 };
 
@@ -24,6 +25,7 @@ const SkysoloIconButton = ({
     iconName,
     isButton = false,
     variant,
+    color,
     ...otherProps }: Props) => {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
     const ThemeColor = useSelector((state: RootState) => state.ThemeState.themeColors)
@@ -85,7 +87,7 @@ const SkysoloIconButton = ({
                     borderColor: getButtonVariant().borderColor,
                 }, style]}
                 {...otherProps}>
-                <IconComponent size={size} color={getButtonVariant().color} key={iconName} />
+                <IconComponent size={size} color={color ?? getButtonVariant().color} key={iconName} />
             </TouchableOpacity>
         </View>
     }

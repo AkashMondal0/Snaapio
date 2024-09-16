@@ -4,7 +4,7 @@ import { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { changeColorSchema, setThemeLoaded } from "@/redux-stores/slice/theme";
-import { StatusBar, View, Appearance } from 'react-native';
+import { StatusBar, Appearance } from 'react-native';
 import { localStorage } from '@/lib/LocalStorage';
 import { ThemeNames } from '@/components/skysolo-ui/colors';
 
@@ -12,7 +12,6 @@ const ThemeProvider = () => {
     const dispatch = useDispatch()
     const themeLoaded = useSelector((state: RootState) => state.ThemeState.themeLoaded, (prev, next) => prev === next)
     const themeSchema = useSelector((state: RootState) => state.ThemeState.themeSchema, (prev, next) => prev === next)
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
 
 
 
@@ -61,20 +60,13 @@ const ThemeProvider = () => {
     useEffect(() => {
         GetLocalStorageThemeValue()
         Appearance.addChangeListener(({ colorScheme }) => {
-            dispatch(changeColorSchema(colorScheme as any))
+            onChangeTheme(colorScheme as any)
         })
     }, [])
 
-    if (!themeLoaded) {
-        return <View style={{ }} >
-            <StatusBar barStyle={themeSchema === "dark" ? "light-content" : "dark-content"} backgroundColor={"transparent"} />
-        </View>
-    }
 
-    return <View style={{ }} >
-        <StatusBar barStyle={themeSchema === "dark" ? "light-content" : "dark-content"}
-            backgroundColor={currentTheme?.background} />
-    </View>
+    return <StatusBar barStyle={themeSchema === "dark" ? "light-content" : "dark-content"} backgroundColor="transparent"
+        translucent={true} />
 }
 
 

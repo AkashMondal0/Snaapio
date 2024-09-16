@@ -2,47 +2,36 @@ import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { Provider, useDispatch, useSelector } from 'react-redux';
+import { Provider, useSelector } from 'react-redux';
 import { RootState, store } from '@/redux-stores/store';
 import * as SplashScreen from 'expo-splash-screen';
 import ThemeProvider from '@/provider/ThemeProvider'
 import { SettingScreen, ThemeSettingScreen } from '@/app/setting';
 import { HomeScreen, CameraScreen } from '@/app/home';
-import { TabView, SceneMap } from 'react-native-tab-view';
-import { tabChange } from '@/redux-stores/slice/theme';
 import BottomSheetProvider from '@/provider/BottomSheetProvider';
-import { Dimensions } from 'react-native';
 import { ChatListScreen, ChatScreen } from '@/app/home/message';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { Dimensions } from 'react-native';
+const Tab = createMaterialTopTabNavigator();
 SplashScreen.preventAutoHideAsync();
 const Stack = createNativeStackNavigator();
 
 
 export function TopTabBar() {
-  const tabIndex = useSelector((state: RootState) => state.ThemeState.tabIndex, (prev, next) => prev === next)
-  const tabSwipeEnabled = useSelector((state: RootState) => state.ThemeState.tabSwipeEnabled, (prev, next) => prev === next)
-  const dispatch = useDispatch()
 
   return (
-    <TabView
-      navigationState={{
-        index: tabIndex, routes: [
-          { key: 'camera', title: 'camera' },
-          { key: 'home', title: 'home' },
-          { key: 'message', title: 'message' },
-        ]
-      }}
-      swipeEnabled={tabSwipeEnabled}
-      renderScene={SceneMap({
-        camera: CameraScreen,
-        home: HomeScreen,
-        message: ChatListScreen,
-      })}
-      renderTabBar={() => null}
+    <Tab.Navigator
+      tabBar={() => null}
+      backBehavior="initialRoute"
       initialLayout={{
         width: Dimensions.get('window').width,
         height: 100,
       }}
-      onIndexChange={(e) => { dispatch(tabChange(e)) }} />
+      initialRouteName='home'>
+      <Tab.Screen name="camera" component={CameraScreen} />
+      <Tab.Screen name="home" component={HomeScreen} />
+      <Tab.Screen name="message" component={ChatListScreen} />
+    </Tab.Navigator>
   );
 }
 
@@ -106,15 +95,17 @@ function Routes() {
 }
 
 function Root() {
-  const background = useSelector((state: RootState) => state.ThemeState.currentTheme?.background, (prev, next) => prev === next)
-  return (<GestureHandlerRootView style={{ flex: 1, backgroundColor: background }}>
-    <NavigationContainer>
-      <BottomSheetProvider>
-        <ThemeProvider />
-        <Routes />
-      </BottomSheetProvider>
-    </NavigationContainer>
-  </GestureHandlerRootView>)
+  const background = useSelector((state: RootState) => state.ThemeState.currentTheme?.background)
+  return (<>
+    <ThemeProvider />
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: background }}>
+      <NavigationContainer>
+        <BottomSheetProvider>
+          <Routes />
+        </BottomSheetProvider>
+      </NavigationContainer>
+    </GestureHandlerRootView>
+  </>)
 
 }
 

@@ -17,8 +17,7 @@ const ChatScreenInput = memo(function ChatScreenInput({
             flexDirection: "row",
             alignItems: "center",
             justifyContent: "space-between",
-            paddingBottom: 8,
-            paddingHorizontal: 6,
+            padding: "1.6%",
         }}>
             <Input placeholder="Type a message"
                 secondaryColor
@@ -30,10 +29,12 @@ const ChatScreenInput = memo(function ChatScreenInput({
                     borderWidth: 0,
                     maxHeight: 100,
                 }} />
-            <Icon iconName={"Send"} isButton size={26} style={{
-                padding: "4%",
-                height: 50,
-            }} />
+            <Icon iconName={"Send"}
+                isButton size={26}
+                style={{
+                    padding: "4%",
+                    height: 45,
+                }} />
         </View>
     )
 })

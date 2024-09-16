@@ -23,14 +23,15 @@ const SkySoloInput = ({ disabled, secondaryColor, style, ...props }: Props) => {
                 borderRadius: 14,
                 borderWidth: 1,
                 borderColor: disabled || !isFocused ? currentTheme?.border : currentTheme?.primary,
-                backgroundColor: secondaryColor ? currentTheme?.input : currentTheme?.foreground,
-                color: currentTheme?.foreground,
+                backgroundColor: secondaryColor ? currentTheme?.accent : currentTheme?.background,
+                color: currentTheme?.accent_foreground,
                 fontSize: 16,
                 opacity: disabled ? 0.5 : 1,
                 ...style as any
             }}
-            selectionColor={currentTheme?.primary}
-            placeholderTextColor={currentTheme?.muted_foreground}
+            selectionHandleColor={currentTheme?.primary}
+            // selectionColor={currentTheme?.foreground}
+            placeholderTextColor={currentTheme?.foreground}
             onFocus={() => { setIsFocused(true) }}
             onBlur={() => { setIsFocused(false) }}
             placeholder='Enter text here'

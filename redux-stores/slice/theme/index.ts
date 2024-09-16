@@ -8,8 +8,6 @@ export type ThemeState = {
   themeName: ThemeNames | null,
   themeLoaded?: boolean,
   currentTheme: ColorsProp | null
-  tabIndex: number
-  tabSwipeEnabled: boolean
   appRadius: number,
   appIconSize: number,
   themeColors: {
@@ -28,17 +26,12 @@ const initialState: ThemeState = {
   appIconSize: 32,
   themeName: null,
   themeColors: [],
-  tabIndex: 1,
-  tabSwipeEnabled: true
 }
 
 export const ThemeSlice = createSlice({
   name: 'Theme',
   initialState,
   reducers: {
-    tabSwipeEnabled: (state, { payload }: PayloadAction<boolean>) => {
-      state.tabSwipeEnabled = payload
-    },
     changeColorSchema: (state, { payload }: PayloadAction<ThemeSchema>) => {
       if (!state.themeName) return state
       state.currentTheme = Colors.find((color) => color.name === state.themeName)?.[payload] || null
@@ -64,20 +57,15 @@ export const ThemeSlice = createSlice({
       state.themeLoaded = true
       state.currentTheme = Colors[index][userColorScheme]
     },
-    tabChange: (state, { payload }: PayloadAction<number>) => {
-      state.tabIndex = payload
-    }
+  
   },
 
 })
 
-// Action creators are generated for each case reducer function
 export const {
   changeTheme,
   setThemeLoaded,
   changeColorSchema,
-  tabChange,
-  tabSwipeEnabled
 } = ThemeSlice.actions
 
 export default ThemeSlice.reducer
