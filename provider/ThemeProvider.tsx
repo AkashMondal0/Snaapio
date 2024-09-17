@@ -7,6 +7,7 @@ import { changeColorSchema, setThemeLoaded } from "@/redux-stores/slice/theme";
 import { StatusBar, Appearance } from 'react-native';
 import { localStorage } from '@/lib/LocalStorage';
 import { ThemeNames } from '@/components/skysolo-ui/colors';
+import { View } from '@/components/skysolo-ui';
 
 const ThemeProvider = () => {
     const dispatch = useDispatch()
@@ -64,9 +65,17 @@ const ThemeProvider = () => {
         })
     }, [])
 
+    if (!themeLoaded) return <></>
 
-    return <StatusBar barStyle={themeSchema === "dark" ? "light-content" : "dark-content"} backgroundColor="transparent"
-        translucent={true} />
+
+    return <>
+        <StatusBar barStyle={themeSchema === "dark" ? "light-content" : "dark-content"} backgroundColor="transparent"
+            translucent={true} />
+        <View style={{
+            height: StatusBar.currentHeight,
+            width: "100%"
+        }} />
+    </>
 }
 
 

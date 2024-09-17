@@ -30,7 +30,7 @@ const FeedList = memo(function FeedList() {
             renderItem={({ item }) => <Item data={item} />}
             keyExtractor={(item, index) => index.toString()}
             scrollEventThrottle={400}
-            estimatedItemSize={5}
+            estimatedItemSize={50}
             data={list} />
     </View>
 })
@@ -84,7 +84,7 @@ const ListHeaderComponent = () => {
             paddingVertical: 14
         }}>SkyLight</Text>
     </View>
-}    
+}
 
 const feedList = [
     {

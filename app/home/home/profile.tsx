@@ -1,4 +1,4 @@
-import { View, Text, Button } from "@/components/skysolo-ui";
+import { View, Text, Button, ActionSheet } from "@/components/skysolo-ui";
 import { memo } from "react";
 
 
@@ -14,6 +14,7 @@ const ProfileScreen = memo(function ProfileScreen({ navigation }: any) {
             <Button onPress={() => { navigation?.navigate("setting") }}>
                 setting
             </Button>
+            <ActionSheet/>
             <Text variant="heading2">Profile Screen</Text>
         </View>
     )

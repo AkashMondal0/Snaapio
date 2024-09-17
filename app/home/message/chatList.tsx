@@ -1,17 +1,28 @@
 import { FlashList } from '@shopify/flash-list';
-// import chatList from "@/data/chatlist.json"
-import { memo, useContext, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo, useRef, memo, useContext } from 'react';
 import { View as RNView } from 'react-native';
 import { Conversation } from '@/types';
 import { Avatar, Icon, Input, Text, TouchableOpacity, View } from '@/components/skysolo-ui';
-// import { useDispatch } from 'react-redux';
-// import debouncing from '@/lib/debouncing';
 import { NavigationContext } from '@react-navigation/native';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import ChatDetailsSheet from '@/components/message/chat-detail';
 
 const ChatListScreen = memo(function ChatListScreen() {
     const navigation = useContext(NavigationContext);
-    // const dispatch = useDispatch()
-    // const stopRef = useRef(false)
+    // ref
+    const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+
+    // variables
+    const snapPoints = useMemo(() => ['60%', "90%"], []);
+
+    // callbacks
+    const handlePresentModalPress = (data: any) => {
+        bottomSheetModalRef.current?.present();
+    }
+
+    const handleSheetChanges = useCallback((index: number) => {
+        // console.log('handleSheetChanges', index);
+    }, []);
 
     const pushToPage = (id: string) => {
         navigation?.navigate("chat", { id })
@@ -21,13 +32,6 @@ const ChatListScreen = memo(function ChatListScreen() {
         navigation?.goBack()
     }
 
-    // const delayFunc = () => {
-    //     stopRef.current = false
-    //     // dispatch(tabSwipeEnabled(true))
-    // }
-
-    // const debouncingFunc = useMemo(() => debouncing(delayFunc, 500), [])
-
     const list: Conversation[] = [...chatList, ...chatList, ...chatList, ...chatList, ...chatList, ...chatList, ...chatList, ...chatList, ...chatList, ...chatList, ...chatList, ...chatList, ...chatList, ...chatList,] as any
 
     return <View style={{
@@ -35,28 +39,34 @@ const ChatListScreen = memo(function ChatListScreen() {
         height: "100%",
     }}>
         <FlashList
-            // onScroll={(e) => {
-            //     debouncingFunc()
-            //     if (stopRef.current) return
-            //     stopRef.current = true
-            //     dispatch(tabSwipeEnabled(false))
-            // }}
-            renderItem={({ item }) => <Item data={item} onClick={pushToPage} />}
+            renderItem={({ item }) => <Item data={item} onClick={pushToPage} onLongPress={handlePresentModalPress} />}
             keyExtractor={(item, index) => index.toString()}
             scrollEventThrottle={400}
             estimatedItemSize={5}
             ListHeaderComponent={<ListHeaderComponent pressBack={pressBack} />}
             data={list} />
+        <ChatDetailsSheet
+            bottomSheetModalRef={bottomSheetModalRef}
+            snapPoints={snapPoints}
+            handleSheetChanges={handleSheetChanges}>
+            <ChatDetailsSheetChildren />
+        </ChatDetailsSheet>
     </View>
 })
 export default ChatListScreen;
 
-const Item = memo(function ({ data, onClick }: { data: Conversation, onClick: (id: string) => void }) {
+const Item = memo(function ({
+    data,
+    onClick,
+    onLongPress
+}: {
+    data: Conversation,
+    onClick: (id: string) => void,
+    onLongPress: (data: any) => void
+}) {
 
 
-    return <View style={{
-        paddingHorizontal: 6,
-    }}>
+    return (<View style={{ paddingHorizontal: 6 }}>
         <TouchableOpacity
             onPress={() => { onClick(data?.id) }}
             style={{
@@ -68,7 +78,7 @@ const Item = memo(function ({ data, onClick }: { data: Conversation, onClick: (i
                 gap: 10,
                 borderRadius: 15
             }}>
-            <Avatar size={55} url={data.user?.profilePicture} />
+            <Avatar size={55} url={data.user?.profilePicture} onLongPress={() => { onLongPress(data) }} />
             <RNView>
                 <Text
                     style={{ fontWeight: "600" }}
@@ -83,7 +93,7 @@ const Item = memo(function ({ data, onClick }: { data: Conversation, onClick: (i
                 </Text>
             </RNView>
         </TouchableOpacity>
-    </View>
+    </View>)
 }, ((prev, next) => prev.data.id === next.data.id))
 
 const ListHeaderComponent = memo(function ({
@@ -107,16 +117,14 @@ const ListHeaderComponent = memo(function ({
                     display: "flex",
                     flexDirection: "row",
                     alignItems: "center",
-                    gap: 5,
+                    gap: 6,
                 }}>
                     <Icon iconName={"ArrowLeft"} size={30} onPress={pressBack} />
                     <Text
                         style={{
-                            fontSize: 20,
-                            fontWeight: "700",
-                            lineHeight: 20,
-                        }}
-                        variant="heading1">
+                            fontSize: 22,
+                            fontWeight: "400",
+                        }}>
                         @akashmondal
                     </Text>
                 </View>
@@ -125,20 +133,26 @@ const ListHeaderComponent = memo(function ({
                 </View>
             </View>
             <Input secondaryColor style={{ borderWidth: 0 }} placeholder='Search' />
+            <Text
+                style={{
+                    fontSize: 20,
+                    fontWeight: "500",
+                    lineHeight: 20,
+                    paddingTop: 16,
+                    paddingHorizontal: 10,
+                }}
+                variant="heading4">
+                Messages
+            </Text>
         </View>
-        <Text
-            style={{
-                fontSize: 20,
-                fontWeight: "500",
-                lineHeight: 20,
-                paddingHorizontal: 18,
-                paddingVertical: 6,
-            }}
-            variant="heading4">
-            Messages
-        </Text>
     </>
 })
+
+const ChatDetailsSheetChildren = () => {
+    return <RNView style={{ flex: 1 }}>
+        <Text>Awesome 🎉</Text>
+    </RNView>
+}
 
 const chatList = [
     {
