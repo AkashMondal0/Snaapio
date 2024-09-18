@@ -16,25 +16,16 @@ const MessageList = memo(function MessageList({
 }) {
     const [loading, setLoading] = useState(true)
 
-    return <>
-        {loading ? <View style={{
-            width: "100%",
-            height: "100%",
-            justifyContent: "center",
-            alignItems: "center"
-        }}>
-            <Loader size={40} />
-        </View> : <></>}
-        <FlashList
-            onLoad={() => setLoading(false)}
-            renderItem={({ item }) => <Item data={item} key={item.id}
-                myself={"2d1a43de-d6e9-4136-beb4-974a9fcc3c8b" === item.authorId} />}
-            keyExtractor={(item, index) => index.toString()}
-            scrollEventThrottle={400}
-            estimatedItemSize={6}
-            decelerationRate={0.9}
-            data={messages} />
-    </>
+    return (<FlashList
+        onLoad={() => setLoading(false)}
+        renderItem={({ item }) => <Item data={item} key={item.id}
+            myself={"2d1a43de-d6e9-4136-beb4-974a9fcc3c8b" === item.authorId} />}
+        keyExtractor={(item, index) => index.toString()}
+        scrollEventThrottle={400}
+        estimatedItemSize={6}
+        decelerationRate={0.9}
+        ListEmptyComponent={loading ? <Loader /> : <Text>No messages</Text>}
+        data={messages} />)
 })
 
 export default MessageList
@@ -52,7 +43,8 @@ const Item = memo(function Item({ data, myself }: { data: Message, myself: boole
     }}>
         <View style={{
             backgroundColor: bg,
-            padding: 6,
+            paddingHorizontal: 8,
+            paddingVertical: 4,
             borderRadius: 16,
             width: 'auto',
             maxWidth: '96%',
@@ -74,7 +66,7 @@ const Item = memo(function Item({ data, myself }: { data: Message, myself: boole
                 <Text
                     style={{
                         color: color,
-                        fontSize: 16,
+                        fontSize: 14,
                         lineHeight: 24,
                         fontWeight: '400',
                     }}>

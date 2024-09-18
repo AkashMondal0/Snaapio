@@ -1,11 +1,11 @@
 import { FlashList } from '@shopify/flash-list';
 import React, { useCallback, useMemo, useRef, memo, useContext } from 'react';
-import { View as RNView } from 'react-native';
+import { View as RNView, Vibration } from 'react-native';
 import { Conversation } from '@/types';
 import { Avatar, Icon, Input, Text, TouchableOpacity, View } from '@/components/skysolo-ui';
 import { NavigationContext } from '@react-navigation/native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import ChatDetailsSheet from '@/components/message/chat-detail';
+import SkysoloActionSheet from '@/components/skysolo-ui/ActionSheet';
 
 const ChatListScreen = memo(function ChatListScreen() {
     const navigation = useContext(NavigationContext);
@@ -13,11 +13,12 @@ const ChatListScreen = memo(function ChatListScreen() {
     const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
     // variables
-    const snapPoints = useMemo(() => ['60%', "90%"], []);
+    const snapPoints = useMemo(() => ['50%', "70%"], []);
 
     // callbacks
     const handlePresentModalPress = useCallback((data: any) => {
         bottomSheetModalRef.current?.present();
+        Vibration.vibrate(1 * 50, false);
     }, [])
 
     const handleSheetChanges = useCallback((index: number) => {
@@ -45,12 +46,12 @@ const ChatListScreen = memo(function ChatListScreen() {
             estimatedItemSize={5}
             ListHeaderComponent={<ListHeaderComponent pressBack={pressBack} />}
             data={list} />
-        <ChatDetailsSheet
+        <SkysoloActionSheet
             bottomSheetModalRef={bottomSheetModalRef}
             snapPoints={snapPoints}
             handleSheetChanges={handleSheetChanges}>
             <ChatDetailsSheetChildren />
-        </ChatDetailsSheet>
+        </SkysoloActionSheet>
     </View>
 })
 export default ChatListScreen;

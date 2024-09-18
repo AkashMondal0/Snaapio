@@ -6,6 +6,7 @@ export interface Route {
     },
     path: undefined
 }
+export type Theme = "light" | "dark" | "system";
 
 export interface NavigationProps {
     addListener: (type: string, callback: () => void) => void,

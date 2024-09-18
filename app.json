@@ -60,6 +60,21 @@
         }
       ],
       [
+        "expo-font",
+        {
+          "fonts": [
+            "/assets/fonts/Lato.ttf",
+            "/assets/fonts/Montserrat.ttf",
+            "/assets/fonts/Nunito.ttf",
+            "/assets/fonts/Open Sans.ttf",
+            "/assets/fonts/Playpen Sans.ttf",
+            "/assets/fonts/Poppins.ttf",
+            "/assets/fonts/Satisfy.ttf",
+            "/assets/fonts/Roboto.ttf"
+          ]
+        }
+      ],
+      [
         "expo-image-picker",
         {
           "photosPermission": "The app accesses your photos to let you share them with your friends."

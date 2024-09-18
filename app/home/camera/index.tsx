@@ -14,7 +14,9 @@ const CameraScreen = memo(function CameraScreen({ navigation }: any) {
             <Button onPress={() => { navigation?.navigate("message") }}>
                 Go to Home
             </Button>
-            <Text variant="heading2">Camera Screen</Text>
+            <Text
+                style={{ fontSize: 20 }}
+                variant="heading2">Camera Screen</Text>
         </View>
     )
 })

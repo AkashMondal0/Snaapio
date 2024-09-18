@@ -8,20 +8,16 @@ import ProfileScreen from "./profile";
 import ReelsScreen from "./reels";
 import SearchScreen from "./search";
 import CameraScreen from '../camera';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
 import { TouchableOpacity } from 'react-native';
-import { tabChange } from '@/redux-stores/slice/theme';
 const Tab = createBottomTabNavigator();
 
 const BottomTab = () => {
 
     return (
         <View style={{ flex: 1 }}>
-            <Tab.Navigator
-                screenOptions={{
-                    tabBarHideOnKeyboard: true,
-                }}
+            <Tab.Navigator screenOptions={{ tabBarHideOnKeyboard: true }}
                 tabBar={(props: React.JSX.IntrinsicAttributes & BottomTabBarProps) => <MyTabBar {...props} />}>
                 <Tab.Screen name="feeds" component={FeedsScreen} options={{ headerShown: false }} />
                 <Tab.Screen name="search" component={SearchScreen} options={{ headerShown: false }} />
@@ -38,7 +34,6 @@ export default BottomTab
 
 function MyTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
-    const dispatch = useDispatch()
 
     const getIcon = (routeName: string, isFocused: boolean) => {
         let iconSize = 28;
@@ -103,8 +98,8 @@ function MyTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
                             accessibilityState={isFocused ? { selected: true } : {}}
                             accessibilityLabel={options.tabBarAccessibilityLabel}
                             testID={options.tabBarTestID}
-                            onPress={() => { dispatch(tabChange(0)) }}
-                            onLongPress={() => { navigation.navigate("Root", { screen: 'camera' }) }}
+                            onPress={() => { navigation.navigate("Root", { screen: 'camera' }) }}
+                            // onLongPress={() => { navigation.navigate("Root", { screen: 'camera' }) }}
                             style={{ flex: 1, alignItems: 'center' }}
                         >
                             {getIcon(route.name, isFocused)}
