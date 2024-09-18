@@ -1,11 +1,11 @@
 import { FlashList } from '@shopify/flash-list';
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { Message } from '@/types';
 import { Text, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
 import { timeFormat } from '@/lib/timeFormat';
-import { Icon } from '@/components/skysolo-ui';
+import { Icon, Loader } from '@/components/skysolo-ui';
 
 const MessageList = memo(function MessageList({
     conversation,
@@ -14,8 +14,19 @@ const MessageList = memo(function MessageList({
     conversation: any,
     messages: Message[]
 }) {
+    const [loading, setLoading] = useState(true)
+
     return <>
+        {loading ? <View style={{
+            width: "100%",
+            height: "100%",
+            justifyContent: "center",
+            alignItems: "center"
+        }}>
+            <Loader size={40} />
+        </View> : <></>}
         <FlashList
+            onLoad={() => setLoading(false)}
             renderItem={({ item }) => <Item data={item} key={item.id}
                 myself={"2d1a43de-d6e9-4136-beb4-974a9fcc3c8b" === item.authorId} />}
             keyExtractor={(item, index) => index.toString()}
@@ -29,7 +40,7 @@ const MessageList = memo(function MessageList({
 export default MessageList
 
 
-const Item = memo(function ({ data, myself }: { data: Message, myself: boolean }) {
+const Item = memo(function Item({ data, myself }: { data: Message, myself: boolean }) {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
     const color = myself ? currentTheme?.primary_foreground : currentTheme?.foreground
     const bg = myself ? currentTheme?.primary : currentTheme?.muted

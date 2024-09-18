@@ -39,25 +39,25 @@ const ThemeSettingScreen = memo(function HomeScreen({ navigation }: any) {
                 marginTop: 20
             }}>
                 {ThemeColors.map((item, index) => {
-                        return <TouchableOpacity onPress={() => handleChange(item.name)} key={index}>
-                            <View
-                                style={{
-                                    width: 50,
-                                    height: 50,
-                                    backgroundColor: `hsl(${item.light.primary})`,
-                                    borderColor: 'white',
-                                    borderWidth: 0.6,
-                                    margin: 5,
-                                    borderRadius: 15,
-                                }}>
-                                <Text style={{
-                                    textAlign: 'center',
-                                    color: 'white',
-                                    fontSize: 12
-                                }}>{item.name}</Text>
-                            </View>
-                        </TouchableOpacity>
-                    })}
+                    return <TouchableOpacity onPress={() => handleChange(item.name)} key={index}>
+                        <View
+                            style={{
+                                width: 50,
+                                height: 50,
+                                backgroundColor: `hsl(${item.light.primary})`,
+                                borderColor: 'white',
+                                borderWidth: 0.6,
+                                margin: 5,
+                                borderRadius: 15,
+                            }}>
+                            <Text style={{
+                                textAlign: 'center',
+                                color: 'white',
+                                fontSize: 12
+                            }}>{item.name}</Text>
+                        </View>
+                    </TouchableOpacity>
+                })}
             </View>
         </View>
     )

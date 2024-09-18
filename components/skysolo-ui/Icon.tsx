@@ -2,8 +2,8 @@ import { RootState } from '@/redux-stores/store';
 import { TouchableOpacity, View, type TouchableOpacityProps } from 'react-native';
 import { useSelector } from "react-redux"
 import * as Icons from "lucide-react-native";
-import { useCallback } from 'react';
 
+type IconName = keyof typeof Icons;
 
 
 export type Props = TouchableOpacityProps & {
@@ -29,11 +29,11 @@ const SkysoloIconButton = ({
     ...otherProps }: Props) => {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
     const ThemeColor = useSelector((state: RootState) => state.ThemeState.themeColors)
-    const IconComponent = Icons[iconName] as any
+    const IconComponent = (Icons[iconName as IconName] || <></>) as React.ComponentType<any>;
 
     if (!currentTheme) return null
 
-    const getButtonVariant = useCallback(() => {
+    const getButtonVariant = () => {
         let color;
         switch (variant) {
             case "secondary":
@@ -69,7 +69,7 @@ const SkysoloIconButton = ({
                     borderColor: currentTheme.border,
                 }
         }
-    }, [variant, currentTheme])
+    }
 
     if (isButton) {
         return <View>

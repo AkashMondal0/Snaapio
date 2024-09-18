@@ -16,9 +16,9 @@ const ChatListScreen = memo(function ChatListScreen() {
     const snapPoints = useMemo(() => ['60%', "90%"], []);
 
     // callbacks
-    const handlePresentModalPress = (data: any) => {
+    const handlePresentModalPress = useCallback((data: any) => {
         bottomSheetModalRef.current?.present();
-    }
+    }, [])
 
     const handleSheetChanges = useCallback((index: number) => {
         // console.log('handleSheetChanges', index);
@@ -55,7 +55,7 @@ const ChatListScreen = memo(function ChatListScreen() {
 })
 export default ChatListScreen;
 
-const Item = memo(function ({
+const Item = memo(function Item({
     data,
     onClick,
     onLongPress
@@ -96,7 +96,7 @@ const Item = memo(function ({
     </View>)
 }, ((prev, next) => prev.data.id === next.data.id))
 
-const ListHeaderComponent = memo(function ({
+const ListHeaderComponent = memo(function ListHeaderComponent({
     pressBack
 }: {
     pressBack: () => void

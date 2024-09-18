@@ -1,6 +1,6 @@
 import { RootState } from '@/redux-stores/store';
 import React from 'react';
-import { TextInputProps, TextInput, View } from 'react-native';
+import { TextInputProps, TextInput } from 'react-native';
 import { useSelector } from 'react-redux';
 
 export type Props = TextInputProps & {

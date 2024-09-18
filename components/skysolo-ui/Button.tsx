@@ -27,9 +27,8 @@ const SkysoloButton = ({
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
     const ThemeColor = useSelector((state: RootState) => state.ThemeState.themeColors)
 
-    if (!currentTheme) return null
-
-    const getButtonVariant = useCallback(() => {
+    const getButtonVariant = () => {
+        if (!currentTheme) return {}
         let color;
         switch (variant) {
             case "secondary":
@@ -60,7 +59,7 @@ const SkysoloButton = ({
                     color: currentTheme.primary_foreground,
                 }
         }
-    }, [variant, currentTheme])
+    }
 
 
     const getButtonSize = useCallback(() => {
@@ -91,6 +90,8 @@ const SkysoloButton = ({
                 }
         }
     }, [size])
+
+    if (!currentTheme) return <></>
 
     return (
         <TouchableOpacity

@@ -1,6 +1,5 @@
-export type Theme = "light" | "dark" | "system";
 import * as SplashScreen from 'expo-splash-screen';
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { changeColorSchema, setThemeLoaded } from "@/redux-stores/slice/theme";
@@ -9,6 +8,9 @@ import { localStorage } from '@/lib/LocalStorage';
 import { ThemeNames } from '@/components/skysolo-ui/colors';
 import { View } from '@/components/skysolo-ui';
 
+export type Theme = "light" | "dark" | "system";
+
+
 const ThemeProvider = () => {
     const dispatch = useDispatch()
     const themeLoaded = useSelector((state: RootState) => state.ThemeState.themeLoaded, (prev, next) => prev === next)
@@ -16,7 +18,7 @@ const ThemeProvider = () => {
 
 
 
-    const GetLocalStorageThemeValue = useCallback(async () => {
+    const GetLocalStorageThemeValue = async () => {
         const localValueSchema = await localStorage("get", "skysolo-theme") as Theme
         const localValueTheme = await localStorage("get", "skysolo-theme-name") as ThemeNames
         // first time
@@ -37,9 +39,9 @@ const ThemeProvider = () => {
             userThemeName: localValueTheme ?? "Zinc",
             userColorScheme: localValueSchema ?? "light"
         }))
-    }, [themeLoaded])
+    }
 
-    const onChangeTheme = useCallback(async (theme: Theme) => {
+    const onChangeTheme = async (theme: Theme) => {
         if (!theme) return console.error("Theme is not defined")
         if (theme === "system") {
             await localStorage("remove", "skysolo-theme")
@@ -50,7 +52,7 @@ const ThemeProvider = () => {
         await localStorage("set", "skysolo-theme", theme)
         await localStorage("set", "skysolo-theme-name", "Zinc")
         dispatch(changeColorSchema(theme))
-    }, [])
+    }
 
     useEffect(() => {
         if (themeLoaded) {

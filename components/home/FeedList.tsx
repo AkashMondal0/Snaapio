@@ -37,7 +37,7 @@ const FeedList = memo(function FeedList() {
 
 export default FeedList
 
-const Item = memo(function ({ data }: { data: Post }) {
+const Item = memo(function Item({ data }: { data: Post }) {
 
     return <View style={{
         width: "100%",
