@@ -1,7 +1,6 @@
 import { RootState } from '@/redux-stores/store';
 import { Text, type TextProps } from 'react-native';
 import { useSelector } from "react-redux"
-import { useFonts } from 'expo-font';
 
 export type Props = TextProps & {
     variant?: "heading1" | "heading2" | "heading3" | "heading4";
@@ -15,19 +14,11 @@ export type Props = TextProps & {
 
 const SkysoloText = ({ style, variant,
     colorVariant = "default",
-    fontFamily = "Roboto", secondaryColor, ...otherProps }: Props) => {
+    fontFamily = "Roboto",
+    secondaryColor, ...otherProps }: Props) => {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
     const ThemeColors = useSelector((state: RootState) => state.ThemeState.themeColors, () => true)
-    const [loaded, error] = useFonts({
-        'Satisfy': require('../../assets/fonts/Satisfy.ttf'),
-        'Lato': require('../../assets/fonts/Lato.ttf'),
-        'Montserrat': require('../../assets/fonts/Montserrat.ttf'),
-        'Nunito': require('../../assets/fonts/Nunito.ttf'),
-        'Open Sans': require('../../assets/fonts/Open Sans.ttf'),
-        'Playpen Sans': require('../../assets/fonts/Playpen Sans.ttf'),
-        'Poppins': require('../../assets/fonts/Poppins.ttf'),
-        'Roboto': require('../../assets/fonts/Roboto.ttf'),
-    });
+
 
     const getColorVariant = () => {
         if (colorVariant === "default") {
@@ -43,7 +34,7 @@ const SkysoloText = ({ style, variant,
         }
     }
 
-    if (!loaded && !error || !currentTheme) {
+    if (!currentTheme) {
         return <></>
     }
     return (
@@ -51,8 +42,7 @@ const SkysoloText = ({ style, variant,
             style={[{
                 color: getColorVariant(),
                 fontSize: variant === "heading1" ? 32 : variant === "heading2" ? 24 : variant === "heading3" ? 18 : variant === "heading4" ? 16 : 14,
-                fontFamily: fontFamily,
-                fontWeight: "600"
+                fontWeight: "500"
             }, style]}
             {...otherProps} />
     )

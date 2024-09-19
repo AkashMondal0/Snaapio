@@ -33,7 +33,7 @@ const SkysoloButton = ({
         switch (variant) {
             case "secondary":
                 return {
-                    backgroundColor: currentTheme.background,
+                    backgroundColor: currentTheme.muted,
                     color: currentTheme.foreground,
                 }
             case "danger":

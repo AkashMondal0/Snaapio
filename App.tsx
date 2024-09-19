@@ -12,7 +12,8 @@ import BottomSheetProvider from '@/provider/BottomSheetProvider';
 import { ChatListScreen, ChatScreen } from '@/app/home/message';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { Dimensions } from 'react-native';
-import { InitialScreen, LoginScreen } from '@/app/auth';
+import { InitialScreen, LoginScreen, RegisterScreen } from '@/app/auth';
+// import { useFonts } from 'expo-font';
 SplashScreen.preventAutoHideAsync();
 const Tab = createMaterialTopTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -56,23 +57,21 @@ function Routes(backgroundColor: string | any) {
   }
   return (
     <Stack.Navigator>
-      {
-        !session.user ?
-          <>
-            {/* feeds */}
-            <Stack.Screen name="Root" component={TopTabBar} options={option_slide_from_right} />
-            {/* settings */}
-            <Stack.Screen name="setting" component={SettingScreen} options={option_slide_from_right} />
-            <Stack.Screen name="settingTheme" component={ThemeSettingScreen} options={option_slide_from_right} />
-            {/* chat */}
-            <Stack.Screen name="chat" component={ChatScreen} options={option_slide_from_right} />
-          </> :
-          <>
-            <Stack.Screen name="initial" component={InitialScreen} options={option_slide_from_right} />
-            <Stack.Screen name="login" component={LoginScreen} options={option_slide_from_right} />
-            <Stack.Screen name="register" component={LoginScreen} options={option_slide_from_right} />
-          </>
-      }
+      {session.user ?
+        <>
+          {/* feeds */}
+          <Stack.Screen name="Root" component={TopTabBar} options={option_slide_from_right} />
+          {/* settings */}
+          <Stack.Screen name="setting" component={SettingScreen} options={option_slide_from_right} />
+          <Stack.Screen name="settingTheme" component={ThemeSettingScreen} options={option_slide_from_right} />
+          {/* chat */}
+          <Stack.Screen name="chat" component={ChatScreen} options={option_slide_from_right} />
+        </> :
+        <>
+          <Stack.Screen name="initial" component={InitialScreen} options={option_slide_from_right} />
+          <Stack.Screen name="login" component={LoginScreen} options={option_slide_from_right} />
+          <Stack.Screen name="register" component={RegisterScreen} options={option_slide_from_right} />
+        </>}
     </Stack.Navigator >
   );
 }
@@ -94,6 +93,22 @@ function Root() {
 }
 
 export default function App() {
+
+  // const [loaded, error] = useFonts({
+  //   'Satisfy': require('./assets/fonts/Satisfy.ttf'),
+  //   'Lato': require('./assets/fonts/Lato.ttf'),
+  //   'Montserrat': require('./assets/fonts/Montserrat.ttf'),
+  //   'Nunito': require('./assets/fonts/Nunito.ttf'),
+  //   'Open Sans': require('./assets/fonts/Open Sans.ttf'),
+  //   'Playpen Sans': require('./assets/fonts/Playpen Sans.ttf'),
+  //   'Poppins': require('./assets/fonts/Poppins.ttf'),
+  //   'Roboto': require('./assets/fonts/Roboto.ttf'),
+  // });
+
+  // if (!loaded) {
+  //   return <></>;
+  // }
+
   return (
     <Provider store={store}>
       <Root />

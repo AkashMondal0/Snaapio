@@ -1,6 +1,6 @@
 import { RootState } from '@/redux-stores/store';
 import React from 'react';
-import { TextInputProps, TextInput } from 'react-native';
+import { TextInputProps, TextInput, View } from 'react-native';
 import { useSelector } from 'react-redux';
 
 export type Props = TextInputProps & {
@@ -8,6 +8,8 @@ export type Props = TextInputProps & {
     darkColor?: string;
     disabled?: boolean;
     secondaryColor?: boolean;
+    rightSideComponent?: React.ReactNode;
+    leftSideComponent?: React.ReactNode;
 };
 
 const SkySoloInput = ({ disabled, secondaryColor, style, ...props }: Props) => {
@@ -16,28 +18,36 @@ const SkySoloInput = ({ disabled, secondaryColor, style, ...props }: Props) => {
     const inputRef = React.useRef<TextInput>(null)
 
     return (
-        <TextInput
-            ref={inputRef}
+        <View
             style={{
-                padding: 10,
+                flexDirection: 'row',
+                alignItems: 'center',
                 borderRadius: 14,
                 borderWidth: 1,
-                borderColor: disabled || !isFocused ? currentTheme?.border : currentTheme?.primary,
-                backgroundColor: secondaryColor ? currentTheme?.accent : currentTheme?.background,
-                color: currentTheme?.accent_foreground,
+                padding: 10,
                 fontSize: 16,
                 opacity: disabled ? 0.5 : 1,
+                borderColor: disabled || !isFocused ? currentTheme?.border : currentTheme?.primary,
+                backgroundColor: secondaryColor ? currentTheme?.accent : currentTheme?.background,
                 ...style as any
-            }}
-            selectionHandleColor={currentTheme?.primary}
-            // selectionColor={currentTheme?.foreground}
-            placeholderTextColor={currentTheme?.foreground}
-            onFocus={() => { setIsFocused(true) }}
-            onBlur={() => { setIsFocused(false) }}
-            placeholder='Enter text here'
-            blurOnSubmit={true}
-            editable={disabled ? false : true}
-            {...props} />
+            }}>
+            {props.leftSideComponent}
+            <TextInput
+                style={{
+                    color: currentTheme?.accent_foreground,
+                    ...style as any
+                }}
+                ref={inputRef}
+                selectionHandleColor={currentTheme?.primary}
+                placeholderTextColor={currentTheme?.muted_foreground}
+                onFocus={() => { setIsFocused(true) }}
+                onBlur={() => { setIsFocused(false) }}
+                placeholder='Enter text here'
+                blurOnSubmit={true}
+                editable={disabled ? false : true}
+                {...props} />
+            {props.rightSideComponent}
+        </View>
     )
 }
 export default SkySoloInput

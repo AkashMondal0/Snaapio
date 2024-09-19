@@ -100,21 +100,13 @@ const LoginScreen = ({ navigation }: any) => {
                 </Text>
 
                 <Input
-                    style={{
-                        marginVertical: 5,
-                        width: "90%"
-                    }}
+                    style={{ width: "90%" }}
+                    secureTextEntry={!state.showPassword}
                     placeholder='Password'
                     textContentType='password'
                     returnKeyType="done"
-                // rightIcon={state.showPassword ? <TouchableOpacity onPress={() => setStats({ ...state, showPassword: false })}>
-                //     <Eye />
-                // </TouchableOpacity> :
-                //     <TouchableOpacity onPress={() => setStats({ ...state, showPassword: true })}>
-                //         <EyeOff color={useTheme.LinkButtonColor} />
-                //     </TouchableOpacity>
-                // }
-                />
+                    rightSideComponent={state.showPassword ? <Icon iconName="Eye" size={26} onPress={() => setStats({ ...state, showPassword: false })} /> :
+                        <Icon iconName="EyeOff" size={26} onPress={() => setStats({ ...state, showPassword: true })} />} />
                 <Text
                     colorVariant="danger"
                     style={{
