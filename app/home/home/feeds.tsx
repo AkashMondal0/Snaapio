@@ -1,7 +1,7 @@
 import FeedList from "@/components/home/FeedList";
-import { View } from "@/components/skysolo-ui";
 import React from "react";
 import { memo } from "react";
+import { View } from "react-native";
 
 const FeedsScreen = memo(function FeedsScreen({ navigation }: any) {
 

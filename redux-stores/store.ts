@@ -1,9 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit'
 import ThemeReducer from './slice/theme'
+import AuthReducer from './slice/auth'
 
 export const store = configureStore({
   reducer: {
-    ThemeState: ThemeReducer
+    ThemeState: ThemeReducer,
+    AuthState: AuthReducer,
   },
 })
 

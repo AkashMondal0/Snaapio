@@ -72,24 +72,26 @@ const SkysoloIconButton = ({
     }
 
     if (isButton) {
-        return <View>
-            <TouchableOpacity
-                activeOpacity={0.6}
-                disabled={disabled}
-                style={[{
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    elevation: 4,
-                    opacity: disabled ? 0.4 : 1,
-                    backgroundColor: getButtonVariant().backgroundColor,
-                    padding: 4,
-                    borderRadius: 100,
-                    borderColor: getButtonVariant().borderColor,
-                }, style]}
-                {...otherProps}>
-                <IconComponent size={size} color={color ?? getButtonVariant().color} key={iconName} />
-            </TouchableOpacity>
-        </View>
+        return <TouchableOpacity
+            activeOpacity={0.6}
+            disabled={disabled}
+            style={[{
+                alignItems: 'center',
+                justifyContent: 'center',
+                elevation: 4,
+                width: size + 8,
+                height: size + 8,
+                aspectRatio: 1,
+                opacity: disabled ? 0.4 : 1,
+                backgroundColor: getButtonVariant().backgroundColor,
+                padding: 4,
+                borderRadius: 100,
+                borderColor: getButtonVariant().borderColor,
+            }, style]}
+            {...otherProps}>
+            <IconComponent size={size} color={color ?? getButtonVariant().color} key={iconName} />
+        </TouchableOpacity>
+
     }
 
     return (<TouchableOpacity

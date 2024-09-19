@@ -238,7 +238,19 @@ type Notification = {
     comment?: Comment
 }
 
+interface Session {
+    user: {
+        id: string,
+        username: string,
+        email: string,
+        name: string,
+        profilePicture: string,
+    } | null,
+    token: string | null
+}
+
 export type {
+    Session,
     User,
     Message,
     Conversation,

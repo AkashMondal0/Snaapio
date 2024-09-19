@@ -33,8 +33,8 @@ const SkysoloButton = ({
         switch (variant) {
             case "secondary":
                 return {
-                    backgroundColor: currentTheme.secondary,
-                    color: currentTheme.secondary_foreground,
+                    backgroundColor: currentTheme.background,
+                    color: currentTheme.foreground,
                 }
             case "danger":
                 return {
@@ -105,6 +105,8 @@ const SkysoloButton = ({
                 flexDirection: 'row',
                 gap: 5,
                 opacity: disabled ? 0.4 : 1,
+                borderWidth: variant === "secondary" ? 1 : 0,
+                borderColor: currentTheme.border,
                 backgroundColor: getButtonVariant().backgroundColor,
                 ...getButtonSize(),
             }, style]}

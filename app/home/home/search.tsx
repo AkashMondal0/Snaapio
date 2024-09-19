@@ -1,5 +1,6 @@
-import { View, Text, Button } from "@/components/skysolo-ui";
+import { Text, Button } from "@/components/skysolo-ui";
 import { memo } from "react";
+import { View } from "react-native";
 
 
 const SearchScreen = memo(function SearchScreen({ navigation }: any) {

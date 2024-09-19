@@ -1,6 +1,5 @@
-import { View } from "@/components/skysolo-ui";
 import { memo } from "react";
-import { Button, Text } from "react-native";
+import { Button, Text, View } from "react-native";
 
 
 const SettingScreen = memo(function HomeScreen({ navigation }: any) {

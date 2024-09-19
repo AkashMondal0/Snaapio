@@ -1,8 +1,8 @@
 import { FlashList } from '@shopify/flash-list';
 import React, { useCallback, useMemo, useRef, memo, useContext } from 'react';
-import { View as RNView, Vibration } from 'react-native';
+import { View, Vibration } from 'react-native';
 import { Conversation } from '@/types';
-import { Avatar, Icon, Input, Text, TouchableOpacity, View } from '@/components/skysolo-ui';
+import { Avatar, Icon, Input, Text, TouchableOpacity } from '@/components/skysolo-ui';
 import { NavigationContext } from '@react-navigation/native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import SkysoloActionSheet from '@/components/skysolo-ui/ActionSheet';
@@ -80,7 +80,7 @@ const Item = memo(function Item({
                 borderRadius: 15
             }}>
             <Avatar size={55} url={data.user?.profilePicture} onLongPress={() => { onLongPress(data) }} />
-            <RNView>
+            <View>
                 <Text
                     style={{ fontWeight: "600" }}
                     variant="heading3">
@@ -92,7 +92,7 @@ const Item = memo(function Item({
                     variant="heading4">
                     {data?.lastMessageContent ?? "new chat"}
                 </Text>
-            </RNView>
+            </View>
         </TouchableOpacity>
     </View>)
 }, ((prev, next) => prev.data.id === next.data.id))
@@ -150,9 +150,9 @@ const ListHeaderComponent = memo(function ListHeaderComponent({
 })
 
 const ChatDetailsSheetChildren = () => {
-    return <RNView style={{ flex: 1 }}>
+    return <View style={{ flex: 1 }}>
         <Text>Awesome 🎉</Text>
-    </RNView>
+    </View>
 }
 
 const chatList = [

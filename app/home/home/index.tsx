@@ -1,7 +1,6 @@
 import React from 'react'
 import { BottomTabBarProps, createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { CircleUserRound, Film, HomeIcon, PlusCircle, Search } from "lucide-react-native"
-import { View } from '@/components/skysolo-ui';
 // screens
 import FeedsScreen from "./feeds";
 import ProfileScreen from "./profile";
@@ -10,16 +9,29 @@ import SearchScreen from "./search";
 import CameraScreen from '../camera';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 const Tab = createBottomTabNavigator();
 
 const BottomTab = () => {
+    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+
+    if (!currentTheme) {
+        return <></>;
+    }
 
     return (
         <View style={{ flex: 1 }}>
-            <Tab.Navigator screenOptions={{ tabBarHideOnKeyboard: true }}
-                tabBar={(props: React.JSX.IntrinsicAttributes & BottomTabBarProps) => <MyTabBar {...props} />}>
-                <Tab.Screen name="feeds" component={FeedsScreen} options={{ headerShown: false }} />
+            <Tab.Navigator
+                sceneContainerStyle={{
+                    backgroundColor: currentTheme?.background
+                }}
+                screenOptions={{
+                    tabBarHideOnKeyboard: true,
+                }}
+                tabBar={(props: React.JSX.IntrinsicAttributes & BottomTabBarProps) => <MyTabBar {...props} currentTheme={currentTheme} />}>
+                <Tab.Screen name="feeds" component={FeedsScreen} options={{
+                    headerShown: false,
+                }} />
                 <Tab.Screen name="search" component={SearchScreen} options={{ headerShown: false }} />
                 <Tab.Screen name="create" component={CameraScreen} options={{ headerShown: false }} />
                 <Tab.Screen name="reels" component={ReelsScreen} options={{ headerShown: false }} />
@@ -32,8 +44,7 @@ const BottomTab = () => {
 export default BottomTab
 
 
-function MyTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+function MyTabBar({ state, descriptors, navigation, currentTheme }: BottomTabBarProps & { currentTheme: any }) {
 
     const getIcon = (routeName: string, isFocused: boolean) => {
         let iconSize = 28;
