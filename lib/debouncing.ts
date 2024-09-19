@@ -1,4 +1,4 @@
-const debouncing = (func: any, delay: number = 500) => {
+const debounce = (func: any, delay: number = 500) => {
     let timerId: any;
     return (...args: any) => {
         clearTimeout(timerId)
@@ -9,4 +9,4 @@ const debouncing = (func: any, delay: number = 500) => {
 }
 
 
-export default debouncing
+export default debounce

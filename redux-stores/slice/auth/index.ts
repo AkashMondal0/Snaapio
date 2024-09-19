@@ -11,23 +11,22 @@ export type AuthState = {
 const initialState: AuthState = {
   session: {
     user: null,
-    token: '',
   }
 }
 
 export const AuthSlice = createSlice({
-  name: 'Theme',
+  name: 'Auth',
   initialState,
   reducers: {
-    setSession: (state, action: PayloadAction<Session>) => {
-      state.session = action.payload
+    setSession: (state, action: PayloadAction<Session['user']>) => {
+      state.session.user = action.payload
     },
   },
 
 })
 
 export const {
-
+  setSession
 } = AuthSlice.actions
 
 export default AuthSlice.reducer

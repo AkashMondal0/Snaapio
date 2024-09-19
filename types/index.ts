@@ -180,7 +180,7 @@ type GraphqlError = {
     }
 }
 type code = 0 | 1
-interface ApiPayloadData<T> {
+interface ApiResponse<T> {
     code: code,
     message: string,
     data: T,
@@ -245,8 +245,7 @@ interface Session {
         email: string,
         name: string,
         profilePicture: string,
-    } | null,
-    token: string | null
+    } | null
 }
 
 export type {
@@ -266,6 +265,6 @@ export type {
     findDataInput,
     GraphqlError,
     Typing,
-    ApiPayloadData,
+    ApiResponse,
     disPatchResponse
 }

@@ -1,7 +1,6 @@
 import * as React from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import { NavigationContainer } from '@react-navigation/native';
-import ThemeProvider from '@/provider/ThemeProvider'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Provider, useSelector } from 'react-redux';
@@ -13,7 +12,8 @@ import { ChatListScreen, ChatScreen } from '@/app/home/message';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { Dimensions } from 'react-native';
 import { InitialScreen, LoginScreen, RegisterScreen } from '@/app/auth';
-// import { useFonts } from 'expo-font';
+import Toast from 'react-native-toast-message';
+import PreConfiguration from '@/provider/PreConfiguration';
 SplashScreen.preventAutoHideAsync();
 const Tab = createMaterialTopTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -57,7 +57,7 @@ function Routes(backgroundColor: string | any) {
   }
   return (
     <Stack.Navigator>
-      {!session.user ?
+      {session.user ?
         <>
           {/* feeds */}
           <Stack.Screen name="Root" component={TopTabBar} options={option_slide_from_right} />
@@ -80,7 +80,8 @@ function Root() {
   const background = useSelector((state: RootState) => state.ThemeState.currentTheme?.background)
 
   return (<>
-    <ThemeProvider />
+    <Toast />
+    <PreConfiguration />
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: background }}>
       <NavigationContainer>
         <BottomSheetProvider>

@@ -18,7 +18,7 @@ import ActionSheet from "./ActionSheet";
 import Avatar from "./Avatar";
 import TouchableOpacity from "./TouchableOpacity";
 import Icon from "./Icon";
-// import Audio from "./Audio";
+import Toast from "./Toast";
 // import Progress from "./Progress";
 // import Dropdown from "./DropDown";
 
@@ -42,5 +42,6 @@ export {
     ActionSheet,
     Avatar,
     Icon,
+    Toast,
     TouchableOpacity
 }

@@ -7,20 +7,27 @@ import { StatusBar, Appearance } from 'react-native';
 import { localStorage } from '@/lib/LocalStorage';
 import { ThemeNames } from '@/components/skysolo-ui/colors';
 import { View } from '@/components/skysolo-ui';
+import { SecureStorage } from '@/lib/SecureStore';
+import { setSession } from '@/redux-stores/slice/auth';
+import { Session } from '@/types';
 
 export type Theme = "light" | "dark" | "system";
 
 
-const ThemeProvider = () => {
+const PreConfiguration = () => {
     const dispatch = useDispatch()
-    const themeLoaded = useSelector((state: RootState) => state.ThemeState.themeLoaded, (prev, next) => prev === next)
-    const themeSchema = useSelector((state: RootState) => state.ThemeState.themeSchema, (prev, next) => prev === next)
+    const themeLoaded = useSelector((state: RootState) => state.ThemeState.themeLoaded)
+    const themeSchema = useSelector((state: RootState) => state.ThemeState.themeSchema)
 
 
 
     const GetLocalStorageThemeValue = async () => {
+        const { accessToken, ...session } = await SecureStorage("get", "skylight-session") as Session | any
         const localValueSchema = await localStorage("get", "skysolo-theme") as Theme
         const localValueTheme = await localStorage("get", "skysolo-theme-name") as ThemeNames
+        if (session) {
+            dispatch(setSession(session))
+        }
         // first time
         if (!localValueSchema && !localValueTheme) {
             await localStorage("set", "skysolo-theme", "light")
@@ -39,6 +46,7 @@ const ThemeProvider = () => {
             userThemeName: localValueTheme ?? "Zinc",
             userColorScheme: localValueSchema ?? "light"
         }))
+        return
     }
 
     const onChangeTheme = async (theme: Theme) => {
@@ -52,6 +60,7 @@ const ThemeProvider = () => {
         await localStorage("set", "skysolo-theme", theme)
         await localStorage("set", "skysolo-theme-name", "Zinc")
         dispatch(changeColorSchema(theme))
+        return
     }
 
     useEffect(() => {
@@ -81,4 +90,4 @@ const ThemeProvider = () => {
 }
 
 
-export default ThemeProvider;
+export default PreConfiguration;

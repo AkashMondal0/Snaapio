@@ -1,6 +1,6 @@
 import { RootState } from '@/redux-stores/store';
 import { useCallback } from 'react';
-import { Text, TouchableOpacity, type TouchableOpacityProps, TextProps } from 'react-native';
+import { Text, TouchableOpacity, type TouchableOpacityProps, TextProps, ActivityIndicator } from 'react-native';
 import { useSelector } from "react-redux"
 
 export type Props = TouchableOpacityProps & {
@@ -11,6 +11,7 @@ export type Props = TouchableOpacityProps & {
     variant?: "default" | "secondary" | "danger" | "warning" | "success";
     size?: "small" | "medium" | "large";
     icon?: React.ReactNode;
+    loading?: boolean;
 };
 
 
@@ -22,6 +23,7 @@ const SkysoloButton = ({
     variant = "default",
     size = "medium",
     icon,
+    loading = false,
     disabled = false,
     ...otherProps }: Props) => {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
@@ -101,7 +103,7 @@ const SkysoloButton = ({
             style={[{
                 alignItems: 'center',
                 justifyContent: 'center',
-                elevation: 4,
+                elevation: variant === "secondary" ? 0 : 1,
                 flexDirection: 'row',
                 gap: 5,
                 opacity: disabled ? 0.4 : 1,
@@ -113,16 +115,18 @@ const SkysoloButton = ({
             onPress={onPress}
             {...otherProps}>
             {icon}
-            {children ? <Text style={[{
-                color: getButtonVariant().color,
-                textAlign: 'center',
-                textAlignVertical: 'center',
-                fontSize: 16,
-                fontWeight: "700",
-            },
-            textStyle as TextProps["style"]]}>
-                {children}
-            </Text> : <></>}
+            {loading ?
+                <ActivityIndicator color={getButtonVariant().color} /> :
+                children ? <Text style={[{
+                    color: getButtonVariant().color,
+                    textAlign: 'center',
+                    textAlignVertical: 'center',
+                    fontSize: 16,
+                    fontWeight: "700",
+                },
+                textStyle as TextProps["style"]]}>
+                    {children}
+                </Text> : <></>}
         </TouchableOpacity>
     )
 }
