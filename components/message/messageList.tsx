@@ -23,7 +23,6 @@ const MessageList = memo(function MessageList({
         keyExtractor={(item, index) => index.toString()}
         scrollEventThrottle={400}
         estimatedItemSize={6}
-        decelerationRate={0.9}
         ListEmptyComponent={loading ? <Loader /> : <Text>No messages</Text>}
         data={messages} />)
 })

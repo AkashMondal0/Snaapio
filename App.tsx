@@ -57,7 +57,7 @@ function Routes(backgroundColor: string | any) {
   }
   return (
     <Stack.Navigator>
-      {session.user ?
+      {!session.user ?
         <>
           {/* feeds */}
           <Stack.Screen name="Root" component={TopTabBar} options={option_slide_from_right} />

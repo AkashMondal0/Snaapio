@@ -33,6 +33,7 @@ const ChatScreenInput = memo(function ChatScreenInput({
                 isButton size={26}
                 style={{
                     padding: "4%",
+                    width: "auto",
                     height: 45,
                 }} />
         </View>
