@@ -32,7 +32,7 @@ export default MessageList
 
 const Item = memo(function Item({ data, myself }: { data: Message, myself: boolean }) {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
-    const color = myself ? currentTheme?.primary_foreground : currentTheme?.foreground
+    const color =  currentTheme?.foreground
     const bg = myself ? currentTheme?.primary : currentTheme?.muted
 
     return <View style={{

@@ -5,6 +5,32 @@ const _configs = {
         baseUrl: "https://skylight-server-api.onrender.com/v1",
         // baseUrl: "http://192.168.31.212:5000/v1",
     },
+    routesNames: {
+        home: "/",
+        settings: {
+            index: "settings",
+            theme: "settings/theme",
+            account: "settings/account",
+            profile: "settings/profile",
+            security: "settings/security",
+            notification: "settings/notification",
+            privacy: "settings/privacy",
+            blockedUsers: "settings/blocked-users",
+            help: "settings/help",
+        },
+    },
+    eventNames: {
+        conversation: {
+            message: "conversation_message",
+            seen: "conversation_message_seen",
+            typing: "conversation_user_keyboard_pressing",
+            listRefetch: "conversation_list_refetch",
+        },
+        notification: {
+            post: "notification_post",
+            followRequest: {}
+        },
+    },
     firebaseConfig: {
         // apiKey: process.env.FIREBASE_API_KEY,
         // authDomain: process.env.FIREBASE_AUTH_DOMAIN,

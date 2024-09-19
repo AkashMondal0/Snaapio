@@ -1,9 +1,11 @@
 import { memo, useCallback } from "react";
-import { Button, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { changeTheme } from "@/redux-stores/slice/theme";
 import { localStorage } from "@/lib/LocalStorage";
 import { RootState } from "@/redux-stores/store";
+import AppHeader from "@/components/AppHeader";
+import { Icon } from "@/components/skysolo-ui";
 
 
 const ThemeSettingScreen = memo(function HomeScreen({ navigation }: any) {
@@ -19,44 +21,31 @@ const ThemeSettingScreen = memo(function HomeScreen({ navigation }: any) {
             width: '100%',
             height: '100%',
             flex: 1,
-            padding: 20
         }}>
-            <Button title="Go to Home" onPress={() => {
-                navigation?.navigate("home_2", { screen: "setting" })
-            }} />
-            <Text style={{
-                fontSize: 20,
-                fontWeight: 'bold',
-                color: 'red',
-                textAlign: 'center',
-                marginTop: 100
-            }}>ThemeSetting Screen</Text>
+            <AppHeader title="Themes" navigation={navigation} key={"setting-page-1"} />
             <View style={{
                 flexDirection: 'row',
                 flexWrap: 'wrap',
                 justifyContent: 'center',
                 marginTop: 20
             }}>
-                {ThemeColors.map((item, index) => {
-                    return <TouchableOpacity onPress={() => handleChange(item.name)} key={index}>
-                        <View
-                            style={{
-                                width: 50,
-                                height: 50,
-                                backgroundColor: `hsl(${item.light.primary})`,
-                                borderColor: 'white',
-                                borderWidth: 0.6,
-                                margin: 5,
-                                borderRadius: 15,
-                            }}>
-                            <Text style={{
-                                textAlign: 'center',
-                                color: 'white',
-                                fontSize: 12
-                            }}>{item.name}</Text>
-                        </View>
-                    </TouchableOpacity>
-                })}
+                <ScrollView horizontal>
+                    {ThemeColors.map((item, index) => {
+                        return <TouchableOpacity onPress={() => handleChange(item.name)} key={index}>
+                            <View
+                                style={{
+                                    width: 50,
+                                    height: 50,
+                                    backgroundColor: `hsl(${item.light.primary})`,
+                                    borderColor: 'white',
+                                    borderWidth: 0.6,
+                                    margin: 5,
+                                    borderRadius: 15,
+                                }}>
+                            </View>
+                        </TouchableOpacity>
+                    })}
+                </ScrollView>
             </View>
         </View>
     )

@@ -14,6 +14,7 @@ import { Dimensions } from 'react-native';
 import { InitialScreen, LoginScreen, RegisterScreen } from '@/app/auth';
 import Toast from 'react-native-toast-message';
 import PreConfiguration from '@/provider/PreConfiguration';
+import { configs } from './configs';
 SplashScreen.preventAutoHideAsync();
 const Tab = createMaterialTopTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -62,8 +63,8 @@ function Routes(backgroundColor: string | any) {
           {/* feeds */}
           <Stack.Screen name="Root" component={TopTabBar} options={option_slide_from_right} />
           {/* settings */}
-          <Stack.Screen name="setting" component={SettingScreen} options={option_slide_from_right} />
-          <Stack.Screen name="settingTheme" component={ThemeSettingScreen} options={option_slide_from_right} />
+          <Stack.Screen name={configs.routesNames.settings.index} component={SettingScreen} options={option_slide_from_right} />
+          <Stack.Screen name={configs.routesNames.settings.theme} component={ThemeSettingScreen} options={option_slide_from_right} />
           {/* chat */}
           <Stack.Screen name="chat" component={ChatScreen} options={option_slide_from_right} />
         </> :

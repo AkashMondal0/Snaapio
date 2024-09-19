@@ -1,9 +1,9 @@
+/* eslint-disable import/namespace */
 import { RootState } from '@/redux-stores/store';
 import { TouchableOpacity, View, type TouchableOpacityProps } from 'react-native';
 import { useSelector } from "react-redux"
 import * as Icons from "lucide-react-native";
-
-type IconName = keyof typeof Icons;
+export type IconName = keyof typeof Icons;
 
 
 export type Props = TouchableOpacityProps & {

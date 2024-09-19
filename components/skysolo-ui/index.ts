@@ -17,7 +17,7 @@ import Loader from "./Loader";
 import ActionSheet from "./ActionSheet";
 import Avatar from "./Avatar";
 import TouchableOpacity from "./TouchableOpacity";
-import Icon from "./Icon";
+import Icon, { IconName } from "./Icon";
 import Toast from "./Toast";
 // import Progress from "./Progress";
 // import Dropdown from "./DropDown";
@@ -43,5 +43,6 @@ export {
     Avatar,
     Icon,
     Toast,
-    TouchableOpacity
+    TouchableOpacity,
+    IconName
 }
