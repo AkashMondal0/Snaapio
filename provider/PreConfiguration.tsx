@@ -19,15 +19,16 @@ const PreConfiguration = () => {
     const themeLoaded = useSelector((state: RootState) => state.ThemeState.themeLoaded)
     const themeSchema = useSelector((state: RootState) => state.ThemeState.themeSchema)
 
-
-
-    const GetLocalStorageThemeValue = async () => {
-        const { accessToken, ...session } = await SecureStorage("get", "skylight-session") as Session | any
-        const localValueSchema = await localStorage("get", "skysolo-theme") as Theme
-        const localValueTheme = await localStorage("get", "skysolo-theme-name") as ThemeNames
+    const startFetchingSession = async () => {
+        const session = await SecureStorage("get", "skylight-session") as Session | any
         if (session) {
             dispatch(setSession(session))
         }
+    }
+
+    const GetLocalStorageThemeValue = async () => {
+        const localValueSchema = await localStorage("get", "skysolo-theme") as Theme
+        const localValueTheme = await localStorage("get", "skysolo-theme-name") as ThemeNames
         // first time
         if (!localValueSchema && !localValueTheme) {
             await localStorage("set", "skysolo-theme", "light")
@@ -71,6 +72,7 @@ const PreConfiguration = () => {
 
     useEffect(() => {
         GetLocalStorageThemeValue()
+        startFetchingSession()
         Appearance.addChangeListener(({ colorScheme }) => {
             onChangeTheme(colorScheme as any)
         })

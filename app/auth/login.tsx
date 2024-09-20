@@ -47,9 +47,9 @@ const LoginScreen = ({ navigation }: any) => {
             const _data = await loginApi({
                 email: data.email,
                 password: data.password,
-            }) as ApiResponse<Session["user"] & { accessToken: string }>
+            }) as ApiResponse<Session["user"]>
             if (_data.code === 1) {
-                const { accessToken, ...session } = _data.data
+                const session = _data.data
                 dispatch(setSession(session))
                 SecureStorage("set", configs.sessionName, JSON.stringify(_data.data))
                 return

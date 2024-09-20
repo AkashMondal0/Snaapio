@@ -3,6 +3,7 @@ import { RootState } from '@/redux-stores/store';
 import { TouchableOpacity, View, type TouchableOpacityProps } from 'react-native';
 import { useSelector } from "react-redux"
 import * as Icons from "lucide-react-native";
+import { useCallback, useState } from 'react';
 export type IconName = keyof typeof Icons;
 
 
@@ -14,7 +15,7 @@ export type Props = TouchableOpacityProps & {
     isButton?: boolean;
     disabled?: boolean;
     color?: string;
-    variant?: "default" | "secondary" | "danger" | "warning" | "success";
+    variant?: "primary" | "secondary" | "danger" | "warning" | "success" | "outline" | "normal";
 };
 
 
@@ -22,74 +23,103 @@ const SkysoloIconButton = ({
     style,
     size = 30,
     disabled = false,
-    iconName,
+    iconName = "Activity",
     isButton = false,
-    variant,
-    color,
+    variant = "primary",
+    color = undefined,
     ...otherProps }: Props) => {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
-    const ThemeColor = useSelector((state: RootState) => state.ThemeState.themeColors)
     const IconComponent = (Icons[iconName as IconName] || <></>) as React.ComponentType<any>;
+    const [isPress, setIsPress] = useState(false)
+
+    const colorVariant = useCallback(() => {
+        if (!currentTheme) return {}
+        if (disabled) {
+            return {
+                backgroundColor: currentTheme.muted,
+                color: currentTheme.muted_foreground,
+                borderColor: currentTheme.muted
+            }
+        }
+        if (variant === "normal") {
+            return {
+                backgroundColor: currentTheme.background,
+                color: currentTheme.foreground,
+                borderColor: currentTheme.background,
+            }
+        }
+        if (variant === "outline") {
+            return {
+                backgroundColor: currentTheme.secondary,
+                color: currentTheme.secondary_foreground,
+                borderColor: currentTheme.secondary_foreground
+            }
+        }
+        if (variant === "secondary") {
+            return {
+                backgroundColor: currentTheme.secondary,
+                color: currentTheme.secondary_foreground,
+                borderColor: currentTheme.secondary
+            }
+        }
+        else if (variant === "danger") {
+            return {
+                backgroundColor: currentTheme.destructive,
+                color: currentTheme.destructive_foreground,
+                borderColor: currentTheme.destructive
+            }
+        }
+        else if (variant === "warning") {
+            return {
+                backgroundColor: "hsl(47.9 95.8% 53.1%)",
+                color: "hsl(26 83.3% 14.1%)",
+                borderColor: "hsl(47.9 95.8% 53.1%)"
+            }
+        }
+        else if (variant === "success") {
+            return {
+                backgroundColor: "hsl(142.1 76.2% 36.3%)",
+                color: "hsl(355.7 100% 97.3%)",
+                borderColor: "hsl(142.1 76.2% 36.3%)"
+            }
+        }
+        else {
+            return {
+                backgroundColor: currentTheme.primary,
+                color: currentTheme.primary_foreground,
+                borderColor: currentTheme.primary
+            }
+        }
+    }, [currentTheme?.primary])
 
     if (!currentTheme) return null
-
-    const getButtonVariant = () => {
-        let color;
-        switch (variant) {
-            case "secondary":
-                return {
-                    backgroundColor: currentTheme.secondary,
-                    color: currentTheme.secondary_foreground,
-                    borderColor: currentTheme.border,
-                }
-            case "danger":
-                return {
-                    backgroundColor: currentTheme.destructive,
-                    color: currentTheme.destructive_foreground,
-                    borderColor: currentTheme.border,
-                }
-            case "warning":
-                color = ThemeColor.find((color) => color.name === "Yellow")
-                return {
-                    backgroundColor: color?.light.primary,
-                    color: currentTheme.primary_foreground,
-                    borderColor: color?.light.border,
-                }
-            case "success":
-                color = ThemeColor.find((color) => color.name === "Green")
-                return {
-                    backgroundColor: color?.light.primary,
-                    color: color?.light.primary_foreground,
-                    borderColor: color?.light.border,
-                }
-            default:
-                return {
-                    backgroundColor: currentTheme.primary,
-                    color: currentTheme.primary_foreground,
-                    borderColor: currentTheme.border,
-                }
-        }
-    }
 
     if (isButton) {
         return <View>
             <TouchableOpacity
+                onPressIn={() => {
+                    setIsPress(true)
+                }}
+                onPressOut={() => {
+                    setIsPress(false)
+                }}
                 activeOpacity={0.6}
                 disabled={disabled}
                 style={[{
                     alignItems: 'center',
                     justifyContent: 'center',
-                    elevation: 4,
+                    elevation: 1,
                     width: size + 8,
                     height: size + 8,
                     opacity: disabled ? 0.4 : 1,
-                    backgroundColor: getButtonVariant().backgroundColor,
                     padding: 4,
                     borderRadius: 100,
-                    borderColor: getButtonVariant().borderColor,
+                    borderWidth: variant === "normal" ? 0 : 0.6,
+                    borderColor: isPress ? currentTheme.muted_foreground : colorVariant().borderColor,
+                    backgroundColor: isPress ? currentTheme.muted : colorVariant().backgroundColor,
                 }, style]}
                 {...otherProps}>
-                <IconComponent size={size} color={color ?? getButtonVariant().color} key={iconName} />
+                <IconComponent size={size} color={color ?? isPress ? currentTheme.muted_foreground : colorVariant().color} key={iconName} />
             </TouchableOpacity>
         </View>
 
@@ -99,7 +129,7 @@ const SkysoloIconButton = ({
         activeOpacity={0.6}
         disabled={disabled}
         {...otherProps}>
-        <IconComponent size={size} color={currentTheme.foreground} key={iconName} />
+        <IconComponent size={size} color={color ?? currentTheme.foreground} key={iconName} />
     </TouchableOpacity>)
 }
 

@@ -52,7 +52,8 @@ const LogOutDialog = ({
                     gap: 10,
                     justifyContent: 'center',
                 }}>
-                    <Button onPress={() => { setModalVisible(false) }} variant="default">
+                    <Button onPress={() => { setModalVisible(false) }}
+                        variant="outline">
                         Cancel
                     </Button>
                     <Button variant="danger" onPress={() => {

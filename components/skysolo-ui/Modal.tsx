@@ -40,15 +40,12 @@ const SkysoloModal = ({
 
     if (!currentTheme) return <View />
     return (
-        <View style={{
-            backgroundColor: currentTheme.background,
-        }}>
+        <View>
             <Modal
                 animationType="slide"
                 transparent={true}
                 visible={modalVisible}
                 onRequestClose={() => {
-                    Alert.alert('Modal has been closed.');
                     setModalVisible(!modalVisible);
                 }} {...props}>
                 <View style={{
@@ -67,13 +64,13 @@ const SkysoloModal = ({
                         shadowColor: currentTheme.accent_foreground,
                         shadowOffset: {
                             width: 0,
-                            height: 2,
+                            height: 0.5,
                         },
                         shadowOpacity: 0.25,
                         shadowRadius: 4,
-                        elevation: 1,
+                        elevation: 0.5,
                         borderColor: currentTheme.border,
-                        borderWidth: 1,
+                        borderWidth: 0.5,
                         minHeight: 280,
                         width: "100%",
                     }}>

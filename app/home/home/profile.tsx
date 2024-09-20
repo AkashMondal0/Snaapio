@@ -12,7 +12,7 @@ const ProfileScreen = memo(function ProfileScreen({ navigation }: any) {
             width: '100%',
             height: '100%',
         }}>
-            <Button onPress={() => { navigation?.navigate("settings") }}>
+            <Button onPress={() => { navigation?.navigate("settings") }} variant="outline">
                 setting
             </Button>
             <Text variant="heading2">Profile Screen</Text>

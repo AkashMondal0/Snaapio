@@ -63,7 +63,7 @@ const SettingScreen = memo(function HomeScreen({ navigation }: any) {
                 flex: 1,
             }}>
                 <AppHeader title="Settings" navigation={navigation}
-                    rightSideComponent={<Icon iconName="Search" size={24} />}
+                    rightSideComponent={<Icon iconName="Search" size={24} isButton variant="normal" />}
                     key={"setting-page-1"} />
                 <ScrollView>
                     {settingList.map((data, index) => (

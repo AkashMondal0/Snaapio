@@ -245,6 +245,7 @@ interface Session {
         email: string,
         name: string,
         profilePicture: string,
+        accessToken: string,
     } | null
 }
 
