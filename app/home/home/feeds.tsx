@@ -4,20 +4,21 @@ import debounce from "@/lib/debouncing";
 import { fetchAccountFeedApi } from "@/redux-stores/slice/account/api.service";
 import { RootState } from "@/redux-stores/store";
 import { Post, disPatchResponse } from "@/types";
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { memo } from "react";
+import React, { useCallback, useRef, memo, useState } from "react";
 import { View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 let totalFetchedItemCount: number | null = 0
-let pageLoaded = false
 
 const FeedsScreen = memo(function FeedsScreen({ navigation }: any) {
-    const feedList = useSelector((state: RootState) => state.AccountState.feeds)
-    const dispatch = useDispatch()
+    const [finishedFetching, setFinishedFetching] = useState(false)
     const stopRef = useRef(false)
+    const dispatch = useDispatch()
+    const feedList = useSelector((state: RootState) => state.AccountState.feeds)
 
     const getPostApi = useCallback(async () => {
-        if (totalFetchedItemCount === null) return
+        // console.log('fetching more posts', totalFetchedItemCount)
+        if (stopRef.current) return
+        if (totalFetchedItemCount === null) return setFinishedFetching(true)
         try {
             const res = await dispatch(fetchAccountFeedApi({
                 limit: 12,
@@ -40,38 +41,24 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: any) {
 
     const fetchPosts = debounce(getPostApi, 1000)
 
-    useEffect(() => {
-        if (!pageLoaded) {
-            pageLoaded = true
-            getPostApi()
-        }
-    }, [])
-
     return (
         <View style={{
             width: "100%",
             height: "100%",
         }}>
             <FlashList
+                data={feedList}
                 ListHeaderComponent={ListHeaderComponent}
                 renderItem={({ item }) => <Item data={item} />}
                 keyExtractor={(item, index) => index.toString()}
-                scrollEventThrottle={400}
-                estimatedItemSize={50}
-                // onRefresh={() => {
-                //     totalFetchedItemCount = 0
-                //     fetchPosts()
-                // }}
-                // refreshing={true}
-                // onEndReachedThreshold={0.1}
-                // onEndReached={() => {
-                //     console.log('end reached')
-                //     if (!stopRef.current) {
-                //         stopRef.current = true
-                //         fetchPosts()
-                //     }
-                // }}
-                data={feedList} />
+                estimatedItemSize={100}
+                onEndReached={fetchPosts}
+                onEndReachedThreshold={0.5}
+                bounces={false}
+                ListFooterComponent={() => <View style={{ height: 50, padding: 10 }}>
+                    {finishedFetching ? <Text variant="heading4" style={{ textAlign: "center" }}>No more posts</Text> : <Loader size={40} />}
+                </View>}
+            />
         </View>
     )
 })

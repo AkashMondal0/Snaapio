@@ -1,22 +1,57 @@
 import { FlashList } from '@shopify/flash-list';
-import React, { useCallback, useMemo, useRef, memo, useContext } from 'react';
+import React, { useCallback, useMemo, useRef, memo, useState } from 'react';
 import { View, Vibration } from 'react-native';
-import { Conversation } from '@/types';
-import { Avatar, Icon, Input, Text, TouchableOpacity } from '@/components/skysolo-ui';
-import { NavigationContext } from '@react-navigation/native';
+import { Conversation, disPatchResponse } from '@/types';
+import { ActionSheet, Avatar, Icon, Input, Text, TouchableOpacity } from '@/components/skysolo-ui';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import SkysoloActionSheet from '@/components/skysolo-ui/ActionSheet';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@/redux-stores/store';
+import { fetchConversationsApi } from '@/redux-stores/slice/conversation/api.service';
+import { setConversation } from '@/redux-stores/slice/conversation';
+let totalFetchedItemCount: number | null = 0
 
-const ChatListScreen = memo(function ChatListScreen() {
-    const navigation = useContext(NavigationContext);
-    // ref
+const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
     const bottomSheetModalRef = useRef<BottomSheetModal>(null);
-
-    // variables
+    const stopRef = useRef(false)
+    const [finishedFetching, setFinishedFetching] = useState(false)
+    const list = useSelector((Root: RootState) => Root.ConversationState.conversationList)
     const snapPoints = useMemo(() => ['50%', "70%"], []);
+    const dispatch = useDispatch()
+
+    const conversationList = useMemo(() => {
+        return [...list].sort((a, b) => {
+            if (a.lastMessageCreatedAt && b.lastMessageCreatedAt) {
+                return new Date(b.lastMessageCreatedAt).getTime() - new Date(a.lastMessageCreatedAt).getTime()
+            }
+            return 0
+        }).filter((item) => item.lastMessageCreatedAt !== null)
+    }, [list])
+
+
+    const fetchConversationList = useCallback(async () => {
+        if (stopRef.current) return
+        if (totalFetchedItemCount === null) return setFinishedFetching(true)
+        try {
+            const res = await dispatch(fetchConversationsApi({
+                limit: 12,
+                offset: totalFetchedItemCount
+            }) as any) as disPatchResponse<Conversation[]>
+            if (res.payload.length > 0) {
+                // if less than 12 items fetched, stop fetching
+                if (res.payload.length < 12) {
+                    setFinishedFetching(true)
+                    return totalFetchedItemCount = null
+                }
+                // if more than 12 items fetched, continue fetching
+                totalFetchedItemCount += 12
+            }
+        } finally {
+            stopRef.current = false
+        }
+    }, [])
 
     // callbacks
-    const handlePresentModalPress = useCallback((data: any) => {
+    const handlePresentModalPress = useCallback((data: Conversation) => {
         bottomSheetModalRef.current?.present();
         Vibration.vibrate(1 * 50, false);
     }, [])
@@ -25,33 +60,36 @@ const ChatListScreen = memo(function ChatListScreen() {
         // console.log('handleSheetChanges', index);
     }, []);
 
-    const pushToPage = (id: string) => {
-        navigation?.navigate("chat", { id })
-    }
+    const pushToPage = useCallback((data: Conversation) => {
+        dispatch(setConversation(data))
+        navigation?.navigate("chat", { id: data.id })
+    }, [])
 
-    const pressBack = () => {
+    const pressBack = useCallback(() => {
         navigation?.goBack()
-    }
-
-    const list: Conversation[] = [...chatList, ...chatList, ...chatList, ...chatList, ...chatList, ...chatList, ...chatList, ...chatList, ...chatList, ...chatList, ...chatList, ...chatList, ...chatList, ...chatList,] as any
+    }, [])
 
     return <View style={{
         width: "100%",
         height: "100%",
     }}>
         <FlashList
-            renderItem={({ item }) => <Item data={item} onClick={pushToPage} onLongPress={handlePresentModalPress} />}
+            renderItem={({ item }) => <Item data={item}
+                onClick={pushToPage}
+                onLongPress={handlePresentModalPress} />}
             keyExtractor={(item, index) => index.toString()}
-            scrollEventThrottle={400}
             estimatedItemSize={5}
+            onEndReachedThreshold={0.5}
+            bounces={false}
+            onEndReached={fetchConversationList}
             ListHeaderComponent={<ListHeaderComponent pressBack={pressBack} />}
-            data={list} />
-        <SkysoloActionSheet
+            data={conversationList} />
+        <ActionSheet
             bottomSheetModalRef={bottomSheetModalRef}
             snapPoints={snapPoints}
             handleSheetChanges={handleSheetChanges}>
             <ChatDetailsSheetChildren />
-        </SkysoloActionSheet>
+        </ActionSheet>
     </View>
 })
 export default ChatListScreen;
@@ -62,14 +100,12 @@ const Item = memo(function Item({
     onLongPress
 }: {
     data: Conversation,
-    onClick: (id: string) => void,
-    onLongPress: (data: any) => void
+    onClick: (id: Conversation) => void,
+    onLongPress: (data: Conversation) => void
 }) {
-
-
     return (<View style={{ paddingHorizontal: 6 }}>
         <TouchableOpacity
-            onPress={() => { onClick(data?.id) }}
+            onPress={() => { onClick(data) }}
             style={{
                 width: "100%",
                 padding: 10,
@@ -154,31 +190,3 @@ const ChatDetailsSheetChildren = () => {
         <Text>Awesome 🎉</Text>
     </View>
 }
-
-const chatList = [
-    {
-        "id": "g2gijpoask",
-        "members": [
-            "2d1a43de-d6e9-4136-beb4-974a9fcc3c8b",
-            "30840219-080e-4566-b659-bd1b63e697e2"
-        ],
-        "authorId": "2d1a43de-d6e9-4136-beb4-974a9fcc3c8b",
-        "user": {
-            "id": "2d1a43de-d6e9-4136-beb4-974a9fcc3c8b",
-            "username": "akash",
-            "email": "akash@gmail.com",
-            "name": "Akash Mondal",
-            "profilePicture": "https://firebasestorage.googleapis.com/v0/b/my-project-sky-inc.appspot.com/o/skylight%2F2d1a43de-d6e9-4136-beb4-974a9fcc3c8b%2Fimg_1_1720545118665.webp.jpeg?alt=media&token=093f6305-03aa-4a37-9e68-294ebce58956"
-        },
-        "isGroup": false,
-        "lastMessageContent": "Wwww",
-        "totalUnreadMessagesCount": 0,
-        "lastMessageCreatedAt": "2024-09-04T06:25:50.939Z",
-        "createdAt": null,
-        "updatedAt": "2024-08-15T00:01:02.000Z",
-        "groupName": null,
-        "groupImage": null,
-        "groupDescription": null,
-        "messages": []
-    }
-]

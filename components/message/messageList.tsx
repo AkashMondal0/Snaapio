@@ -15,11 +15,11 @@ const MessageList = memo(function MessageList({
     messages: Message[]
 }) {
     const [loading, setLoading] = useState(true)
+    const session = useSelector((Root: RootState) => Root.AuthState.session.user)
 
     return (<FlashList
         onLoad={() => setLoading(false)}
-        renderItem={({ item }) => <Item data={item} key={item.id}
-            myself={"2d1a43de-d6e9-4136-beb4-974a9fcc3c8b" === item.authorId} />}
+        renderItem={({ item }) => <Item data={item} key={item.id} myself={session?.id === item.authorId} />}
         keyExtractor={(item, index) => index.toString()}
         scrollEventThrottle={400}
         estimatedItemSize={6}

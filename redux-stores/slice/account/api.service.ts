@@ -11,7 +11,7 @@ export const fetchAccountFeedApi = createAsyncThunk(
                 query: FeedQuery.query,
                 variables: { limitAndOffset }
             })
-            return res[FeedQuery.name]
+            return res
         } catch (error: any) {
             return thunkApi.rejectWithValue({
                 message: error?.message

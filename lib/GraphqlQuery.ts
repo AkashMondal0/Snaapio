@@ -56,5 +56,5 @@ export const graphqlQuery = async <T>({
         throw new Error(responseBody.errors[0].extensions.code)
     }
 
-    return responseBody.data;
+    return responseBody.data[Object.keys(responseBody.data)[0]];
 }
