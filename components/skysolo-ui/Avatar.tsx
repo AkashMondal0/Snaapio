@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { type ImageProps, Image, TouchableOpacity } from 'react-native';
+import { type ImageProps, TouchableOpacityProps, Image, TouchableOpacity } from 'react-native';
 
 export type Props = ImageProps & {
     lightColor?: string;
@@ -8,16 +8,18 @@ export type Props = ImageProps & {
     size?: number | string;
     onPress?: () => void;
     onLongPress?: () => void;
+    TouchableOpacityOptions?: TouchableOpacityProps
 };
 
 
-const SkysoloAvatar = memo(function SkysoloAvatar({ style, size = 40, url, ...otherProps }: Props) {
+const SkysoloAvatar = memo(function SkysoloAvatar({ style, size = 40, url, TouchableOpacityOptions, ...otherProps }: Props) {
     size = Number(size)
     return (
         <TouchableOpacity
+            {...TouchableOpacityOptions}
+            activeOpacity={0.6}
             onLongPress={otherProps.onLongPress}
-            onPress={otherProps.onPress}
-        >
+            onPress={otherProps.onPress}>
             <Image
                 source={url ? { uri: url } : require('../../assets/images/user.jpg')}
                 style={{

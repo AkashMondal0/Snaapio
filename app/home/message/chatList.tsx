@@ -16,11 +16,11 @@ let totalFetchedItemCount: number | null = 0
 const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
     const bottomSheetModalRef = useRef<BottomSheetModal>(null);
     const stopRef = useRef(false)
-    // const [finishedFetching, setFinishedFetching] = useState(false)
     const list = useSelector((Root: RootState) => Root.ConversationState.conversationList)
-    const snapPoints = useMemo(() => ['50%', "70%"], []);
+    const snapPoints = useMemo(() => ["50%", '50%', "70%"], []);
     const dispatch = useDispatch()
     const [inputText, setInputText] = useState("")
+    const [BottomSheetData, setBottomSheetData] = useState<Conversation | null>(null)
 
     const conversationList = useMemo(() => {
         return [...list].sort((a, b) => {
@@ -58,12 +58,15 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
 
     // callbacks
     const handlePresentModalPress = useCallback((data: Conversation) => {
+        setBottomSheetData(data)
         bottomSheetModalRef.current?.present();
         Vibration.vibrate(1 * 50, false);
     }, [])
 
     const handleSheetChanges = useCallback((index: number) => {
-        // console.log('handleSheetChanges', index);
+        if (index === -1) {
+            setBottomSheetData(null)
+        }
     }, []);
 
     const pushToPage = useCallback((data: Conversation) => {
@@ -108,7 +111,7 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
             bottomSheetModalRef={bottomSheetModalRef}
             snapPoints={snapPoints}
             handleSheetChanges={handleSheetChanges}>
-            <ChatDetailsSheetChildren />
+            <ChatDetailsSheetChildren data={BottomSheetData} />
         </ActionSheet>
     </View>
 })
@@ -160,6 +163,7 @@ const ListHeaderComponent = memo(function ListHeaderComponent({
     pressBack: () => void,
     InputOnChange: (text: string) => void
 }) {
+    const session = useSelector((Root: RootState) => Root.AuthState.session.user)
 
     return <>
         <View style={{
@@ -184,7 +188,7 @@ const ListHeaderComponent = memo(function ListHeaderComponent({
                             fontSize: 22,
                             fontWeight: "400",
                         }}>
-                        @akashmondal
+                        @{session?.username}
                     </Text>
                 </View>
                 <View style={{ paddingHorizontal: 10 }}>
@@ -193,7 +197,8 @@ const ListHeaderComponent = memo(function ListHeaderComponent({
             </View>
             <Input
                 onChangeText={InputOnChange}
-                secondaryColor style={{ borderWidth: 0 }}
+                secondaryColor
+                style={{ borderWidth: 0 }}
                 placeholder='Search' />
             <Text
                 style={{
@@ -210,8 +215,37 @@ const ListHeaderComponent = memo(function ListHeaderComponent({
     </>
 }, (() => true))
 
-const ChatDetailsSheetChildren = () => {
-    return <View style={{ flex: 1 }}>
-        <Text>Awesome 🎉</Text>
+const ChatDetailsSheetChildren = ({
+    data
+}: {
+    data: Conversation | null
+}) => {
+    if (!data) return <></>
+    return <View style={{
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        gap: 10,
+        padding: 10,
+    }}>
+        <Avatar
+            size={120}
+            TouchableOpacityOptions={{
+                activeOpacity: 0.3
+            }}
+            url={data.user?.profilePicture} />
+        <Text
+            style={{ fontWeight: "600" }}
+            variant="heading2">
+            {data?.user?.name}
+        </Text>
+        <Text
+            secondaryColor
+            style={{ fontWeight: "400" }}
+            variant="heading4">
+            {data?.user?.email}
+        </Text>
     </View>
 }

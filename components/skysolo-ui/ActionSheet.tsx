@@ -1,7 +1,7 @@
 import React from 'react';
-import { Text } from 'react-native';
 import {
     BottomSheetModal,
+    BottomSheetScrollView,
     BottomSheetView,
 } from '@gorhom/bottom-sheet';
 import { useSelector } from 'react-redux';
@@ -10,6 +10,7 @@ import { RootState } from '@/redux-stores/store';
 const SkysoloActionSheet = ({
     bottomSheetModalRef,
     snapPoints,
+    children,
     handleSheetChanges,
 }: {
     children?: React.ReactNode
@@ -38,9 +39,11 @@ const SkysoloActionSheet = ({
                     elevation: 10,
                 }}
                 onChange={handleSheetChanges}>
-                <BottomSheetView style={{ flex: 1 }}>
-                    <Text>Awesome 🎉</Text>
-                </BottomSheetView>
+                <BottomSheetScrollView>
+                    <BottomSheetView style={{ flex: 1 }}>
+                       {children}
+                    </BottomSheetView>
+                </BottomSheetScrollView>
             </BottomSheetModal>
         </>
     );
