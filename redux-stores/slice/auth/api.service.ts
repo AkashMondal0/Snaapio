@@ -1,4 +1,5 @@
 import { configs } from "@/configs";
+import { SecureStorage } from "@/lib/SecureStore";
 
 export const loginApi = async ({
     email,
@@ -90,14 +91,20 @@ export const registerApi = async ({
 }
 
 export const logoutApi = async () => {
-    await fetch(`${configs.serverApi.baseUrl}/auth/logout`, {
-        headers: {
-            "Content-Type": "application/json",
-        },
-        method: "POST",
-        redirect: "follow",
-        credentials: "include",
-        body: JSON.stringify({}),
-    })
-    return true
+    try {
+        await SecureStorage("remove", configs.sessionName)
+        await fetch(`${configs.serverApi.baseUrl}/auth/logout`, {
+            headers: {
+                "Content-Type": "application/json",
+            },
+            method: "POST",
+            redirect: "follow",
+            credentials: "include",
+            body: JSON.stringify({}),
+        })
+        return true
+    } catch (error) {
+        console.error("Error in logging out", error)
+        return false
+    }
 }

@@ -7,6 +7,14 @@ const _configs = {
     },
     routesNames: {
         home: "/",
+        auth: {
+            index: "/auth",
+            login: "/auth/login",
+            register: "/auth/register",
+            forgotPassword: "/auth/forgot-password",
+            resetPassword: "/auth/reset-password",
+            verifyEmail: "/auth/verify-email",
+        },
         settings: {
             index: "settings",
             theme: "settings/theme",

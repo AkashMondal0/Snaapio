@@ -1,10 +1,9 @@
 import { RootState } from '@/redux-stores/store';
 import { useSelector } from "react-redux"
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import { Alert, Modal, View, type ModalProps, TouchableOpacity } from 'react-native';
 import { X } from 'lucide-react-native';
 import SkysoloText from './Text';
-import SkysoloButton from './Button';
 
 export type Props = ModalProps & {
     variant?: any
@@ -12,11 +11,26 @@ export type Props = ModalProps & {
     darkColor?: string;
     trigger?: React.ReactNode,
     children?: React.ReactNode,
+    modalVisible: boolean,
+    setModalVisible: (value: boolean) => void
 };
 
 
-const SkysoloModal = (props: Props) => {
-    const [modalVisible, setModalVisible] = useState(false);
+const SkysoloModal = ({
+    modalVisible,
+    setModalVisible,
+    children,
+    showHeader = false,
+    headerTitle = "Container",
+    ...props
+}: {
+    setModalVisible: (value: boolean) => void,
+    modalVisible: boolean,
+    children: React.ReactNode,
+    otherProps?: ModalProps,
+    headerTitle?: string,
+    showHeader?: boolean
+}) => {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
 
     const clickHandler = useCallback(() => {
@@ -28,7 +42,6 @@ const SkysoloModal = (props: Props) => {
     return (
         <View style={{
             backgroundColor: currentTheme.background,
-            flex: 1,
         }}>
             <Modal
                 animationType="slide"
@@ -37,8 +50,7 @@ const SkysoloModal = (props: Props) => {
                 onRequestClose={() => {
                     Alert.alert('Modal has been closed.');
                     setModalVisible(!modalVisible);
-                }}>
-                {/* container */}
+                }} {...props}>
                 <View style={{
                     flex: 1,
                     width: "100%",
@@ -46,10 +58,12 @@ const SkysoloModal = (props: Props) => {
                     paddingHorizontal: 10,
                     justifyContent: 'center',
                 }}>
+                    {/* container */}
                     <View style={{
                         backgroundColor: currentTheme.accent,
                         borderRadius: 20,
                         alignItems: 'center',
+                        marginHorizontal: "auto",
                         shadowColor: currentTheme.accent_foreground,
                         shadowOffset: {
                             width: 0,
@@ -58,11 +72,12 @@ const SkysoloModal = (props: Props) => {
                         shadowOpacity: 0.25,
                         shadowRadius: 4,
                         elevation: 1,
-                        height: 600,
                         borderColor: currentTheme.border,
                         borderWidth: 1,
+                        minHeight: 280,
+                        width: "100%",
                     }}>
-                        <View style={{
+                        {showHeader ? <View style={{
                             width: "100%",
                             display: "flex",
                             flexDirection: "row",
@@ -99,12 +114,11 @@ const SkysoloModal = (props: Props) => {
                                     color: currentTheme.accent
                                 }} />
                             </TouchableOpacity>
-                        </View>
-                        {props.children}
+                        </View> : <></>}
+                        {children}
                     </View>
                 </View>
             </Modal>
-            <SkysoloButton onPress={clickHandler}>Hello World!</SkysoloButton>
         </View>
     );
 };

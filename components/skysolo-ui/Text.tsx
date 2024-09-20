@@ -17,7 +17,7 @@ const SkysoloText = ({ style, variant,
     fontFamily = "Roboto",
     secondaryColor, ...otherProps }: Props) => {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
-    const ThemeColors = useSelector((state: RootState) => state.ThemeState.themeColors, () => true)
+    const ThemeColors = useSelector((state: RootState) => state.ThemeState.themeColors)
 
 
     const getColorVariant = () => {
@@ -42,7 +42,7 @@ const SkysoloText = ({ style, variant,
             style={[{
                 color: getColorVariant(),
                 fontSize: variant === "heading1" ? 32 : variant === "heading2" ? 24 : variant === "heading3" ? 18 : variant === "heading4" ? 16 : 14,
-                fontWeight: "500"
+                fontWeight: variant === "heading1" ? "700" : variant === "heading2" ? "600" : variant === "heading3" ? "500" : variant === "heading4" ? "400" : "400",
             }, style]}
             {...otherProps} />
     )

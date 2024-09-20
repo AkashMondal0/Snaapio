@@ -1,14 +1,20 @@
 import AppHeader from "@/components/AppHeader";
+import LogOutDialog from "@/components/dialogs/logout";
 import { Icon, TouchableOpacity, Text, type IconName } from "@/components/skysolo-ui";
 import { configs } from "@/configs";
-import { memo } from "react";
+import { logout } from "@/redux-stores/slice/auth";
+import { logoutApi } from "@/redux-stores/slice/auth/api.service";
+import { memo, useState } from "react";
 import { ScrollView, View } from "react-native";
+import { useDispatch } from "react-redux";
 
 const SettingScreen = memo(function HomeScreen({ navigation }: any) {
+    const dispatch = useDispatch();
+    const [modalVisible, setModalVisible] = useState(false)
     const settingList = [
         {
-            name: "Theme",
-            description: "Change the app theme",
+            name: "Appearance",
+            description: "Change the appearance of the app",
             icon: "Palette",
             onPress: () => {
                 navigation.navigate(configs.routesNames.settings.theme)
@@ -36,28 +42,39 @@ const SettingScreen = memo(function HomeScreen({ navigation }: any) {
             name: "Log Out",
             description: "Log out from the app",
             icon: "LogOut",
-            onPress: () => { }
+            onPress: () => {
+                setModalVisible(true)
+            }
         },
     ]
 
     return (
-        <View style={{
-            width: '100%',
-            height: '100%',
-            flex: 1,
-        }}>
-            <AppHeader title="Settings" navigation={navigation}
-                rightSideComponent={<Icon iconName="Search" size={24} />}
-                key={"setting-page-1"} />
-            <ScrollView>
-                {settingList.map((data, index) => (
-                    <Item
-                        key={index}
-                        data={data}
-                    />
-                ))}
-            </ScrollView>
-        </View>
+        <>
+            <LogOutDialog
+                setModalVisible={setModalVisible}
+                modalVisible={modalVisible}
+                confirm={() => {
+                    dispatch(logout())
+                    logoutApi()
+                }} />
+            <View style={{
+                width: '100%',
+                height: '100%',
+                flex: 1,
+            }}>
+                <AppHeader title="Settings" navigation={navigation}
+                    rightSideComponent={<Icon iconName="Search" size={24} />}
+                    key={"setting-page-1"} />
+                <ScrollView>
+                    {settingList.map((data, index) => (
+                        <Item
+                            key={index}
+                            data={data}
+                        />
+                    ))}
+                </ScrollView>
+            </View>
+        </>
     )
 })
 export default SettingScreen;
@@ -91,7 +108,7 @@ const Item = memo(function Item({
             <Icon iconName={data.icon} size={28} />
             <View>
                 <Text
-                    style={{ fontWeight: "400" }}
+                    style={{ fontWeight: "500" }}
                     variant="heading3">
                     {data?.name}
                 </Text>

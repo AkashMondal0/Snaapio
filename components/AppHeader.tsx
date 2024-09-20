@@ -18,16 +18,48 @@ const AppHeader = memo(function HomeScreen({
 }) {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
 
+    if (titleCenter) {
+        return (
+            <View style={{
+                width: '100%',
+                height: 55,
+                borderBottomWidth: 0.9,
+                borderColor: currentTheme?.border,
+                paddingHorizontal: 10,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: "space-between"
+            }}>
+                <Icon iconName="ArrowLeft"
+                    size={28}
+                    onPress={() => {
+                        navigation.goBack()
+                    }} />
+                <Text variant="heading3" style={{
+                    fontSize: 24,
+                    fontWeight: 'semibold'
+                }}>
+                    {title}
+                </Text>
+                <View style={{
+                    width: 28,
+                }}>
+                    {rightSideComponent}
+                </View>
+            </View>
+        )
+    }
+
     return (
         <View style={{
             width: '100%',
             height: 55,
             borderBottomWidth: 0.8,
             borderColor: currentTheme?.border,
-            paddingHorizontal: 8,
+            paddingHorizontal: 10,
             flexDirection: 'row',
             alignItems: 'center',
-            justifyContent: titleCenter ? 'center' : 'space-between'
+            justifyContent: 'space-between'
         }}>
             <View style={{
                 flexDirection: 'row',
@@ -46,9 +78,7 @@ const AppHeader = memo(function HomeScreen({
                     {title}
                 </Text>
             </View>
-            <View style={{
-                marginRight: 8
-            }}>
+            <View style={{ width: 28 }}>
                 {rightSideComponent}
             </View>
         </View>

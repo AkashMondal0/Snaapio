@@ -21,12 +21,15 @@ export const AuthSlice = createSlice({
     setSession: (state, action: PayloadAction<Session['user']>) => {
       state.session.user = action.payload
     },
+    logout: (state) => {
+      state.session.user = null
+    }
   },
-
 })
 
 export const {
-  setSession
+  setSession,
+  logout
 } = AuthSlice.actions
 
 export default AuthSlice.reducer
