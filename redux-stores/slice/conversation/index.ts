@@ -165,8 +165,8 @@ export const ConversationSlice = createSlice({
         })
         // CreateMessageApi
         builder.addCase(CreateMessageApi.pending, (state) => {
-            state.createMessageLoading = true,
-                state.createMessageError = null
+            state.createMessageLoading = true
+            state.createMessageError = null
         })
         builder.addCase(CreateMessageApi.fulfilled, (state, action: PayloadAction<Message>) => {
             const index = state.conversationList.findIndex((i) => i.id === action.payload.conversationId)
@@ -191,8 +191,8 @@ export const ConversationSlice = createSlice({
             }
         })
         builder.addCase(CreateMessageApi.rejected, (state, action) => {
-            state.createMessageLoading = false,
-                state.createMessageError = "error"
+            state.createMessageLoading = false
+            state.createMessageError = "error"
         })
         // conversationSeenAllMessage
         builder.addCase(conversationSeenAllMessage.pending, (state) => {

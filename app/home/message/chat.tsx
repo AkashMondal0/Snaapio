@@ -9,7 +9,6 @@ import { ToastAndroid } from "react-native";
 import { fetchConversationAllMessagesApi } from "@/redux-stores/slice/conversation/api.service";
 import { disPatchResponse, Message } from "@/types";
 let totalFetchedItemCount: number | null = 0
-
 interface ChatScreenProps {
     navigation: NavigationProp<any>;
     route: {
@@ -22,20 +21,22 @@ interface ChatScreenProps {
 
 const ChatScreen = memo(function ChatScreen({ navigation, route }: ChatScreenProps) {
     const stopFetch = useRef(false)
-    const stopBottomRef = useRef(true)
+    // const stopBottomRef = useRef(true)
     const ConversationData = useSelector((Root: RootState) => Root.ConversationState.conversation, (prev, next) => prev?.id === next?.id)
     const Messages = useSelector((Root: RootState) => Root.ConversationState?.messages)
+
     const dispatch = useDispatch()
 
     const loadMoreMessages = useCallback(async (conversationId?: string) => {
         if (totalFetchedItemCount === null) return
-        if (!conversationId) return ToastAndroid.show('Error loading messages', ToastAndroid.SHORT)
+        if (!conversationId) return ToastAndroid.show('Chat Not Found', ToastAndroid.SHORT)
         try {
             const resM = await dispatch(fetchConversationAllMessagesApi({
                 id: route.params.id,
                 offset: totalFetchedItemCount,
                 limit: 20
             }) as any) as disPatchResponse<Message[]>
+            // console.log(route.params.id, resM.payload)
             if (resM?.error) return ToastAndroid.show('Error loading messages', ToastAndroid.SHORT)
             if (resM.payload.length >= 20) {
                 totalFetchedItemCount += 20
@@ -50,11 +51,11 @@ const ChatScreen = memo(function ChatScreen({ navigation, route }: ChatScreenPro
 
     const fetchMore = debounce(() => { loadMoreMessages(route.params.id) }, 1000)
 
-    const PressBack = () => { navigation?.goBack() }
+    const PressBack = useCallback(() => { navigation?.goBack() }, [])
 
     useEffect(() => {
-        console.log("fetch message", route.params.id)
-        loadMoreMessages(route.params.id)
+            totalFetchedItemCount = 0
+            loadMoreMessages(route.params.id)
     }, [route.params.id])
 
     if (!ConversationData) return <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>

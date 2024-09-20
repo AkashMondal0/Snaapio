@@ -16,19 +16,16 @@ export type Theme = "light" | "dark" | "system";
 
 const PreConfiguration = () => {
     const dispatch = useDispatch()
-    const themeLoaded = useSelector((state: RootState) => state.ThemeState.themeLoaded)
-    const themeSchema = useSelector((state: RootState) => state.ThemeState.themeSchema)
-
-    const startFetchingSession = async () => {
-        const session = await SecureStorage("get", "skylight-session") as Session | any
-        if (session) {
-            dispatch(setSession(session))
-        }
-    }
+    const themeLoaded = useSelector((state: RootState) => state.ThemeState.themeLoaded, (prev, next) => prev === next)
+    const themeSchema = useSelector((state: RootState) => state.ThemeState.themeSchema, (prev, next) => prev === next)
 
     const GetLocalStorageThemeValue = async () => {
         const localValueSchema = await localStorage("get", "skysolo-theme") as Theme
         const localValueTheme = await localStorage("get", "skysolo-theme-name") as ThemeNames
+        const session = await SecureStorage("get", "skylight-session") as Session | any
+        if (session) {
+            dispatch(setSession(session))
+        }
         // first time
         if (!localValueSchema && !localValueTheme) {
             await localStorage("set", "skysolo-theme", "light")
@@ -72,7 +69,6 @@ const PreConfiguration = () => {
 
     useEffect(() => {
         GetLocalStorageThemeValue()
-        startFetchingSession()
         Appearance.addChangeListener(({ colorScheme }) => {
             onChangeTheme(colorScheme as any)
         })

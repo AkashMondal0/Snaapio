@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { FlashList } from '@shopify/flash-list';
 import React, { useCallback, useMemo, useRef, memo, useState } from 'react';
 import { View, Vibration } from 'react-native';
@@ -8,15 +9,18 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
 import { fetchConversationsApi } from '@/redux-stores/slice/conversation/api.service';
 import { setConversation } from '@/redux-stores/slice/conversation';
+import debounce from '@/lib/debouncing';
+import searchText from '@/lib/TextSearch';
 let totalFetchedItemCount: number | null = 0
 
 const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
     const bottomSheetModalRef = useRef<BottomSheetModal>(null);
     const stopRef = useRef(false)
-    const [finishedFetching, setFinishedFetching] = useState(false)
+    // const [finishedFetching, setFinishedFetching] = useState(false)
     const list = useSelector((Root: RootState) => Root.ConversationState.conversationList)
     const snapPoints = useMemo(() => ['50%', "70%"], []);
     const dispatch = useDispatch()
+    const [inputText, setInputText] = useState("")
 
     const conversationList = useMemo(() => {
         return [...list].sort((a, b) => {
@@ -24,13 +28,15 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
                 return new Date(b.lastMessageCreatedAt).getTime() - new Date(a.lastMessageCreatedAt).getTime()
             }
             return 0
-        }).filter((item) => item.lastMessageCreatedAt !== null)
-    }, [list])
-
+        })
+            .filter((item) => item.lastMessageCreatedAt !== null)
+            .filter((item) => searchText(item?.user?.name, inputText))
+    }, [list, inputText])
 
     const fetchConversationList = useCallback(async () => {
         if (stopRef.current) return
-        if (totalFetchedItemCount === null) return setFinishedFetching(true)
+        if (totalFetchedItemCount === null) return
+        // setFinishedFetching(true)
         try {
             const res = await dispatch(fetchConversationsApi({
                 limit: 12,
@@ -39,7 +45,7 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
             if (res.payload.length > 0) {
                 // if less than 12 items fetched, stop fetching
                 if (res.payload.length < 12) {
-                    setFinishedFetching(true)
+                    // setFinishedFetching(true)
                     return totalFetchedItemCount = null
                 }
                 // if more than 12 items fetched, continue fetching
@@ -69,6 +75,12 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
         navigation?.goBack()
     }, [])
 
+    const InputOnChange = useCallback((text: string) => {
+        setInputText(text)
+    }, [])
+
+    const delayInput = debounce(InputOnChange, 400)
+
     return <View style={{
         width: "100%",
         height: "100%",
@@ -82,7 +94,15 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
             onEndReachedThreshold={0.5}
             bounces={false}
             onEndReached={fetchConversationList}
-            ListHeaderComponent={<ListHeaderComponent pressBack={pressBack} />}
+            ListEmptyComponent={<Text style={{
+                textAlign: "center",
+                paddingTop: 20,
+                fontSize: 20,
+                fontWeight: "400",
+            }}>No conversation found</Text>}
+            ListHeaderComponent={<ListHeaderComponent
+                pressBack={pressBack}
+                InputOnChange={delayInput} />}
             data={conversationList} />
         <ActionSheet
             bottomSheetModalRef={bottomSheetModalRef}
@@ -134,9 +154,11 @@ const Item = memo(function Item({
 }, ((prev, next) => prev.data.id === next.data.id))
 
 const ListHeaderComponent = memo(function ListHeaderComponent({
-    pressBack
+    pressBack,
+    InputOnChange
 }: {
-    pressBack: () => void
+    pressBack: () => void,
+    InputOnChange: (text: string) => void
 }) {
 
     return <>
@@ -169,7 +191,10 @@ const ListHeaderComponent = memo(function ListHeaderComponent({
                     <Icon iconName={"SquarePen"} size={26} />
                 </View>
             </View>
-            <Input secondaryColor style={{ borderWidth: 0 }} placeholder='Search' />
+            <Input
+                onChangeText={InputOnChange}
+                secondaryColor style={{ borderWidth: 0 }}
+                placeholder='Search' />
             <Text
                 style={{
                     fontSize: 20,
@@ -183,7 +208,7 @@ const ListHeaderComponent = memo(function ListHeaderComponent({
             </Text>
         </View>
     </>
-})
+}, (() => true))
 
 const ChatDetailsSheetChildren = () => {
     return <View style={{ flex: 1 }}>

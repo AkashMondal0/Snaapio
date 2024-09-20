@@ -45,6 +45,7 @@ const SkySoloInput = ({ disabled,
                 style={{
                     color: currentTheme?.accent_foreground,
                     height: 50,
+                    width: '100%',
                     ...style as any
                 }}
                 ref={inputRef}

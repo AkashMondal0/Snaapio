@@ -14,16 +14,15 @@ const MessageList = memo(function MessageList({
     conversation: any,
     messages: Message[]
 }) {
-    const [loading, setLoading] = useState(true)
     const session = useSelector((Root: RootState) => Root.AuthState.session.user)
+    const messagesLoading = useSelector((Root: RootState) => Root.ConversationState?.messageLoading)
 
     return (<FlashList
-        onLoad={() => setLoading(false)}
         renderItem={({ item }) => <Item data={item} key={item.id} myself={session?.id === item.authorId} />}
-        keyExtractor={(item, index) => index.toString()}
-        scrollEventThrottle={400}
-        estimatedItemSize={6}
-        ListEmptyComponent={loading ? <Loader /> : <Text>No messages</Text>}
+        keyExtractor={(item) => item.id}
+        estimatedItemSize={100}
+        ListFooterComponent={messagesLoading ? <Loader size={36}/> : <></>}
+        ListEmptyComponent={<Text>No messages</Text>}
         data={messages} />)
 })
 
