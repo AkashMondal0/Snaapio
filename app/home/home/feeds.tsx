@@ -7,32 +7,36 @@ import { Post, disPatchResponse } from "@/types";
 import React, { useCallback, useRef, memo, useState } from "react";
 import { View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-let totalFetchedItemCount: number | null = 0
+import { resetFeeds } from '@/redux-stores/slice/account';
+let totalFetchedItemCount: number = 0
 
 const FeedsScreen = memo(function FeedsScreen({ navigation }: any) {
     const [finishedFetching, setFinishedFetching] = useState(false)
     const stopRef = useRef(false)
     const dispatch = useDispatch()
     const feedList = useSelector((state: RootState) => state.AccountState.feeds)
+    const feedListLoading = useSelector((state: RootState) => state.AccountState.feedsLoading)
+    const [refreshing, setRefreshing] = useState(false)
 
-    const getPostApi = useCallback(async () => {
+
+    const getPostApi = useCallback(async (reset?: boolean) => {
         // console.log('fetching more posts', totalFetchedItemCount)
         if (stopRef.current) return
-        if (totalFetchedItemCount === null) return setFinishedFetching(true)
+        if (totalFetchedItemCount === -1) return setFinishedFetching(true)
         try {
             const res = await dispatch(fetchAccountFeedApi({
                 limit: 12,
-                offset: totalFetchedItemCount
+                offset: reset ? 0 : totalFetchedItemCount
             }) as any) as disPatchResponse<Post[]>
 
             // console.log('fetching more posts', res.)
             if (res.payload.length > 0) {
                 // if less than 12 items fetched, stop fetching
                 if (res.payload.length < 12) {
-                    return totalFetchedItemCount = null
+                    return totalFetchedItemCount = -1
                 }
                 // if more than 12 items fetched, continue fetching
-                totalFetchedItemCount += 12
+                totalFetchedItemCount += res.payload.length
             }
         } finally {
             stopRef.current = false
@@ -40,6 +44,14 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: any) {
     }, [])
 
     const fetchPosts = debounce(getPostApi, 1000)
+
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true)
+        totalFetchedItemCount = 0
+        dispatch(resetFeeds())
+        await getPostApi(false)
+        setRefreshing(false)
+    }, [])
 
     return (
         <View style={{
@@ -55,10 +67,14 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: any) {
                 onEndReached={fetchPosts}
                 onEndReachedThreshold={0.5}
                 bounces={false}
-                ListFooterComponent={() => <View style={{ height: 50, padding: 10 }}>
-                    {finishedFetching ? <Text variant="heading4" style={{ textAlign: "center" }}>No more posts</Text> : <Loader size={40} />}
-                </View>}
-            />
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                ListFooterComponent={() => (
+                    <View style={{ height: 50, padding: 10 }}>
+                        {!finishedFetching || feedListLoading ? <Loader size={40} /> : <Text variant="heading4" style={{ textAlign: "center" }}>
+                            No more posts
+                        </Text>}
+                    </View>)} />
         </View>
     )
 })

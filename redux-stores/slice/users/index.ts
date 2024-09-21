@@ -28,6 +28,10 @@ export const UsersSlice = createSlice({
         removeAllUserFormSearch: (state) => {
             state.searchUsers = []
         },
+        resetUserState: (state) => {
+            state.UserDB = []
+            state.searchUsers = []
+        }
     },
     extraReducers: (builder) => {
         builder
@@ -49,7 +53,8 @@ export const UsersSlice = createSlice({
 
 export const {
     removeUserByIdFormSearch,
-    removeAllUserFormSearch
+    removeAllUserFormSearch,
+    resetUserState
 } = UsersSlice.actions
 
 export default UsersSlice.reducer

@@ -2,7 +2,6 @@ import AppHeader from "@/components/AppHeader";
 import LogOutDialog from "@/components/dialogs/logout";
 import { Icon, TouchableOpacity, Text, type IconName } from "@/components/skysolo-ui";
 import { configs } from "@/configs";
-import { logout } from "@/redux-stores/slice/auth";
 import { logoutApi } from "@/redux-stores/slice/auth/api.service";
 import { memo, useState } from "react";
 import { ScrollView, View } from "react-native";
@@ -54,8 +53,7 @@ const SettingScreen = memo(function HomeScreen({ navigation }: any) {
                 setModalVisible={setModalVisible}
                 modalVisible={modalVisible}
                 confirm={() => {
-                    dispatch(logout())
-                    logoutApi()
+                    dispatch(logoutApi() as any)
                 }} />
             <View style={{
                 width: '100%',

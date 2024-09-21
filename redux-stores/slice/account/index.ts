@@ -31,7 +31,12 @@ export const AccountSlice = createSlice({
   name: 'Account',
   initialState,
   reducers: {
-
+    resetAccountState: (state) => {
+      state.feeds = []
+    },
+    resetFeeds: (state) => {
+      state.feeds = []
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -67,7 +72,8 @@ export const AccountSlice = createSlice({
 })
 
 export const {
-
+  resetAccountState,
+  resetFeeds
 } = AccountSlice.actions
 
 export default AccountSlice.reducer

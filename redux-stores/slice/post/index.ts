@@ -46,6 +46,11 @@ export const PostsSlice = createSlice({
             if (action.payload?.length > 0) {
                 state.feeds.push(...action.payload)
             }
+        },
+        resetPostState: (state) => {
+            state.feeds = []
+            state.viewPost = null
+            state.likesUserList = []
         }
     },
     extraReducers: (builder) => {
@@ -107,7 +112,8 @@ export const PostsSlice = createSlice({
 })
 
 export const {
-    setMorePosts
+    setMorePosts,
+    resetPostState
 } = PostsSlice.actions
 
 export default PostsSlice.reducer

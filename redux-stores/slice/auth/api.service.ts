@@ -1,5 +1,12 @@
 import { configs } from "@/configs";
 import { SecureStorage } from "@/lib/SecureStore";
+import { createAsyncThunk } from "@reduxjs/toolkit";
+import { logout } from ".";
+import { resetAccountState } from "../account";
+import { resetConversationState } from "../conversation";
+import { resetPostState } from "../post";
+import { resetProfileState } from "../profile";
+import { resetUserState } from "../users";
 
 export const loginApi = async ({
     email,
@@ -90,21 +97,30 @@ export const registerApi = async ({
         });
 }
 
-export const logoutApi = async () => {
-    try {
-        await SecureStorage("remove", configs.sessionName)
-        await fetch(`${configs.serverApi.baseUrl}/auth/logout`, {
-            headers: {
-                "Content-Type": "application/json",
-            },
-            method: "POST",
-            redirect: "follow",
-            credentials: "include",
-            body: JSON.stringify({}),
-        })
-        return true
-    } catch (error) {
-        console.error("Error in logging out", error)
-        return false
+export const logoutApi = createAsyncThunk(
+    'fetchConversationApi/get',
+    async (_, thunkAPI) => {
+        try {
+            await SecureStorage("remove", configs.sessionName)
+            thunkAPI.dispatch(logout())
+            thunkAPI.dispatch(resetAccountState())
+            thunkAPI.dispatch(resetConversationState())
+            thunkAPI.dispatch(resetPostState())
+            thunkAPI.dispatch(resetProfileState())
+            thunkAPI.dispatch(resetUserState())
+            await fetch(`${configs.serverApi.baseUrl}/auth/logout`, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                method: "POST",
+                redirect: "follow",
+                credentials: "include",
+                body: JSON.stringify({}),
+            })
+            return true
+        } catch (error) {
+            console.error("Error in logging out", error)
+            return false
+        }
     }
-}
+);

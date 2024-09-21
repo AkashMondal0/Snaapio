@@ -93,6 +93,12 @@ export const ConversationSlice = createSlice({
             state.conversation = null
             state.messages = []
         },
+        resetConversationState: (state) => {
+            state.conversationList = []
+            state.conversation = null
+            state.messages = []
+            state.currentTyping = null
+        },
         setUploadImageInMessage: (state, action: PayloadAction<Message>) => {
             const index = state.conversationList.findIndex((i) => i.id === action.payload.conversationId)
             if (state.conversation) {
@@ -229,7 +235,8 @@ export const {
     resetConversation,
     setConversation,
     showUploadImageInMessage,
-    setUploadImageInMessage
+    setUploadImageInMessage,
+    resetConversationState
 } = ConversationSlice.actions
 
 export default ConversationSlice.reducer

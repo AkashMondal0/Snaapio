@@ -8,10 +8,10 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
 import { fetchConversationsApi } from '@/redux-stores/slice/conversation/api.service';
-import { setConversation } from '@/redux-stores/slice/conversation';
+import { resetConversationState, setConversation } from '@/redux-stores/slice/conversation';
 import debounce from '@/lib/debouncing';
 import searchText from '@/lib/TextSearch';
-let totalFetchedItemCount: number | null = 0
+let totalFetchedItemCount: number = 0
 
 const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
     const bottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -21,6 +21,7 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
     const dispatch = useDispatch()
     const [inputText, setInputText] = useState("")
     const [BottomSheetData, setBottomSheetData] = useState<Conversation | null>(null)
+    const [refreshing, setRefreshing] = useState(false)
 
     const conversationList = useMemo(() => {
         return [...list].sort((a, b) => {
@@ -33,23 +34,23 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
             .filter((item) => searchText(item?.user?.name, inputText))
     }, [list, inputText])
 
-    const fetchConversationList = useCallback(async () => {
+    const fetchConversationList = useCallback(async (totalFetchedCount: number = 0) => {
         if (stopRef.current) return
-        if (totalFetchedItemCount === null) return
+        if (totalFetchedCount === -1) return
         // setFinishedFetching(true)
         try {
             const res = await dispatch(fetchConversationsApi({
                 limit: 12,
-                offset: totalFetchedItemCount
+                offset: totalFetchedCount
             }) as any) as disPatchResponse<Conversation[]>
             if (res.payload.length > 0) {
                 // if less than 12 items fetched, stop fetching
                 if (res.payload.length < 12) {
                     // setFinishedFetching(true)
-                    return totalFetchedItemCount = null
+                    return totalFetchedCount = -1
                 }
                 // if more than 12 items fetched, continue fetching
-                totalFetchedItemCount += 12
+                totalFetchedCount += 12
             }
         } finally {
             stopRef.current = false
@@ -84,6 +85,13 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
 
     const delayInput = debounce(InputOnChange, 400)
 
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true)
+        dispatch(resetConversationState())
+        await fetchConversationList()
+        setRefreshing(false)
+    }, [])
+
     return <View style={{
         width: "100%",
         height: "100%",
@@ -96,13 +104,9 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
             estimatedItemSize={5}
             onEndReachedThreshold={0.5}
             bounces={false}
-            onEndReached={fetchConversationList}
-            ListEmptyComponent={<Text style={{
-                textAlign: "center",
-                paddingTop: 20,
-                fontSize: 20,
-                fontWeight: "400",
-            }}>No conversation found</Text>}
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            onEndReached={() => fetchConversationList(totalFetchedItemCount)}
             ListHeaderComponent={<ListHeaderComponent
                 pressBack={pressBack}
                 InputOnChange={delayInput} />}
