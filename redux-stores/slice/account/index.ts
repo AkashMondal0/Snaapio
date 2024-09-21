@@ -37,7 +37,7 @@ export const AccountSlice = createSlice({
     builder
       .addCase(fetchAccountFeedApi.pending, (state) => {
         state.feedsLoading = true
-        if (state.feedsError) state.feedsError = null
+        state.feedsError = null
       })
       .addCase(fetchAccountFeedApi.fulfilled, (state, action: PayloadAction<Post[]>) => {
         if (action.payload?.length > 0) {

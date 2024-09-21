@@ -1,45 +1,65 @@
-import { GraphqlQueryType } from "@/lib/GraphqlQuery"
-
-
-export const FeedQuery: GraphqlQueryType = {
-  name: "feedTimelineConnection",
-  operation: "query",
-  query: `query FeedTimelineConnection($limitAndOffset: GraphQLPageQuery!) {
-    feedTimelineConnection(limitAndOffset: $limitAndOffset) {
+export const QProfile = {
+  findUserProfile: `query FindUserProfile($username: String!) {
+    findUserProfile(username: $username) {
       id
-      content
-      title
-      fileUrl
-      createdAt
-      updatedAt
-      authorId
-      commentCount
-      likeCount
-      is_Liked
-      user {
-        id
-        username
-        email
-        name
-        profilePicture
-      }
-    }
-  }
-  `,
-}
-
-export const UpdateProfileQuery: GraphqlQueryType = {
-  name: "updateUserProfile",
-  operation: "mutation",
-  query: `mutation UpdateUserProfile($updateUsersInput: UpdateUsersInput!) {
-    updateUserProfile(UpdateUsersInput: $updateUsersInput) {
-      profilePicture
-      name
-      id
-      email
       username
+      email
+      name
       bio
       website
+      profilePicture
+      postCount
+      followerCount
+      followingCount
+      friendship {
+        followed_by
+        following
+      }
     }
   }`,
+  findAllPosts: `query FindUserProfile($findAllPosts: GraphQLPageQuery!) {
+    findAllPosts(findAllPosts: $findAllPosts) {
+      id
+      fileUrl
+      commentCount
+      likeCount
+    }
+  }`,
+  createFriendship: `mutation CreateFriendship($createFriendshipInput: CreateFriendshipInput!) {
+    createFriendship(createFriendshipInput: $createFriendshipInput) {
+      __typename
+    }
+  }`,
+  destroyFriendship: `mutation DestroyFriendship($destroyFriendship: DestroyFriendship!) {
+    destroyFriendship(destroyFriendship: $destroyFriendship) {
+    __typename  
+    }
+  }`,
+  RemoveFriendshipApi: `mutation DestroyFriendship($destroyFriendship: DestroyFriendship!) {
+    destroyFriendship(destroyFriendship: $destroyFriendship) {
+    __typename
+    }
+  }`,
+  findAllFollowing: `query FindAllFollowing($viewFollowingInput: GraphQLPageQuery!) {
+    findAllFollowing(viewFollowingInput: $viewFollowingInput) {
+      id
+      username
+      email
+      name
+      profilePicture
+      followed_by
+      following
+    }
+  }`,
+  findAllFollower: `query FindAllFollower($viewFollowerInput: GraphQLPageQuery!) {
+    findAllFollower(viewFollowerInput: $viewFollowerInput) {
+       id
+       username
+       email
+       name
+       profilePicture
+       followed_by
+       following
+    }
+  }`
 }

@@ -1,26 +1,17 @@
 import { graphqlQuery } from "@/lib/GraphqlQuery";
 import { createAsyncThunk } from "@reduxjs/toolkit";
+import { QUsers } from "./users.queries";
 
 
 export const searchUsersProfileApi = createAsyncThunk(
     'searchUsersProfileApi/get',
     async (keyword: string, thunkApi) => {
         try {
-            let query = `query FindUsersByKeyword($keyword: String!) {
-                findUsersByKeyword(keyword: $keyword) {
-                  username
-                  profilePicture
-                  name
-                  id
-                  email
-                }
-              }`
             const res = await graphqlQuery({
-                query: query,
+                query: QUsers.findUsersByKeyword,
                 variables: { keyword }
             })
-
-            return res.findUsersByKeyword
+            return res
         } catch (error: any) {
             return thunkApi.rejectWithValue({
                 ...error?.response?.data,

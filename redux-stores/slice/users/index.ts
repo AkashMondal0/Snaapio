@@ -1,17 +1,17 @@
-import { searchUsersProfileApi } from '@/redux/services/users'
 import { AuthorData } from '@/types'
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
+import { searchUsersProfileApi } from './api.service'
 
 // Define a type for the slice state
-export interface UsersState {
+export interface UsersStateType {
     UserDB: AuthorData[]
     searchUsers: AuthorData[]
     searchUsersLoading: boolean
     searchUsersError: unknown
 }
 // Define the initial state using that type
-const UsersState: UsersState = {
+const UsersState: UsersStateType = {
     UserDB: [],
     searchUsers: [],
     searchUsersLoading: false,

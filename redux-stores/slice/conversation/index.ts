@@ -4,7 +4,7 @@ import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 
 // Define a type for the slice state
-interface ConversationState {
+interface ConversationStateType {
     conversationList: Conversation[]
     listLoading: boolean
     listError: string | null
@@ -32,7 +32,7 @@ interface ConversationState {
 }
 
 // Define the initial state using that type
-const ConversationState: ConversationState = {
+const ConversationState: ConversationStateType = {
     conversationList: [],
     listLoading: false,
     listError: null,

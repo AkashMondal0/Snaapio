@@ -1,169 +1,113 @@
-import { graphqlQuery } from "@/lib/GraphqlQuery";
-import { AuthorData } from "@/types";
-import { createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit'
+import type { PayloadAction } from '@reduxjs/toolkit'
+import { AuthorData, Comment, Post } from '@/types'
+import { createPostCommentApi, fetchOnePostApi, fetchPostCommentsApi, fetchPostLikesApi } from './api.service'
 
-export const fetchOnePostApi = createAsyncThunk(
-    'fetchOnePostApi/get',
-    async (findOnePostId: string, thunkApi) => {
-        // try {
-        //     const data = await graphqlQuery({
-        //         query: findOnePostQuery.query,
-        //         variables: { findOnePostId }
-        //     })
+export type TypeActionLike = 'feeds' | 'singleFeed'
+// Define a type for the slice state
+export interface PostStateType {
+    feeds: Post[]
+    feedsLoading: boolean
+    feedsError: string | null
+    // 
+    viewPost: Post | null
+    viewPostLoading: boolean
+    viewPostError: string | null
+    // like
+    likeLoading?: boolean
+    likesUserList: AuthorData[]
+    // comment
+    commentLoading: boolean
+    fetchPostCommentsLoading: boolean
+}
 
-        //     return data[findOnePostQuery.name]
-        // } catch (error: any) {
-        //     return thunkApi.rejectWithValue({
-        //         message: error?.message
-        //     })
-        // }
-    }
-);
-// like a post
-export const createPostLikeApi = createAsyncThunk(
-    'createPostLikeApi/post',
-    async (createLikeId: string, thunkApi) => {
-        try {
-            let query = `mutation CreateLike($createLikeId: String!) {
-                createLike(id: $createLikeId) {
-                __typename
-                }
-              }`
-            const res = await graphqlQuery({
-                query: query,
-                variables: { createLikeId }
-            })
-            return res
-        } catch (error: any) {
-            return thunkApi.rejectWithValue({
-                ...error?.response?.data,
-            })
-        }
-    }
-);
-export const destroyPostLikeApi = createAsyncThunk(
-    'destroyPostLikeApi/post',
-    async (destroyLikeId: string, thunkApi) => {
-        try {
-            let query = `mutation DestroyLike($destroyLikeId: String!) {
-                destroyLike(id: $destroyLikeId) {
-                __typename
-                }
-              }`
-            const res = await graphqlQuery({
-                query: query,
-                variables: { destroyLikeId }
-            })
-            return res
-        } catch (error: any) {
-            return thunkApi.rejectWithValue({
-                ...error?.response?.data,
-            })
-        }
-    }
-);
-// create a comment
-export const createPostCommentApi = createAsyncThunk(
-    'createPostCommentApi/post',
-    async (data: {
-        postId: string,
-        user: AuthorData,
-        content: string,
-        authorId: string
-    }, thunkApi) => {
-        const { user, ...createCommentInput } = data
-        try {
-            let query = `mutation CreateComment($createCommentInput: CreateCommentInput!) {
-                createComment(createCommentInput: $createCommentInput) {
-                  updatedAt
-                  postId
-                  id
-                  createdAt
-                  content
-                  authorId
-                }
-              }`
-            const res = await graphqlQuery({
-                query: query,
-                variables: { createCommentInput }
-            })
+// Define the initial state using that type
+const PostState: PostStateType = {
+    feeds: [],
+    feedsLoading: false,
+    feedsError: null,
 
-            return { ...res.createComment, user }
-        } catch (error: any) {
-            return thunkApi.rejectWithValue({
-                ...error?.response?.data,
-            })
-        }
-    }
-);
-export const fetchPostLikesApi = createAsyncThunk(
-    'fetchPostLikesApi/get',
-    async (findAllLikesInput: {
-        offset: number,
-        limit: number,
-        id: string
-    }, thunkApi) => {
-        try {
-            let query = `query FindAllLikes($findAllLikesInput: GraphQLPageQuery!) {
-                findAllLikes(findAllLikesInput: $findAllLikesInput) {
-                  following
-                  followed_by
-                  id
-                  username
-                  email
-                  name
-                  profilePicture
-                }
-              }
-              `
-            const res = await graphqlQuery({
-                query: query,
-                variables: { findAllLikesInput }
-            })
+    viewPost: null,
+    viewPostLoading: false,
+    viewPostError: null,
 
-            return res.findAllLikes
-        } catch (error: any) {
-            return thunkApi.rejectWithValue({
-                ...error?.response?.data,
-            })
-        }
-    }
-);
-export const fetchPostCommentsApi = createAsyncThunk(
-    'fetchPostCommentsApi/get',
-    async (createCommentInput: {
-        offset: number,
-        limit: number,
-        id: string
-    }, thunkApi) => {
-        try {
-            let query = `query FindAllComments($createCommentInput: GraphQLPageQuery!) {
-                findAllComments(createCommentInput: $createCommentInput) {
-                  id
-                  content
-                  authorId
-                  postId
-                  createdAt
-                  updatedAt
-                  user {
-                    username
-                    email
-                    name
-                    profilePicture
-                  }
-                }
-              }
-              `
-            const res = await graphqlQuery({
-                query: query,
-                variables: { createCommentInput }
-            })
+    likeLoading: false,
+    likesUserList: [],
 
-            return res.findAllComments
-        } catch (error: any) {
-            return thunkApi.rejectWithValue({
-                ...error?.response?.data,
-            })
+    commentLoading: false,
+    fetchPostCommentsLoading: false
+}
+
+export const PostsSlice = createSlice({
+    name: 'PostFeed',
+    initialState: PostState,
+    reducers: {
+        setMorePosts: (state, action: PayloadAction<Post[]>) => {
+            if (action.payload?.length > 0) {
+                state.feeds.push(...action.payload)
+            }
         }
-    }
-);
+    },
+    extraReducers: (builder) => {
+        builder
+            // view post
+            .addCase(fetchOnePostApi.pending, (state) => {
+                state.viewPostLoading = true
+                state.viewPostError = null
+                state.viewPost = null
+            })
+            .addCase(fetchOnePostApi.fulfilled, (state, action: PayloadAction<Post>) => {
+                state.viewPost = action.payload
+                state.viewPostLoading = false
+                state.viewPostError = null
+            })
+            .addCase(fetchOnePostApi.rejected, (state, action) => {
+                state.viewPostLoading = false
+                state.viewPost = null
+                state.viewPostError = action.error.message || 'Failed to fetch post'
+            })
+            .addCase(fetchPostLikesApi.pending, (state) => {
+                state.likeLoading = true
+                state.likesUserList = []
+            })
+            .addCase(fetchPostLikesApi.fulfilled, (state, action: PayloadAction<AuthorData[]>) => {
+                state.likesUserList = [...action.payload]
+                state.likeLoading = false
+            })
+            .addCase(fetchPostLikesApi.rejected, (state, action) => {
+                state.likeLoading = false
+                state.likesUserList = []
+            })
+            // createPostCommentApi
+            .addCase(createPostCommentApi.pending, (state) => {
+                state.commentLoading = true
+            })
+            .addCase(createPostCommentApi.fulfilled, (state, action: PayloadAction<Comment>) => {
+                // console.info(action.payload)
+                state.viewPost?.comments.unshift(action.payload)
+                state.commentLoading = false
+            })
+            .addCase(createPostCommentApi.rejected, (state, action) => {
+                state.commentLoading = false
+            })
+            //fetchPostCommentsApi
+            .addCase(fetchPostCommentsApi.pending, (state) => {
+                state.fetchPostCommentsLoading = true
+            })
+            .addCase(fetchPostCommentsApi.fulfilled, (state, action: PayloadAction<Comment[]>) => {
+                if (state?.viewPost) {
+                    state.viewPost.comments = [...action.payload]
+                }
+                state.fetchPostCommentsLoading = false
+            })
+            .addCase(fetchPostCommentsApi.rejected, (state, action) => {
+                state.fetchPostCommentsLoading = false
+            })
+    },
+})
+
+export const {
+    setMorePosts
+} = PostsSlice.actions
+
+export default PostsSlice.reducer

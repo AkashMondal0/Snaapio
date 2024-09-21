@@ -1,10 +1,5 @@
-import { GraphqlQueryType } from "@/lib/GraphqlQuery"
-
-
-export const FeedQuery: GraphqlQueryType = {
-  name: "feedTimelineConnection",
-  operation: "query",
-  query: `query FeedTimelineConnection($limitAndOffset: GraphQLPageQuery!) {
+export const AQ = {
+  feedTimelineConnection: `query FeedTimelineConnection($limitAndOffset: GraphQLPageQuery!) {
     feedTimelineConnection(limitAndOffset: $limitAndOffset) {
       id
       content
@@ -24,14 +19,8 @@ export const FeedQuery: GraphqlQueryType = {
         profilePicture
       }
     }
-  }
-  `,
-}
-
-export const UpdateProfileQuery: GraphqlQueryType = {
-  name: "updateUserProfile",
-  operation: "mutation",
-  query: `mutation UpdateUserProfile($updateUsersInput: UpdateUsersInput!) {
+  }`,
+  updateUserProfile: `mutation UpdateUserProfile($updateUsersInput: UpdateUsersInput!) {
     updateUserProfile(UpdateUsersInput: $updateUsersInput) {
       profilePicture
       name

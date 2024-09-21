@@ -1,7 +1,7 @@
 import { RootState } from '@/redux-stores/store';
 import { useSelector } from "react-redux"
 import React, { useCallback } from 'react';
-import { Alert, Modal, View, type ModalProps, TouchableOpacity } from 'react-native';
+import { Modal, View, type ModalProps, TouchableOpacity } from 'react-native';
 import { X } from 'lucide-react-native';
 import SkysoloText from './Text';
 
@@ -35,7 +35,7 @@ const SkysoloModal = ({
 
     const clickHandler = useCallback(() => {
         setModalVisible(!modalVisible)
-    }, [modalVisible])
+    }, [])
 
 
     if (!currentTheme) return <View />

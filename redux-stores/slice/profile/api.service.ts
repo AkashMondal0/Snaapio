@@ -1,35 +1,18 @@
 import { graphqlQuery } from "@/lib/GraphqlQuery";
 import { findDataInput } from "@/types";
 import { createAsyncThunk } from "@reduxjs/toolkit";
+import { QProfile } from "./profile.queries";
 
 export const fetchUserProfileDetailApi = createAsyncThunk(
     'fetchProfileFeedApi/get',
     async (username: string, thunkApi) => {
         try {
-            let query = `query FindUserProfile($username: String!) {
-                findUserProfile(username: $username) {
-                  id
-                  username
-                  email
-                  name
-                  bio
-                  website
-                  profilePicture
-                  postCount
-                  followerCount
-                  followingCount
-                  friendship {
-                    followed_by
-                    following
-                  }
-                }
-              }`
             const res = await graphqlQuery({
-                query: query,
+                query: QProfile.findUserProfile,
                 variables: { username }
             })
 
-            return res.findUserProfile
+            return res
         } catch (error: any) {
             return thunkApi.rejectWithValue({
                 message: error?.message
@@ -44,19 +27,11 @@ export const fetchUserProfilePostsApi = createAsyncThunk(
         const { username, ...findAllPosts } = data
         findAllPosts.id = username
         try {
-            let query = `query FindUserProfile($findAllPosts: GraphQLPageQuery!) {
-                findAllPosts(findAllPosts: $findAllPosts) {
-                  id
-                  fileUrl
-                  commentCount
-                  likeCount
-                }
-              }`
             const res = await graphqlQuery({
-                query: query,
+                query: QProfile.findAllPosts,
                 variables: { findAllPosts }
             })
-            return res.findAllPosts
+            return res
 
         } catch (error: any) {
             return thunkApi.rejectWithValue({
@@ -75,20 +50,13 @@ export const createFriendshipApi = createAsyncThunk(
         followingUsername: string
     }, thunkApi) => {
         const { ...createFriendshipInput } = data
-
         try {
-            let query = `mutation CreateFriendship($createFriendshipInput: CreateFriendshipInput!) {
-                createFriendship(createFriendshipInput: $createFriendshipInput) {
-                  __typename
-                }
-              }`
             await graphqlQuery({
-                query: query,
+                query: QProfile.createFriendship,
                 variables: {
                     createFriendshipInput
                 }
             })
-
             return true
         } catch (error: any) {
             return thunkApi.rejectWithValue({
@@ -107,20 +75,13 @@ export const destroyFriendshipApi = createAsyncThunk(
         followingUsername: string
     }, thunkApi) => {
         const { ...destroyFriendship } = data
-
         try {
-            let query = `mutation DestroyFriendship($destroyFriendship: DestroyFriendship!) {
-                destroyFriendship(destroyFriendship: $destroyFriendship) {
-                __typename  
-                }
-              }`
             await graphqlQuery({
-                query: query,
+                query: QProfile.destroyFriendship,
                 variables: {
                     destroyFriendship
                 }
             })
-
             return true
         } catch (error: any) {
             return thunkApi.rejectWithValue({
@@ -139,20 +100,13 @@ export const RemoveFriendshipApi = createAsyncThunk(
         followingUsername: string
     }, thunkApi) => {
         const { ...destroyFriendship } = data
-
         try {
-            let query = `mutation DestroyFriendship($destroyFriendship: DestroyFriendship!) {
-                destroyFriendship(destroyFriendship: $destroyFriendship) {
-                __typename
-                }
-              }`
             await graphqlQuery({
-                query: query,
+                query: QProfile.RemoveFriendshipApi,
                 variables: {
                     destroyFriendship
                 }
             })
-
             return true
         } catch (error: any) {
             return thunkApi.rejectWithValue({
@@ -165,26 +119,15 @@ export const RemoveFriendshipApi = createAsyncThunk(
 export const fetchUserProfileFollowingUserApi = createAsyncThunk(
     'fetchUserProfileFollowingUserApi/get',
     async (data: findDataInput, thunkApi) => {
-        const { username, ...viewFollowingInput } = data
+        let { username, ...viewFollowingInput } = data
         viewFollowingInput.id = username
         try {
-            let query = `query FindAllFollowing($viewFollowingInput: GraphQLPageQuery!) {
-                findAllFollowing(viewFollowingInput: $viewFollowingInput) {
-                  id
-                  username
-                  email
-                  name
-                  profilePicture
-                  followed_by
-                  following
-                }
-              }`
             const res = await graphqlQuery({
-                query: query,
+                query: QProfile.findAllFollowing,
                 variables: { viewFollowingInput }
             })
 
-            return res.findAllFollowing
+            return res
         } catch (error: any) {
             return thunkApi.rejectWithValue({
                 ...error?.response?.data,
@@ -196,26 +139,14 @@ export const fetchUserProfileFollowingUserApi = createAsyncThunk(
 export const fetchUserProfileFollowerUserApi = createAsyncThunk(
     'fetchUserProfileFollowerUserApi/get',
     async (data: findDataInput, thunkApi) => {
-        const { username, ...viewFollowerInput } = data
+        let { username, ...viewFollowerInput } = data
         viewFollowerInput.id = username
         try {
-            let query = `query FindAllFollower($viewFollowerInput: GraphQLPageQuery!) {
-                findAllFollower(viewFollowerInput: $viewFollowerInput) {
-                   id
-                   username
-                   email
-                   name
-                   profilePicture
-                   followed_by
-                   following
-                }
-              }`
             const res = await graphqlQuery({
-                query: query,
+                query: QProfile.findAllFollower,
                 variables: { viewFollowerInput }
             })
-
-            return res.findAllFollower
+            return res
         } catch (error: any) {
             return thunkApi.rejectWithValue({
                 ...error?.response?.data,

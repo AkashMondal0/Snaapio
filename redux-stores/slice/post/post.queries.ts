@@ -1,45 +1,81 @@
-import { GraphqlQueryType } from "@/lib/GraphqlQuery"
-
-
-export const FeedQuery: GraphqlQueryType = {
-  name: "feedTimelineConnection",
-  operation: "query",
-  query: `query FeedTimelineConnection($limitAndOffset: GraphQLPageQuery!) {
-    feedTimelineConnection(limitAndOffset: $limitAndOffset) {
+export const QPost = {
+  findOnePost: `query findOnePostQuery($findOnePostId: String!) {
+    findOnePost(id: $findOnePostId) {
       id
       content
-      title
       fileUrl
       createdAt
       updatedAt
-      authorId
       commentCount
       likeCount
       is_Liked
+      comments {
+        content
+        createdAt
+        id
+        user {
+          id
+          email
+          username
+          name
+          profilePicture
+        }
+      }
       user {
         id
+        username
+        name
+        profilePicture
+      }
+    }
+  }`,
+  // post like
+  createLike: `mutation CreateLike($createLikeId: String!) {
+    createLike(id: $createLikeId) {
+    __typename
+    }
+  }`,
+  destroyLike: `mutation DestroyLike($destroyLikeId: String!) {
+    destroyLike(id: $destroyLikeId) {
+    __typename
+    }
+  }`,
+  // post comment
+  createComment: `mutation CreateComment($createCommentInput: CreateCommentInput!) {
+    createComment(createCommentInput: $createCommentInput) {
+      updatedAt
+      postId
+      id
+      createdAt
+      content
+      authorId
+    }
+  }`,
+  findAllLikes: `query FindAllLikes($findAllLikesInput: GraphQLPageQuery!) {
+    findAllLikes(findAllLikesInput: $findAllLikesInput) {
+      following
+      followed_by
+      id
+      username
+      email
+      name
+      profilePicture
+    }
+  }`,
+  findAllComments: `query FindAllComments($createCommentInput: GraphQLPageQuery!) {
+    findAllComments(createCommentInput: $createCommentInput) {
+      id
+      content
+      authorId
+      postId
+      createdAt
+      updatedAt
+      user {
         username
         email
         name
         profilePicture
       }
     }
-  }
-  `,
-}
-
-export const UpdateProfileQuery: GraphqlQueryType = {
-  name: "updateUserProfile",
-  operation: "mutation",
-  query: `mutation UpdateUserProfile($updateUsersInput: UpdateUsersInput!) {
-    updateUserProfile(UpdateUsersInput: $updateUsersInput) {
-      profilePicture
-      name
-      id
-      email
-      username
-      bio
-      website
-    }
-  }`,
+  }`
 }
