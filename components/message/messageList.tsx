@@ -1,6 +1,6 @@
 import { FlashList } from '@shopify/flash-list';
-import { memo, useState } from 'react';
-import { Message } from '@/types';
+import { memo } from 'react';
+import { Conversation, Message } from '@/types';
 import { Text, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
@@ -9,27 +9,34 @@ import { Icon, Loader } from '@/components/skysolo-ui';
 
 const MessageList = memo(function MessageList({
     conversation,
-    messages
+    fetchMore
 }: {
-    conversation: any,
-    messages: Message[]
+    conversation: Conversation,
+    fetchMore: () => void,
 }) {
+    // const scrollViewRef = useRef<any>(null);
     const session = useSelector((Root: RootState) => Root.AuthState.session.user)
     const messagesLoading = useSelector((Root: RootState) => Root.ConversationState?.messageLoading)
+    const messages = useSelector((Root: RootState) => Root.ConversationState?.messages)
 
     return (<FlashList
-        renderItem={({ item }) => <Item data={item} key={item.id} myself={session?.id === item.authorId} />}
-        keyExtractor={(item) => item.id}
+        inverted
+        onEndReached={fetchMore}
+        // ref={scrollViewRef}
+        data={messages}
         estimatedItemSize={100}
-        ListFooterComponent={messagesLoading ? <Loader size={36}/> : <></>}
-        ListEmptyComponent={<Text>No messages</Text>}
-        data={messages} />)
-})
+        bounces={false}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => <Item data={item} seenMessage={conversation.members.length === item.seenBy.length}
+            key={item.id} myself={session?.id === item.authorId} />}
+        ListFooterComponent={messagesLoading ? <Loader size={36} /> : <></>}
+        ListEmptyComponent={<Text>No messages</Text>} />)
+}, (prev, next) => prev.conversation === next.conversation)
 
 export default MessageList
 
 
-const Item = memo(function Item({ data, myself }: { data: Message, myself: boolean }) {
+const Item = memo(function Item({ data, myself, seenMessage }: { data: Message, myself: boolean, seenMessage: boolean }) {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
     const color = myself ? currentTheme?.primary_foreground : currentTheme?.foreground
     const bg = myself ? currentTheme?.primary : currentTheme?.muted
@@ -70,9 +77,8 @@ const Item = memo(function Item({ data, myself }: { data: Message, myself: boole
                     }}>
                     {timeFormat(data?.createdAt as string)}
                 </Text>
-                {myself ? <Icon iconName="CheckCheck" size={20} color={color} /> : <View style={{ width: 20 }} />}
+                {myself && seenMessage ? <Icon iconName="CheckCheck" size={20} color={color} /> : <View style={{ width: 20 }} />}
             </View>
         </View>
-
     </View>
 })

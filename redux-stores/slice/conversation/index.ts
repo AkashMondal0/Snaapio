@@ -155,7 +155,7 @@ export const ConversationSlice = createSlice({
         })
         builder.addCase(fetchConversationAllMessagesApi.fulfilled, (state, action: PayloadAction<Message[]>) => {
             if (state.conversation) {
-                state.messages.unshift(...action.payload)
+                state.messages.push(...action.payload)
             }
             state.messageLoading = false
         })

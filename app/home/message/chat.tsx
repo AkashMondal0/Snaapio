@@ -21,14 +21,16 @@ interface ChatScreenProps {
 
 const ChatScreen = memo(function ChatScreen({ navigation, route }: ChatScreenProps) {
     const stopFetch = useRef(false)
-    // const stopBottomRef = useRef(true)
     const ConversationData = useSelector((Root: RootState) => Root.ConversationState.conversation, (prev, next) => prev?.id === next?.id)
-    const Messages = useSelector((Root: RootState) => Root.ConversationState?.messages)
-
     const dispatch = useDispatch()
 
+    useEffect(() => {
+        totalFetchedItemCount = 0
+    }, [route.params.id])
+
     const loadMoreMessages = useCallback(async (conversationId?: string) => {
-        if (totalFetchedItemCount === null) return
+        // console.log('loadMoreMessages', totalFetchedItemCount)
+        if (totalFetchedItemCount === null || stopFetch.current) return
         if (!conversationId) return ToastAndroid.show('Chat Not Found', ToastAndroid.SHORT)
         try {
             const resM = await dispatch(fetchConversationAllMessagesApi({
@@ -36,14 +38,11 @@ const ChatScreen = memo(function ChatScreen({ navigation, route }: ChatScreenPro
                 offset: totalFetchedItemCount,
                 limit: 20
             }) as any) as disPatchResponse<Message[]>
-            // console.log(route.params.id, resM.payload)
             if (resM?.error) return ToastAndroid.show('Error loading messages', ToastAndroid.SHORT)
             if (resM.payload.length >= 20) {
-                totalFetchedItemCount += 20
-                // virtualizer.scrollToIndex(resM.payload.length + (virtualizer?.range?.endIndex ?? 0))
-                return
+                return totalFetchedItemCount += 20
             }
-            // totalFetchedItemCount = null
+            totalFetchedItemCount = null
         } finally {
             stopFetch.current = false
         }
@@ -53,15 +52,9 @@ const ChatScreen = memo(function ChatScreen({ navigation, route }: ChatScreenPro
 
     const PressBack = useCallback(() => { navigation?.goBack() }, [])
 
-    useEffect(() => {
-            totalFetchedItemCount = 0
-            loadMoreMessages(route.params.id)
-    }, [route.params.id])
-
     if (!ConversationData) return <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <Text variant="heading3">No conversation found</Text>
     </View>
-
 
     return (
         <View style={{
@@ -70,7 +63,7 @@ const ChatScreen = memo(function ChatScreen({ navigation, route }: ChatScreenPro
             height: '100%',
         }}>
             <Navbar conversation={ConversationData} pressBack={PressBack} />
-            <MessageList messages={Messages} conversation={ConversationData} />
+            <MessageList conversation={ConversationData} fetchMore={fetchMore} />
             <Input conversation={ConversationData} />
         </View>
     )
