@@ -89,7 +89,7 @@ export const fetchPostLikesApi = createAsyncThunk(
                 query: QPost.findAllLikes,
                 variables: { findAllLikesInput }
             })
-            return res.findAllLikes
+            return res
         } catch (error: any) {
             return thunkApi.rejectWithValue({
                 ...error?.response?.data,
@@ -110,7 +110,7 @@ export const fetchPostCommentsApi = createAsyncThunk(
                 query: QPost.findAllComments,
                 variables: { createCommentInput }
             })
-            return res.findAllComments
+            return res
         } catch (error: any) {
             return thunkApi.rejectWithValue({
                 ...error?.response?.data,

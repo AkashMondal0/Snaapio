@@ -23,7 +23,7 @@ const AppHeader = memo(function HomeScreen({
             <View style={{
                 width: '100%',
                 height: 55,
-                borderBottomWidth: 0.9,
+                borderBottomWidth: 0.8,
                 borderColor: currentTheme?.border,
                 paddingHorizontal: 10,
                 flexDirection: 'row',
@@ -54,8 +54,8 @@ const AppHeader = memo(function HomeScreen({
         <View style={{
             width: '100%',
             height: 55,
-            borderBottomWidth: 0.8,
             borderColor: currentTheme?.border,
+            borderBottomWidth: 0.8,
             paddingHorizontal: 10,
             flexDirection: 'row',
             alignItems: 'center',

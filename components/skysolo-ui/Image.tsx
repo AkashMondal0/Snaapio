@@ -24,7 +24,6 @@ const SkysoloImage = memo(function SkysoloImage({
     ...otherProps }: Props) {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
     const [error, setError] = useState(false);
-    const [loading, setLoading] = useState(true);
 
     if (error && showImageError) {
         return (
@@ -70,7 +69,10 @@ const SkysoloImage = memo(function SkysoloImage({
                 borderColor: currentTheme?.border,
                 borderWidth: 1,
             } : require('../../assets/images/nochat.png')}
-            onError={() => setError(true)}
+            // onError={() => {
+            //     if (error) return
+            //     setError(true)
+            // }}
             // onLoadEnd={() => setLoading(false)}
             style={{
                 width: "100%",
@@ -80,6 +82,6 @@ const SkysoloImage = memo(function SkysoloImage({
                 ...style as any,
             }}{...otherProps} />
     )
-}, (prevProps, nextProps) => prevProps.url === nextProps.url)
+})
 
 export default SkysoloImage

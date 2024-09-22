@@ -10,7 +10,7 @@ const FeedItem = memo(function Item({
     onPress
 }: {
     data: Post,
-    onPress: (post: Post, path: string) => void,
+    onPress: (post: Post, path: "like" | "comment") => void,
 }) {
 
     return <View style={{
@@ -51,7 +51,7 @@ const FeedItem = memo(function Item({
                 width: "100%",
                 minHeight: 460,
             }}>
-            {Array(3)?.fill(0).map((mediaUrl, index) => (
+            {data.fileUrl.map((mediaUrl, index) => (
                 <View style={{
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -60,7 +60,7 @@ const FeedItem = memo(function Item({
                         isBorder
                         resizeMode="cover"
                         resizeMethod="auto"
-                        src={data.fileUrl[0]}
+                        src={mediaUrl}
                         style={{
                             width: "96%",
                             flex: 1,
@@ -104,7 +104,7 @@ const FeedItemActionsButtons = memo(function FeedItemActionsButtons(
         data,
         onPress
     }: {
-        onPress: (post: Post, path: string) => void,
+        onPress: (post: Post, path: "like" | "comment") => void,
         data: Post
     }
 ) {

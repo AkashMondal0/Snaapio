@@ -19,7 +19,7 @@ import Avatar from "./Avatar";
 import TouchableOpacity from "./TouchableOpacity";
 import Icon, { IconName } from "./Icon";
 import Toast from "./Toast";
-// import Progress from "./Progress";
+import Separator from "./Separator";
 // import Dropdown from "./DropDown";
 
 export {
@@ -44,5 +44,6 @@ export {
     Icon,
     Toast,
     TouchableOpacity,
+    Separator,
     IconName
 }

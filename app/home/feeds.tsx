@@ -9,15 +9,16 @@ import { View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { resetFeeds } from '@/redux-stores/slice/account';
 import { FeedItem, HomeHeader } from '@/components/home';
+import { resetComments, resetLike } from '@/redux-stores/slice/post';
 let totalFetchedItemCount: number = 0
 
 const FeedsScreen = memo(function FeedsScreen({ navigation }: any) {
     const [finishedFetching, setFinishedFetching] = useState(false)
+    const [refreshing, setRefreshing] = useState(false)
     const stopRef = useRef(false)
-    const dispatch = useDispatch()
     const feedList = useSelector((state: RootState) => state.AccountState.feeds)
     const feedListLoading = useSelector((state: RootState) => state.AccountState.feedsLoading)
-    const [refreshing, setRefreshing] = useState(false)
+    const dispatch = useDispatch()
 
 
     const getPostApi = useCallback(async (reset?: boolean) => {
@@ -50,12 +51,17 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: any) {
         setRefreshing(true)
         totalFetchedItemCount = 0
         dispatch(resetFeeds())
-        await getPostApi(false)
+        await getPostApi(true)
         setRefreshing(false)
     }, [])
 
-    const onPress = useCallback((item: Post, path: string) => {
-        navigation.navigate(path, { item })
+    const onPress = useCallback((item: Post, path: "like" | "comment") => {
+        if (path === "like") {
+            dispatch(resetLike())
+        } else if (path === "comment") {
+            dispatch(resetComments())
+        }
+        navigation.navigate(path, { post: item })
     }, [])
 
     return (

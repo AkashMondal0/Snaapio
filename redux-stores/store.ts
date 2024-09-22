@@ -3,6 +3,7 @@ import ThemeReducer from './slice/theme'
 import AuthReducer from './slice/auth'
 import AccountReducer from './slice/account'
 import ConversationReducer from './slice/conversation'
+import PostReducer from './slice/post'
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     AuthState: AuthReducer,
     AccountState: AccountReducer,
     ConversationState: ConversationReducer,
+    PostState: PostReducer,
   },
 })
 

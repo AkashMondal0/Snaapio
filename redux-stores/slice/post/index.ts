@@ -14,11 +14,19 @@ export interface PostStateType {
     viewPostLoading: boolean
     viewPostError: string | null
     // like
-    likeLoading?: boolean
+    likesLoading?: boolean
+    likesError?: string | null
     likesUserList: AuthorData[]
     // comment
-    commentLoading: boolean
-    fetchPostCommentsLoading: boolean
+    comments: Comment[]
+    commentsLoading: boolean
+    commentsError: string | null
+
+    createLikeLoading?: boolean
+    createLikeError?: string | null
+
+    createCommentLoading?: boolean
+    createCommentError?: string | null
 }
 
 // Define the initial state using that type
@@ -31,11 +39,13 @@ const PostState: PostStateType = {
     viewPostLoading: false,
     viewPostError: null,
 
-    likeLoading: false,
     likesUserList: [],
+    likesLoading: false,
+    likesError: null,
 
-    commentLoading: false,
-    fetchPostCommentsLoading: false
+    comments: [],
+    commentsLoading: false,
+    commentsError: null
 }
 
 export const PostsSlice = createSlice({
@@ -50,6 +60,18 @@ export const PostsSlice = createSlice({
         resetPostState: (state) => {
             state.feeds = []
             state.viewPost = null
+            state.likesUserList = []
+        },
+        resetViewPost: (state) => {
+            state.viewPost = null
+        },
+        resetComments: (state) => {
+            state.comments = []
+        },
+        setViewPost: (state, action: PayloadAction<Post>) => {
+            state.viewPost = action.payload
+        },
+        resetLike: (state) => {
             state.likesUserList = []
         }
     },
@@ -72,48 +94,50 @@ export const PostsSlice = createSlice({
                 state.viewPostError = action.error.message || 'Failed to fetch post'
             })
             .addCase(fetchPostLikesApi.pending, (state) => {
-                state.likeLoading = true
+                state.likesLoading = true
                 state.likesUserList = []
             })
             .addCase(fetchPostLikesApi.fulfilled, (state, action: PayloadAction<AuthorData[]>) => {
-                state.likesUserList = [...action.payload]
-                state.likeLoading = false
+                state.likesUserList.push(...action.payload)
+                state.likesLoading = false
             })
             .addCase(fetchPostLikesApi.rejected, (state, action) => {
-                state.likeLoading = false
+                state.likesLoading = false
                 state.likesUserList = []
             })
             // createPostCommentApi
             .addCase(createPostCommentApi.pending, (state) => {
-                state.commentLoading = true
+                state.commentsLoading = true
             })
             .addCase(createPostCommentApi.fulfilled, (state, action: PayloadAction<Comment>) => {
                 // console.info(action.payload)
                 state.viewPost?.comments.unshift(action.payload)
-                state.commentLoading = false
+                state.commentsLoading = false
             })
             .addCase(createPostCommentApi.rejected, (state, action) => {
-                state.commentLoading = false
+                state.commentsLoading = false
             })
             //fetchPostCommentsApi
             .addCase(fetchPostCommentsApi.pending, (state) => {
-                state.fetchPostCommentsLoading = true
+                state.commentsLoading = true
             })
             .addCase(fetchPostCommentsApi.fulfilled, (state, action: PayloadAction<Comment[]>) => {
-                if (state?.viewPost) {
-                    state.viewPost.comments = [...action.payload]
-                }
-                state.fetchPostCommentsLoading = false
+                state.comments.push(...action.payload)
+                state.commentsLoading = false
             })
             .addCase(fetchPostCommentsApi.rejected, (state, action) => {
-                state.fetchPostCommentsLoading = false
+                state.commentsLoading = false
             })
     },
 })
 
 export const {
     setMorePosts,
-    resetPostState
+    resetPostState,
+    resetViewPost,
+    setViewPost,
+    resetComments,
+    resetLike
 } = PostsSlice.actions
 
 export default PostsSlice.reducer

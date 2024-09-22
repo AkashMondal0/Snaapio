@@ -6,18 +6,21 @@ export type Props = ViewProps & {
     variant?: any
     lightColor?: string;
     darkColor?: string;
+    value?: number;
 };
 
 
-const SkysoloView = ({ style, ...otherProps }: Props) => {
+const SkysoloSeparator = ({ style, value = 1, ...otherProps }: Props) => {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
     if (!currentTheme) return <View />
+
     return (
         <View style={[{
-            backgroundColor: currentTheme.background,
-        }, style]}
-            {...otherProps} />
+            height: value,
+            width: '100%',
+            backgroundColor: currentTheme.border,
+        }, style]}  {...otherProps} />
     )
 }
 
-export default SkysoloView
+export default SkysoloSeparator
