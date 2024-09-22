@@ -34,6 +34,7 @@ export function TopTabBar() {
       initialRouteName='feed'
       backBehavior="initialRoute"
       initialLayout={{ width: "100%", height: 100 }}
+      screenOptions={{ headerShown: false }}
       sceneContainerStyle={{ backgroundColor: background }}>
       <Tab.Screen name="camera" component={CameraScreen} />
       <Tab.Screen name="feed" component={HomeScreen} />
@@ -44,32 +45,32 @@ export function TopTabBar() {
 
 function Routes(backgroundColor: any) {
   const session = useSelector((state: RootState) => state.AuthState.session)
-  const option_slide_from_right = {
-    headerShown: false,
-    contentStyle: { backgroundColor, width: '100%', height: '100%' }
-  }
+
   return (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={{
+      headerShown: false,
+      contentStyle: { backgroundColor, width: '100%', height: '100%' }
+    }}>
       {session.user ?
         <>
           {/* feeds */}
-          <Stack.Screen name="Root" component={TopTabBar} options={option_slide_from_right} />
+          <Stack.Screen name="Root" component={TopTabBar} />
           {/* settings */}
-          <Stack.Screen name={"settings"} component={SettingScreen} options={option_slide_from_right} />
-          <Stack.Screen name={"settings/theme"} component={ThemeSettingScreen} options={option_slide_from_right} />
+          <Stack.Screen name={"settings"} component={SettingScreen} />
+          <Stack.Screen name={"settings/theme"} component={ThemeSettingScreen} />
           {/* chat */}
-          <Stack.Screen name="message/conversation" component={ChatScreen} options={option_slide_from_right} />
+          <Stack.Screen name="message/conversation" component={ChatScreen} />
           {/* post */}
-          <Stack.Screen name="post" component={PostScreen} options={option_slide_from_right} />
-          <Stack.Screen name="post/like" component={LikeScreen} options={option_slide_from_right} />
-          <Stack.Screen name="post/comment" component={CommentScreen} options={option_slide_from_right} />
+          <Stack.Screen name="post" component={PostScreen} />
+          <Stack.Screen name="post/like" component={LikeScreen} />
+          <Stack.Screen name="post/comment" component={CommentScreen} />
           {/* notification */}
-          <Stack.Screen name="notification" component={NotificationScreen} options={option_slide_from_right} />
+          <Stack.Screen name="notification" component={NotificationScreen} />
         </> :
         <>
-          <Stack.Screen name="auth" component={InitialScreen} options={option_slide_from_right} />
-          <Stack.Screen name="auth/login" component={LoginScreen} options={option_slide_from_right} />
-          <Stack.Screen name="auth/register" component={RegisterScreen} options={option_slide_from_right} />
+          <Stack.Screen name="auth" component={InitialScreen} />
+          <Stack.Screen name="auth/login" component={LoginScreen} />
+          <Stack.Screen name="auth/register" component={RegisterScreen} />
         </>}
     </Stack.Navigator >
   );

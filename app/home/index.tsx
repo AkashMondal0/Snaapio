@@ -27,15 +27,16 @@ const HomeScreen = () => {
                 }}
                 screenOptions={{
                     tabBarHideOnKeyboard: true,
+                    headerShown: false,
                 }}
                 tabBar={(props: React.JSX.IntrinsicAttributes & BottomTabBarProps) => <MyTabBar {...props} currentTheme={currentTheme} />}>
                 <Tab.Screen name="feeds" component={FeedsScreen} options={{
                     headerShown: false,
                 }} />
-                <Tab.Screen name="search" component={SearchScreen} options={{ headerShown: false }} />
-                <Tab.Screen name="create" component={CameraScreen} options={{ headerShown: false }} />
-                <Tab.Screen name="reels" component={ReelsScreen} options={{ headerShown: false }} />
-                <Tab.Screen name="profile" component={ProfileScreen} options={{ headerShown: false }} />
+                <Tab.Screen name="search" component={SearchScreen} />
+                <Tab.Screen name="create" component={CameraScreen} />
+                <Tab.Screen name="reels" component={ReelsScreen} />
+                <Tab.Screen name="profile" component={ProfileScreen} />
             </Tab.Navigator>
         </View>
     )
@@ -45,6 +46,7 @@ export default HomeScreen
 
 
 function MyTabBar({ state, descriptors, navigation, currentTheme }: BottomTabBarProps & { currentTheme: any }) {
+    const session = useSelector((state: RootState) => state.AuthState.session.user)
 
     const getIcon = (routeName: string, isFocused: boolean) => {
         let iconSize = 28;
@@ -111,6 +113,25 @@ function MyTabBar({ state, descriptors, navigation, currentTheme }: BottomTabBar
                             testID={options.tabBarTestID}
                             onPress={() => { navigation.navigate("Root", { screen: 'camera' }) }}
                             // onLongPress={() => { navigation.navigate("Root", { screen: 'camera' }) }}
+                            style={{ flex: 1, alignItems: 'center' }}
+                        >
+                            {getIcon(route.name, isFocused)}
+                        </TouchableOpacity>
+                    );
+                }
+                if (route.name === "profile") {
+                    return (
+                        <TouchableOpacity
+                            key={index}
+                            accessibilityRole="button"
+                            accessibilityState={isFocused ? { selected: true } : {}}
+                            accessibilityLabel={options.tabBarAccessibilityLabel}
+                            testID={options.tabBarTestID}
+                            onPress={() => {
+                                navigation.navigate("profile", {
+                                    screen: 'profile', params: { username: session?.username }
+                                })
+                            }}
                             style={{ flex: 1, alignItems: 'center' }}
                         >
                             {getIcon(route.name, isFocused)}

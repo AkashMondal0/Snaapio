@@ -7,9 +7,11 @@ import PagerView from 'react-native-pager-view';
 
 const FeedItem = memo(function Item({
     data,
-    onPress
+    onPress,
+    onNavigate
 }: {
     data: Post,
+    onNavigate: (username: string) => void,
     onPress: (post: Post, path: "post/like" | "post/comment") => void,
 }) {
 
@@ -26,9 +28,8 @@ const FeedItem = memo(function Item({
             alignItems: "center",
             gap: 10
         }}>
-            <Avatar
-                size={45}
-                url={data.user?.profilePicture} />
+            <Avatar size={45} url={data.user?.profilePicture}
+                onPress={() => onNavigate(data.user?.username)} />
             <View>
                 <Text
                     style={{ fontWeight: "600" }}
