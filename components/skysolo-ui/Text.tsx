@@ -20,7 +20,7 @@ const SkysoloText = ({ style, variant,
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
     const ThemeColors = useSelector((state: RootState) => state.ThemeState.themeColors)
 
-    const color = useMemo(() => {
+    const color = () => {
         if (colorVariant === "default") {
             return currentTheme?.foreground
         } else if (colorVariant === "danger") {
@@ -32,9 +32,9 @@ const SkysoloText = ({ style, variant,
         } else if (colorVariant === "secondary") {
             return currentTheme?.muted_foreground
         }
-    }, [variant, currentTheme?.primary])
+    }
 
-    const fontSize = useMemo(() => {
+    const fontSize = () => {
         if (variant === "heading1") {
             return 32
         } else if (variant === "heading2") {
@@ -46,9 +46,9 @@ const SkysoloText = ({ style, variant,
         } else {
             return 14
         }
-    }, [variant, currentTheme?.primary])
+    }
 
-    const fontWeight = useMemo(() => {
+    const fontWeight = () => {
         if (variant === "heading1") {
             return "700"
         } else if (variant === "heading2") {
@@ -60,7 +60,7 @@ const SkysoloText = ({ style, variant,
         } else {
             return "400"
         }
-    }, [variant, currentTheme?.primary])
+    }
 
     if (!currentTheme) {
         return <></>
@@ -69,9 +69,9 @@ const SkysoloText = ({ style, variant,
     return (
         <Text
             style={[{
-                color: color,
-                fontSize: fontSize,
-                fontWeight: fontWeight,
+                color: color(),
+                fontSize: fontSize(),
+                fontWeight: fontWeight(),
             }, style]}
             {...otherProps} />
     )

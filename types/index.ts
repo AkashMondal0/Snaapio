@@ -16,7 +16,7 @@ export interface NavigationProps {
     dispatch: (action: any) => void,
     goBack: () => void,
     isFocused: () => boolean,
-    navigate: (name: string, params: any) => void,
+    navigate: (name: string, params?: any) => void,
     pop: () => void,
     popToTop: () => void,
     push: (name: string, params: any) => void,

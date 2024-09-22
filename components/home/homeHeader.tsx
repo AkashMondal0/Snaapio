@@ -2,7 +2,6 @@ import { View } from "react-native"
 import { Icon, Text } from '@/components/skysolo-ui';
 import { NavigationProps } from "@/types";
 import { memo } from "react";
-import { configs } from "@/configs";
 
 
 const HomeHeader = memo(function HomeHeader({ navigation }: { navigation: NavigationProps }) {
@@ -25,7 +24,7 @@ const HomeHeader = memo(function HomeHeader({ navigation }: { navigation: Naviga
             marginHorizontal: 10
         }}>
             <Icon iconName="Heart" size={30} onPress={() => {
-                navigation.navigate("Root", { screen: "message" })
+                navigation.navigate("notification")
             }} />
             <Icon iconName="Send" size={30} onPress={() => {
                 navigation.navigate("Root", { screen: "message" })

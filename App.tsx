@@ -7,7 +7,6 @@ import { Provider, useSelector } from 'react-redux';
 import { RootState, store } from '@/redux-stores/store';
 import { SettingScreen, ThemeSettingScreen } from '@/app/setting';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { Dimensions } from 'react-native';
 import { InitialScreen, LoginScreen, RegisterScreen } from '@/app/auth';
 import HomeScreen from '@/app/home';
 import CameraScreen from '@/app/camera';
@@ -15,6 +14,7 @@ import { ChatListScreen, ChatScreen } from '@/app/message';
 import PreConfiguration from '@/provider/PreConfiguration';
 import BottomSheetProvider from '@/provider/BottomSheetProvider';
 import { PostScreen, CommentScreen, LikeScreen } from '@/app/post';
+import { NotificationScreen } from '@/app/screens';
 // import Toast from 'react-native-toast-message';
 SplashScreen.preventAutoHideAsync();
 const Tab = createMaterialTopTabNavigator();
@@ -31,15 +31,10 @@ export function TopTabBar() {
   return (
     <Tab.Navigator
       tabBar={() => null}
+      initialRouteName='feed'
       backBehavior="initialRoute"
-      initialLayout={{
-        width: Dimensions.get('window').width,
-        height: 100,
-      }}
-      sceneContainerStyle={{
-        backgroundColor: background,
-      }}
-      initialRouteName='feed'>
+      initialLayout={{ width: "100%", height: 100 }}
+      sceneContainerStyle={{ backgroundColor: background }}>
       <Tab.Screen name="camera" component={CameraScreen} />
       <Tab.Screen name="feed" component={HomeScreen} />
       <Tab.Screen name="message" component={ChatListScreen} />
@@ -47,15 +42,11 @@ export function TopTabBar() {
   );
 }
 
-function Routes(backgroundColor: string | any) {
+function Routes(backgroundColor: any) {
   const session = useSelector((state: RootState) => state.AuthState.session)
   const option_slide_from_right = {
     headerShown: false,
-    contentStyle: {
-      backgroundColor: backgroundColor || "white",
-      width: '100%',
-      height: '100%',
-    },
+    contentStyle: { backgroundColor, width: '100%', height: '100%' }
   }
   return (
     <Stack.Navigator>
@@ -72,6 +63,8 @@ function Routes(backgroundColor: string | any) {
           <Stack.Screen name="post" component={PostScreen} options={option_slide_from_right} />
           <Stack.Screen name="post/like" component={LikeScreen} options={option_slide_from_right} />
           <Stack.Screen name="post/comment" component={CommentScreen} options={option_slide_from_right} />
+          {/* notification */}
+          <Stack.Screen name="notification" component={NotificationScreen} options={option_slide_from_right} />
         </> :
         <>
           <Stack.Screen name="auth" component={InitialScreen} options={option_slide_from_right} />
