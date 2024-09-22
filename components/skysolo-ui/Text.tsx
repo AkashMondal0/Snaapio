@@ -1,5 +1,5 @@
 import { RootState } from '@/redux-stores/store';
-import { useCallback } from 'react';
+import { useMemo } from 'react';
 import { Text, type TextProps } from 'react-native';
 import { useSelector } from "react-redux"
 
@@ -20,7 +20,7 @@ const SkysoloText = ({ style, variant,
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
     const ThemeColors = useSelector((state: RootState) => state.ThemeState.themeColors)
 
-    const color = useCallback(() => {
+    const color = useMemo(() => {
         if (colorVariant === "default") {
             return currentTheme?.foreground
         } else if (colorVariant === "danger") {
@@ -34,7 +34,7 @@ const SkysoloText = ({ style, variant,
         }
     }, [variant, currentTheme?.primary])
 
-    const fontSize = useCallback(() => {
+    const fontSize = useMemo(() => {
         if (variant === "heading1") {
             return 32
         } else if (variant === "heading2") {
@@ -48,7 +48,7 @@ const SkysoloText = ({ style, variant,
         }
     }, [variant, currentTheme?.primary])
 
-    const fontWeight = useCallback(() => {
+    const fontWeight = useMemo(() => {
         if (variant === "heading1") {
             return "700"
         } else if (variant === "heading2") {
@@ -69,9 +69,9 @@ const SkysoloText = ({ style, variant,
     return (
         <Text
             style={[{
-                color: color(),
-                fontSize: fontSize(),
-                fontWeight: fontWeight(),
+                color: color,
+                fontSize: fontSize,
+                fontWeight: fontWeight,
             }, style]}
             {...otherProps} />
     )

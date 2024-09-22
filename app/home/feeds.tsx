@@ -54,6 +54,10 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: any) {
         setRefreshing(false)
     }, [])
 
+    const onPress = useCallback((item: Post, path: string) => {
+        navigation.navigate(path, { item })
+    }, [])
+
     return (
         <View style={{
             width: "100%",
@@ -62,7 +66,7 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: any) {
             <FlashList
                 data={feedList}
                 ListHeaderComponent={HomeHeader}
-                renderItem={({ item }) => <FeedItem data={item} />}
+                renderItem={({ item }) => <FeedItem data={item} onPress={onPress} />}
                 keyExtractor={(item, index) => index.toString()}
                 estimatedItemSize={100}
                 onEndReached={fetchPosts}

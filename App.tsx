@@ -6,15 +6,17 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Provider, useSelector } from 'react-redux';
 import { RootState, store } from '@/redux-stores/store';
 import { SettingScreen, ThemeSettingScreen } from '@/app/setting';
-import { HomeScreen, CameraScreen } from '@/app/home';
-import BottomSheetProvider from '@/provider/BottomSheetProvider';
-import { ChatListScreen, ChatScreen } from '@/app/home/message';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { Dimensions } from 'react-native';
 import { InitialScreen, LoginScreen, RegisterScreen } from '@/app/auth';
-import Toast from 'react-native-toast-message';
+import { configs } from '@/configs';
+import HomeScreen from '@/app/home';
+import CameraScreen from '@/app/camera';
+import { ChatListScreen, ChatScreen } from '@/app/message';
 import PreConfiguration from '@/provider/PreConfiguration';
-import { configs } from './configs';
+import BottomSheetProvider from '@/provider/BottomSheetProvider';
+import { PostScreen, CommentScreen, LikeScreen } from '@/app/post';
+// import Toast from 'react-native-toast-message';
 SplashScreen.preventAutoHideAsync();
 const Tab = createMaterialTopTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -54,7 +56,7 @@ function Routes(backgroundColor: string | any) {
       backgroundColor: backgroundColor || "white",
       width: '100%',
       height: '100%',
-    }
+    },
   }
   return (
     <Stack.Navigator>
@@ -67,6 +69,10 @@ function Routes(backgroundColor: string | any) {
           <Stack.Screen name={configs.routesNames.settings.theme} component={ThemeSettingScreen} options={option_slide_from_right} />
           {/* chat */}
           <Stack.Screen name="chat" component={ChatScreen} options={option_slide_from_right} />
+          {/* post */}
+          <Stack.Screen name="post" component={PostScreen} options={option_slide_from_right} />
+          <Stack.Screen name="like" component={LikeScreen} options={option_slide_from_right} />
+          <Stack.Screen name="comment" component={CommentScreen} options={option_slide_from_right} />
         </> :
         <>
           <Stack.Screen name="initial" component={InitialScreen} options={option_slide_from_right} />
@@ -81,7 +87,7 @@ function Root() {
   const background = useSelector((state: RootState) => state.ThemeState.currentTheme?.background)
 
   return (<>
-    <Toast />
+    {/* <Toast /> */}
     <PreConfiguration />
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: background }}>
       <NavigationContainer>
@@ -95,21 +101,6 @@ function Root() {
 }
 
 export default function App() {
-
-  // const [loaded, error] = useFonts({
-  //   'Satisfy': require('./assets/fonts/Satisfy.ttf'),
-  //   'Lato': require('./assets/fonts/Lato.ttf'),
-  //   'Montserrat': require('./assets/fonts/Montserrat.ttf'),
-  //   'Nunito': require('./assets/fonts/Nunito.ttf'),
-  //   'Open Sans': require('./assets/fonts/Open Sans.ttf'),
-  //   'Playpen Sans': require('./assets/fonts/Playpen Sans.ttf'),
-  //   'Poppins': require('./assets/fonts/Poppins.ttf'),
-  //   'Roboto': require('./assets/fonts/Roboto.ttf'),
-  // });
-
-  // if (!loaded) {
-  //   return <></>;
-  // }
 
   return (
     <Provider store={store}>

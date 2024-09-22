@@ -1,18 +1,18 @@
 import React from 'react'
 import { BottomTabBarProps, createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { CircleUserRound, Film, HomeIcon, PlusCircle, Search } from "lucide-react-native"
+import { TouchableOpacity, View } from 'react-native';
+import { RootState } from '@/redux-stores/store';
+import { useSelector } from 'react-redux';
 // screens
 import FeedsScreen from "./feeds";
 import ProfileScreen from "./profile";
 import ReelsScreen from "./reels";
 import SearchScreen from "./search";
 import CameraScreen from '../camera';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/redux-stores/store';
-import { TouchableOpacity, View } from 'react-native';
 const Tab = createBottomTabNavigator();
 
-const BottomTab = () => {
+const HomeScreen = () => {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
 
     if (!currentTheme) {
@@ -41,7 +41,7 @@ const BottomTab = () => {
     )
 }
 
-export default BottomTab
+export default HomeScreen
 
 
 function MyTabBar({ state, descriptors, navigation, currentTheme }: BottomTabBarProps & { currentTheme: any }) {

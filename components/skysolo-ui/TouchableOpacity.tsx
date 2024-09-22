@@ -22,7 +22,7 @@ const SkysoloTouchableOpacity = ({ style, ...otherProps }: Props) => {
             onPressOut={() => {
                 setIsPress(false)
             }}
-            delayPressIn={190}
+            delayPressIn={110}
             activeOpacity={0.8}
             style={{
                 backgroundColor: isPress ? currentTheme.muted : currentTheme.background,

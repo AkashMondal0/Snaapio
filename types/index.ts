@@ -144,9 +144,15 @@ interface Comment {
     content: string;
     authorId: string;
     postId: string;
-    createdAt: Date;
-    updatedAt: Date;
-    user: AuthorData
+    createdAt: Date | string;
+    updatedAt: Date | null;
+    user: {
+        username: string
+        email: string
+        name: string
+        profilePicture: string
+    }
+
 }
 
 type Assets = {
