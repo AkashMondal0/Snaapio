@@ -27,7 +27,6 @@ const CommentScreen = memo(function CommentScreen({ navigation, route }: Comment
     const stopRef = useRef(false)
     const dispatch = useDispatch()
     const totalFetchedItemCount = useRef<number>(0)
-
     // const [finishedFetching, setFinishedFetching] = useState(false)
 
 
@@ -86,9 +85,8 @@ const CommentScreen = memo(function CommentScreen({ navigation, route }: Comment
                 bounces={false}
                 onEndReachedThreshold={0.5}
                 // ListHeaderComponent={HomeHeader}
-                ListFooterComponent={() => <>
-                    {commentsLoading ? <Loader size={50} /> : <></>}
-                </>}
+                ListFooterComponent={() => <>{commentsLoading ? <Loader size={50} /> : <></>}</>}
+                ListEmptyComponent={commentsLoading ? <></> : ListEmptyComponent}
                 onEndReached={fetchComments}
                 refreshing={refreshing}
                 onRefresh={onRefresh} />
@@ -167,3 +165,20 @@ const CommentItem = memo(function CommentItem({
 }, (prevProps, nextProps) => {
     return prevProps.data.id === nextProps.data.id
 })
+
+
+const ListEmptyComponent = () => {
+
+    return (
+        <View style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: 200,
+            width: '100%',
+            flex: 1,
+        }}>
+            <Text variant="heading3">No comments yet</Text>
+        </View>
+    )
+}
