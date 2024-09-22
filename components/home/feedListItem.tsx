@@ -10,7 +10,7 @@ const FeedItem = memo(function Item({
     onPress
 }: {
     data: Post,
-    onPress: (post: Post, path: "like" | "comment") => void,
+    onPress: (post: Post, path: "post/like" | "post/comment") => void,
 }) {
 
     return <View style={{
@@ -79,7 +79,7 @@ const FeedItem = memo(function Item({
                     fontWeight: "600"
                 }}>{data?.content}</Text> : <></>}
             </View>
-            <TouchableOpacity activeOpacity={0.5} onPress={() => onPress(data, "comment")} >
+            <TouchableOpacity activeOpacity={0.5} onPress={() => onPress(data, "post/comment")} >
                 <Text variant="heading4"
                     secondaryColor
                     style={{
@@ -104,7 +104,7 @@ const FeedItemActionsButtons = memo(function FeedItemActionsButtons(
         data,
         onPress
     }: {
-        onPress: (post: Post, path: "like" | "comment") => void,
+        onPress: (post: Post, path: "post/like" | "post/comment") => void,
         data: Post
     }
 ) {
@@ -122,7 +122,7 @@ const FeedItemActionsButtons = memo(function FeedItemActionsButtons(
             iconName: "MessageCircle",
             count: data.commentCount,
             size: 30,
-            onPress: () => onPress(data, "comment"),
+            onPress: () => onPress(data, "post/comment"),
         },
         {
             iconName: "Send",
@@ -153,7 +153,7 @@ const FeedItemActionsButtons = memo(function FeedItemActionsButtons(
                 }} key={"like"}>
                     {!isLiked ? <Icon iconName={"Heart"} size={30} onPress={onLike} /> :
                         <Heart size={30} fill={isLiked ? "red" : ""} onPress={onLike} />}
-                    <TouchableOpacity onPress={() => onPress(data, "like")} >
+                    <TouchableOpacity onPress={() => onPress(data, "post/like")} >
                         <Text style={{
                             fontSize: 16,
                             fontWeight: "600"

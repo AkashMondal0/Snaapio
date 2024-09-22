@@ -5,28 +5,6 @@ const _configs = {
         baseUrl: "https://skylight-server-api.onrender.com/v1",
         // baseUrl: "http://192.168.31.212:5000/v1",
     },
-    routesNames: {
-        home: "/",
-        auth: {
-            index: "/auth",
-            login: "/auth/login",
-            register: "/auth/register",
-            forgotPassword: "/auth/forgot-password",
-            resetPassword: "/auth/reset-password",
-            verifyEmail: "/auth/verify-email",
-        },
-        settings: {
-            index: "settings",
-            theme: "settings/theme",
-            account: "settings/account",
-            profile: "settings/profile",
-            security: "settings/security",
-            notification: "settings/notification",
-            privacy: "settings/privacy",
-            blockedUsers: "settings/blocked-users",
-            help: "settings/help",
-        },
-    },
     eventNames: {
         conversation: {
             message: "conversation_message",

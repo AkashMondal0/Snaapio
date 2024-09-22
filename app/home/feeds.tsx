@@ -3,7 +3,7 @@ import { FlashList } from '@shopify/flash-list';
 import debounce from "@/lib/debouncing";
 import { fetchAccountFeedApi } from "@/redux-stores/slice/account/api.service";
 import { RootState } from "@/redux-stores/store";
-import { Post, disPatchResponse } from "@/types";
+import { NavigationProps, Post, disPatchResponse } from "@/types";
 import React, { useCallback, useRef, memo, useState } from "react";
 import { View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
@@ -12,7 +12,7 @@ import { FeedItem, HomeHeader } from '@/components/home';
 import { resetComments, resetLike } from '@/redux-stores/slice/post';
 let totalFetchedItemCount: number = 0
 
-const FeedsScreen = memo(function FeedsScreen({ navigation }: any) {
+const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: NavigationProps }) {
     const [finishedFetching, setFinishedFetching] = useState(false)
     const [refreshing, setRefreshing] = useState(false)
     const stopRef = useRef(false)
@@ -55,10 +55,10 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: any) {
         setRefreshing(false)
     }, [])
 
-    const onPress = useCallback((item: Post, path: "like" | "comment") => {
-        if (path === "like") {
+    const onPress = useCallback((item: Post, path: "post/like" | "post/comment") => {
+        if (path === "post/like") {
             dispatch(resetLike())
-        } else if (path === "comment") {
+        } else if (path === "post/comment") {
             dispatch(resetComments())
         }
         navigation.navigate(path, { post: item })
@@ -71,7 +71,7 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: any) {
         }}>
             <FlashList
                 data={feedList}
-                ListHeaderComponent={HomeHeader}
+                ListHeaderComponent={() => <HomeHeader navigation={navigation} />}
                 renderItem={({ item }) => <FeedItem data={item} onPress={onPress} />}
                 keyExtractor={(item, index) => index.toString()}
                 estimatedItemSize={100}

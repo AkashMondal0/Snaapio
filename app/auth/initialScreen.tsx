@@ -42,13 +42,13 @@ export default function InitialScreen({ navigation }: any) {
                 Skylight is a social media platform for sharing your thoughts and ideas with the world.
             </Text>
 
-            <Button onPress={() => { navigation.navigate("register") }} style={{
+            <Button onPress={() => { navigation.navigate("auth/register") }} style={{
                 width: "80%",
                 marginVertical: 10,
             }}>
                 Register
             </Button>
-            <Button variant="secondary" onPress={() => { navigation.navigate("login") }} style={{
+            <Button variant="secondary" onPress={() => { navigation.navigate("auth/login") }} style={{
                 width: "80%",
                 marginVertical: 4,
                 elevation: 0,

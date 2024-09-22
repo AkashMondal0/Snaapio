@@ -72,7 +72,7 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
 
     const pushToPage = useCallback((data: Conversation) => {
         dispatch(setConversation(data))
-        navigation?.navigate("chat", { id: data.id })
+        navigation?.navigate("message/conversation", { id: data.id })
     }, [])
 
     const pressBack = useCallback(() => {

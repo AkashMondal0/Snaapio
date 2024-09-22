@@ -9,7 +9,6 @@ import { SettingScreen, ThemeSettingScreen } from '@/app/setting';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { Dimensions } from 'react-native';
 import { InitialScreen, LoginScreen, RegisterScreen } from '@/app/auth';
-import { configs } from '@/configs';
 import HomeScreen from '@/app/home';
 import CameraScreen from '@/app/camera';
 import { ChatListScreen, ChatScreen } from '@/app/message';
@@ -40,9 +39,9 @@ export function TopTabBar() {
       sceneContainerStyle={{
         backgroundColor: background,
       }}
-      initialRouteName='home'>
+      initialRouteName='feed'>
       <Tab.Screen name="camera" component={CameraScreen} />
-      <Tab.Screen name="home" component={HomeScreen} />
+      <Tab.Screen name="feed" component={HomeScreen} />
       <Tab.Screen name="message" component={ChatListScreen} />
     </Tab.Navigator>
   );
@@ -65,19 +64,19 @@ function Routes(backgroundColor: string | any) {
           {/* feeds */}
           <Stack.Screen name="Root" component={TopTabBar} options={option_slide_from_right} />
           {/* settings */}
-          <Stack.Screen name={configs.routesNames.settings.index} component={SettingScreen} options={option_slide_from_right} />
-          <Stack.Screen name={configs.routesNames.settings.theme} component={ThemeSettingScreen} options={option_slide_from_right} />
+          <Stack.Screen name={"settings"} component={SettingScreen} options={option_slide_from_right} />
+          <Stack.Screen name={"settings/theme"} component={ThemeSettingScreen} options={option_slide_from_right} />
           {/* chat */}
-          <Stack.Screen name="chat" component={ChatScreen} options={option_slide_from_right} />
+          <Stack.Screen name="message/conversation" component={ChatScreen} options={option_slide_from_right} />
           {/* post */}
           <Stack.Screen name="post" component={PostScreen} options={option_slide_from_right} />
-          <Stack.Screen name="like" component={LikeScreen} options={option_slide_from_right} />
-          <Stack.Screen name="comment" component={CommentScreen} options={option_slide_from_right} />
+          <Stack.Screen name="post/like" component={LikeScreen} options={option_slide_from_right} />
+          <Stack.Screen name="post/comment" component={CommentScreen} options={option_slide_from_right} />
         </> :
         <>
-          <Stack.Screen name="initial" component={InitialScreen} options={option_slide_from_right} />
-          <Stack.Screen name="login" component={LoginScreen} options={option_slide_from_right} />
-          <Stack.Screen name="register" component={RegisterScreen} options={option_slide_from_right} />
+          <Stack.Screen name="auth" component={InitialScreen} options={option_slide_from_right} />
+          <Stack.Screen name="auth/login" component={LoginScreen} options={option_slide_from_right} />
+          <Stack.Screen name="auth/register" component={RegisterScreen} options={option_slide_from_right} />
         </>}
     </Stack.Navigator >
   );

@@ -1,7 +1,6 @@
 import AppHeader from "@/components/AppHeader";
 import LogOutDialog from "@/components/dialogs/logout";
 import { Icon, TouchableOpacity, Text, type IconName } from "@/components/skysolo-ui";
-import { configs } from "@/configs";
 import { logoutApi } from "@/redux-stores/slice/auth/api.service";
 import { memo, useState } from "react";
 import { ScrollView, View } from "react-native";
@@ -16,7 +15,7 @@ const SettingScreen = memo(function HomeScreen({ navigation }: any) {
             description: "Change the appearance of the app",
             icon: "Palette",
             onPress: () => {
-                navigation.navigate(configs.routesNames.settings.theme)
+                navigation.navigate("settings/theme")
             }
         },
         {
