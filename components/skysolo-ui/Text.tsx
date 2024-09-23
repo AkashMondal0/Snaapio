@@ -1,5 +1,4 @@
 import { RootState } from '@/redux-stores/store';
-import { useMemo } from 'react';
 import { Text, type TextProps } from 'react-native';
 import { useSelector } from "react-redux"
 

@@ -1,14 +1,14 @@
 {
   "expo": {
     "name": "Sky Light",
-    "slug": "sky-light",
+    "slug": "skylight",
     "version": "1.0.0",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/splash.png",
-      "resizeMode": "cover",
+      "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "assetBundlePatterns": [
@@ -27,11 +27,11 @@
       },
       "splash": {
         "image": "./assets/splash.png",
-        "resizeMode": "cover",
+        "resizeMode": "contain",
         "backgroundColor": "#ffffff",
         "dark": {
           "image": "./assets/splash.png",
-          "resizeMode": "cover",
+          "resizeMode": "contain",
           "backgroundColor": "#000000"
         }
       },
@@ -50,7 +50,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "c8c8fbc6-74dc-41aa-b540-7ec9ed7132da"
+        "projectId": "85422357-b49f-4b6c-8d74-593e530cdedd"
       }
     },
     "plugins": [
@@ -60,21 +60,6 @@
           "android": {
             "usesCleartextTraffic": true
           }
-        }
-      ],
-      [
-        "expo-font",
-        {
-          "fonts": [
-            "/assets/fonts/Lato.ttf",
-            "/assets/fonts/Montserrat.ttf",
-            "/assets/fonts/Nunito.ttf",
-            "/assets/fonts/Open Sans.ttf",
-            "/assets/fonts/Playpen Sans.ttf",
-            "/assets/fonts/Poppins.ttf",
-            "/assets/fonts/Satisfy.ttf",
-            "/assets/fonts/Roboto.ttf"
-          ]
         }
       ],
       [
@@ -106,18 +91,12 @@
         }
       ],
       [
-        "expo-barcode-scanner",
-        {
-          "cameraPermission": "Allow $(PRODUCT_NAME) to access camera."
-        }
-      ],
-      [
         "expo-secure-store",
         {
           "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
         }
       ]
     ],
-    "owner": "akashmondal0"
+    "owner": "skysolo"
   }
 }
