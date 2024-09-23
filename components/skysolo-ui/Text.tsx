@@ -6,7 +6,6 @@ export type Props = TextProps & {
     variant?: "heading1" | "heading2" | "heading3" | "heading4";
     lightColor?: string;
     darkColor?: string;
-    secondaryColor?: boolean;
     colorVariant?: "default" | "danger" | "success" | "warning" | "info" | "primary" | "secondary";
     fontFamily?: "Satisfy" | "Lato" | "Montserrat" | "Nunito" | "Open Sans" | "Playpen Sans" | "Poppins" | "Roboto";
 };
@@ -14,8 +13,7 @@ export type Props = TextProps & {
 
 const SkysoloText = ({ style, variant,
     colorVariant = "default",
-    fontFamily = "Roboto",
-    secondaryColor, ...otherProps }: Props) => {
+    fontFamily = "Roboto",...otherProps }: Props) => {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
     const ThemeColors = useSelector((state: RootState) => state.ThemeState.themeColors)
 

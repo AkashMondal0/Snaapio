@@ -5,7 +5,7 @@ import { memo, useCallback, useState } from 'react';
 import { TouchableOpacity } from 'react-native';
 import PagerView from 'react-native-pager-view';
 
-const FeedItem = memo(function Item({
+const FeedItem = memo(function FeedItem({
     data,
     onPress,
     onNavigate
@@ -40,7 +40,7 @@ const FeedItem = memo(function Item({
                     style={{
                         fontWeight: "400",
                     }}
-                    secondaryColor
+                    colorVariant="secondary"
                     variant="heading4">
                     {`los angeles, CA`}
                 </Text>
@@ -82,7 +82,7 @@ const FeedItem = memo(function Item({
             </View>
             <TouchableOpacity activeOpacity={0.5} onPress={() => onPress(data, "post/comment")} >
                 <Text variant="heading4"
-                    secondaryColor
+                    colorVariant="secondary"
                     style={{
                         marginHorizontal: "3%",
                         fontWeight: "400",
@@ -100,7 +100,7 @@ const FeedItem = memo(function Item({
 
 export default FeedItem;
 
-const FeedItemActionsButtons = memo(function FeedItemActionsButtons(
+const FeedItemActionsButtons = (
     {
         data,
         onPress
@@ -108,15 +108,13 @@ const FeedItemActionsButtons = memo(function FeedItemActionsButtons(
         onPress: (post: Post, path: "post/like" | "post/comment") => void,
         data: Post
     }
-) {
+) => {
     const [isLiked, setIsLiked] = useState(data.is_Liked)
     const [likeCount, setLikeCount] = useState(data.likeCount)
-    // const [isSaved, setIsSaved] = useState(false)
-
-    const onLike = useCallback(() => {
+    const onLike = () => {
         setIsLiked(!isLiked)
         setLikeCount(isLiked ? likeCount - 1 : likeCount + 1)
-    }, [isLiked])
+    }
 
     const AData = [
         {
@@ -186,4 +184,4 @@ const FeedItemActionsButtons = memo(function FeedItemActionsButtons(
             <Icon iconName="Bookmark" size={30} />
         </View>
     )
-})
+}

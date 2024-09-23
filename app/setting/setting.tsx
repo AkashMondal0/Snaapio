@@ -110,7 +110,7 @@ const Item = memo(function Item({
                     {data?.name}
                 </Text>
                 <Text
-                    secondaryColor
+                    colorVariant="secondary"
                     style={{ fontWeight: "400" }} >
                     {data?.description}
                 </Text>

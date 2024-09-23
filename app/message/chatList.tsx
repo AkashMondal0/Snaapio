@@ -3,7 +3,7 @@ import { FlashList } from '@shopify/flash-list';
 import React, { useCallback, useMemo, useRef, memo, useState } from 'react';
 import { View, Vibration } from 'react-native';
 import { Conversation, disPatchResponse } from '@/types';
-import { ActionSheet, Avatar, Icon, Input, Text, TouchableOpacity } from '@/components/skysolo-ui';
+import { ActionSheet, Avatar, Icon, Input, Loader, Text, TouchableOpacity } from '@/components/skysolo-ui';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
@@ -11,17 +11,18 @@ import { fetchConversationsApi } from '@/redux-stores/slice/conversation/api.ser
 import { resetConversationState, setConversation } from '@/redux-stores/slice/conversation';
 import debounce from '@/lib/debouncing';
 import searchText from '@/lib/TextSearch';
+import { ListEmptyComponent } from '@/components/home';
 let totalFetchedItemCount: number = 0
 
 const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
     const bottomSheetModalRef = useRef<BottomSheetModal>(null);
     const stopRef = useRef(false)
     const list = useSelector((Root: RootState) => Root.ConversationState.conversationList)
+    const listLoading = useSelector((Root: RootState) => Root.ConversationState.listLoading)
     const snapPoints = useMemo(() => ["50%", '50%', "70%"], []);
-    const dispatch = useDispatch()
     const [inputText, setInputText] = useState("")
     const [BottomSheetData, setBottomSheetData] = useState<Conversation | null>(null)
-    const [refreshing, setRefreshing] = useState(false)
+    const dispatch = useDispatch()
 
     const conversationList = useMemo(() => {
         return [...list].sort((a, b) => {
@@ -34,23 +35,22 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
             .filter((item) => searchText(item?.user?.name, inputText))
     }, [list, inputText])
 
-    const fetchConversationList = useCallback(async (totalFetchedCount: number = 0) => {
-        if (stopRef.current) return
-        if (totalFetchedCount === -1) return
-        // setFinishedFetching(true)
+    const fetchConversationList = useCallback(async (reset?: boolean) => {
+        if (stopRef.current || totalFetchedItemCount === -1) return
+        // console.log("fetching")
         try {
             const res = await dispatch(fetchConversationsApi({
                 limit: 12,
-                offset: totalFetchedCount
+                offset: reset ? 0 : totalFetchedItemCount
             }) as any) as disPatchResponse<Conversation[]>
             if (res.payload.length > 0) {
                 // if less than 12 items fetched, stop fetching
                 if (res.payload.length < 12) {
                     // setFinishedFetching(true)
-                    return totalFetchedCount = -1
+                    return totalFetchedItemCount = -1
                 }
                 // if more than 12 items fetched, continue fetching
-                totalFetchedCount += 12
+                totalFetchedItemCount += 12
             }
         } finally {
             stopRef.current = false
@@ -85,11 +85,12 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
 
     const delayInput = debounce(InputOnChange, 400)
 
-    const onRefresh = useCallback(async () => {
-        setRefreshing(true)
+    const fetchConversations = debounce(fetchConversationList, 500)
+
+    const onRefresh = useCallback(() => {
+        totalFetchedItemCount = 0
         dispatch(resetConversationState())
-        await fetchConversationList()
-        setRefreshing(false)
+        fetchConversationList(true)
     }, [])
 
     return <View style={{
@@ -104,13 +105,15 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
             estimatedItemSize={5}
             onEndReachedThreshold={0.5}
             bounces={false}
-            refreshing={refreshing}
+            refreshing={false}
             onRefresh={onRefresh}
-            onEndReached={() => fetchConversationList(totalFetchedItemCount)}
+            onEndReached={fetchConversations}
             ListHeaderComponent={<ListHeaderComponent
                 pressBack={pressBack}
                 InputOnChange={delayInput} />}
-            data={conversationList} />
+            data={conversationList}
+            ListFooterComponent={() => <>{listLoading ? <Loader size={50} /> : <></>}</>}
+            ListEmptyComponent={conversationList.length <= 0 && !listLoading ? <ListEmptyComponent text="No Chat yet" /> : <></>} />
         <ActionSheet
             bottomSheetModalRef={bottomSheetModalRef}
             snapPoints={snapPoints}
@@ -150,7 +153,7 @@ const Item = memo(function Item({
                     {data?.user?.name}
                 </Text>
                 <Text
-                    secondaryColor
+                    colorVariant='secondary'
                     style={{ fontWeight: "400" }}
                     variant="heading4">
                     {data?.lastMessageContent ?? "new chat"}
@@ -246,7 +249,7 @@ const ChatDetailsSheetChildren = ({
             {data?.user?.name}
         </Text>
         <Text
-            secondaryColor
+            colorVariant='secondary'
             style={{ fontWeight: "400" }}
             variant="heading4">
             {data?.user?.email}

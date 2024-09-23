@@ -52,7 +52,7 @@ const ChatScreenNavbar = memo(function ChatScreenNavbar({
                             {conversation?.user?.name}
                         </Text>
                         <Text
-                            secondaryColor
+                            colorVariant="secondary"
                             style={{ fontWeight: "400" }}
                             variant="heading4">
                             {"status"}

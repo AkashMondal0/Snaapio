@@ -1,4 +1,5 @@
 import AppHeader from "@/components/AppHeader";
+import { ListEmptyComponent } from "@/components/home";
 import { Avatar, Loader, Text, TouchableOpacity } from "@/components/skysolo-ui";
 import debounce from "@/lib/debouncing";
 import { resetLike } from "@/redux-stores/slice/post";
@@ -22,16 +23,16 @@ interface CommentScreenProps {
 const LikeScreen = memo(function LikeScreen({ navigation, route }: CommentScreenProps) {
     const likes = useSelector((Root: RootState) => Root.PostState.likesUserList)
     const likeLoading = useSelector((Root: RootState) => Root.PostState.likesLoading)
-    const [refreshing, setRefreshing] = useState(false)
     const stopRef = useRef(false)
-    const dispatch = useDispatch()
     const totalFetchedItemCount = useRef<number>(0)
+    const [firstFetchAttend, setFirstFetchAttend] = useState(true)
+    const dispatch = useDispatch()
+
 
 
     const fetchLikesApi = useCallback(async (reset?: boolean) => {
-        // console.log('fetching more posts', totalFetchedItemCount)
         if (stopRef.current || totalFetchedItemCount.current === -1) return
-        // if () return setFinishedFetching(true)
+        // console.log('fetching more posts', totalFetchedItemCount)
         try {
             const res = await dispatch(fetchPostLikesApi({
                 id: route?.params?.post?.id,
@@ -49,6 +50,9 @@ const LikeScreen = memo(function LikeScreen({ navigation, route }: CommentScreen
                 totalFetchedItemCount.current += res.payload.length
             }
         } finally {
+            if (firstFetchAttend) {
+                setFirstFetchAttend(false)
+            }
             stopRef.current = false
         }
     }, [route?.params?.post?.id])
@@ -60,12 +64,10 @@ const LikeScreen = memo(function LikeScreen({ navigation, route }: CommentScreen
 
     const fetchLikes = debounce(fetchLikesApi, 1000)
 
-    const onRefresh = useCallback(async () => {
-        setRefreshing(true)
+    const onRefresh = useCallback(() => {
         totalFetchedItemCount.current = 0
         dispatch(resetLike())
-        await fetchLikesApi(true)
-        setRefreshing(false)
+        fetchLikesApi(true)
     }, [])
 
     return (
@@ -81,13 +83,13 @@ const LikeScreen = memo(function LikeScreen({ navigation, route }: CommentScreen
                     isProfile={item.id === route?.params?.post?.user.id}
                     onPress={onPress} />)}
                 keyExtractor={(item, index) => index.toString()}
-                ListFooterComponent={() => <>{likeLoading ? <Loader size={50} /> : <></>}</>}
-                ListEmptyComponent={likeLoading ? <></> : ListEmptyComponent}
+                ListFooterComponent={() => <>{likeLoading || !likeLoading && firstFetchAttend ? <Loader size={50} /> : <></>}</>}
+                ListEmptyComponent={!firstFetchAttend && likes.length <= 0 ? <ListEmptyComponent text="No likes yet" /> : <></>}
                 estimatedItemSize={100}
                 bounces={false}
                 onEndReachedThreshold={0.5}
                 onEndReached={fetchLikes}
-                refreshing={refreshing}
+                refreshing={false}
                 onRefresh={onRefresh} />
         </View>
     )
@@ -131,29 +133,11 @@ const LikeItem = memo(function CommentItem({
                         {data.username}
                     </Text>
                 </View>
-                <Text variant="heading4" secondaryColor>
+                <Text variant="heading4" colorVariant="secondary">
                     {data.name}
                 </Text>
             </View>
         </View>
-        <Text variant="heading4" secondaryColor>{isProfile ? 'You' : ''}</Text>
+        <Text variant="heading4" colorVariant="secondary">{isProfile ? 'You' : ''}</Text>
     </TouchableOpacity>)
 })
-
-const ListEmptyComponent = () => {
-
-    return (
-        <View style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: 200,
-            width: '100%',
-            flex: 1,
-        }}>
-            <Text variant="heading3">
-                No likes yet
-            </Text>
-        </View>
-    )
-}

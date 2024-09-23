@@ -4,7 +4,7 @@ import debounce from "@/lib/debouncing";
 import { fetchAccountFeedApi } from "@/redux-stores/slice/account/api.service";
 import { RootState } from "@/redux-stores/store";
 import { NavigationProps, Post, disPatchResponse } from "@/types";
-import React, { useCallback, useRef, memo, useState } from "react";
+import React, { useCallback, useRef, memo } from "react";
 import { View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { resetFeeds } from '@/redux-stores/slice/account';
@@ -13,8 +13,6 @@ import { resetComments, resetLike } from '@/redux-stores/slice/post';
 let totalFetchedItemCount: number = 0
 
 const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: NavigationProps }) {
-    const [finishedFetching, setFinishedFetching] = useState(false)
-    const [refreshing, setRefreshing] = useState(false)
     const stopRef = useRef(false)
     const feedList = useSelector((state: RootState) => state.AccountState.feeds)
     const feedListLoading = useSelector((state: RootState) => state.AccountState.feedsLoading)
@@ -22,9 +20,8 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: Navi
 
 
     const getPostApi = useCallback(async (reset?: boolean) => {
+        if (stopRef.current || totalFetchedItemCount === -1) return
         // console.log('fetching more posts', totalFetchedItemCount)
-        if (stopRef.current) return
-        if (totalFetchedItemCount === -1) return setFinishedFetching(true)
         try {
             const res = await dispatch(fetchAccountFeedApi({
                 limit: 12,
@@ -47,12 +44,10 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: Navi
 
     const fetchPosts = debounce(getPostApi, 1000)
 
-    const onRefresh = useCallback(async () => {
-        setRefreshing(true)
+    const onRefresh = useCallback(() => {
         totalFetchedItemCount = 0
         dispatch(resetFeeds())
-        await getPostApi(true)
-        setRefreshing(false)
+        getPostApi(true)
     }, [])
 
     const onPress = useCallback((item: Post, path: "post/like" | "post/comment") => {
@@ -82,11 +77,11 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: Navi
                 onEndReached={fetchPosts}
                 onEndReachedThreshold={0.5}
                 bounces={false}
-                refreshing={refreshing}
+                refreshing={false}
                 onRefresh={onRefresh}
                 ListFooterComponent={() => (
                     <View style={{ height: 50, padding: 10 }}>
-                        {!finishedFetching || feedListLoading ? <Loader size={40} /> : <></>}
+                        {feedListLoading ? <Loader size={40} /> : <></>}
                     </View>)} />
         </View>
     )
