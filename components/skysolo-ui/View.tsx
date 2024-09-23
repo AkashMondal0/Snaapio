@@ -15,6 +15,7 @@ const SkysoloView = ({ style, ...otherProps }: Props) => {
     return (
         <View style={[{
             backgroundColor: currentTheme.background,
+            borderColor: currentTheme.border,
         }, style]}
             {...otherProps} />
     )

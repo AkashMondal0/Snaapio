@@ -1,5 +1,4 @@
 import { RootState } from '@/redux-stores/store';
-import { useCallback } from 'react';
 import { Text, TouchableOpacity, type TouchableOpacityProps, TextProps, ActivityIndicator } from 'react-native';
 import { useSelector } from "react-redux"
 
@@ -7,9 +6,9 @@ export type Props = TouchableOpacityProps & {
     lightColor?: string;
     darkColor?: string;
     children?: string | React.ReactNode;
-    textStyle?: TextProps;
+    textStyle?: TextProps["style"];
     variant?: "default" | "secondary" | "danger" | "warning" | "success" | "outline";
-    size?: "small" | "medium" | "large";
+    size?: "small" | "medium" | "large" | "auto";
     icon?: React.ReactNode;
     loading?: boolean;
 };
@@ -27,7 +26,7 @@ const SkysoloButton = ({
     ...otherProps }: Props) => {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
 
-    const colorVariant = useCallback(() => {
+    const colorVariant = () => {
         if (!currentTheme) return {}
         if (variant === "outline") {
             return {
@@ -71,9 +70,9 @@ const SkysoloButton = ({
                 borderColor: currentTheme.primary
             }
         }
-    }, [currentTheme?.primary])
+    }
 
-    const buttonSize = useCallback(() => {
+    const buttonSize = () => {
         switch (size) {
             case "small":
                 return {
@@ -83,7 +82,7 @@ const SkysoloButton = ({
                 }
             case "medium":
                 return {
-                    paddingVertical: 12,
+                    paddingVertical: 10,
                     paddingHorizontal: 24,
                     borderRadius: 12
                 }
@@ -93,14 +92,16 @@ const SkysoloButton = ({
                     paddingHorizontal: 32,
                     borderRadius: 12,
                 }
+            case "auto":
+                return {}
             default:
                 return {
-                    paddingVertical: 10,
+                    paddingVertical: 6,
                     paddingHorizontal: 24,
                     borderRadius: 12,
                 }
         }
-    }, [size])
+    }
 
     if (!currentTheme) return <></>
 
@@ -115,11 +116,13 @@ const SkysoloButton = ({
                 flexDirection: 'row',
                 gap: 5,
                 opacity: disabled ? 0.6 : 1,
-                borderWidth: disabled ? 0 : 0.6
+                borderWidth: disabled ? 0 : 0.6,
+                borderRadius: 12,
             },
                 style,
             colorVariant(),
-            buttonSize()]}
+            buttonSize() as TouchableOpacityProps["style"]
+        ]}
             {...otherProps}>
             {icon ? icon : <></>}
             {typeof children === "string" ? <>

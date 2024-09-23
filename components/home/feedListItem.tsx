@@ -1,8 +1,8 @@
-import { Avatar, Text, Image, View, Icon } from '@/components/skysolo-ui';
+import { Avatar, Text, Image, Icon } from '@/components/skysolo-ui';
 import { Post } from '@/types';
 import { Heart } from 'lucide-react-native';
-import { memo, useCallback, useState } from 'react';
-import { TouchableOpacity } from 'react-native';
+import { memo, useState } from 'react';
+import { TouchableOpacity, View } from 'react-native';
 import PagerView from 'react-native-pager-view';
 
 const FeedItem = memo(function FeedItem({
@@ -80,17 +80,19 @@ const FeedItem = memo(function FeedItem({
                     fontWeight: "600"
                 }}>{data?.content}</Text> : <></>}
             </View>
-            <TouchableOpacity activeOpacity={0.5} onPress={() => onPress(data, "post/comment")} >
-                <Text variant="heading4"
-                    colorVariant="secondary"
-                    style={{
-                        marginHorizontal: "3%",
-                        fontWeight: "400",
-                        paddingVertical: 5
-                    }}>
-                    View all comments
-                </Text>
-            </TouchableOpacity>
+            <View>
+                <TouchableOpacity activeOpacity={0.5} onPress={() => onPress(data, "post/comment")} >
+                    <Text variant="heading4"
+                        colorVariant="secondary"
+                        style={{
+                            marginHorizontal: "3%",
+                            fontWeight: "400",
+                            paddingVertical: 5
+                        }}>
+                        View all comments
+                    </Text>
+                </TouchableOpacity>
+            </View>
         </View>
     </View>
 }, (prev, next) => {
