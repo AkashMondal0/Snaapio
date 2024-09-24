@@ -7,6 +7,7 @@ export const fetchUserProfileDetailApi = createAsyncThunk(
     'fetchProfileFeedApi/get',
     async (username: string, thunkApi) => {
         try {
+            await new Promise(resolve => setTimeout(resolve, 400))
             const res = await graphqlQuery({
                 query: QProfile.findUserProfile,
                 variables: { username }
@@ -32,7 +33,6 @@ export const fetchUserProfilePostsApi = createAsyncThunk(
                 variables: { findAllPosts }
             })
             return res
-
         } catch (error: any) {
             return thunkApi.rejectWithValue({
                 message: error?.message

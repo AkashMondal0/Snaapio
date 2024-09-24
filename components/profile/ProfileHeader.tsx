@@ -12,8 +12,8 @@ const ProfileHeader = memo(function HomeScreen({
     isProfile
 }: {
     navigation: NavigationProps,
-    userData: User
-    isProfile?: boolean
+    userData: User | null,
+    isProfile: boolean
 }) {
 
     return <View style={{
@@ -51,12 +51,13 @@ const ProfileHeader = memo(function HomeScreen({
             lineBreakMode="tail"
             style={{ fontWeight: "400" }}
             variant="heading4">
+            {userData?.bio}
             {`🌍 Adventurer |🍳 Foodie`}
             {`🏍️ ⚙️ "1 N 2 3 4 5" ⚙️`}
             {`⛰️ Mountain Enthusiast`}
             {`🐞 Software Developer`}
         </Text>
-        <ProfileActionsButton navigation={navigation} userData={userData} isProfile />
+        <ProfileActionsButton navigation={navigation} userData={userData} isProfile={isProfile} />
     </View>
 
 })

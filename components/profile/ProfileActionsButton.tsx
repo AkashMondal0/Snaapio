@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { NavigationProps, User } from "@/types";
-import { TouchableOpacity, View } from "react-native";
-import { Button, Text } from "@/components/skysolo-ui"
+import { View } from "react-native";
+import { Button } from "@/components/skysolo-ui"
 
 
 const ProfileActionsButton = memo(function ProfileActionsButton({
@@ -10,10 +10,9 @@ const ProfileActionsButton = memo(function ProfileActionsButton({
     isProfile
 }: {
     navigation: NavigationProps,
-    userData: User
+    userData: User | null,
     isProfile: boolean
 }) {
-
     if (isProfile) {
         return (<View style={{
             flexDirection: 'row',

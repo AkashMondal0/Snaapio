@@ -5,7 +5,7 @@ import { fetchPostCommentsApi } from "@/redux-stores/slice/post/api.service";
 import { Comment, disPatchResponse, NavigationProps, Post } from "@/types";
 import { FlashList } from "@shopify/flash-list";
 import { memo, useCallback, useRef, useState } from "react";
-import { Dimensions, View } from "react-native";
+import { View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { resetComments } from "@/redux-stores/slice/post";

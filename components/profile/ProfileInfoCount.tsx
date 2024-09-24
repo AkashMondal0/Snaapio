@@ -10,7 +10,7 @@ const ProfileInfoCount = memo(function ProfileInfoCount({
     isProfile
 }: {
     navigation: NavigationProps,
-    userData: User
+    userData: User | null,
     isProfile: boolean
 }) {
 

@@ -1,12 +1,14 @@
-import { ProfileHeader, ProfileInfoCount, ProfileNavbar, ProfileStories } from "@/components/profile";
-import { Image } from "@/components/skysolo-ui";
+import { ProfileHeader, ProfileNavbar, ProfileStories } from "@/components/profile";
+import { Button, Image, Loader } from "@/components/skysolo-ui";
+// import debounce from "@/lib/debouncing";
+import { fetchUserProfileDetailApi, fetchUserProfilePostsApi } from "@/redux-stores/slice/profile/api.service";
 import { RootState } from "@/redux-stores/store";
-import { NavigationProps } from "@/types";
+import { AuthorData, disPatchResponse, NavigationProps, Post } from "@/types";
 import { FlashList } from "@shopify/flash-list";
-import { useMemo } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { View } from "react-native";
-import { useSelector } from "react-redux";
-
+import { useDispatch, useSelector } from "react-redux";
+let totalFetchedItemCount: number = 0
 interface ScreenProps {
     navigation: NavigationProps;
     route: {
@@ -16,32 +18,88 @@ interface ScreenProps {
     }
 }
 const ProfileScreen = ({ navigation, route }: ScreenProps) => {
+    const username = route?.params?.params?.username
     const session = useSelector((state: RootState) => state.AuthState.session.user)
-    const username = route?.params?.params?.username ?? session?.username
+    const userData = useSelector((state: RootState) => state.ProfileState.state)
+    const userDataLoading = useSelector((state: RootState) => state.ProfileState.loading)
+    const isProfile = useMemo(() => session?.username === username, [username])
+    const [pageLoading, setPageLoading] = useState(true)
+    const userPost = useSelector((state: RootState) => state.ProfileState.posts)
+    const itemCount = useMemo(() => Math.ceil(userPost.length / 3), [userPost.length])
+    const stopRef = useRef(false)
+    const dispatch = useDispatch()
 
-    const onPress = (item: any) => {
-        navigation.navigate('Post', { id: item.id })
-    }
+    const fetchProfilePosts = useCallback(async (userId?: string, reset?: boolean) => {
+        // console.log('fetching profile posts', totalFetchedItemCount)
+        if (stopRef.current || totalFetchedItemCount === -1 || !userId) return
+        try {
+            const res = await dispatch(fetchUserProfilePostsApi({
+                username: userId,
+                limit: 12,
+                offset: reset ? 0 : totalFetchedItemCount
+            }) as any) as disPatchResponse<Post[]>
+            if (res.payload?.length > 0) {
+                // if less than 12 items fetched, stop fetching
+                if (res.payload?.length < 12) {
+                    return totalFetchedItemCount = -1
+                }
+                // if more than 12 items fetched, continue fetching
+                totalFetchedItemCount += res.payload.length
+            }
+        } finally {
+            stopRef.current = false
+            if (pageLoading) setPageLoading(false)
+        }
+    }, [])
 
-    const itemCount = useMemo(() => post.length / 3, [post.length])
+    const fetchProfileData = useCallback(async () => {
+        if (stopRef.current) return
+        if (!username) return console.warn('No username provided')
+        const res = await dispatch(fetchUserProfileDetailApi(username) as any) as disPatchResponse<AuthorData>
+        if (res.error || !res.payload.id) return console.warn('Error fetching profile data')
+        totalFetchedItemCount = 0
+        fetchProfilePosts(res.payload.id, false)
+    }, [username])
+
+    // const delayFetchProfilePosts = debounce(fetchProfilePosts, 1000)
+
+    // const navigateToPost = useCallback((item: Post) => {
+    //     navigation.navigate('Post', { post: item.id })
+    // }, [])
+
+    useEffect(() => {
+        fetchProfileData()
+    }, [username])
 
     return (
         <View style={{
             width: '100%',
             height: '100%',
         }}>
+            <ProfileNavbar navigation={navigation} isProfile={isProfile} username={username} />
             <FlashList
-                ListHeaderComponent={<>
-                    <ProfileNavbar navigation={navigation}
-                        isProfile={username === session?.username}
-                        username={username} />
-                    <ProfileHeader navigation={navigation} userData={userData} />
+                ListHeaderComponent={pageLoading || userDataLoading ? <View style={{
+                    width: '100%',
+                    height: 200,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}>
+                    <Loader size={40} />
+                </View> : <>
+                    <ProfileHeader
+                        navigation={navigation}
+                        userData={userData}
+                        isProfile={isProfile} />
                     <ProfileStories navigation={navigation} />
                 </>}
                 data={Array.from({ length: itemCount }, (_, i) => i)}
                 estimatedItemSize={100}
-                showsHorizontalScrollIndicator={false}
+                bounces={false}
+                onEndReachedThreshold={0.5}
+                refreshing={false}
+                onRefresh={fetchProfileData}
                 keyExtractor={(item, index) => index.toString()}
+                ListEmptyComponent={<></>}
                 renderItem={({ index }) => <View style={{
                     flexDirection: 'row',
                     width: '100%',
@@ -49,7 +107,7 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
                     paddingVertical: 1.5,
                 }}>
                     <Image
-                        url={post[index * 3 + 0].fileUrl[0]}
+                        url={userPost[index * 3 + 0]?.fileUrl[0]}
                         style={{
                             width: '33.33%',
                             height: "100%",
@@ -58,7 +116,7 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
                         }}
                     />
                     <Image
-                        url={post[index * 3 + 1].fileUrl[0]}
+                        url={userPost[index * 3 + 1]?.fileUrl[0]}
                         style={{
                             width: '33.33%',
                             height: "100%",
@@ -67,7 +125,7 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
                         }}
                     />
                     <Image
-                        url={post[index * 3 + 2].fileUrl[0]}
+                        url={userPost[index * 3 + 2]?.fileUrl[0]}
                         style={{
                             width: '33.33%',
                             height: "100%",
@@ -79,120 +137,5 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
         </View>
     )
 }
+
 export default ProfileScreen;
-
-const userData = {
-    "id": "2d1a43de-d6e9-4136-beb4-974a9fcc3c8b",
-    "username": "akash",
-    "email": "akash@gmail.com",
-    "name": "Akash Mondal",
-    "bio": "Hi!👋I'mAkashMondal",
-    "website": [],
-    "profilePicture": "https://firebasestorage.googleapis.com/v0/b/my-project-sky-inc.appspot.com/o/skylight%2F2d1a43de-d6e9-4136-beb4-974a9fcc3c8b%2Fimg_1_1720545118665.webp.jpeg?alt=media&token=093f6305-03aa-4a37-9e68-294ebce58956",
-    "postCount": 38,
-    "followerCount": 2,
-    "followingCount": 3,
-    "friendship": {
-        "followed_by": true,
-        "following": true
-    }
-}
-
-const post = [
-    {
-        "id": "lucjyx561g",
-        "fileUrl": [
-            "https://firebasestorage.googleapis.com/v0/b/my-project-sky-inc.appspot.com/o/skylight%2F2d1a43de-d6e9-4136-beb4-974a9fcc3c8b%2Fyash-chavan-1BGSppxfujU-unsplash.jpg.jpeg?alt=media&token=b5ca29ef-5834-4e93-957d-bb823b684d8d"
-        ],
-        "commentCount": 1,
-        "likeCount": 1
-    },
-    {
-        "id": "neb9z8zz9z",
-        "fileUrl": [
-            "https://firebasestorage.googleapis.com/v0/b/my-project-sky-inc.appspot.com/o/skylight%2F2d1a43de-d6e9-4136-beb4-974a9fcc3c8b%2Fkody-goodson-m8qISZuRzQA-unsplash.jpg.jpeg?alt=media&token=88224c62-e3c2-439c-9a77-8a6d648583b0"
-        ],
-        "commentCount": 0,
-        "likeCount": 1
-    },
-    {
-        "id": "0pxxj7lz1c",
-        "fileUrl": [
-            "https://firebasestorage.googleapis.com/v0/b/my-project-sky-inc.appspot.com/o/skylight%2F2d1a43de-d6e9-4136-beb4-974a9fcc3c8b%2Fzack-ECdTCHje9e4-unsplash.jpg.jpeg?alt=media&token=a1bcae69-e724-416b-bb7c-8dfce545b7ab"
-        ],
-        "commentCount": 0,
-        "likeCount": 0
-    },
-    {
-        "id": "2c3gb1xjbb",
-        "fileUrl": [
-            "https://firebasestorage.googleapis.com/v0/b/my-project-sky-inc.appspot.com/o/skylight%2F2d1a43de-d6e9-4136-beb4-974a9fcc3c8b%2Fmaxim-simonov-40Ar1SytWi4-unsplash.jpg.jpeg?alt=media&token=d25bd071-0cbc-4e9d-9e83-eb4855277256"
-        ],
-        "commentCount": 0,
-        "likeCount": 0
-    },
-    {
-        "id": "jcxnxpl7y5",
-        "fileUrl": [
-            "https://firebasestorage.googleapis.com/v0/b/my-project-sky-inc.appspot.com/o/skylight%2F2d1a43de-d6e9-4136-beb4-974a9fcc3c8b%2Fvander-films-YQRSn9fvrUk-unsplash.jpg.jpeg?alt=media&token=55dc4d92-ca1d-4168-aff5-f53568aa9345"
-        ],
-        "commentCount": 0,
-        "likeCount": 0
-    },
-    {
-        "id": "0x16fdyvsm",
-        "fileUrl": [
-            "https://firebasestorage.googleapis.com/v0/b/my-project-sky-inc.appspot.com/o/skylight%2F2d1a43de-d6e9-4136-beb4-974a9fcc3c8b%2Frouhalla-shabir-YTDt3C6CGVA-unsplash.jpg.jpeg?alt=media&token=f0e6b56b-eef5-4dae-9dc8-d620089b1371"
-        ],
-        "commentCount": 0,
-        "likeCount": 0
-    },
-    {
-        "id": "79mwypc2ur",
-        "fileUrl": [
-            "https://firebasestorage.googleapis.com/v0/b/my-project-sky-inc.appspot.com/o/skylight%2F2d1a43de-d6e9-4136-beb4-974a9fcc3c8b%2Frohan-O89B6SYSZGQ-unsplash.jpg.jpeg?alt=media&token=548b2170-cc7d-4ea6-99cf-d5a3a06763dd"
-        ],
-        "commentCount": 0,
-        "likeCount": 0
-    },
-    {
-        "id": "9caum4zcsn",
-        "fileUrl": [
-            "https://firebasestorage.googleapis.com/v0/b/my-project-sky-inc.appspot.com/o/skylight%2F2d1a43de-d6e9-4136-beb4-974a9fcc3c8b%2Fikshit-chaudhari-CmM-yZasjaQ-unsplash.jpg.jpeg?alt=media&token=1a7e3c17-15ac-4fa2-b9f4-8f3bd1947b3f"
-        ],
-        "commentCount": 0,
-        "likeCount": 0
-    },
-    {
-        "id": "6zbh141m0u",
-        "fileUrl": [
-            "https://firebasestorage.googleapis.com/v0/b/my-project-sky-inc.appspot.com/o/skylight%2F2d1a43de-d6e9-4136-beb4-974a9fcc3c8b%2Fnandaperin-SEkUbe3Zj2Q-unsplash.jpg.jpeg?alt=media&token=6a147619-c78d-4029-9e7c-fe28dcdbd943"
-        ],
-        "commentCount": 0,
-        "likeCount": 0
-    },
-    {
-        "id": "z2siqjrv7k",
-        "fileUrl": [
-            "https://firebasestorage.googleapis.com/v0/b/my-project-sky-inc.appspot.com/o/skylight%2F2d1a43de-d6e9-4136-beb4-974a9fcc3c8b%2Fvander-films-YQRSn9fvrUk-unsplash.jpg.jpeg?alt=media&token=d20d5d02-8fd0-4dda-b6e9-0a6da6319c26"
-        ],
-        "commentCount": 0,
-        "likeCount": 0
-    },
-    {
-        "id": "u17p25j1ve",
-        "fileUrl": [
-            "https://firebasestorage.googleapis.com/v0/b/my-project-sky-inc.appspot.com/o/skylight%2F2d1a43de-d6e9-4136-beb4-974a9fcc3c8b%2Fomair-parvez-ivg8MShjB-Y-unsplash.jpg.jpeg?alt=media&token=a149196a-840a-4d49-b0b1-464958d2e7a6"
-        ],
-        "commentCount": 0,
-        "likeCount": 0
-    },
-    {
-        "id": "86rv0nawsq",
-        "fileUrl": [
-            "https://firebasestorage.googleapis.com/v0/b/my-project-sky-inc.appspot.com/o/skylight%2F2d1a43de-d6e9-4136-beb4-974a9fcc3c8b%2Ffaruk-tokluoglu-xWuD_oRWzUw-unsplash.jpg.jpeg?alt=media&token=e4ceaf89-e8ad-4aca-88d6-2c6b0e6452af"
-        ],
-        "commentCount": 0,
-        "likeCount": 0
-    }
-]
