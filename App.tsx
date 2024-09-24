@@ -6,7 +6,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Provider, useSelector } from 'react-redux';
 import { RootState, store } from '@/redux-stores/store';
 import { SettingScreen, ThemeSettingScreen } from '@/app/setting';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+// import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { InitialScreen, LoginScreen, RegisterScreen } from '@/app/auth';
 import HomeScreen from '@/app/home';
 import CameraScreen from '@/app/camera';
@@ -23,31 +23,31 @@ import {
 
 // import Toast from 'react-native-toast-message';
 SplashScreen.preventAutoHideAsync();
-const Tab = createMaterialTopTabNavigator();
+// const Tab = createMaterialTopTabNavigator();
 const Stack = createNativeStackNavigator();
 
 
-export function TopTabBar() {
-  const background = useSelector((state: RootState) => state.ThemeState.currentTheme?.background)
+// export function TopTabBar() {
+//   const background = useSelector((state: RootState) => state.ThemeState.currentTheme?.background)
 
-  if (!background) {
-    return <></>;
-  }
+//   if (!background) {
+//     return <></>;
+//   }
 
-  return (
-    <Tab.Navigator
-      tabBar={() => null}
-      initialRouteName='feed'
-      backBehavior="initialRoute"
-      initialLayout={{ width: "100%", height: 100 }}
-      screenOptions={{ headerShown: false }}
-      sceneContainerStyle={{ backgroundColor: background }}>
-      <Tab.Screen name="camera" component={CameraScreen} />
-      <Tab.Screen name="feed" component={HomeScreen} />
-      <Tab.Screen name="message" component={ChatListScreen} />
-    </Tab.Navigator>
-  );
-}
+//   return (
+//     <Tab.Navigator
+//       tabBar={() => null}
+//       initialRouteName='feed'
+//       backBehavior="initialRoute"
+//       initialLayout={{ width: "100%", height: 100 }}
+//       screenOptions={{ headerShown: false }}
+//       sceneContainerStyle={{ backgroundColor: background }}>
+//       <Tab.Screen name="camera" component={CameraScreen} />
+//       <Tab.Screen name="feed" component={HomeScreen} />
+//       <Tab.Screen name="message" component={ChatListScreen} />
+//     </Tab.Navigator>
+//   );
+// }
 
 function Routes(backgroundColor: any) {
   const session = useSelector((state: RootState) => state.AuthState.session)
@@ -77,11 +77,12 @@ function Routes(backgroundColor: any) {
       {session.user ?
         <>
           {/* feeds */}
-          <Stack.Screen name="Root" component={TopTabBar} />
+          <Stack.Screen name="Root" component={HomeScreen} />
           {/* settings */}
           <Stack.Screen name={"settings"} component={SettingScreen} />
           <Stack.Screen name={"settings/theme"} component={ThemeSettingScreen} />
           {/* chat */}
+          <Stack.Screen name="message" component={ChatListScreen} />
           <Stack.Screen name="message/conversation" component={ChatScreen} />
           {/* post */}
           <Stack.Screen name="post" component={PostScreen} />
@@ -92,6 +93,8 @@ function Routes(backgroundColor: any) {
           {/* profile */}
           <Stack.Screen name="profile/posts" component={PostsScreen} />
           <Stack.Screen name="profile/followersAndFollowing" component={TabFollowingAndFollowers} />
+          {/* camera */}
+          <Stack.Screen name="camera" component={CameraScreen} />
         </> :
         <>
           <Stack.Screen name="auth" component={InitialScreen} />

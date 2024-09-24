@@ -24,7 +24,7 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
     const userData = useSelector((state: RootState) => state.ProfileState.state)
     const userDataLoading = useSelector((state: RootState) => state.ProfileState.loading)
     const postsLoading = useSelector((state: RootState) => state.ProfileState.postLoading)
-    const username = route?.params?.params?.username ?? session?.username
+    const username = useMemo(() => route.params.params.username, [route.params.params.username])
     const isProfile = useMemo(() => session?.username === username, [username])
     const [pageLoading, setPageLoading] = useState(true)
     const userPost = useSelector((state: RootState) => state.ProfileState.posts)
@@ -82,21 +82,14 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
         }}>
             <ProfileNavbar navigation={navigation} isProfile={isProfile} username={username} />
             <FlashList
-                ListHeaderComponent={pageLoading || userDataLoading ? <View style={{
-                    width: '100%',
-                    height: 200,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}>
-                    <Loader size={40} />
-                </View> : <>
+                ListHeaderComponent={pageLoading || userDataLoading ? <></> : <>
                     <ProfileHeader
                         navigation={navigation}
                         userData={userData}
                         isProfile={isProfile} />
                     <ProfileStories navigation={navigation} />
                 </>}
-                data={Array.from({ length: itemCount }, (_, i) => i)}
+                data={pageLoading || userDataLoading ? [] : Array.from({ length: itemCount }, (_, i) => i)}
                 estimatedItemSize={100}
                 bounces={false}
                 onEndReachedThreshold={0.5}
@@ -105,7 +98,14 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
                 onEndReached={() => delayFetchProfilePosts(userData?.id)}
                 keyExtractor={(item, index) => index.toString()}
                 ListEmptyComponent={<></>}
-                ListFooterComponent={() => <>{postsLoading && !pageLoading ? <Loader size={50} /> : <></>}</>}
+                ListFooterComponent={() => <>{postsLoading ? <View style={{
+                    width: '100%',
+                    height: 100,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}>
+                    <Loader size={40} />
+                </View> : <></>}</>}
                 renderItem={({ index }) => <View style={{
                     flexDirection: 'row',
                     width: '100%',

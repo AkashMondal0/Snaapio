@@ -91,9 +91,11 @@ export const profileSlice = createSlice({
                 state.loading = true
                 state.error = null
                 state.state = null
+                state.postLoading = true
                 state.posts = []
             })
             .addCase(fetchUserProfileDetailApi.fulfilled, (state, action: PayloadAction<User>) => {
+                state.posts = []
                 state.state = action.payload
                 state.loading = false
                 state.error = null
@@ -102,7 +104,6 @@ export const profileSlice = createSlice({
                 state.loading = false
                 state.error = action.payload?.message || "Something went wrong!"
                 state.state = null
-                state.posts = []
             })
             // find user profile posts
             .addCase(fetchUserProfilePostsApi.pending, (state) => {

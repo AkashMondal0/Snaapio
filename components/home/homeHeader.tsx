@@ -1,7 +1,6 @@
 import { View } from "react-native"
 import { Icon, Separator, Text } from '@/components/skysolo-ui';
 import { NavigationProps } from "@/types";
-import { memo } from "react";
 import { ProfileStories } from "../profile";
 
 
@@ -28,8 +27,8 @@ const HomeHeader = ({ navigation }: { navigation: NavigationProps }) => {
                 <Icon iconName="Heart" size={30} onPress={() => {
                     navigation.navigate("notification")
                 }} />
-                <Icon iconName="Send" size={30} onPress={() => {
-                    navigation.navigate("Root", { screen: "message" })
+                <Icon iconName="MessageCircleCode" size={32} onPress={() => {
+                    navigation.navigate("message")
                 }} />
             </View>
         </View>

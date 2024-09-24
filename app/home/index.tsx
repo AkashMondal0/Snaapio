@@ -103,42 +103,6 @@ function MyTabBar({ state, descriptors, navigation, currentTheme }: BottomTabBar
                         target: route.key,
                     });
                 };
-                if (route.name === "create") {
-                    return (
-                        <TouchableOpacity
-                            key={index}
-                            accessibilityRole="button"
-                            accessibilityState={isFocused ? { selected: true } : {}}
-                            accessibilityLabel={options.tabBarAccessibilityLabel}
-                            testID={options.tabBarTestID}
-                            onPress={() => { navigation.navigate("Root", { screen: 'camera' }) }}
-                            // onLongPress={() => { navigation.navigate("Root", { screen: 'camera' }) }}
-                            style={{ flex: 1, alignItems: 'center' }}
-                        >
-                            {getIcon(route.name, isFocused)}
-                        </TouchableOpacity>
-                    );
-                }
-                if (route.name === "profile") {
-                    return (
-                        <TouchableOpacity
-                            key={index}
-                            accessibilityRole="button"
-                            accessibilityState={isFocused ? { selected: true } : {}}
-                            accessibilityLabel={options.tabBarAccessibilityLabel}
-                            testID={options.tabBarTestID}
-                            onPress={() => {
-                                navigation.navigate("profile", {
-                                    screen: 'profile', params: { username: session?.username }
-                                })
-                            }}
-                            style={{ flex: 1, alignItems: 'center' }}
-                        >
-                            {getIcon(route.name, isFocused)}
-                        </TouchableOpacity>
-                    );
-                }
-
                 return (
                     <TouchableOpacity
                         key={index}
@@ -146,10 +110,17 @@ function MyTabBar({ state, descriptors, navigation, currentTheme }: BottomTabBar
                         accessibilityState={isFocused ? { selected: true } : {}}
                         accessibilityLabel={options.tabBarAccessibilityLabel}
                         testID={options.tabBarTestID}
-                        onPress={onPress}
+                        onPress={() => {
+                            if (route.name === "profile") {
+                                navigation.navigate("profile", {
+                                    screen: 'profile', params: { username: session?.username }
+                                })
+                            } else {
+                                onPress()
+                            }
+                        }}
                         onLongPress={onLongPress}
-                        style={{ flex: 1, alignItems: 'center' }}
-                    >
+                        style={{ flex: 1, alignItems: 'center' }}>
                         {getIcon(route.name, isFocused)}
                     </TouchableOpacity>
                 );
