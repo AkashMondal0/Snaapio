@@ -121,6 +121,7 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
                                 aspectRatio: 1
                             }} />
                         return <Image
+                            showImageError
                             key={userPost[index * 3 + i]?.id}
                             url={userPost[index * 3 + i]?.fileUrl[0]}
                             style={{

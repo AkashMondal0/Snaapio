@@ -34,8 +34,7 @@ const SkysoloImage = ({
                     height: "auto",
                     borderRadius: 20,
                     backgroundColor: currentTheme?.muted,
-                    borderWidth: isBorder ? 1 : 0,
-                    borderColor: currentTheme?.border,
+                    // borderWidth: isBorder ? 1 : 0,
                     justifyContent: "center",
                     alignItems: "center",
                     ...style as any,
@@ -46,7 +45,7 @@ const SkysoloImage = ({
                     justifyContent: "center",
                     alignItems: "center",
                 }}>
-                    <RotateCcw color={currentTheme?.muted_foreground} size={50} strokeWidth={0.8} />
+                    <RotateCcw color={currentTheme?.muted_foreground} size={40} strokeWidth={0.8} />
                     <Text style={{
                         color: currentTheme?.muted_foreground,
                         fontSize: 16,

@@ -65,7 +65,7 @@ function Routes(backgroundColor: any) {
           paddingLeft: insets.left,
           paddingRight: insets.right,
         },
-        animation: 'fade', // Slide for iOS, fade for Android
+        animation: 'slide_from_right',
         transitionSpec: {
           open: { animation: 'timing', config: { duration: 150 } },  // Fast opening transition
           close: { animation: 'timing', config: { duration: 150 } }, // Fast closing transition
