@@ -118,7 +118,6 @@ const SkysoloButton = ({
                 opacity: disabled ? 0.6 : 1,
                 borderWidth: disabled ? 0 : 0.6,
                 borderRadius: 12,
-                height: 40
             },
                 style,
             colorVariant(),

@@ -16,6 +16,11 @@ import BottomSheetProvider from '@/provider/BottomSheetProvider';
 import { PostScreen, CommentScreen, LikeScreen } from '@/app/post';
 import { NotificationScreen } from '@/app/screens';
 import { PostsScreen, TabFollowingAndFollowers } from './app/profile';
+import {
+  SafeAreaProvider,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
+
 // import Toast from 'react-native-toast-message';
 SplashScreen.preventAutoHideAsync();
 const Tab = createMaterialTopTabNavigator();
@@ -46,12 +51,29 @@ export function TopTabBar() {
 
 function Routes(backgroundColor: any) {
   const session = useSelector((state: RootState) => state.AuthState.session)
-
+  const insets = useSafeAreaInsets();
   return (
-    <Stack.Navigator screenOptions={{
-      headerShown: false,
-      contentStyle: { backgroundColor, width: '100%', height: '100%' }
-    }}>
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+        contentStyle: {
+          backgroundColor: backgroundColor,
+          width: '100%',
+          height: '100%',
+          paddingTop: insets.top,
+          paddingBottom: insets.bottom,
+          paddingLeft: insets.left,
+          paddingRight: insets.right,
+        },
+        animation: 'fade', // Slide for iOS, fade for Android
+        transitionSpec: {
+          open: { animation: 'timing', config: { duration: 150 } },  // Fast opening transition
+          close: { animation: 'timing', config: { duration: 150 } }, // Fast closing transition
+        },
+        detachPreviousScreen: true, // Optimize memory by detaching previous screen
+        cardOverlayEnabled: false, // No dimmed overlay
+        // gestureEnabled: Platform.OS === 'ios', // Disable gestures on Android
+      }}>
       {session.user ?
         <>
           {/* feeds */}
@@ -87,11 +109,13 @@ function Root() {
     {/* <Toast /> */}
     <PreConfiguration />
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: background }}>
-      <NavigationContainer>
-        <BottomSheetProvider>
-          <Routes backgroundColor={background} />
-        </BottomSheetProvider>
-      </NavigationContainer>
+      <SafeAreaProvider>
+        <NavigationContainer>
+          <BottomSheetProvider>
+            <Routes backgroundColor={background} />
+          </BottomSheetProvider>
+        </NavigationContainer>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   </>)
 

@@ -81,12 +81,9 @@ const PreConfiguration = () => {
     }
 
     return <>
-        <StatusBar barStyle={themeSchema === "dark" ? "light-content" : "dark-content"} backgroundColor="transparent"
-            translucent={true} />
-        <View style={{
-            height: StatusBar.currentHeight,
-            width: "100%"
-        }} />
+        <StatusBar
+            barStyle={themeSchema === "dark" ? "light-content" : "dark-content"}
+            backgroundColor="transparent" translucent={true} />
     </>
 }
 
