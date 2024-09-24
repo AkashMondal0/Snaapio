@@ -1,11 +1,11 @@
 import { ProfileHeader, ProfileNavbar, ProfileStories } from "@/components/profile";
-import { Button, Image, Loader } from "@/components/skysolo-ui";
+import { Image, Loader } from "@/components/skysolo-ui";
 // import debounce from "@/lib/debouncing";
 import { fetchUserProfileDetailApi, fetchUserProfilePostsApi } from "@/redux-stores/slice/profile/api.service";
 import { RootState } from "@/redux-stores/store";
 import { AuthorData, disPatchResponse, NavigationProps, Post } from "@/types";
 import { FlashList } from "@shopify/flash-list";
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 let totalFetchedItemCount: number = 0

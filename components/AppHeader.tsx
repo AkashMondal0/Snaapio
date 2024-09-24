@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { View } from "react-native";
+import { View, ViewProps } from "react-native";
 import { Icon, Text } from "@/components/skysolo-ui"
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
@@ -9,18 +9,20 @@ const AppHeader = memo(function HomeScreen({
     navigation,
     title,
     titleCenter = false,
-    rightSideComponent
+    rightSideComponent,
+    containerStyle
 }: {
     navigation: any
     title: string
     titleCenter?: boolean
     rightSideComponent?: React.ReactNode
+    containerStyle?: ViewProps["style"]
 }) {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
 
     if (titleCenter) {
         return (
-            <View style={{
+            <View style={[{
                 width: '100%',
                 height: 55,
                 borderBottomWidth: 0.8,
@@ -29,7 +31,7 @@ const AppHeader = memo(function HomeScreen({
                 flexDirection: 'row',
                 alignItems: 'center',
                 justifyContent: "space-between"
-            }}>
+            }, containerStyle]}>
                 <Icon iconName="ArrowLeft"
                     size={28}
                     onPress={() => {
@@ -51,7 +53,7 @@ const AppHeader = memo(function HomeScreen({
     }
 
     return (
-        <View style={{
+        <View style={[{
             width: '100%',
             height: 55,
             borderColor: currentTheme?.border,
@@ -60,7 +62,7 @@ const AppHeader = memo(function HomeScreen({
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'space-between'
-        }}>
+        }, containerStyle]}>
             <View style={{
                 flexDirection: 'row',
                 alignItems: 'center',

@@ -15,7 +15,7 @@ import PreConfiguration from '@/provider/PreConfiguration';
 import BottomSheetProvider from '@/provider/BottomSheetProvider';
 import { PostScreen, CommentScreen, LikeScreen } from '@/app/post';
 import { NotificationScreen } from '@/app/screens';
-import { FollowersScreen, FollowingScreen, PostsScreen } from './app/profile';
+import { PostsScreen, TabFollowingAndFollowers } from './app/profile';
 // import Toast from 'react-native-toast-message';
 SplashScreen.preventAutoHideAsync();
 const Tab = createMaterialTopTabNavigator();
@@ -69,8 +69,7 @@ function Routes(backgroundColor: any) {
           <Stack.Screen name="notification" component={NotificationScreen} />
           {/* profile */}
           <Stack.Screen name="profile/posts" component={PostsScreen} />
-          <Stack.Screen name="profile/following" component={FollowingScreen} />
-          <Stack.Screen name="profile/followers" component={FollowersScreen} />
+          <Stack.Screen name="profile/followersAndFollowing" component={TabFollowingAndFollowers} />
         </> :
         <>
           <Stack.Screen name="auth" component={InitialScreen} />

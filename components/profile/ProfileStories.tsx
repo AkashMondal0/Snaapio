@@ -46,7 +46,7 @@ const ProfileStories = ({
     }, [])
 
     return (
-        <View style={{ marginVertical: 10 }}>
+        <View style={{ marginVertical: 16 }}>
             <FlashList
                 data={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
                 renderItem={({ item }) => <StoriesItem data={item} onPress={onPress} />}

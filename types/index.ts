@@ -54,7 +54,7 @@ interface AuthorData {
     username: string
     email: string
     name: string
-    profilePicture?: string
+    profilePicture?: string | null
     followed_by?: boolean
     following?: boolean
     bio?: string;

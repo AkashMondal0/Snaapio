@@ -1,9 +1,7 @@
-import FollowersScreen from "./followers";
-import FollowingScreen from "./following";
 import PostsScreen from "./posts";
+import TabFollowingAndFollowers from "./tab";
 
 export {
     PostsScreen,
-    FollowingScreen,
-    FollowersScreen
+    TabFollowingAndFollowers
 }

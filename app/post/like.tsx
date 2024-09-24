@@ -1,3 +1,4 @@
+import { memo, useCallback, useRef, useState } from "react";
 import AppHeader from "@/components/AppHeader";
 import { ListEmptyComponent } from "@/components/home";
 import { Avatar, Loader, Text, TouchableOpacity } from "@/components/skysolo-ui";
@@ -7,7 +8,6 @@ import { fetchPostLikesApi } from "@/redux-stores/slice/post/api.service";
 import { RootState } from "@/redux-stores/store";
 import { AuthorData, Comment, disPatchResponse, NavigationProps, Post } from "@/types";
 import { FlashList } from "@shopify/flash-list";
-import { memo, useCallback, useRef, useState } from "react";
 import { View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 interface CommentScreenProps {
@@ -120,8 +120,7 @@ const LikeItem = memo(function CommentItem({
             gap: 10,
             alignItems: 'center',
         }}>
-            <Avatar source={{ uri: data.profilePicture }} size={50}
-                onPress={() => onPress(data)} />
+            <Avatar url={data.profilePicture} size={50} onPress={() => onPress(data)} />
             <View>
                 <View style={{
                     display: 'flex',
