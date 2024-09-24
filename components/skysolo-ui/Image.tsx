@@ -1,8 +1,9 @@
 import { RootState } from '@/redux-stores/store';
 import { RotateCcw } from 'lucide-react-native';
-import { memo, useState } from 'react';
-import { type ImageProps, Image, Text, TouchableOpacity, View } from 'react-native';
+import { useState } from 'react';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
+import { Image, type ImageProps } from 'expo-image';
 
 export type Props = ImageProps & {
     lightColor?: string;
@@ -15,17 +16,17 @@ export type Props = ImageProps & {
 };
 
 
-const SkysoloImage = memo(function SkysoloImage({
+const SkysoloImage = ({
     style,
     url,
     isLocalImage,
     isBorder = true,
-    showImageError = true,
-    ...otherProps }: Props) {
+    showImageError = false,
+    ...otherProps }: Props) => {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
     const [error, setError] = useState(false);
 
-    if (error && showImageError) {
+    if (error && showImageError || !url) {
         return (
             <View
                 style={{
@@ -61,27 +62,22 @@ const SkysoloImage = memo(function SkysoloImage({
 
     return (
         <Image
-            source={url ? {
-                uri: url,
-                cache: 'force-cache',
-                width: "100%",
-                height: "100%",
-                borderColor: currentTheme?.border,
-                borderWidth: 1,
-            } : require('../../assets/images/nochat.png')}
-            // onError={() => {
-            //     if (error) return
-            //     setError(true)
-            // }}
-            // onLoadEnd={() => setLoading(false)}
-            style={{
-                width: "100%",
-                height: "auto",
-                borderRadius: 20,
-                resizeMode: "cover",
-                ...style as any,
-            }}{...otherProps} />
+            source={url}
+            contentFit="cover"
+            transition={300}
+            onError={() => {
+                if (!error) setError(true)
+            }}
+            style={[
+                {
+                    width: "100%",
+                    height: "auto",
+                    borderRadius: 20,
+                    resizeMode: "cover",
+                }, style
+            ]}
+            {...otherProps} />
     )
-})
+}
 
 export default SkysoloImage

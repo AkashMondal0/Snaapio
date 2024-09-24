@@ -1,19 +1,66 @@
-import { Avatar, Button, Text, TouchableOpacity } from "@/components/skysolo-ui";
-import { AuthorData, NavigationProps } from "@/types";
-import { FlashList } from "@shopify/flash-list";
-import { memo } from "react";
 import { View } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
+import { Avatar, Button, Loader, Text, TouchableOpacity } from "@/components/skysolo-ui";
+import debounce from "@/lib/debouncing";
+import { fetchUserProfileFollowerUserApi } from "@/redux-stores/slice/profile/api.service";
+import { RootState } from "@/redux-stores/store";
+import { AuthorData, disPatchResponse, NavigationProps } from "@/types";
+import { FlashList } from "@shopify/flash-list";
+import { memo, useCallback, useMemo, useRef, useState } from "react";
+import { ListEmptyComponent } from "@/components/home";
+import { resetProfileFollowList } from "@/redux-stores/slice/profile";
 interface ScreenProps {
     navigation: NavigationProps;
     route: {
         params: {
-            params: { username: string }
+            username: string
         }
     }
 }
 
 const FollowersScreen = memo(function FollowersScreen({ navigation, route }: ScreenProps) {
+    const username = useSelector((Root: RootState) => Root.ProfileState.state?.username)
+    const session = useSelector((Root: RootState) => Root.AuthState.session.user)
+    const followersList = useSelector((Root: RootState) => Root.ProfileState.followerList)
+    const listLoading = useSelector((Root: RootState) => Root.ProfileState.followerListLoading)
+    const stopRef = useRef(false)
+    const totalFetchedItemCount = useRef<number>(0)
+    const [firstFetchAttend, setFirstFetchAttend] = useState(true)
+    const dispatch = useDispatch()
 
+    const fetchApi = useCallback(async (reset?: boolean) => {
+        if (!username) return console.warn('username not found')
+        if (stopRef.current || totalFetchedItemCount.current === -1) return
+        try {
+            const res = await dispatch(fetchUserProfileFollowerUserApi({
+                username: username,
+                offset: reset ? 0 : totalFetchedItemCount.current,
+                limit: 12,
+            }) as any) as disPatchResponse<AuthorData[]>
+
+            if (res.payload?.length > 0) {
+                // if less than 12 items fetched, stop fetching
+                if (res.payload?.length < 12) {
+                    return totalFetchedItemCount.current = -1
+                }
+                // if more than 12 items fetched, continue fetching
+                totalFetchedItemCount.current += res.payload.length
+            }
+        } finally {
+            if (firstFetchAttend) {
+                setFirstFetchAttend(false)
+            }
+            stopRef.current = false
+        }
+    }, [username])
+
+    const fetchList = debounce(fetchApi, 1000)
+
+    const onRefresh = useCallback(() => {
+        totalFetchedItemCount.current = 0
+        dispatch(resetProfileFollowList())
+        fetchApi(true)
+    }, [])
 
     const onPress = (item: AuthorData) => {
         // navigation.navigate('Profile', { username: item.username })
@@ -26,15 +73,19 @@ const FollowersScreen = memo(function FollowersScreen({ navigation, route }: Scr
             height: '100%',
         }}>
             <FlashList
-                data={list}
-                renderItem={({ item }) => (<FollowingItem data={item} onPress={onPress} />)}
+                data={followersList}
+                renderItem={({ item }) => (<FollowingItem data={item}
+                    isFollowing={session?.username === item.username}
+                    onPress={onPress} />)}
                 keyExtractor={(item, index) => index.toString()}
                 estimatedItemSize={100}
-            // bounces={false}
-            // onEndReachedThreshold={0.5}
-            // onEndReached={fetchLikes}
-            // refreshing={false}
-            // onRefresh={onRefresh}
+                bounces={false}
+                onEndReachedThreshold={0.5}
+                onEndReached={fetchList}
+                refreshing={false}
+                onRefresh={onRefresh}
+                ListFooterComponent={() => <>{listLoading || !listLoading && firstFetchAttend ? <Loader size={50} /> : <></>}</>}
+                ListEmptyComponent={!firstFetchAttend && followersList.length <= 0 ? <ListEmptyComponent text="No followings yet" /> : <></>}
             />
         </View>
     )
@@ -43,9 +94,11 @@ export default FollowersScreen;
 
 const FollowingItem = memo(function FollowingItem({
     data,
+    isFollowing,
     onPress
 }: {
     data: AuthorData,
+    isFollowing: boolean,
     onPress: (item: AuthorData) => void
 }) {
     return (<TouchableOpacity style={{
@@ -80,43 +133,13 @@ const FollowingItem = memo(function FollowingItem({
                 </Text>
             </View>
         </View>
-        <Button
+        {isFollowing?<Text>You</Text>:<Button
             textStyle={{
                 fontSize: 14,
             }}
             size="medium"
             variant="secondary">
             Message
-        </Button>
+        </Button>}
     </TouchableOpacity>)
 })
-
-const list = [
-    {
-        "id": "aff8475e-4d00-4d29-b633-107b7d701502",
-        "username": "mrunalthakur",
-        "email": "mrunalthakur@gmail.com",
-        "name": "Mrunal Thakur",
-        "profilePicture": "https://firebasestorage.googleapis.com/v0/b/my-project-sky-inc.appspot.com/o/skylight%2Faff8475e-4d00-4d29-b633-107b7d701502%2FIMG_0033.png.jpeg?alt=media&token=ccc724a7-4d93-4b07-9d10-7bd6dfa06e3f",
-        "followed_by": false,
-        "following": false
-    },
-    {
-        "id": "afb707d7-70be-48ff-b256-1d5b470832be",
-        "username": "test",
-        "email": "test@gmail.com",
-        "name": "Test",
-        "profilePicture": null,
-        "followed_by": false,
-        "following": false
-    },
-    {
-        "id": "30840219-080e-4566-b659-bd1b63e697e2",
-        "username": "oliviasen",
-        "email": "olivia@gmail.com",
-        "name": "Olivia Sen",
-        "profilePicture": "https://firebasestorage.googleapis.com/v0/b/my-project-sky-inc.appspot.com/o/skylight%2F30840219-080e-4566-b659-bd1b63e697e2%2FIMG_0032.png.jpeg?alt=media&token=162d991c-2bcf-4626-8207-8b7548612aa7",
-        "followed_by": false,
-        "following": false
-    }
-]

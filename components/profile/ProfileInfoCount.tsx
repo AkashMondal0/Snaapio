@@ -2,6 +2,8 @@ import { memo } from "react";
 import { NavigationProps, User } from "@/types";
 import { TouchableOpacity, View } from "react-native";
 import { Text } from "@/components/skysolo-ui"
+import { useDispatch } from "react-redux";
+import { resetProfileFollowList } from "@/redux-stores/slice/profile";
 
 
 const ProfileInfoCount = memo(function ProfileInfoCount({
@@ -13,11 +15,12 @@ const ProfileInfoCount = memo(function ProfileInfoCount({
     userData: User | null,
     isProfile: boolean
 }) {
-
+    const dispatch = useDispatch()
     const counts = [
         { title: "Posts", count: userData?.postCount, onPress: () => { } },
         {
             title: "Followers", count: userData?.followerCount, onPress: () => {
+                dispatch(resetProfileFollowList())
                 navigation.navigate('profile/followersAndFollowing', {
                     screen: 'followers',
                     params: { username: userData?.username }
@@ -26,6 +29,7 @@ const ProfileInfoCount = memo(function ProfileInfoCount({
         },
         {
             title: "Following", count: userData?.followingCount, onPress: () => {
+                dispatch(resetProfileFollowList())
                 navigation.navigate('profile/followersAndFollowing', {
                     screen: 'following',
                     params: { username: userData?.username }

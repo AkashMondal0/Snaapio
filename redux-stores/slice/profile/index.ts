@@ -78,6 +78,10 @@ export const profileSlice = createSlice({
             state.posts = []
             state.followerList = []
             state.followingList = []
+        },
+        resetProfileFollowList: (state) => {
+            state.followerList = []
+            state.followingList = []
         }
     },
     extraReducers: (builder) => {
@@ -146,7 +150,8 @@ export const {
     followUser,
     unFollowUser,
     setLoadMoreProfilePosts,
-    resetProfileState
+    resetProfileState,
+    resetProfileFollowList
 } = profileSlice.actions
 
 export default profileSlice.reducer

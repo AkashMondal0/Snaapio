@@ -59,9 +59,7 @@ const FeedItem = memo(function FeedItem({
                 }} key={index}>
                     <Image
                         isBorder
-                        resizeMode="cover"
-                        resizeMethod="auto"
-                        src={mediaUrl}
+                        url={mediaUrl}
                         style={{
                             width: "96%",
                             flex: 1,

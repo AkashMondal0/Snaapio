@@ -1,5 +1,6 @@
-import { memo } from 'react';
-import { type ImageProps, TouchableOpacityProps, Image, TouchableOpacity } from 'react-native';
+import { memo, useState } from 'react';
+import { TouchableOpacityProps, TouchableOpacity } from 'react-native';
+import { Image, type ImageProps } from 'expo-image';
 
 export type Props = ImageProps & {
     lightColor?: string;
@@ -8,11 +9,12 @@ export type Props = ImageProps & {
     size?: number | string;
     onPress?: () => void;
     onLongPress?: () => void;
+    showImageError?: boolean;
     TouchableOpacityOptions?: TouchableOpacityProps
 };
 
 
-const SkysoloAvatar = memo(function SkysoloAvatar({ style, size = 40, url, TouchableOpacityOptions, ...otherProps }: Props) {
+const SkysoloAvatar = memo(function SkysoloAvatar({ style, showImageError, size = 40, url, TouchableOpacityOptions, ...otherProps }: Props) {
     size = Number(size)
     return (
         <TouchableOpacity
@@ -21,15 +23,19 @@ const SkysoloAvatar = memo(function SkysoloAvatar({ style, size = 40, url, Touch
             onLongPress={otherProps.onLongPress}
             onPress={otherProps.onPress}>
             <Image
-                source={url ? { uri: url } : require('../../assets/images/user.jpg')}
-                style={{
-                    width: size,
-                    height: size,
-                    borderRadius: size / 2,
-                    justifyContent: 'center',
-                    resizeMode: 'cover',
-                    ...style as any,
-                }}{...otherProps} />
+                source={!url ? require('../../assets/images/user.jpg') : url}
+                contentFit="cover"
+                transition={300}
+                style={[
+                    {
+                        resizeMode: "cover",
+                        width: size,
+                        height: size,
+                        borderRadius: size / 2,
+                        justifyContent: 'center',
+                    }, style
+                ]}
+                {...otherProps} />
         </TouchableOpacity>
     )
 })

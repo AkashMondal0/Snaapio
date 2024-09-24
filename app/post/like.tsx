@@ -28,8 +28,6 @@ const LikeScreen = memo(function LikeScreen({ navigation, route }: CommentScreen
     const [firstFetchAttend, setFirstFetchAttend] = useState(true)
     const dispatch = useDispatch()
 
-
-
     const fetchLikesApi = useCallback(async (reset?: boolean) => {
         if (stopRef.current || totalFetchedItemCount.current === -1) return
         // console.log('fetching more posts', totalFetchedItemCount)
@@ -56,20 +54,18 @@ const LikeScreen = memo(function LikeScreen({ navigation, route }: CommentScreen
             stopRef.current = false
         }
     }, [route?.params?.post?.id])
-
-
-    const onPress = (item: AuthorData) => {
-        console.log('item', item)
-    }
-
+    
     const fetchLikes = debounce(fetchLikesApi, 1000)
-
+    
     const onRefresh = useCallback(() => {
         totalFetchedItemCount.current = 0
         dispatch(resetLike())
         fetchLikesApi(true)
     }, [])
-
+    
+    const onPress = (item: AuthorData) => {
+        console.log('item', item)
+    }
     return (
         <View style={{
             flex: 1,

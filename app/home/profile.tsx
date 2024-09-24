@@ -1,5 +1,7 @@
 import { ProfileHeader, ProfileNavbar, ProfileStories } from "@/components/profile";
 import { Image, Loader } from "@/components/skysolo-ui";
+import debounce from "@/lib/debouncing";
+import { resetProfileState } from "@/redux-stores/slice/profile";
 // import debounce from "@/lib/debouncing";
 import { fetchUserProfileDetailApi, fetchUserProfilePostsApi } from "@/redux-stores/slice/profile/api.service";
 import { RootState } from "@/redux-stores/store";
@@ -18,10 +20,11 @@ interface ScreenProps {
     }
 }
 const ProfileScreen = ({ navigation, route }: ScreenProps) => {
-    const username = route?.params?.params?.username
     const session = useSelector((state: RootState) => state.AuthState.session.user)
     const userData = useSelector((state: RootState) => state.ProfileState.state)
     const userDataLoading = useSelector((state: RootState) => state.ProfileState.loading)
+    const postsLoading = useSelector((state: RootState) => state.ProfileState.postLoading)
+    const username = route?.params?.params?.username ?? session?.username
     const isProfile = useMemo(() => session?.username === username, [username])
     const [pageLoading, setPageLoading] = useState(true)
     const userPost = useSelector((state: RootState) => state.ProfileState.posts)
@@ -61,13 +64,14 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
         fetchProfilePosts(res.payload.id, false)
     }, [username])
 
-    // const delayFetchProfilePosts = debounce(fetchProfilePosts, 1000)
+    const delayFetchProfilePosts = debounce(fetchProfilePosts, 1000)
 
     // const navigateToPost = useCallback((item: Post) => {
     //     navigation.navigate('Post', { post: item.id })
     // }, [])
 
     useEffect(() => {
+        dispatch(resetProfileState())
         fetchProfileData()
     }, [username])
 
@@ -98,41 +102,35 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
                 onEndReachedThreshold={0.5}
                 refreshing={false}
                 onRefresh={fetchProfileData}
+                onEndReached={() => delayFetchProfilePosts(userData?.id)}
                 keyExtractor={(item, index) => index.toString()}
                 ListEmptyComponent={<></>}
+                ListFooterComponent={() => <>{postsLoading && !pageLoading ? <Loader size={50} /> : <></>}</>}
                 renderItem={({ index }) => <View style={{
                     flexDirection: 'row',
                     width: '100%',
                     gap: 3,
                     paddingVertical: 1.5,
                 }}>
-                    <Image
-                        url={userPost[index * 3 + 0]?.fileUrl[0]}
-                        style={{
-                            width: '33.33%',
-                            height: "100%",
-                            aspectRatio: 1,
-                            borderRadius: 0,
-                        }}
-                    />
-                    <Image
-                        url={userPost[index * 3 + 1]?.fileUrl[0]}
-                        style={{
-                            width: '33.33%',
-                            height: "100%",
-                            aspectRatio: 1,
-                            borderRadius: 0,
-                        }}
-                    />
-                    <Image
-                        url={userPost[index * 3 + 2]?.fileUrl[0]}
-                        style={{
-                            width: '33.33%',
-                            height: "100%",
-                            aspectRatio: 1,
-                            borderRadius: 0,
-                        }}
-                    />
+                    {Array(3).fill(0).map((_, i) => {
+                        if (!userPost[index * 3 + i]) return <View
+                            key={index * 3 + i}
+                            style={{
+                                width: '33.33%',
+                                height: "100%",
+                                aspectRatio: 1
+                            }} />
+                        return <Image
+                            key={userPost[index * 3 + i]?.id}
+                            url={userPost[index * 3 + i]?.fileUrl[0]}
+                            style={{
+                                width: '33.33%',
+                                height: "100%",
+                                aspectRatio: 1,
+                                borderRadius: 0,
+                            }}
+                        />
+                    })}
                 </View>} />
         </View>
     )
