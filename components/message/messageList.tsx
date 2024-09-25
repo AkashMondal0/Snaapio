@@ -34,7 +34,7 @@ const MessageList = memo(function MessageList({
                 limit: 20
             }) as any) as disPatchResponse<Message[]>
             if (resM?.error) return ToastAndroid.show('Error loading messages', ToastAndroid.SHORT)
-            if (resM.payload.length > 0) {
+            if (resM.payload?.length > 0) {
                 return totalFetchedItemCount.current += resM.payload.length
             }
             totalFetchedItemCount.current = -1
@@ -54,7 +54,7 @@ const MessageList = memo(function MessageList({
         bounces={false}
         showsVerticalScrollIndicator={false}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <MessageItem data={item} seenMessage={conversation.members.length === item.seenBy.length}
+        renderItem={({ item }) => <MessageItem data={item} seenMessage={conversation.members?.length === item.seenBy?.length}
             key={item.id} myself={session?.id === item.authorId} />}
         ListFooterComponent={<View style={{ width: "100%", height: 50 }}>
             {messagesLoading ? <Loader size={36} /> : <></>}

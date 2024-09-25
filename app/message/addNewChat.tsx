@@ -19,6 +19,7 @@ const NewChatScreen = memo(function NewChatScreen({
 }) {
     const users = useSelector((Root: RootState) => Root.UsersState.searchUsers)
     const loading = useSelector((Root: RootState) => Root.UsersState.searchUsersLoading)
+    const session = useSelector((Root: RootState) => Root.AuthState.session.user)
     const stopRef = useRef(false)
     const dispatch = useDispatch()
     const inputText = useRef<string>('')
@@ -36,6 +37,7 @@ const NewChatScreen = memo(function NewChatScreen({
     const delayFetchUsers = debounce(fetchUsers, 600)
 
     const onNavigate = useCallback(async (userData: AuthorData) => {
+        if (session?.id === userData.id) return ToastAndroid.show("You can't chat with yourself", ToastAndroid.SHORT)
         const res = await dispatch(CreateConversationApi([userData.id]) as any) as disPatchResponse<Conversation>
         if (res.error) return ToastAndroid.show("Something went wrong, please try again", ToastAndroid.SHORT)
         dispatch(setConversation({
@@ -71,9 +73,10 @@ const NewChatScreen = memo(function NewChatScreen({
                         borderWidth: 0,
                     }} />
             </View>
-
             {/* list */}
             <FlashList
+                keyboardShouldPersistTaps="handled"
+                keyboardDismissMode="on-drag"
                 data={users}
                 renderItem={({ item }) => <UserItem data={item}
                     onPress={onNavigate} />}
