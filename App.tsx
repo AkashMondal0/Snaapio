@@ -6,7 +6,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Provider, useSelector } from 'react-redux';
 import { RootState, store } from '@/redux-stores/store';
 import { SettingScreen, ThemeSettingScreen } from '@/app/setting';
-// import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { InitialScreen, LoginScreen, RegisterScreen } from '@/app/auth';
 import HomeScreen from '@/app/home';
 import CameraScreen from '@/app/camera';
@@ -24,31 +24,36 @@ import SocketConnections from '@/provider/SocketConnections';
 
 // import Toast from 'react-native-toast-message';
 SplashScreen.preventAutoHideAsync();
-// const Tab = createMaterialTopTabNavigator();
+const Tab = createMaterialTopTabNavigator();
 const Stack = createNativeStackNavigator();
 
+export function TopTabBar() {
+  const background = useSelector((state: RootState) => state.ThemeState.currentTheme?.background, (prev, next) => prev === next)
+  const tabSwiped = useSelector((state: RootState) => state.ThemeState.tabSwiped, (prev, next) => prev === next)
 
-// export function TopTabBar() {
-//   const background = useSelector((state: RootState) => state.ThemeState.currentTheme?.background)
+  if (!background) {
+    return <></>;
+  }
 
-//   if (!background) {
-//     return <></>;
-//   }
-
-//   return (
-//     <Tab.Navigator
-//       tabBar={() => null}
-//       initialRouteName='feed'
-//       backBehavior="initialRoute"
-//       initialLayout={{ width: "100%", height: 100 }}
-//       screenOptions={{ headerShown: false }}
-//       sceneContainerStyle={{ backgroundColor: background }}>
-//       <Tab.Screen name="camera" component={CameraScreen} />
-//       <Tab.Screen name="feed" component={HomeScreen} />
-//       <Tab.Screen name="message" component={ChatListScreen} />
-//     </Tab.Navigator>
-//   );
-// }
+  return (
+    <Tab.Navigator
+      tabBar={() => null}
+      initialRouteName='feed'
+      backBehavior="initialRoute"
+      initialLayout={{ width: "100%", height: 100 }}
+      tabBarBounces={false}
+      screenOptions={{
+        swipeEnabled: tabSwiped,
+        headerShown: false,
+        contentStyle: { backgroundColor: background }
+      }}
+      sceneContainerStyle={{ backgroundColor: background }}>
+      <Tab.Screen name="camera" component={CameraScreen} />
+      <Tab.Screen name="feed" component={HomeScreen} />
+      <Tab.Screen name="message" component={ChatListScreen} />
+    </Tab.Navigator>
+  );
+}
 
 function Routes(backgroundColor: any) {
   const session = useSelector((state: RootState) => state.AuthState.session)
@@ -78,7 +83,7 @@ function Routes(backgroundColor: any) {
       {session.user ?
         <>
           {/* feeds */}
-          <Stack.Screen name="Root" component={HomeScreen} />
+          <Stack.Screen name="Root" component={TopTabBar} />
           {/* settings */}
           <Stack.Screen name={"settings"} component={SettingScreen} />
           <Stack.Screen name={"settings/theme"} component={ThemeSettingScreen} />
@@ -97,7 +102,7 @@ function Routes(backgroundColor: any) {
           <Stack.Screen name="profile/posts" component={PostsScreen} />
           <Stack.Screen name="profile/followersAndFollowing" component={TabFollowingAndFollowers} />
           {/* camera */}
-          <Stack.Screen name="camera" component={CameraScreen} />
+          {/* <Stack.Screen name="camera" component={CameraScreen} /> */}
         </> :
         <>
           <Stack.Screen name="auth" component={InitialScreen} />
@@ -109,7 +114,7 @@ function Routes(backgroundColor: any) {
 }
 
 function Root() {
-  const background = useSelector((state: RootState) => state.ThemeState.currentTheme?.background)
+  const background = useSelector((state: RootState) => state.ThemeState.currentTheme?.background, (prev, next) => prev === next)
 
   return (<>
     {/* <Toast /> */}

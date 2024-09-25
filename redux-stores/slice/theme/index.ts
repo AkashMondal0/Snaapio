@@ -10,6 +10,7 @@ export type ThemeState = {
   currentTheme: ColorsProp | null
   appRadius: number,
   appIconSize: number,
+  tabSwiped: boolean,
   themeColors: {
     name: string,
     light: ColorsProp,
@@ -20,6 +21,7 @@ export type ThemeState = {
 
 const initialState: ThemeState = {
   themeSchema: null,
+  tabSwiped: true,
   themeLoaded: false,
   currentTheme: null,
   appRadius: 20,
@@ -57,7 +59,9 @@ export const ThemeSlice = createSlice({
       state.themeLoaded = true
       state.currentTheme = Colors[index][userColorScheme]
     },
-  
+    changeTabSwiped: (state, { payload }: PayloadAction<boolean>) => {
+      state.tabSwiped = payload
+    }
   },
 
 })
@@ -66,6 +70,7 @@ export const {
   changeTheme,
   setThemeLoaded,
   changeColorSchema,
+  changeTabSwiped
 } = ThemeSlice.actions
 
 export default ThemeSlice.reducer

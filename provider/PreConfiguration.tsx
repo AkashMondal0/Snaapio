@@ -6,7 +6,6 @@ import { changeColorSchema, setThemeLoaded } from "@/redux-stores/slice/theme";
 import { StatusBar, Appearance } from 'react-native';
 import { localStorage } from '@/lib/LocalStorage';
 import { ThemeNames } from '@/components/skysolo-ui/colors';
-import { View } from '@/components/skysolo-ui';
 import { SecureStorage } from '@/lib/SecureStore';
 import { setSession } from '@/redux-stores/slice/auth';
 import { Session } from '@/types';

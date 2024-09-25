@@ -16,7 +16,7 @@ const ListEmptyComponent = ({
             width: '100%',
             flex: 1,
         }}>
-            <Text variant="heading2" colorVariant="secondary">{text}</Text>
+            <Text variant="heading2" >{text}</Text>
         </View>
     )
 }

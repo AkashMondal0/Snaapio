@@ -1,19 +1,23 @@
-import React from 'react'
+import React, { memo } from 'react'
 import { BottomTabBarProps, createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { CircleUserRound, Film, HomeIcon, PlusCircle, Search } from "lucide-react-native"
 import { TouchableOpacity, View } from 'react-native';
 import { RootState } from '@/redux-stores/store';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 // screens
 import FeedsScreen from "./feeds";
 import ProfileScreen from "./profile";
 import ReelsScreen from "./reels";
 import SearchScreen from "./search";
 import CameraScreen from '../camera';
+import { changeTabSwiped } from '@/redux-stores/slice/theme';
 const Tab = createBottomTabNavigator();
 
-const HomeScreen = () => {
+const HomeScreen = memo(function HomeScreen() {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+    const tabSwiped = useSelector((state: RootState) => state.ThemeState.tabSwiped, (prev, next) => prev === next)
+
+    const dispatch = useDispatch()
 
     if (!currentTheme) {
         return <></>;
@@ -22,6 +26,17 @@ const HomeScreen = () => {
     return (
         <View style={{ flex: 1 }}>
             <Tab.Navigator
+                screenListeners={() => ({
+                    state: (e: any) => {
+                        if (e.data.state.index === 0) {
+                            if(tabSwiped) return
+                            dispatch(changeTabSwiped(true))
+                        } else {
+                            if(!tabSwiped) return
+                            dispatch(changeTabSwiped(false))
+                        }
+                    },
+                })}
                 sceneContainerStyle={{
                     backgroundColor: currentTheme?.background
                 }}
@@ -40,7 +55,7 @@ const HomeScreen = () => {
             </Tab.Navigator>
         </View>
     )
-}
+}, () => true)
 
 export default HomeScreen
 
@@ -115,7 +130,11 @@ function MyTabBar({ state, descriptors, navigation, currentTheme }: BottomTabBar
                                 navigation.navigate("profile", {
                                     screen: 'profile', params: { username: session?.username }
                                 })
-                            } else {
+                            }
+                            else if (route.name === "create") {
+                                navigation.navigate("Root", {screen: 'camera'})
+                            }
+                            else {
                                 onPress()
                             }
                         }}
