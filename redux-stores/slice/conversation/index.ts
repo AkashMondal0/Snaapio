@@ -161,7 +161,7 @@ export const ConversationSlice = createSlice({
         })
         builder.addCase(fetchConversationAllMessagesApi.fulfilled, (state, action: PayloadAction<Message[]>) => {
             if (state.conversation) {
-                state.messages.push(...action.payload)
+                state.messages.push(...action.payload.reverse())
             }
             state.messageLoading = false
         })
@@ -192,7 +192,7 @@ export const ConversationSlice = createSlice({
                     state.conversationList[index].lastMessageCreatedAt = action.payload.createdAt
                 }
                 if (state.conversation) {
-                    state.messages.push(action.payload)
+                    state.messages.unshift(action.payload)
                 }
             }
         })
