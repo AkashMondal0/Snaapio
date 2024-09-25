@@ -30,7 +30,6 @@ const Stack = createNativeStackNavigator();
 export function TopTabBar() {
   const background = useSelector((state: RootState) => state.ThemeState.currentTheme?.background, (prev, next) => prev === next)
   const tabSwiped = useSelector((state: RootState) => state.ThemeState.tabSwiped, (prev, next) => prev === next)
-
   if (!background) {
     return <></>;
   }
