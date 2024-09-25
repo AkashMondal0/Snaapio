@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { ToastAndroid, View } from 'react-native';
+import { ScrollView, ToastAndroid, View } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -63,7 +63,7 @@ const LoginScreen = ({ navigation }: any) => {
     }, [])
 
     return (
-        <View style={{
+        <ScrollView style={{
             flex: 1,
             padding: 20,
             width: "100%",
@@ -73,10 +73,12 @@ const LoginScreen = ({ navigation }: any) => {
                 size={30}
                 onPress={() => navigation.goBack()}
                 isButton />
+
             <View style={{
                 flex: 1,
                 justifyContent: "center",
                 alignItems: "center",
+                marginTop: 50,
             }}>
                 <Text style={{
                     fontSize: 32,
@@ -171,7 +173,7 @@ const LoginScreen = ({ navigation }: any) => {
                     Login
                 </Button>
             </View>
-        </View>
+        </ScrollView>
     );
 };
 

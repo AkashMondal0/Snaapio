@@ -1,30 +1,47 @@
 import React, { useCallback } from 'react';
-import { View } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import { useForm } from 'react-hook-form';
-// import { ArrowLeft, Eye, EyeOff } from 'lucide-react-native';
+import { ScrollView, ToastAndroid, View } from 'react-native';
+import { useDispatch } from 'react-redux';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from "zod"
-import { RootState } from '@/redux-stores/store';
 import { Button, Icon, Input, Text } from '@/components/skysolo-ui';
+import { registerApi } from '@/redux-stores/slice/auth/api.service';
+import { ApiResponse, Session } from '@/types';
+import { setSession } from '@/redux-stores/slice/auth';
+import { SecureStorage } from '@/lib/SecureStore';
+import { configs } from '@/configs';
 
 const schema = z.object({
-    email: z.string().email({ message: "Invalid email" })
-        .nonempty({ message: "Email is required" }),
-    password: z.string().min(6, { message: "Password must be at least 6 characters" })
-        .nonempty({ message: "Password is required" }),
-    name: z.string().nonempty({ message: "Name is required" }),
-    username: z.string().nonempty({ message: "Username is required" }),
-})
+    username: z.string().min(2, {
+        message: "Username must be at least 2 characters.",
+    }).toLowerCase().regex(/^[a-z0-9]+$/, {
+        message: "Username must contain only letters and numbers."
+    }),
+    password: z.string().min(6, {
+        message: "Password must be at least 6 characters.",
+    }),
+    email: z.string().email({
+        message: "Please enter a valid email.",
+    }),
+    name: z.string().min(2, {
+        message: "Name must be at least 2 characters.",
+    }),
+});
+
 
 const RegisterScreen = ({ navigation }: any) => {
-    const Session = useSelector((state: RootState) => state.AuthState)
-    const [state, setStats] = React.useState({
+    const [state, setStats] = React.useState<{
+        showPassword: boolean,
+        loading: boolean,
+        errorMessage: string | null
+    }>({
         showPassword: false,
+        loading: false,
+        errorMessage: null
     });
     const dispatch = useDispatch()
 
-    const { control, watch, handleSubmit, formState: { errors } } = useForm({
+    const { control, handleSubmit, formState: { errors } } = useForm({
         defaultValues: {
             email: '',
             password: '',
@@ -37,15 +54,33 @@ const RegisterScreen = ({ navigation }: any) => {
     const handleLogin = useCallback(async (data: {
         email: string,
         password: string,
+        name: string,
+        username: string,
     }) => {
-        // const _data = await dispatch(loginApi({
-        //     email: data.email,
-        //     password: data.password,
-        // }) as any)
+        setStats((pre) => ({ ...pre, loading: true }))
+        try {
+            const _data = await registerApi({
+                email: data.email,
+                password: data.password,
+                name: data.name,
+                username: data.username,
+            }) as ApiResponse<Session["user"]>
+            if (_data.code === 1) {
+                const session = _data.data
+                dispatch(setSession(session))
+                SecureStorage("set", configs.sessionName, JSON.stringify(_data.data))
+                return
+            }
+            setStats((pre) => ({ ...pre, errorMessage: _data.message }))
+            ToastAndroid.show(_data.message, ToastAndroid.SHORT)
+            return
+        } finally {
+            setStats((pre) => ({ ...pre, loading: false }))
+        }
     }, [])
 
     return (
-        <View style={{
+        <ScrollView style={{
             flex: 1,
             padding: 20,
             width: "100%",
@@ -59,6 +94,7 @@ const RegisterScreen = ({ navigation }: any) => {
                 flex: 1,
                 justifyContent: "center",
                 alignItems: "center",
+                marginTop: 50,
             }}>
                 <Text style={{
                     fontSize: 32,
@@ -76,14 +112,36 @@ const RegisterScreen = ({ navigation }: any) => {
                     }}>
                     Create an account to get all features
                 </Text>
-                <Input
+                <Text
+                    colorVariant="danger"
                     style={{
-                        width: "90%"
-                    }}
-                    placeholder='Name'
-                    textContentType='name'
-                    keyboardType="default"
-                    returnKeyType="next" />
+                        fontSize: 18,
+                        textAlign: "left",
+                        fontWeight: 'bold',
+                        margin: 4,
+                        marginBottom: 20,
+                    }}>
+                    {state.errorMessage}
+                </Text>
+                <Controller
+                    control={control}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <Input
+                            disabled={state.loading}
+                            style={{
+                                width: "90%",
+                            }}
+                            isErrorBorder={errors.name}
+                            onBlur={onBlur}
+                            onChangeText={value => onChange(value)}
+                            value={value}
+                            placeholder='Name'
+                            textContentType="name"
+                            keyboardType="default"
+                            returnKeyType="next" />
+                    )}
+                    name="name"
+                    rules={{ required: true }} />
                 <Text
                     colorVariant="danger"
                     style={{
@@ -91,17 +149,29 @@ const RegisterScreen = ({ navigation }: any) => {
                         textAlign: "left",
                         fontWeight: 'bold',
                         margin: 4,
+                        marginBottom: 20,
                     }}>
                     {errors.name?.message}
                 </Text>
-                <Input
-                    style={{
-                        width: "90%"
-                    }}
-                    placeholder='Username'
-                    textContentType="username"
-                    keyboardType="default"
-                    returnKeyType="next" />
+                <Controller
+                    control={control}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <Input
+                            disabled={state.loading}
+                            style={{
+                                width: "90%",
+                            }}
+                            isErrorBorder={errors.username}
+                            onBlur={onBlur}
+                            onChangeText={value => onChange(value)}
+                            value={value}
+                            placeholder='Username'
+                            textContentType='username'
+                            keyboardType="default"
+                            returnKeyType="next" />
+                    )}
+                    name="username"
+                    rules={{ required: true }} />
                 <Text
                     colorVariant="danger"
                     style={{
@@ -109,17 +179,29 @@ const RegisterScreen = ({ navigation }: any) => {
                         textAlign: "left",
                         fontWeight: 'bold',
                         margin: 4,
+                        marginBottom: 20,
                     }}>
                     {errors.username?.message}
                 </Text>
-                <Input
-                    style={{
-                        width: "90%"
-                    }}
-                    placeholder='Email'
-                    textContentType='emailAddress'
-                    keyboardType="email-address"
-                    returnKeyType="next" />
+                <Controller
+                    control={control}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <Input
+                            disabled={state.loading}
+                            style={{
+                                width: "90%",
+                            }}
+                            isErrorBorder={errors.email}
+                            onBlur={onBlur}
+                            onChangeText={value => onChange(value)}
+                            value={value}
+                            placeholder='Email'
+                            textContentType='emailAddress'
+                            keyboardType="email-address"
+                            returnKeyType="next" />
+                    )}
+                    name="email"
+                    rules={{ required: true }} />
                 <Text
                     colorVariant="danger"
                     style={{
@@ -127,20 +209,29 @@ const RegisterScreen = ({ navigation }: any) => {
                         textAlign: "left",
                         fontWeight: 'bold',
                         margin: 4,
+                        marginBottom: 20,
                     }}>
                     {errors.email?.message}
                 </Text>
-
-                <Input
-                    style={{
-                        width: "90%"
-                    }}
-                    secureTextEntry={!state.showPassword}
-                    placeholder='Password'
-                    textContentType='password'
-                    returnKeyType="done"
-                    rightSideComponent={state.showPassword ? <Icon iconName="Eye" size={26} onPress={() => setStats({ ...state, showPassword: false })} /> :
-                        <Icon iconName="EyeOff" size={26} onPress={() => setStats({ ...state, showPassword: true })} />} />
+                <Controller
+                    control={control}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <Input
+                            disabled={state.loading}
+                            style={{ width: "90%" }}
+                            secureTextEntry={!state.showPassword}
+                            isErrorBorder={errors.password}
+                            placeholder='Password'
+                            textContentType='password'
+                            returnKeyType="done"
+                            onBlur={onBlur}
+                            onChangeText={value => onChange(value)}
+                            value={value}
+                            rightSideComponent={state.showPassword ? <Icon iconName="Eye" size={26} onPress={() => setStats({ ...state, showPassword: false })} /> :
+                                <Icon iconName="EyeOff" size={26} onPress={() => setStats({ ...state, showPassword: true })} />} />
+                    )}
+                    name="password"
+                    rules={{ required: true }} />
                 <Text
                     colorVariant="danger"
                     style={{
@@ -148,6 +239,7 @@ const RegisterScreen = ({ navigation }: any) => {
                         textAlign: "left",
                         fontWeight: 'bold',
                         margin: 4,
+                        marginBottom: 20,
                     }}>
                     {errors.password?.message}
                 </Text>
@@ -155,11 +247,13 @@ const RegisterScreen = ({ navigation }: any) => {
                 <Button onPress={handleSubmit(handleLogin)} style={{
                     width: "90%",
                     marginVertical: 20,
-                }}>
+                }}
+                    loading={state.loading}
+                    disabled={state.loading}>
                     Register
                 </Button>
             </View>
-        </View>
+        </ScrollView>
     );
 };
 

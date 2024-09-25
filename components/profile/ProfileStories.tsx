@@ -1,15 +1,14 @@
 import { memo, useCallback, useRef } from "react";
 import { TouchableOpacity, View } from "react-native";
-import { Avatar, Icon, Text } from "@/components/skysolo-ui"
+import { Avatar, Text } from "@/components/skysolo-ui"
 import { NavigationProps, User } from "@/types";
 import { FlashList } from "@shopify/flash-list";
 import { useDispatch, useSelector } from "react-redux";
-import debounce from "@/lib/debouncing";
 import { RootState } from "@/redux-stores/store";
 let totalFetchedItemCount = 0
 
 const ProfileStories = ({
-
+    navigation, userData, isProfile
 }: {
     navigation: NavigationProps,
     userData?: User
@@ -17,7 +16,7 @@ const ProfileStories = ({
 }) => {
 
     const stopRef = useRef(false)
-    const dispatch = useDispatch()
+    // const dispatch = useDispatch()
     const getStoriesApi = useCallback(async (reset?: boolean) => {
         if (stopRef.current || totalFetchedItemCount === -1) return
         // console.log('fetching more posts', totalFetchedItemCount)
@@ -77,11 +76,11 @@ const StoriesItem = memo(function StoriesItem({
             justifyContent: 'center',
             width: 94,
         }}>
-        <Avatar source={{ uri: session?.profilePicture }} size={70} />
+        <Avatar url={session?.profilePicture} size={70} />
         <Text variant="heading4" colorVariant="secondary"
             style={{ paddingHorizontal: 4, marginTop: 4 }}
             numberOfLines={1}>
-            akashakashakashakash
+            {session?.username}
         </Text>
     </TouchableOpacity>)
 })

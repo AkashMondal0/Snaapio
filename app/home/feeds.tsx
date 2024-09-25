@@ -4,11 +4,11 @@ import debounce from "@/lib/debouncing";
 import { fetchAccountFeedApi } from "@/redux-stores/slice/account/api.service";
 import { RootState } from "@/redux-stores/store";
 import { NavigationProps, Post, disPatchResponse } from "@/types";
-import React, { useCallback, useRef, memo } from "react";
+import React, { useCallback, useRef, memo, useState } from "react";
 import { View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { resetFeeds } from '@/redux-stores/slice/account';
-import { FeedItem, HomeHeader } from '@/components/home';
+import { FeedItem, HomeHeader, ListEmptyComponent } from '@/components/home';
 import { resetComments, resetLike } from '@/redux-stores/slice/post';
 let totalFetchedItemCount: number = 0
 
@@ -17,7 +17,7 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: Navi
     const feedList = useSelector((state: RootState) => state.AccountState.feeds)
     const feedListLoading = useSelector((state: RootState) => state.AccountState.feedsLoading)
     const dispatch = useDispatch()
-
+    const [firstFetchAttend, setFirstFetchAttend] = useState(true)
 
     const getPostApi = useCallback(async (reset?: boolean) => {
         if (stopRef.current || totalFetchedItemCount === -1) return
@@ -38,6 +38,9 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: Navi
                 totalFetchedItemCount += res.payload.length
             }
         } finally {
+            if (firstFetchAttend) {
+                setFirstFetchAttend(false)
+            }
             stopRef.current = false
         }
     }, [])
@@ -81,6 +84,10 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: Navi
                 bounces={false}
                 refreshing={false}
                 onRefresh={onRefresh}
+                ListEmptyComponent={() => {
+                    if (feedListLoading || firstFetchAttend) return <></>
+                    return <ListEmptyComponent text='No Feeds' />
+                }}
                 ListFooterComponent={() => (
                     <View style={{ height: 50, padding: 10 }}>
                         {feedListLoading ? <Loader size={40} /> : <></>}

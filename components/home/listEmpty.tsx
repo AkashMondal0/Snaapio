@@ -12,7 +12,7 @@ const ListEmptyComponent = ({
         <View style={{
             justifyContent: 'center',
             alignItems: 'center',
-            height: windowHeight - 200,
+            height: windowHeight - 400,
             width: '100%',
             flex: 1,
         }}>
