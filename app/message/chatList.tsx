@@ -12,6 +12,7 @@ import { resetConversationState, setConversation } from '@/redux-stores/slice/co
 import debounce from '@/lib/debouncing';
 import searchText from '@/lib/TextSearch';
 import { ListEmptyComponent } from '@/components/home';
+import AppHeader from '@/components/AppHeader';
 let totalFetchedItemCount: number = 0
 
 const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
@@ -75,6 +76,10 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
         navigation?.navigate("message/conversation", { id: data.id })
     }, [])
 
+    const pageToNewChat = useCallback(() => {
+        navigation?.navigate("message/searchNewChat")
+    }, [])
+
     const pressBack = useCallback(() => {
         navigation?.goBack()
     }, [])
@@ -109,6 +114,7 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
             onRefresh={onRefresh}
             onEndReached={fetchConversations}
             ListHeaderComponent={<ListHeaderComponent
+                pageToNewChat={pageToNewChat}
                 pressBack={pressBack}
                 InputOnChange={delayInput} />}
             data={conversationList}
@@ -165,8 +171,10 @@ const Item = memo(function Item({
 
 const ListHeaderComponent = memo(function ListHeaderComponent({
     pressBack,
+    pageToNewChat,
     InputOnChange
 }: {
+    pageToNewChat: () => void,
     pressBack: () => void,
     InputOnChange: (text: string) => void
 }) {
@@ -199,7 +207,7 @@ const ListHeaderComponent = memo(function ListHeaderComponent({
                     </Text>
                 </View>
                 <View style={{ paddingHorizontal: 10 }}>
-                    <Icon iconName={"SquarePen"} size={26} />
+                    <Icon iconName={"SquarePen"} size={26} onPress={pageToNewChat} />
                 </View>
             </View>
             <Input

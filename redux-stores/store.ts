@@ -5,6 +5,7 @@ import AccountReducer from './slice/account'
 import ConversationReducer from './slice/conversation'
 import PostReducer from './slice/post'
 import ProfileReducer from './slice/profile'
+import UsersReducer from './slice/users'
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ export const store = configureStore({
     ConversationState: ConversationReducer,
     PostState: PostReducer,
     ProfileState: ProfileReducer,
+    UsersState: UsersReducer,
   },
 })
 

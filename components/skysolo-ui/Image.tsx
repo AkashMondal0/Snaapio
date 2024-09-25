@@ -63,7 +63,6 @@ const SkysoloImage = ({
         <Image
             source={url}
             contentFit="cover"
-            transition={300}
             onError={() => {
                 if (!error) setError(true)
             }}

@@ -23,23 +23,20 @@ const SkySoloInput = ({ disabled,
     style, ...props }: Props) => {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
     const [isFocused, setIsFocused] = React.useState(false)
-    const inputRef = React.useRef<TextInput>(null)
 
     return (
         <View
-            style={{
+            style={[{
                 flexDirection: 'row',
                 alignItems: 'center',
                 borderRadius: 14,
                 borderWidth: 1,
                 padding: 8,
-                fontSize: 16,
                 height: 50,
                 opacity: disabled ? 0.5 : 1,
                 borderColor: isErrorBorder ? currentTheme?.destructive : disabled || !isFocused ? currentTheme?.border : currentTheme?.primary,
                 backgroundColor: secondaryColor ? currentTheme?.accent : currentTheme?.background,
-                ...style as any
-            }}>
+            }, style]}>
             {props.leftSideComponent}
             <TextInput
                 style={{
@@ -48,7 +45,6 @@ const SkySoloInput = ({ disabled,
                     width: '100%',
                     ...style as any
                 }}
-                ref={inputRef}
                 selectionHandleColor={currentTheme?.primary}
                 placeholderTextColor={currentTheme?.muted_foreground}
                 onFocus={() => {

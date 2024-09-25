@@ -142,7 +142,7 @@ const CommentItem = memo(function CommentItem({
             gap: 10,
             alignItems: 'center',
         }}>
-            <Avatar source={{ uri: data.user.profilePicture }} size={50}
+            <Avatar url={data.user.profilePicture} size={50}
                 onPress={() => onPress(data)} />
             <View>
                 <View style={{

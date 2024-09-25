@@ -3,7 +3,7 @@ import { RootState } from '@/redux-stores/store';
 import { TouchableOpacity, View, type TouchableOpacityProps } from 'react-native';
 import { useSelector } from "react-redux"
 import * as Icons from "lucide-react-native";
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 export type IconName = keyof typeof Icons;
 
 
@@ -16,6 +16,7 @@ export type Props = TouchableOpacityProps & {
     disabled?: boolean;
     color?: string;
     variant?: "primary" | "secondary" | "danger" | "warning" | "success" | "outline" | "normal";
+    iconColorVariant?: "primary" | "secondary" | "danger" | "warning" | "success" | "outline" | "normal";
 };
 
 
@@ -26,13 +27,14 @@ const SkysoloIconButton = ({
     iconName = "Activity",
     isButton = false,
     variant = "primary",
+    iconColorVariant = "primary",
     color = undefined,
     ...otherProps }: Props) => {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
     const IconComponent = (Icons[iconName as IconName] || <></>) as React.ComponentType<any>;
     const [isPress, setIsPress] = useState(false)
 
-    const colorVariant = useCallback(() => {
+    const buttonVariant = () => {
         if (!currentTheme) return {}
         if (disabled) {
             return {
@@ -90,7 +92,29 @@ const SkysoloIconButton = ({
                 borderColor: currentTheme.primary
             }
         }
-    }, [currentTheme?.primary])
+    }
+
+    const colorVariant = () => {
+        if (!currentTheme) return {}
+        if (iconColorVariant === "normal") {
+            return currentTheme.background
+        }
+        if (iconColorVariant === "secondary") {
+            return currentTheme.muted_foreground
+        }
+        else if (iconColorVariant === "danger") {
+            return currentTheme.destructive
+        }
+        else if (iconColorVariant === "warning") {
+            return "hsl(47.9 95.8% 53.1%)"
+        }
+        else if (iconColorVariant === "success") {
+            return "hsl(142.1 76.2% 36.3%)"
+        }
+        else {
+            return currentTheme.foreground
+        }
+    }
 
     if (!currentTheme) return null
 
@@ -115,11 +139,11 @@ const SkysoloIconButton = ({
                     padding: 4,
                     borderRadius: 100,
                     borderWidth: variant === "normal" ? 0 : 0.6,
-                    borderColor: isPress ? currentTheme.muted_foreground : colorVariant().borderColor,
-                    backgroundColor: isPress ? currentTheme.muted : colorVariant().backgroundColor,
+                    borderColor: isPress ? currentTheme.muted_foreground : buttonVariant().borderColor,
+                    backgroundColor: isPress ? currentTheme.muted : buttonVariant().backgroundColor,
                 }, style]}
                 {...otherProps}>
-                <IconComponent size={size} color={color ?? isPress ? currentTheme.muted_foreground : colorVariant().color} key={iconName} />
+                <IconComponent size={size} color={color ?? isPress ? currentTheme.muted_foreground : buttonVariant().color} key={iconName} />
             </TouchableOpacity>
         </View>
 
@@ -129,7 +153,7 @@ const SkysoloIconButton = ({
         activeOpacity={0.6}
         disabled={disabled}
         {...otherProps}>
-        <IconComponent size={size} color={color ?? currentTheme.foreground} key={iconName} />
+        <IconComponent size={size} color={color ?? colorVariant()} key={iconName} />
     </TouchableOpacity>)
 }
 

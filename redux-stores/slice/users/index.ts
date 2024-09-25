@@ -40,8 +40,13 @@ export const UsersSlice = createSlice({
                 state.searchUsersError = null
             })
             .addCase(searchUsersProfileApi.fulfilled, (state, action: PayloadAction<AuthorData[]>) => {
-                state.searchUsers = action.payload
-                state.UserDB.concat(action.payload)
+                state.searchUsers = action.payload.map((item) => {
+                    const exist = state.searchUsers.find((user) => user.id === item.id)
+                    if (!exist) {
+                        return item
+                    }
+                    return null
+                }).filter((item) => item !== null)
                 state.searchUsersLoading = false
             })
             .addCase(searchUsersProfileApi.rejected, (state, action) => {

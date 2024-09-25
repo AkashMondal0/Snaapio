@@ -112,7 +112,7 @@ const SkysoloButton = ({
             style={[{
                 alignItems: 'center',
                 justifyContent: 'center',
-                elevation: 1,
+                elevation: 0.4,
                 flexDirection: 'row',
                 gap: 5,
                 opacity: disabled ? 0.6 : 1,
@@ -121,8 +121,8 @@ const SkysoloButton = ({
             },
                 style,
             colorVariant(),
-            buttonSize() as TouchableOpacityProps["style"]
-        ]}
+            buttonSize()
+            ]}
             {...otherProps}>
             {icon ? icon : <></>}
             {typeof children === "string" ? <>

@@ -10,7 +10,7 @@ import { SettingScreen, ThemeSettingScreen } from '@/app/setting';
 import { InitialScreen, LoginScreen, RegisterScreen } from '@/app/auth';
 import HomeScreen from '@/app/home';
 import CameraScreen from '@/app/camera';
-import { ChatListScreen, ChatScreen } from '@/app/message';
+import { ChatListScreen, ChatScreen, NewChatScreen } from '@/app/message';
 import PreConfiguration from '@/provider/PreConfiguration';
 import BottomSheetProvider from '@/provider/BottomSheetProvider';
 import { PostScreen, CommentScreen, LikeScreen } from '@/app/post';
@@ -84,6 +84,8 @@ function Routes(backgroundColor: any) {
           {/* chat */}
           <Stack.Screen name="message" component={ChatListScreen} />
           <Stack.Screen name="message/conversation" component={ChatScreen} />
+          <Stack.Screen name="message/searchNewChat" component={NewChatScreen} />
+
           {/* post */}
           <Stack.Screen name="post" component={PostScreen} />
           <Stack.Screen name="post/like" component={LikeScreen} />

@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo } from 'react';
 import { TouchableOpacityProps, TouchableOpacity } from 'react-native';
 import { Image, type ImageProps } from 'expo-image';
 
@@ -6,6 +6,7 @@ export type Props = ImageProps & {
     lightColor?: string;
     darkColor?: string;
     url?: string | null;
+    source?: null;
     size?: number | string;
     onPress?: () => void;
     onLongPress?: () => void;
