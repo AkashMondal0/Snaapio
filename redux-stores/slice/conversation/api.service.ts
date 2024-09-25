@@ -105,7 +105,7 @@ export const CreateMessageApi = createAsyncThunk(
                 query: CQ.createMessage,
                 variables: { createMessageInput }
             })
-            return res.createMessage
+            return res
         } catch (error: any) {
             return thunkAPI.rejectWithValue({
                 ...error?.response?.data,

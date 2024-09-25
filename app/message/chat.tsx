@@ -1,9 +1,10 @@
-import { View, Text } from "@/components/skysolo-ui";
+import { Text } from "@/components/skysolo-ui";
 import { memo, useCallback, } from "react";
 import { Navbar, Input, MessageList } from "@/components/message";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { NavigationProp } from "@react-navigation/native";
+import { View } from "react-native";
 
 interface ChatScreenProps {
     navigation: NavigationProp<any>;
