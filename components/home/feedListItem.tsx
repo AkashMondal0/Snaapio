@@ -1,9 +1,14 @@
 import { Avatar, Text, Image, Icon } from '@/components/skysolo-ui';
-import { Post } from '@/types';
+import { SocketContext } from '@/provider/SocketConnections';
+import { createNotificationApi, destroyNotificationApi } from '@/redux-stores/slice/notification/api.service';
+import { createPostLikeApi, destroyPostLikeApi } from '@/redux-stores/slice/post/api.service';
+import { RootState } from '@/redux-stores/store';
+import { disPatchResponse, NotificationType, Post } from '@/types';
 import { Heart } from 'lucide-react-native';
-import { memo, useState } from 'react';
-import { TouchableOpacity, View } from 'react-native';
+import { memo, useCallback, useContext, useRef, useState } from 'react';
+import { ToastAndroid, TouchableOpacity, View } from 'react-native';
 import PagerView from 'react-native-pager-view';
+import { useDispatch, useSelector } from 'react-redux';
 
 const FeedItem = memo(function FeedItem({
     data,
@@ -70,7 +75,7 @@ const FeedItem = memo(function FeedItem({
         </PagerView>
         {/* action */}
         <View>
-            <FeedItemActionsButtons data={data} onPress={onPress} />
+            <FeedItemActionsButtons post={data} onPress={onPress} />
             <View style={{
                 marginHorizontal: "3%",
             }}>
@@ -102,26 +107,96 @@ export default FeedItem;
 
 const FeedItemActionsButtons = (
     {
-        data,
+        post,
         onPress
     }: {
         onPress: (post: Post, path: "post/like" | "post/comment") => void,
-        data: Post
+        post: Post
     }
 ) => {
-    const [isLiked, setIsLiked] = useState(data.is_Liked)
-    const [likeCount, setLikeCount] = useState(data.likeCount)
+    const dispatch = useDispatch()
+    const SocketState = useContext(SocketContext)
+    const session = useSelector((state: RootState) => state.AuthState.session.user)
+    const [like, setLike] = useState({
+        isLike: post.is_Liked,
+        likeCount: post.likeCount
+    })
+    const loading = useRef(false)
+
+    const likeHandle = useCallback(async () => {
+        if (loading.current) return
+        try {
+            loading.current = true
+            if (!session) return ToastAndroid.show('You are not logged in', ToastAndroid.SHORT)
+            const res = await dispatch(createPostLikeApi(post.id) as any) as disPatchResponse<any>
+            if (res.error) {
+                return ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
+            }
+            setLike((pre) => ({ ...pre, isLike: true, likeCount: pre.likeCount + 1 }))
+            if (post.user.id === session.id) return
+            // const notificationRes = await dispatch(createNotificationApi({
+            //     postId: post.id,
+            //     authorId: session.id,
+            //     type: NotificationType.Like,
+            //     recipientId: post.user.id
+            // }) as any) as disPatchResponse<Notification>
+            // SocketState.sendDataToServer(event_name.notification.post, {
+            //     ...notificationRes.payload,
+            //     author: {
+            //         username: session.data?.user.username,
+            //         profilePicture: session.data?.user.image
+            //     },
+            //     post: {
+            //         id: post.id,
+            //         fileUrl: post.fileUrl,
+            //     }
+            // })
+        } catch (error) {
+            ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
+        } finally {
+            loading.current = false
+        }
+    }, [SocketState, post.fileUrl, post.id, post.user.id, session?.id])
+
+    const disLikeHandle = useCallback(async () => {
+        if (loading.current) return
+        try {
+            loading.current = true
+            if (!session) return ToastAndroid.show('You are not logged in', ToastAndroid.SHORT)
+            const res = await dispatch(destroyPostLikeApi(post.id) as any) as disPatchResponse<any>
+            if (res.error) {
+                return ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
+            }
+            setLike((pre) => ({ ...pre, isLike: false, likeCount: pre.likeCount - 1 }))
+            if (post.user.id === session.id) return
+            await dispatch(destroyNotificationApi({
+                postId: post.id,
+                authorId: session.id,
+                type: NotificationType.Like,
+                recipientId: post.user.id
+            }) as any)
+        } catch (error) {
+            ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
+        } finally {
+            loading.current = false
+        }
+    }, [post.id, post.user.id, session?.id])
+
+
     const onLike = () => {
-        setIsLiked(!isLiked)
-        setLikeCount(isLiked ? likeCount - 1 : likeCount + 1)
+        if (like.isLike) {
+            disLikeHandle()
+        } else {
+            likeHandle()
+        }
     }
 
     const AData = [
         {
             iconName: "MessageCircle",
-            count: data.commentCount,
+            count: post.commentCount,
             size: 30,
-            onPress: () => onPress(data, "post/comment"),
+            onPress: () => onPress(post, "post/comment"),
         },
         {
             iconName: "Send",
@@ -150,14 +225,14 @@ const FeedItemActionsButtons = (
                     gap: 4,
                     alignItems: "center"
                 }} key={"like"}>
-                    {!isLiked ? <Icon iconName={"Heart"} size={30} onPress={onLike} /> :
-                        <Heart size={30} fill={isLiked ? "red" : ""} onPress={onLike} />}
-                    <TouchableOpacity onPress={() => onPress(data, "post/like")} >
+                    {!like.isLike ? <Icon iconName={"Heart"} size={30} onPress={onLike} /> :
+                        <Heart size={30} fill={like.isLike ? "red" : ""} onPress={onLike} />}
+                    <TouchableOpacity onPress={() => onPress(post, "post/like")} >
                         <Text style={{
                             fontSize: 16,
                             fontWeight: "600"
                         }}>
-                            {likeCount}
+                            {like.likeCount}
                         </Text>
                     </TouchableOpacity>
                 </View>

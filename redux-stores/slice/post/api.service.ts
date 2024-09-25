@@ -68,7 +68,7 @@ export const createPostCommentApi = createAsyncThunk(
                 query: QPost.createComment,
                 variables: { createCommentInput }
             })
-            return { ...res.createComment, user }
+            return { ...res, user }
         } catch (error: any) {
             return thunkApi.rejectWithValue({
                 ...error?.response?.data,

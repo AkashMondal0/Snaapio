@@ -107,15 +107,15 @@ export const PostsSlice = createSlice({
             })
             // createPostCommentApi
             .addCase(createPostCommentApi.pending, (state) => {
-                state.commentsLoading = true
+                // state.commentsLoading = true
             })
             .addCase(createPostCommentApi.fulfilled, (state, action: PayloadAction<Comment>) => {
                 // console.info(action.payload)
-                state.viewPost?.comments.unshift(action.payload)
-                state.commentsLoading = false
+                state.comments.unshift(action.payload)
+                // state.commentsLoading = false
             })
             .addCase(createPostCommentApi.rejected, (state, action) => {
-                state.commentsLoading = false
+                // state.commentsLoading = false
             })
             //fetchPostCommentsApi
             .addCase(fetchPostCommentsApi.pending, (state) => {

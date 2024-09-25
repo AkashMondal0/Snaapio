@@ -1,17 +1,24 @@
 import AppHeader from "@/components/AppHeader";
 import { Avatar, Icon, Input, Text, TouchableOpacity, Separator, Loader } from "@/components/skysolo-ui";
 import { timeAgoFormat } from "@/lib/timeFormat";
-import { fetchPostCommentsApi } from "@/redux-stores/slice/post/api.service";
-import { Comment, disPatchResponse, NavigationProps, Post } from "@/types";
+import { createPostCommentApi, fetchPostCommentsApi } from "@/redux-stores/slice/post/api.service";
+import { Comment, disPatchResponse, NavigationProps, NotificationType, Post } from "@/types";
 import { FlashList } from "@shopify/flash-list";
-import { memo, useCallback, useRef, useState } from "react";
-import { View } from "react-native";
+import { memo, useCallback, useContext, useRef, useState } from "react";
+import { ToastAndroid, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { resetComments } from "@/redux-stores/slice/post";
 import debounce from "@/lib/debouncing";
 import { ListEmptyComponent } from "@/components/home";
-
+import { SocketContext } from "@/provider/SocketConnections";
+import { createNotificationApi } from "@/redux-stores/slice/notification/api.service";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, useForm } from "react-hook-form";
+const schema = z.object({
+    text: z.string().min(1)
+})
 interface CommentScreenProps {
     navigation: NavigationProps;
     route: {
@@ -22,13 +29,75 @@ interface CommentScreenProps {
 }
 
 const CommentScreen = memo(function CommentScreen({ navigation, route }: CommentScreenProps) {
+    const data = route?.params?.post
     const Comments = useSelector((Root: RootState) => Root.PostState.comments)
     const commentsLoading = useSelector((Root: RootState) => Root.PostState.commentsLoading)
-    const stopRef = useRef(false)
-    const dispatch = useDispatch()
+    const session = useSelector((Root: RootState) => Root.AuthState.session.user)
     const totalFetchedItemCount = useRef<number>(0)
     const [firstFetchAttend, setFirstFetchAttend] = useState(true)
+    const SocketState = useContext(SocketContext)
+    const stopRef = useRef(false)
+    const loadingRef = useRef(false)
+    const dispatch = useDispatch()
+    const [loading, setLoading] = useState(false)
 
+    const { control, reset, handleSubmit, formState: { errors } } = useForm({
+        resolver: zodResolver(schema),
+        defaultValues: {
+            text: "",
+        }
+    });
+
+    const handleComment = useCallback(async (_data: { text: string }) => {
+        if (_data.text.length <= 0 || loadingRef.current) return
+        setLoading(true)
+        if (!session) return ToastAndroid.show("You need to login to comment", ToastAndroid.SHORT)
+        if (!data?.id) return ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
+        try {
+            loadingRef.current = true
+            const commentRes = await dispatch(createPostCommentApi({
+                postId: data.id,
+                user: {
+                    username: session.username,
+                    name: session.name,
+                    profilePicture: session.profilePicture as string,
+                    id: session.id,
+                    email: session.email
+                },
+                content: _data.text,
+                authorId: session.id
+            }) as any) as disPatchResponse<Comment>
+
+            if (data.user.id === session.id) return reset()
+            if (commentRes.payload.id) {
+                // notification
+                // const notificationRes = await dispatch(createNotificationApi({
+                //     postId: data.id,
+                //     commentId: commentRes.payload.id,
+                //     authorId: session?.id,
+                //     type: NotificationType.Comment,
+                //     recipientId: data.user.id
+                // }) as any) as disPatchResponse<Notification>
+                // SocketState.sendDataToServer(event_name.notification.post, {
+                //     ...notificationRes.payload,
+                //     author: {
+                //         username: session.username,
+                //         profilePicture: session.profilePicture as string
+                //     },
+                //     post: {
+                //         id: data.id,
+                //         fileUrl: data.fileUrl,
+                //     },
+                // })
+                reset()
+            } else {
+                ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
+            }
+        } finally {
+            loadingRef.current = false
+            setLoading(false)
+        }
+    }, [SocketState, data.fileUrl, data.id, data.user.id, session])
 
     const fetchCommentsApi = useCallback(async (reset?: boolean) => {
         if (stopRef.current || totalFetchedItemCount.current === -1) return
@@ -54,7 +123,6 @@ const CommentScreen = memo(function CommentScreen({ navigation, route }: Comment
             stopRef.current = false
         }
     }, [route?.params?.post?.id])
-
 
     const onPress = (item: Comment) => {
         console.log('item', item)
@@ -98,18 +166,32 @@ const CommentScreen = memo(function CommentScreen({ navigation, route }: Comment
                     padding: "1.6%",
                     borderBottomWidth: 0.8,
                 }}>
-                <Input placeholder="Add a comment"
-                    secondaryColor
-                    multiline
-                    style={{
-                        width: "84%",
-                        height: "100%",
-                        borderRadius: 18,
-                        borderWidth: 0,
-                        maxHeight: 100,
-                    }} />
+                <Controller
+                    control={control}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <Input placeholder="Type a message"
+                            secondaryColor
+                            multiline
+                            disabled={loading}
+                            onBlur={onBlur}
+                            onChangeText={onChange}
+                            value={value}
+                            returnKeyType="send"
+                            onSubmitEditing={handleSubmit(handleComment)}
+                            style={{
+                                width: "84%",
+                                height: "100%",
+                                borderRadius: 18,
+                                borderWidth: 0,
+                                maxHeight: 100,
+                            }} />
+                    )}
+                    name="text"
+                    rules={{ required: true }} />
                 <Icon iconName={"Send"}
                     isButton size={26}
+                    disabled={loading}
+                    onPress={handleSubmit(handleComment)}
                     style={{
                         padding: "4%",
                         width: "auto",
