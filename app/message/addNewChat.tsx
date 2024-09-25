@@ -2,12 +2,14 @@ import AppHeader from "@/components/AppHeader";
 import { ListEmptyComponent } from "@/components/home";
 import { Avatar, Input, Loader, TouchableOpacity, Text } from "@/components/skysolo-ui";
 import debounce from "@/lib/debouncing";
+import { setConversation } from "@/redux-stores/slice/conversation";
+import { CreateConversationApi } from "@/redux-stores/slice/conversation/api.service";
 import { searchUsersProfileApi } from "@/redux-stores/slice/users/api.service";
 import { RootState } from "@/redux-stores/store";
-import { AuthorData, NavigationProps } from "@/types";
+import { AuthorData, Conversation, disPatchResponse, NavigationProps } from "@/types";
 import { FlashList } from "@shopify/flash-list";
 import { memo, useCallback, useRef } from "react";
-import { View } from "react-native";
+import { ToastAndroid, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 
 const NewChatScreen = memo(function NewChatScreen({
@@ -33,9 +35,15 @@ const NewChatScreen = memo(function NewChatScreen({
 
     const delayFetchUsers = debounce(fetchUsers, 600)
 
-    const onNavigate = useCallback((userData: AuthorData) => {
-        // const data = { ...userData } // conversation
-        // navigation?.navigate("message/conversation", { id: data.id })
+    const onNavigate = useCallback(async (userData: AuthorData) => {
+        const res = await dispatch(CreateConversationApi([userData.id]) as any) as disPatchResponse<Conversation>
+        if (res.error) return ToastAndroid.show("Something went wrong, please try again", ToastAndroid.SHORT)
+        dispatch(setConversation({
+            id: res.payload.id,
+            isGroup: false,
+            user: userData,
+        } as Conversation))
+        navigation?.navigate("message/conversation", { id: res.payload.id })
     }, [])
 
     return (

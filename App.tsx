@@ -20,6 +20,7 @@ import {
   SafeAreaProvider,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
+import SocketConnections from '@/provider/SocketConnections';
 
 // import Toast from 'react-native-toast-message';
 SplashScreen.preventAutoHideAsync();
@@ -116,9 +117,11 @@ function Root() {
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: background }}>
       <SafeAreaProvider>
         <NavigationContainer>
-          <BottomSheetProvider>
-            <Routes backgroundColor={background} />
-          </BottomSheetProvider>
+          <SocketConnections >
+            <BottomSheetProvider>
+              <Routes backgroundColor={background} />
+            </BottomSheetProvider>
+          </SocketConnections>
         </NavigationContainer>
       </SafeAreaProvider>
     </GestureHandlerRootView>
