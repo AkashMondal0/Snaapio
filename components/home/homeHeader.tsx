@@ -1,11 +1,20 @@
 import { View } from "react-native"
-import { Icon, Separator, Text } from '@/components/skysolo-ui';
+import { Icon, Separator, Text, AnimatedView } from '@/components/skysolo-ui';
 import { NavigationProps } from "@/types";
-import { ProfileStories } from "../profile";
 
 
-const HomeHeader = ({ navigation }: { navigation: NavigationProps }) => {
-    return <>
+const HomeHeader = ({ navigation, translateY }: {
+    navigation: NavigationProps,
+    translateY: any
+}) => {
+    return <AnimatedView style={[{
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        zIndex: 1,
+        width: '100%',
+        elevation: 2,
+    }, { transform: [{ translateY }] }]}>
         <View style={{
             width: '100%',
             justifyContent: "space-between",
@@ -33,9 +42,7 @@ const HomeHeader = ({ navigation }: { navigation: NavigationProps }) => {
             </View>
         </View>
         <Separator />
-        <ProfileStories navigation={navigation} />
-    </>
-
+    </AnimatedView>
 }
 
 export default HomeHeader

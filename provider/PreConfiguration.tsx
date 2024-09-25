@@ -69,9 +69,13 @@ const PreConfiguration = () => {
 
     useEffect(() => {
         GetLocalStorageThemeValue()
-        Appearance.addChangeListener(({ colorScheme }) => {
+        const unSubscribe = Appearance.addChangeListener(({ colorScheme }) => {
             onChangeTheme(colorScheme as any)
         })
+
+        return () => {
+            unSubscribe.remove()
+        }
     }, [])
 
     if (!themeLoaded) {

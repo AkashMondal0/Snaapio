@@ -20,7 +20,7 @@ import TouchableOpacity from "./TouchableOpacity";
 import Icon, { IconName } from "./Icon";
 import Toast from "./Toast";
 import Separator from "./Separator";
-// import Dropdown from "./DropDown";
+import AnimatedView from "./AnimatedView";
 
 export {
     View,
@@ -45,5 +45,6 @@ export {
     Toast,
     TouchableOpacity,
     Separator,
-    IconName
+    IconName,
+    AnimatedView
 }
