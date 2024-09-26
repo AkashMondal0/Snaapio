@@ -74,7 +74,7 @@ const StoriesItem = memo(function StoriesItem({
         style={{
             alignItems: 'center',
             justifyContent: 'center',
-            width: 94,
+            width: 82,
         }}>
         <Avatar url={session?.profilePicture} size={70} />
         <Text variant="heading4" colorVariant="secondary"

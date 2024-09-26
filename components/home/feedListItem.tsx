@@ -36,15 +36,17 @@ const FeedItem = memo(function FeedItem({
             <Avatar size={45} url={data.user?.profilePicture}
                 onPress={() => onNavigate(data.user?.username)} />
             <View>
+                <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => onNavigate(data.user?.username)} >
+                    <Text
+                        style={{ fontWeight: "600" }}
+                        variant="heading3">
+                        {data?.user?.name}
+                    </Text>
+                </TouchableOpacity>
                 <Text
-                    style={{ fontWeight: "600" }}
-                    variant="heading3">
-                    {data?.user?.name}
-                </Text>
-                <Text
-                    style={{
-                        fontWeight: "400",
-                    }}
+                    style={{ fontWeight: "400" }}
                     colorVariant="secondary"
                     variant="heading4">
                     {`los angeles, CA`}

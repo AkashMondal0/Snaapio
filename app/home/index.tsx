@@ -137,9 +137,7 @@ const HomeScreen = memo(function HomeScreen() {
                     headerShown: false,
                 }}
                 tabBar={MyTabBar}>
-                <Tab.Screen name="feeds" component={FeedsScreen} options={{
-                    headerShown: false,
-                }} />
+                <Tab.Screen name="feeds" component={FeedsScreen} />
                 <Tab.Screen name="search" component={SearchScreen} />
                 <Tab.Screen name="create" component={CameraScreen} />
                 <Tab.Screen name="reels" component={ReelsScreen} />
