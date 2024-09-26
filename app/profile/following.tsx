@@ -85,7 +85,7 @@ const FollowingScreen = memo(function FollowingScreen({ navigation, route }: Scr
                 refreshing={false}
                 onRefresh={onRefresh}
                 ListFooterComponent={() => <>{listLoading || !listLoading && firstFetchAttend ? <Loader size={50} /> : <></>}</>}
-                ListEmptyComponent={!firstFetchAttend && followingList.length <= 0 ? <ListEmptyComponent text="No followings yet" /> : <></>}
+                ListEmptyComponent={!firstFetchAttend && followingList.length <= 0 ? <ListEmptyComponent text="No following yet" /> : <></>}
             />
         </View>
     )

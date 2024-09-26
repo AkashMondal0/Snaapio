@@ -128,14 +128,16 @@ const SkysoloButton = ({
             {typeof children === "string" ? <>
                 {loading ?
                     <ActivityIndicator color={colorVariant().color} /> :
-                    children ? <Text style={[{
-                        color: colorVariant().color,
-                        textAlign: 'center',
-                        textAlignVertical: 'center',
-                        fontSize: 16,
-                        fontWeight: "700",
-                    },
-                    textStyle as TextProps["style"]]}>
+                    children ? <Text
+                        numberOfLines={1}
+                        style={[{
+                            color: colorVariant().color,
+                            textAlign: 'center',
+                            textAlignVertical: 'center',
+                            fontSize: 16,
+                            fontWeight: "700",
+                        },
+                        textStyle as TextProps["style"]]}>
                         {children}
                     </Text> : <></>}
             </> : children}

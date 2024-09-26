@@ -85,7 +85,7 @@ const FollowersScreen = memo(function FollowersScreen({ navigation, route }: Scr
                 refreshing={false}
                 onRefresh={onRefresh}
                 ListFooterComponent={() => <>{listLoading || !listLoading && firstFetchAttend ? <Loader size={50} /> : <></>}</>}
-                ListEmptyComponent={!firstFetchAttend && followersList.length <= 0 ? <ListEmptyComponent text="No followings yet" /> : <></>}
+                ListEmptyComponent={!firstFetchAttend && followersList.length <= 0 ? <ListEmptyComponent text="No followers yet" /> : <></>}
             />
         </View>
     )

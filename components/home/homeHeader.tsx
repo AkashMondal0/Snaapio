@@ -13,7 +13,7 @@ const HomeHeader = ({ navigation, translateY }: {
         right: 0,
         zIndex: 1,
         width: '100%',
-        elevation: 2,
+        elevation: 0,
     }, { transform: [{ translateY }] }]}>
         <View style={{
             width: '100%',

@@ -1,5 +1,5 @@
 import { memo, useCallback, useRef } from "react";
-import { AuthorData, Conversation, disPatchResponse, NavigationProps, User } from "@/types";
+import { User, Conversation, disPatchResponse, NavigationProps } from "@/types";
 import { ToastAndroid, View } from "react-native";
 import { Button } from "@/components/skysolo-ui"
 import { useDispatch, useSelector } from "react-redux";
@@ -16,7 +16,7 @@ const ProfileActionsButton = memo(function ProfileActionsButton({
     isProfile
 }: {
     navigation: NavigationProps,
-    userData: AuthorData | null,
+    userData: User | null,
     isProfile: boolean
 }) {
 
@@ -100,9 +100,6 @@ const ProfileActionsButton = memo(function ProfileActionsButton({
         }}>
             <Button
                 // onPress={() => navigation?.navigate('profile/edit')}
-                textStyle={{
-                    fontSize: 14,
-                }}
                 size="auto"
                 variant="secondary" style={{
                     flex: 1,
@@ -112,9 +109,6 @@ const ProfileActionsButton = memo(function ProfileActionsButton({
             </Button>
             <Button
                 // onPress={() => navigation?.navigate('profile/share')}
-                textStyle={{
-                    fontSize: 14,
-                }}
                 size="auto"
                 variant="secondary" style={{
                     flex: 1,
@@ -130,31 +124,16 @@ const ProfileActionsButton = memo(function ProfileActionsButton({
         paddingTop: 20,
         gap: 10,
     }}>
-        {
-            isFollowing ? <Button
-                onPress={handleUnFollow}
-                textStyle={{
-                    fontSize: 14,
-                }}
-                size="auto"
-                variant="secondary" style={{
-                    flex: 1,
-                    height: 40
-                }}>
-                following
-            </Button> : <Button
-                onPress={handleFollow}
-                textStyle={{
-                    fontSize: 14,
-                }}
-                size="auto"
-                style={{
-                    flex: 1,
-                    height: 40
-                }}>
-                Follow
-            </Button>
-        }
+        <Button
+            onPress={isFollowing ? handleUnFollow : handleFollow}
+            size="auto"
+            variant={isFollowing ? "secondary" : "default"}
+            style={{
+                flex: 1,
+                height: 40
+            }}>
+            {isFollowing ? "Following" : "Follow"}
+        </Button>
         <Button
             onPress={messagePageNavigate}
             size="auto"

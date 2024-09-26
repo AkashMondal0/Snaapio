@@ -125,7 +125,7 @@ interface Conversation {
     members: string[];
     authorId: string;
     messages: Message[]
-    user?: AuthorData | null
+    user?: AuthorData | User| null
     isGroup: boolean | null;
     lastMessageContent: string | null;
     totalUnreadMessagesCount: number;
