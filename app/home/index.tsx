@@ -1,6 +1,6 @@
 import React, { memo } from 'react'
 import { BottomTabBarProps, createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { CircleUserRound, Film, HomeIcon, PlusCircle, Search } from "lucide-react-native"
+import { Film, HomeIcon, PlusCircle, Search } from "lucide-react-native"
 import { TouchableOpacity, View } from 'react-native';
 import { RootState } from '@/redux-stores/store';
 import { useDispatch, useSelector } from 'react-redux';
@@ -11,6 +11,7 @@ import ReelsScreen from "./reels";
 import SearchScreen from "./search";
 import CameraScreen from '../camera';
 import { changeTabSwiped } from '@/redux-stores/slice/theme';
+import { Avatar } from '@/components/skysolo-ui';
 const Tab = createBottomTabNavigator();
 
 const HomeScreen = memo(function HomeScreen() {
@@ -23,11 +24,8 @@ const HomeScreen = memo(function HomeScreen() {
     function MyTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 
         const getIcon = (routeName: string, isFocused: boolean) => {
-            let iconSize = 28;
-            let iconColor = currentTheme?.foreground;
-            if (isFocused) {
-                iconColor = currentTheme?.primary;
-            }
+            let iconSize = isFocused ? 34 : 28;
+            let iconColor = isFocused ? currentTheme?.primary : currentTheme?.foreground;
             if (routeName === 'feeds') {
                 return <HomeIcon size={iconSize} color={iconColor} />
             }
@@ -41,7 +39,12 @@ const HomeScreen = memo(function HomeScreen() {
                 return <Film size={iconSize} color={iconColor} />
             }
             else if (routeName === 'profile') {
-                return <CircleUserRound size={iconSize} color={iconColor} />
+                return <Avatar size={iconSize} url={session?.profilePicture}
+                    onPress={() => {
+                        navigation.navigate("profile", {
+                            screen: 'profile', params: { username: session?.username }
+                        })
+                    }} />
             }
         }
 

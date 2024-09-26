@@ -61,6 +61,7 @@ export const PostsSlice = createSlice({
             state.feeds = []
             state.viewPost = null
             state.likesUserList = []
+            state.comments = []
         },
         resetViewPost: (state) => {
             state.viewPost = null

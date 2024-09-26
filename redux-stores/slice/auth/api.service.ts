@@ -7,6 +7,7 @@ import { resetConversationState } from "../conversation";
 import { resetPostState } from "../post";
 import { resetProfileState } from "../profile";
 import { resetUserState } from "../users";
+import { resetNotificationState } from "../notification";
 
 export const loginApi = async ({
     email,
@@ -108,6 +109,7 @@ export const logoutApi = createAsyncThunk(
             thunkAPI.dispatch(resetPostState())
             thunkAPI.dispatch(resetProfileState())
             thunkAPI.dispatch(resetUserState())
+            thunkAPI.dispatch(resetNotificationState())
             await fetch(`${configs.serverApi.baseUrl}/auth/logout`, {
                 headers: {
                     "Content-Type": "application/json",

@@ -103,8 +103,8 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
         height: "100%",
     }}>
         <FlashList
-         keyboardShouldPersistTaps="handled"
-                keyboardDismissMode="on-drag"
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="on-drag"
             renderItem={({ item }) => <Item data={item}
                 onClick={pushToPage}
                 onLongPress={handlePresentModalPress} />}

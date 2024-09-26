@@ -63,12 +63,16 @@ const LoginScreen = ({ navigation }: any) => {
     }, [])
 
     return (
-        <ScrollView style={{
-            flex: 1,
-            padding: 20,
-            width: "100%",
-        }}>
+        <ScrollView
+            keyboardDismissMode='on-drag'
+            keyboardShouldPersistTaps='handled'
+            style={{
+                flex: 1,
+                padding: 20,
+                width: "100%",
+            }}>
             <Icon
+                disabled={state.loading}
                 iconName="ArrowLeft"
                 size={30}
                 onPress={() => navigation.goBack()}

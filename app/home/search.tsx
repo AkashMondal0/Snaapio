@@ -73,6 +73,8 @@ const SearchScreen = memo(function SearchScreen({
 
             {/* list */}
             <FlashList
+                keyboardDismissMode='on-drag'
+                keyboardShouldPersistTaps='handled'
                 data={users}
                 renderItem={({ item }) => <UserItem data={item}
                     onPress={onNavigate} onRemove={onRemove} />}

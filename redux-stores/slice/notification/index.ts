@@ -87,6 +87,13 @@ export const NotificationSlice = createSlice({
         },
         setCommentNotification: (state, action: PayloadAction<NotificationType>) => {
             state.commentNotification = action.payload
+        },
+        resetNotificationState: (state) => {
+            state.unreadCommentCount = 0
+            state.unreadPostLikeCount = 0
+            state.unreadChatCount = 0
+            state.notifications = []
+            state.receivedNotification = []
         }
     },
     extraReducers: (builder) => {
@@ -139,7 +146,8 @@ export const {
     setResetNotificationPopup,
     setNotification,
     setChatNotification,
-    setCommentNotification
+    setCommentNotification,
+    resetNotificationState
 } = NotificationSlice.actions
 
 export default NotificationSlice.reducer
