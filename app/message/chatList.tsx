@@ -79,7 +79,7 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
         navigation?.navigate("message/conversation", { id: data.id })
     }, [])
 
-    const onChangeInput = debounce((text:string)=>setInputText(text), 400)
+    const onChangeInput = debounce((text: string) => setInputText(text), 400)
 
     const fetchConversations = debounce(fetchConversationList, 500)
 

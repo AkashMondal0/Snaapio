@@ -1,5 +1,5 @@
 import { FlashList } from '@shopify/flash-list';
-import { memo, useCallback, useRef } from 'react';
+import { memo, useCallback, useContext, useEffect, useRef } from 'react';
 import { Conversation, Message, disPatchResponse } from '@/types';
 import { View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -9,6 +9,7 @@ import debounce from "@/lib/debouncing";
 import { ToastAndroid } from "react-native";
 import { fetchConversationAllMessagesApi } from "@/redux-stores/slice/conversation/api.service";
 import MessageItem from './messageItem';
+import { SocketContext } from '@/provider/SocketConnections';
 
 const MessageList = memo(function MessageList({
     conversation,
@@ -22,6 +23,15 @@ const MessageList = memo(function MessageList({
     const session = useSelector((Root: RootState) => Root.AuthState.session.user)
     const messagesLoading = useSelector((Root: RootState) => Root.ConversationState?.messageLoading)
     const messages = useSelector((Root: RootState) => Root.ConversationState?.messages)
+    const socketState = useContext(SocketContext)
+    const firstSeen = useRef(false)
+
+    useEffect(() => {
+        if (!firstSeen.current) {
+            socketState.seenAllMessage(conversation.id)
+            firstSeen.current = true
+        }
+    }, [])
 
     const loadMoreMessages = useCallback(async (conversationId?: string) => {
         // console.log('loadMoreMessages', totalFetchedItemCount)

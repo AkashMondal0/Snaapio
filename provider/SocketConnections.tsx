@@ -18,12 +18,14 @@ interface SocketStateType {
     socket: Socket | null
     sendDataToServer: (eventName: SocketEmitType, data: unknown) => void
     SocketConnection: () => void
+    seenAllMessage: (conversationId: string) => void
 }
 
 export const SocketContext = createContext<SocketStateType>({
     socket: null,
     sendDataToServer: () => { },
-    SocketConnection: () => { }
+    SocketConnection: () => { },
+    seenAllMessage: () => { }
 })
 
 const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
@@ -33,7 +35,7 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
 }) {
     const dispatch = useDispatch()
     const session = useSelector((state: RootState) => state.AuthState.session.user)
-    const conversation = useSelector((state: RootState) => state.ConversationState.conversation)
+    const currentConversation = useSelector((state: RootState) => state.ConversationState.conversation)
     const list = useSelector((state: RootState) => state.ConversationState.conversationList)
     const socketRef = useRef<Socket | null>(null)
 
@@ -52,27 +54,28 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
         }
     }
 
-    const seenAllMessage = debounce(async (conversationId: string) => {
-        if (!conversationId || !session?.id || conversation?.id) return
-        if (conversation?.id === conversationId) {
+    const seenAllMessage = (conversationId: string) => {
+        if (!conversationId || !session?.id || !currentConversation?.id) return
+        if (currentConversation?.id === conversationId) {
+            // console.log("seenAllMessage")
             dispatch(conversationSeenAllMessage({
-                conversationId: conversation.id,
+                conversationId: currentConversation.id,
                 authorId: session?.id,
             }) as any)
             socketRef.current?.emit(configs.eventNames.conversation.seen, {
-                conversationId: conversation.id,
+                conversationId: currentConversation.id,
                 authorId: session?.id,
-                members: conversation.members?.filter((member) => member !== session?.id),
+                members: currentConversation.members?.filter((member) => member !== session?.id),
             })
         }
-    }, 1500)
+    }
 
     useEffect(() => {
         SocketConnection()
         if (socketRef.current && session?.id) {
             socketRef.current?.on(configs.eventNames.conversation.message, (data: Message) => {
                 if (data.authorId !== session?.id) {
-                    if (list.find(conversation => conversation.id === data.conversationId)) {
+                    if (list.find(con => con.id === data.conversationId)) {
                         dispatch(setMessage(data))
                     } else {
                         dispatch(fetchConversationsApi({
@@ -119,7 +122,7 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
                 socketRef.current?.off(configs.eventNames.notification.post)
             }
         }
-    }, [session?.id, socketRef.current])
+    }, [session?.id, socketRef.current, currentConversation?.id])
 
 
     const sendDataToServer = useCallback((eventName: SocketEmitType, data: unknown) => {
@@ -129,7 +132,8 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
     return <SocketContext.Provider value={{
         socket: socketRef.current,
         sendDataToServer,
-        SocketConnection
+        SocketConnection,
+        seenAllMessage
     }}>
         {children}
     </SocketContext.Provider>
