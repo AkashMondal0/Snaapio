@@ -6,22 +6,24 @@ import { configs } from "@/configs";
 import { ToastAndroid } from "react-native";
 import { Typing, Notification, Message } from "@/types";
 import { setMessage, setMessageSeen, setTyping } from "@/redux-stores/slice/conversation";
-import { fetchConversationsApi } from "@/redux-stores/slice/conversation/api.service";
+import { conversationSeenAllMessage, fetchConversationsApi } from "@/redux-stores/slice/conversation/api.service";
 import { setNotification } from "@/redux-stores/slice/notification";
 import {
     fetchUnreadMessageNotificationCountApi,
-    fetchUnreadNotificationCountApi
 } from "@/redux-stores/slice/notification/api.service";
+import debounce from "@/lib/debouncing";
 
 export type SocketEmitType = "conversation_message" | "conversation_message_seen" | "conversation_user_keyboard_pressing" | "notification_post" | "conversation_list_refetch" | "test"
 interface SocketStateType {
     socket: Socket | null
     sendDataToServer: (eventName: SocketEmitType, data: unknown) => void
+    SocketConnection: () => void
 }
 
 export const SocketContext = createContext<SocketStateType>({
     socket: null,
-    sendDataToServer: () => { }
+    sendDataToServer: () => { },
+    SocketConnection: () => { }
 })
 
 const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
@@ -31,15 +33,17 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
 }) {
     const dispatch = useDispatch()
     const session = useSelector((state: RootState) => state.AuthState.session.user)
+    const conversation = useSelector((state: RootState) => state.ConversationState.conversation)
     const list = useSelector((state: RootState) => state.ConversationState.conversationList)
     const socketRef = useRef<Socket | null>(null)
 
     async function SocketConnection() {
         if (session?.id && !socketRef.current) {
-            // fetchAllNotification 
-            // dispatch(fetchUnreadNotificationCountApi() as any)
             socketRef.current = io(`${configs.serverApi.baseUrl.replace("/v1", "")}/chat`, {
                 transports: ['websocket'],
+                extraHeaders: {
+                    Authorization: session.accessToken
+                },
                 query: {
                     userId: session.id,
                     username: session.username
@@ -48,20 +52,20 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
         }
     }
 
-    // const seenAllMessage = debounce(async (conversationId: string) => {
-    //     if (!conversationId || !session?.id) return
-    //     if (params?.id === conversationId && conversation) {
-    //         dispatch(conversationSeenAllMessage({
-    //             conversationId: conversation.id,
-    //             authorId: session?.id,
-    //         }) as any)
-    //         socketRef.current?.emit(configs.eventNames.conversation.seen, {
-    //             conversationId: conversation.id,
-    //             authorId: session?.id,
-    //             members: conversation.members?.filter((member) => member !== session?.id),
-    //         })
-    //     }
-    // }, 1500)
+    const seenAllMessage = debounce(async (conversationId: string) => {
+        if (!conversationId || !session?.id || conversation?.id) return
+        if (conversation?.id === conversationId) {
+            dispatch(conversationSeenAllMessage({
+                conversationId: conversation.id,
+                authorId: session?.id,
+            }) as any)
+            socketRef.current?.emit(configs.eventNames.conversation.seen, {
+                conversationId: conversation.id,
+                authorId: session?.id,
+                members: conversation.members?.filter((member) => member !== session?.id),
+            })
+        }
+    }, 1500)
 
     useEffect(() => {
         SocketConnection()
@@ -77,7 +81,7 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
                         }) as any)
                     }
                     // dispatch(fetchUnreadMessageNotificationCountApi() as any)
-                    // seenAllMessage(data.conversationId)
+                    seenAllMessage(data.conversationId)
                 }
             });
             socketRef.current?.on(configs.eventNames.conversation.seen, (data: { conversationId: string, authorId: string }) => {
@@ -124,7 +128,8 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
 
     return <SocketContext.Provider value={{
         socket: socketRef.current,
-        sendDataToServer
+        sendDataToServer,
+        SocketConnection
     }}>
         {children}
     </SocketContext.Provider>

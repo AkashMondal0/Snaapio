@@ -136,23 +136,23 @@ const FeedItemActionsButtons = (
             }
             setLike((pre) => ({ ...pre, isLike: true, likeCount: pre.likeCount + 1 }))
             if (post.user.id === session.id) return
-            // const notificationRes = await dispatch(createNotificationApi({
-            //     postId: post.id,
-            //     authorId: session.id,
-            //     type: NotificationType.Like,
-            //     recipientId: post.user.id
-            // }) as any) as disPatchResponse<Notification>
-            // SocketState.sendDataToServer(event_name.notification.post, {
-            //     ...notificationRes.payload,
-            //     author: {
-            //         username: session.data?.user.username,
-            //         profilePicture: session.data?.user.image
-            //     },
-            //     post: {
-            //         id: post.id,
-            //         fileUrl: post.fileUrl,
-            //     }
-            // })
+            const notificationRes = await dispatch(createNotificationApi({
+                postId: post.id,
+                authorId: session.id,
+                type: NotificationType.Like,
+                recipientId: post.user.id
+            }) as any) as disPatchResponse<Notification>
+            SocketState.sendDataToServer("notification_post", {
+                ...notificationRes.payload,
+                author: {
+                    username: session?.username,
+                    profilePicture: session?.profilePicture
+                },
+                post: {
+                    id: post.id,
+                    fileUrl: post.fileUrl,
+                }
+            })
         } catch (error) {
             ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
         } finally {

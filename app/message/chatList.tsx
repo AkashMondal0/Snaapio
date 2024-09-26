@@ -3,7 +3,7 @@ import { FlashList } from '@shopify/flash-list';
 import React, { useCallback, useMemo, useRef, memo, useState } from 'react';
 import { View, Vibration } from 'react-native';
 import { Conversation, disPatchResponse } from '@/types';
-import { ActionSheet, Avatar, Icon, Input, Loader, Text, TouchableOpacity } from '@/components/skysolo-ui';
+import { ActionSheet, Loader } from '@/components/skysolo-ui';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
@@ -12,7 +12,8 @@ import { resetConversationState, setConversation } from '@/redux-stores/slice/co
 import debounce from '@/lib/debouncing';
 import searchText from '@/lib/TextSearch';
 import { ListEmptyComponent } from '@/components/home';
-import AppHeader from '@/components/AppHeader';
+import ErrorScreen from '@/components/error/page';
+import { ConversationDetailsSheet, ConversationItem, ListHeader } from '@/components/message';
 let totalFetchedItemCount: number = 0
 
 const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
@@ -20,6 +21,8 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
     const stopRef = useRef(false)
     const list = useSelector((Root: RootState) => Root.ConversationState.conversationList)
     const listLoading = useSelector((Root: RootState) => Root.ConversationState.listLoading)
+    const listError = useSelector((Root: RootState) => Root.ConversationState.listError)
+
     const snapPoints = useMemo(() => ["50%", '50%', "70%"], []);
     const [inputText, setInputText] = useState("")
     const [BottomSheetData, setBottomSheetData] = useState<Conversation | null>(null)
@@ -76,19 +79,7 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
         navigation?.navigate("message/conversation", { id: data.id })
     }, [])
 
-    const pageToNewChat = useCallback(() => {
-        navigation?.navigate("message/searchNewChat")
-    }, [])
-
-    const pressBack = useCallback(() => {
-        navigation?.goBack()
-    }, [])
-
-    const InputOnChange = useCallback((text: string) => {
-        setInputText(text)
-    }, [])
-
-    const delayInput = debounce(InputOnChange, 400)
+    const onChangeInput = debounce((text:string)=>setInputText(text), 400)
 
     const fetchConversations = debounce(fetchConversationList, 500)
 
@@ -105,7 +96,7 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
         <FlashList
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode="on-drag"
-            renderItem={({ item }) => <Item data={item}
+            renderItem={({ item }) => <ConversationItem data={item}
                 onClick={pushToPage}
                 onLongPress={handlePresentModalPress} />}
             keyExtractor={(item, index) => index.toString()}
@@ -115,154 +106,26 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
             refreshing={false}
             onRefresh={onRefresh}
             onEndReached={fetchConversations}
-            ListHeaderComponent={<ListHeaderComponent
-                pageToNewChat={pageToNewChat}
-                pressBack={pressBack}
-                InputOnChange={delayInput} />}
+            ListHeaderComponent={<ListHeader
+                pageToNewChat={() => { navigation?.navigate("message/searchNewChat") }}
+                pressBack={() => { navigation?.goBack() }}
+                InputOnChange={onChangeInput} />}
             data={conversationList}
             ListFooterComponent={() => <>{listLoading ? <Loader size={50} /> : <></>}</>}
-            ListEmptyComponent={conversationList.length <= 0 && !listLoading ? <ListEmptyComponent text="No Chat yet" /> : <></>} />
+            ListEmptyComponent={() => {
+                if (listError) {
+                    return <ErrorScreen message={listError} />
+                }
+                if (conversationList.length <= 0 && !listLoading && !listError) {
+                    return <ListEmptyComponent text="No Chat yet" />
+                }
+            }} />
         <ActionSheet
             bottomSheetModalRef={bottomSheetModalRef}
             snapPoints={snapPoints}
             handleSheetChanges={handleSheetChanges}>
-            <ChatDetailsSheetChildren data={BottomSheetData} />
+            <ConversationDetailsSheet data={BottomSheetData} />
         </ActionSheet>
     </View>
 })
 export default ChatListScreen;
-
-const Item = memo(function Item({
-    data,
-    onClick,
-    onLongPress
-}: {
-    data: Conversation,
-    onClick: (id: Conversation) => void,
-    onLongPress: (data: Conversation) => void
-}) {
-    return (<View style={{ paddingHorizontal: 6 }}>
-        <TouchableOpacity
-            onPress={() => { onClick(data) }}
-            style={{
-                width: "100%",
-                padding: 10,
-                display: 'flex',
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 10,
-                borderRadius: 15
-            }}>
-            <Avatar size={55} url={data.user?.profilePicture} onLongPress={() => { onLongPress(data) }} />
-            <View>
-                <Text
-                    style={{ fontWeight: "600" }}
-                    variant="heading3">
-                    {data?.user?.name}
-                </Text>
-                <Text
-                    colorVariant='secondary'
-                    style={{ fontWeight: "400" }}
-                    variant="heading4">
-                    {data?.lastMessageContent ?? "new chat"}
-                </Text>
-            </View>
-        </TouchableOpacity>
-    </View>)
-}, ((prev, next) => prev.data.id === next.data.id))
-
-const ListHeaderComponent = memo(function ListHeaderComponent({
-    pressBack,
-    pageToNewChat,
-    InputOnChange
-}: {
-    pageToNewChat: () => void,
-    pressBack: () => void,
-    InputOnChange: (text: string) => void
-}) {
-    const session = useSelector((Root: RootState) => Root.AuthState.session.user)
-
-    return <>
-        <View style={{
-            paddingHorizontal: 14,
-            paddingBottom: 10,
-        }}>
-            <View style={{
-                width: "100%",
-                display: "flex", flexDirection: "row",
-                justifyContent: "space-between",
-                paddingVertical: 16,
-            }}>
-                <View style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
-                    gap: 6,
-                }}>
-                    <Icon iconName={"ArrowLeft"} size={30} onPress={pressBack} />
-                    <Text
-                        style={{
-                            fontSize: 22,
-                            fontWeight: "400",
-                        }}>
-                        @{session?.username}
-                    </Text>
-                </View>
-                <View style={{ paddingHorizontal: 10 }}>
-                    <Icon iconName={"SquarePen"} size={26} onPress={pageToNewChat} />
-                </View>
-            </View>
-            <Input
-                onChangeText={InputOnChange}
-                secondaryColor
-                style={{ borderWidth: 0 }}
-                placeholder='Search' />
-            <Text
-                style={{
-                    fontSize: 20,
-                    fontWeight: "500",
-                    lineHeight: 20,
-                    paddingTop: 16,
-                    paddingHorizontal: 10,
-                }}
-                variant="heading4">
-                Messages
-            </Text>
-        </View>
-    </>
-}, (() => true))
-
-const ChatDetailsSheetChildren = ({
-    data
-}: {
-    data: Conversation | null
-}) => {
-    if (!data) return <></>
-    return <View style={{
-        flex: 1,
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-        gap: 10,
-        padding: 10,
-    }}>
-        <Avatar
-            size={120}
-            TouchableOpacityOptions={{
-                activeOpacity: 0.3
-            }}
-            url={data.user?.profilePicture} />
-        <Text
-            style={{ fontWeight: "600" }}
-            variant="heading2">
-            {data?.user?.name}
-        </Text>
-        <Text
-            colorVariant='secondary'
-            style={{ fontWeight: "400" }}
-            variant="heading4">
-            {data?.user?.email}
-        </Text>
-    </View>
-}

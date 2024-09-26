@@ -9,6 +9,7 @@ import { ThemeNames } from '@/components/skysolo-ui/colors';
 import { SecureStorage } from '@/lib/SecureStore';
 import { setSession } from '@/redux-stores/slice/auth';
 import { Session } from '@/types';
+import { fetchUnreadNotificationCountApi } from '@/redux-stores/slice/notification/api.service';
 
 export type Theme = "light" | "dark" | "system";
 
@@ -26,6 +27,8 @@ const PreConfiguration = () => {
         const session = await SecureStorage("get", "skylight-session") as Session | any
         if (session) {
             dispatch(setSession(session))
+            // fetchAllNotification 
+            dispatch(fetchUnreadNotificationCountApi() as any)
         }
         // first time
         if (!localValueSchema && !localValueTheme) {

@@ -71,24 +71,24 @@ const CommentScreen = memo(function CommentScreen({ navigation, route }: Comment
             if (data.user.id === session.id) return reset()
             if (commentRes.payload.id) {
                 // notification
-                // const notificationRes = await dispatch(createNotificationApi({
-                //     postId: data.id,
-                //     commentId: commentRes.payload.id,
-                //     authorId: session?.id,
-                //     type: NotificationType.Comment,
-                //     recipientId: data.user.id
-                // }) as any) as disPatchResponse<Notification>
-                // SocketState.sendDataToServer(event_name.notification.post, {
-                //     ...notificationRes.payload,
-                //     author: {
-                //         username: session.username,
-                //         profilePicture: session.profilePicture as string
-                //     },
-                //     post: {
-                //         id: data.id,
-                //         fileUrl: data.fileUrl,
-                //     },
-                // })
+                const notificationRes = await dispatch(createNotificationApi({
+                    postId: data.id,
+                    commentId: commentRes.payload.id,
+                    authorId: session?.id,
+                    type: NotificationType.Comment,
+                    recipientId: data.user.id
+                }) as any) as disPatchResponse<Notification>
+                SocketState.sendDataToServer("notification_post", {
+                    ...notificationRes.payload,
+                    author: {
+                        username: session.username,
+                        profilePicture: session.profilePicture as string
+                    },
+                    post: {
+                        id: data.id,
+                        fileUrl: data.fileUrl,
+                    },
+                })
                 reset()
             } else {
                 ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)

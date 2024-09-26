@@ -1,12 +1,18 @@
-import { View } from "react-native"
+import { View, Text as RNText, TouchableOpacity } from "react-native"
 import { Icon, Separator, Text, AnimatedView } from '@/components/skysolo-ui';
 import { NavigationProps } from "@/types";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux-stores/store";
 
 
 const HomeHeader = ({ navigation, translateY }: {
     navigation: NavigationProps,
     translateY: any
 }) => {
+    const unreadChatCount = useSelector((state: RootState) => state.NotificationState.unreadChatCount)
+    const idCommentNotification = useSelector((state: RootState) => state.NotificationState.commentNotification.isNotification)
+
+
     return <AnimatedView style={[{
         position: 'absolute',
         left: 0,
@@ -33,12 +39,61 @@ const HomeHeader = ({ navigation, translateY }: {
                 alignItems: "center",
                 marginHorizontal: 10
             }}>
-                <Icon iconName="Heart" size={30} onPress={() => {
-                    navigation.navigate("notification")
-                }} />
-                <Icon iconName="MessageCircleCode" size={32} onPress={() => {
-                    navigation.navigate("message")
-                }} />
+                <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => {
+                        navigation.navigate("notification")
+                    }} >
+                    <View style={{
+                        position: "absolute",
+                        right: 0,
+                        top: 1,
+                        backgroundColor: idCommentNotification ? "red" : "transparent",
+                        borderRadius: 50,
+                        width: 8,
+                        height: 8,
+                        justifyContent: "center",
+                        alignItems: "center",
+                        zIndex: 1
+                    }}>
+                    </View>
+                    <Icon iconName="Heart" size={30} onPress={() => {
+                        navigation.navigate("notification")
+                    }} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => {
+                        navigation.navigate("message")
+                    }}
+                    style={{
+                        width: 35,
+                        height: 35,
+                    }}>
+                    <View style={{
+                        position: "absolute",
+                        right: -2,
+                        top: -5,
+                        backgroundColor: unreadChatCount > 0 ? "red" : "transparent",
+                        borderRadius: 50,
+                        width: 20,
+                        height: 20,
+                        justifyContent: "center",
+                        alignItems: "center",
+                        zIndex: 1
+                    }}>
+                        {unreadChatCount > 0 ? <RNText style={{
+                            color: "white",
+                            fontSize: 14,
+                            fontWeight: "500",
+                        }}>
+                            {unreadChatCount}
+                        </RNText> : <></>}
+                    </View>
+                    <Icon iconName="MessageCircleCode" size={32} onPress={() => {
+                        navigation.navigate("message")
+                    }} />
+                </TouchableOpacity>
             </View>
         </View>
         <Separator />

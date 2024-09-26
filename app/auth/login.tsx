@@ -113,6 +113,7 @@ const LoginScreen = ({ navigation }: any) => {
                     control={control}
                     render={({ field: { onChange, onBlur, value } }) => (
                         <Input
+                            disabled={state.loading}
                             style={{
                                 width: "90%",
                             }}
@@ -142,6 +143,7 @@ const LoginScreen = ({ navigation }: any) => {
                     control={control}
                     render={({ field: { onChange, onBlur, value } }) => (
                         <Input
+                            disabled={state.loading}
                             style={{ width: "90%" }}
                             secureTextEntry={!state.showPassword}
                             isErrorBorder={errors.password}

@@ -47,6 +47,8 @@ export const graphqlQuery = async <T>({
     });
 
     if (!response.ok) {
+        const responseBody: GraphqlResponse<any> = await response.json();
+        console.error(responseBody)
         throw new Error('Network response was not ok');
     }
 

@@ -1,20 +1,22 @@
 import { RootState } from '@/redux-stores/store';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Button, Text } from '@/components/skysolo-ui';
 import LottieView from 'lottie-react-native';
+import { logoutApi } from '@/redux-stores/slice/auth/api.service';
+import LogOutDialog from '@/components/dialogs/logout';
 
 
 const ErrorScreen = ({
-    message = "PAGE_NOT_FOUND",
-    Action = () => { }
+    message = "PAGE_NOT_FOUND"
 }: {
-    message?: ErrorType | string,
-    Action?: () => void
+    message?: ErrorType | string
 }) => {
     const animation = useRef<LottieView>(null);
+    const [modalVisible, setModalVisible] = useState(false)
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+    const dispatch = useDispatch();
     useEffect(() => {
         animation.current?.play();
     }, []);
@@ -68,44 +70,52 @@ const ErrorScreen = ({
     }
 
     return (
-        <View style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: 20,
-            backgroundColor: currentTheme?.background,
-            height: 450,
-        }}>
-            <>
-                <Text style={{
-                    fontSize: 24,
-                    fontWeight: 'bold',
-                    color: currentTheme?.foreground,
-                }}>{displayErrorMessage(message).title}</Text>
-                <LottieView
-                    autoPlay
-                    ref={animation}
-                    style={{
-                        width: 250,
-                        height: 250,
-                        alignContent: "center",
-                    }}
-                    source={require('../../assets/lottie/Animation -error.json')}
-                />
-                <Text style={{
-                    fontSize: 12,
-                    color: currentTheme?.destructive,
-                    textAlign: 'center',
-                    marginBottom: 20,
-                    width: '80%',
-                }}>
-                    {displayErrorMessage(message).description}
-                </Text>
-                <Button onPress={Action}>
-                    Login
-                </Button>
-            </>
-        </View>
+        <>
+            <LogOutDialog
+                setModalVisible={setModalVisible}
+                modalVisible={modalVisible}
+                confirm={() => { dispatch(logoutApi() as any) }} />
+            <View style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+                padding: 20,
+                backgroundColor: currentTheme?.background,
+                height: 450,
+            }}>
+                <>
+                    <Text style={{
+                        fontSize: 24,
+                        fontWeight: 'bold',
+                        color: currentTheme?.foreground,
+                    }}>{displayErrorMessage(message).title}</Text>
+                    <LottieView
+                        autoPlay
+                        ref={animation}
+                        style={{
+                            width: 250,
+                            height: 250,
+                            alignContent: "center",
+                        }}
+                        source={require('../../assets/lottie/Animation -error.json')}
+                    />
+                    <Text style={{
+                        fontSize: 12,
+                        color: currentTheme?.destructive,
+                        textAlign: 'center',
+                        marginBottom: 20,
+                        width: '80%',
+                    }}>
+                        {displayErrorMessage(message).description}
+                    </Text>
+                    <Button onPress={() => {
+                        setModalVisible(true)
+                    }}>
+                        Log Out
+                    </Button>
+                </>
+            </View>
+        </>
     );
 };
 
