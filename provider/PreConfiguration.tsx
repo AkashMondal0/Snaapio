@@ -17,6 +17,8 @@ const PreConfiguration = () => {
     const dispatch = useDispatch()
     const themeLoaded = useSelector((state: RootState) => state.ThemeState.themeLoaded, (prev, next) => prev === next)
     const themeSchema = useSelector((state: RootState) => state.ThemeState.themeSchema, (prev, next) => prev === next)
+    const background = useSelector((state: RootState) => state.ThemeState.currentTheme?.background, (prev, next) => prev === next)
+
 
     const GetLocalStorageThemeValue = async () => {
         const localValueSchema = await localStorage("get", "skysolo-theme") as Theme
@@ -86,7 +88,7 @@ const PreConfiguration = () => {
     return <>
         <StatusBar
             barStyle={themeSchema === "dark" ? "light-content" : "dark-content"}
-            backgroundColor="transparent" translucent={true} />
+            backgroundColor={background} translucent={true} />
     </>
 }
 

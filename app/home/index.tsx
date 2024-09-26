@@ -17,7 +17,7 @@ const Tab = createBottomTabNavigator();
 const HomeScreen = memo(function HomeScreen() {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme, (prev, next) => prev === next)
     const session = useSelector((state: RootState) => state.AuthState.session.user)
-    const tabSwiped = useSelector((state: RootState) => state.ThemeState.tabSwiped, (prev, next) => prev === next)
+    // const tabSwiped = useSelector((state: RootState) => state.ThemeState.tabSwiped, (prev, next) => prev === next)
     const dispatch = useDispatch()
 
 
@@ -93,10 +93,10 @@ const HomeScreen = memo(function HomeScreen() {
                                         screen: 'profile', params: { username: session?.username }
                                     })
                                 }
-                                else if (route.name === "create") {
-                                    if (!tabSwiped) dispatch(changeTabSwiped(true))
-                                    navigation.navigate("Root", { screen: 'camera' })
-                                }
+                                // else if (route.name === "create") {
+                                //     if (!tabSwiped) dispatch(changeTabSwiped(true))
+                                //     navigation.navigate("Root", { screen: 'camera' })
+                                // }
                                 else {
                                     onPress()
                                 }
@@ -118,17 +118,17 @@ const HomeScreen = memo(function HomeScreen() {
     return (
         <View style={{ flex: 1 }}>
             <Tab.Navigator
-                screenListeners={() => ({
-                    state: (e: any) => {
-                        if (e.data.state.index === 0) {
-                            if (tabSwiped) return
-                            dispatch(changeTabSwiped(true))
-                        } else {
-                            if (!tabSwiped) return
-                            dispatch(changeTabSwiped(false))
-                        }
-                    },
-                })}
+                // screenListeners={() => ({
+                //     state: (e: any) => {
+                //         if (e.data.state.index === 0) {
+                //             if (tabSwiped) return
+                //             dispatch(changeTabSwiped(true))
+                //         } else {
+                //             if (!tabSwiped) return
+                //             dispatch(changeTabSwiped(false))
+                //         }
+                //     },
+                // })}
                 sceneContainerStyle={{
                     backgroundColor: currentTheme?.background
                 }}
