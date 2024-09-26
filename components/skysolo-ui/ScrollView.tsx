@@ -1,8 +1,8 @@
-import { RootState } from "@/redux/store"
-import { ScrollView, View, type ViewProps } from 'react-native';
+import { RootState } from '@/redux-stores/store';
+import { ScrollView, type ScrollViewProps } from 'react-native';
 import { useSelector } from "react-redux"
 
-export type Props = ViewProps & {
+export type Props = ScrollViewProps & {
     variant?: any
     lightColor?: string;
     darkColor?: string;
@@ -10,10 +10,11 @@ export type Props = ViewProps & {
 
 
 const SkysoloScrollView = ({ style, ...otherProps }: Props) => {
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme, (prev, next) => prev?.primary === next?.primary)
+    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
     if (!currentTheme) return null
     return (
-        <ScrollView style={[{ backgroundColor: `hsl(${currentTheme.background})` }, {
+        <ScrollView 
+        style={[{ backgroundColor: currentTheme.background }, {
             flex: 1,
             width: '100%',
             height: '100%',

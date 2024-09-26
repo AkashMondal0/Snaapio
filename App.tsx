@@ -1,107 +1,143 @@
 import * as React from 'react';
+import * as SplashScreen from 'expo-splash-screen';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Provider, useSelector } from 'react-redux';
-import { RootState, store } from '@/redux/store';
-import * as SplashScreen from 'expo-splash-screen';
-import ThemeProvider from '@/provider/ThemeProvider'
-import { SettingScreen, ThemeSettingScreen, CameraScreen, MessageScreen } from '@/app/screen';
-import BottomTab from '@/app/screen/home/bottomTabs';
+import { RootState, store } from '@/redux-stores/store';
+import { SettingScreen, ThemeSettingScreen } from '@/app/setting';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { InitialScreen, LoginScreen, RegisterScreen } from '@/app/auth';
+import HomeScreen from '@/app/home';
+import CameraScreen from '@/app/camera';
+import { ChatListScreen, ChatScreen, NewChatScreen } from '@/app/message';
+import PreConfiguration from '@/provider/PreConfiguration';
+import BottomSheetProvider from '@/provider/BottomSheetProvider';
+import { PostScreen, CommentScreen, LikeScreen } from '@/app/post';
+import { NotificationScreen } from '@/app/screens';
+import { PostsScreen, TabFollowingAndFollowers } from './app/profile';
+import {
+  SafeAreaProvider,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
+import SocketConnections from '@/provider/SocketConnections';
 
+// import Toast from 'react-native-toast-message';
 SplashScreen.preventAutoHideAsync();
-const Stack = createNativeStackNavigator();
 const Tab = createMaterialTopTabNavigator();
+const Stack = createNativeStackNavigator();
 
-const TopTabBar = ({ navigation }: any) => {
+export function TopTabBar() {
+  const background = useSelector((state: RootState) => state.ThemeState.currentTheme?.background, (prev, next) => prev === next)
+  const tabSwiped = useSelector((state: RootState) => state.ThemeState.tabSwiped, (prev, next) => prev === next)
+  if (!background) {
+    return <></>;
+  }
+
   return (
     <Tab.Navigator
-      style={{ flex: 1 }}
-      initialRouteName='home_2'
-      overScrollMode={'never'}
-      screenOptions={{ tabBarStyle: { height: 0 } }}>
+      tabBar={() => null}
+      initialRouteName='feed'
+      backBehavior="initialRoute"
+      initialLayout={{ width: "100%", height: 100 }}
+      tabBarBounces={false}
+      screenOptions={{
+        swipeEnabled: tabSwiped,
+        headerShown: false,
+        contentStyle: { backgroundColor: background }
+      }}
+      sceneContainerStyle={{ backgroundColor: background }}>
       <Tab.Screen name="camera" component={CameraScreen} />
-      <Tab.Screen name="home_2" component={BottomTab} />
-      <Tab.Screen name="message" component={MessageScreen} />
+      <Tab.Screen name="feed" component={HomeScreen} />
+      <Tab.Screen name="message" component={ChatListScreen} />
     </Tab.Navigator>
-  )
+  );
 }
 
-function Routes() {
-  // const { isLogin } = useSelector((state: RootState) => state.authState)
-
-  // const backgroundColor = useTheme.background
-
-  // const Options = {
-  //   headerTintColor: useTheme.iconColor,
-  //   headerTitleAlign: 'center',
-  //   animation: "slide_from_right",
-  //   animationDuration: 300,
-  //   headerStyle: {
-  //     backgroundColor: backgroundColor,
-  //   },
-  //   headerTitleStyle: {
-  //     fontSize: 20,
-  //     fontWeight: '800',
-  //     color: useTheme.primaryTextColor,
-  //   },
-  //   contentStyle: {
-  //     backgroundColor: backgroundColor,
-  //     elevation: 0,
-  //     height: 100,
-  //   }
-  // }
-
-  // const Option2 = {
-  //   headerShown: false,
-  //   animation: "slide_from_right",
-  //   animationDuration: 300,
-  //   contentStyle: {
-  //     backgroundColor: backgroundColor,
-  //     elevation: 0,
-  //     height: "auto"
-  //   }
-  // }
+function Routes(backgroundColor: any) {
+  const session = useSelector((state: RootState) => state.AuthState.session)
+  const insets = useSafeAreaInsets();
   return (
-    <Stack.Navigator initialRouteName='home_1'>
-      {/* feeds */}
-      <Stack.Screen name="home_1" component={TopTabBar} options={{ headerShown: false }} />
-      {/* <Stack.Screen name="notification" component={SettingScreen} options={{ headerShown: false }} /> */}
-      {/* settings */}
-      <Stack.Screen name="setting" component={SettingScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="settingTheme" component={ThemeSettingScreen} options={{ headerShown: false }} />
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+        contentStyle: {
+          backgroundColor: backgroundColor,
+          width: '100%',
+          height: '100%',
+          paddingTop: insets.top,
+          paddingBottom: insets.bottom,
+          paddingLeft: insets.left,
+          paddingRight: insets.right,
+        },
+        animation: 'slide_from_right',
+        transitionSpec: {
+          open: { animation: 'timing', config: { duration: 150 } },  // Fast opening transition
+          close: { animation: 'timing', config: { duration: 150 } }, // Fast closing transition
+        },
+        detachPreviousScreen: true, // Optimize memory by detaching previous screen
+        cardOverlayEnabled: false, // No dimmed overlay
+        // gestureEnabled: Platform.OS === 'ios', // Disable gestures on Android
+      }}>
+      {session.user ?
+        <>
+          {/* feeds */}
+          <Stack.Screen name="Root" component={TopTabBar} />
+          {/* settings */}
+          <Stack.Screen name={"settings"} component={SettingScreen} />
+          <Stack.Screen name={"settings/theme"} component={ThemeSettingScreen} />
+          {/* chat */}
+          <Stack.Screen name="message" component={ChatListScreen} />
+          <Stack.Screen name="message/conversation" component={ChatScreen} />
+          <Stack.Screen name="message/searchNewChat" component={NewChatScreen} />
 
-      {/* profile */}
-      {/* <Stack.Screen name="profile" component={SettingScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="editProfile" component={SettingScreen} options={{ headerShown: false }} /> */}
-
-      {/* post */}
-      {/* <Stack.Screen name="post" component={SettingScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="like" component={SettingScreen} options={{ headerShown: false }} /> */}
-
-    </Stack.Navigator>
+          {/* post */}
+          <Stack.Screen name="post" component={PostScreen} />
+          <Stack.Screen name="post/like" component={LikeScreen} />
+          <Stack.Screen name="post/comment" component={CommentScreen} />
+          {/* notification */}
+          <Stack.Screen name="notification" component={NotificationScreen} />
+          {/* profile */}
+          <Stack.Screen name="profile/posts" component={PostsScreen} />
+          <Stack.Screen name="profile/followersAndFollowing" component={TabFollowingAndFollowers} />
+          {/* camera */}
+          {/* <Stack.Screen name="camera" component={CameraScreen} /> */}
+        </> :
+        <>
+          <Stack.Screen name="auth" component={InitialScreen} />
+          <Stack.Screen name="auth/login" component={LoginScreen} />
+          <Stack.Screen name="auth/register" component={RegisterScreen} />
+        </>}
+    </Stack.Navigator >
   );
 }
 
 function Root() {
-  const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
-  // console.log(currentTheme?.accent)
-  return (<GestureHandlerRootView style={{ flex: 1, backgroundColor: `hsl(${currentTheme?.background})` }}>
-    <NavigationContainer>
-      <ThemeProvider />
-      <Routes />
-    </NavigationContainer>
-  </GestureHandlerRootView>)
+  const background = useSelector((state: RootState) => state.ThemeState.currentTheme?.background, (prev, next) => prev === next)
+
+  return (<>
+    {/* <Toast /> */}
+    <PreConfiguration />
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: background }}>
+      <SafeAreaProvider>
+        <NavigationContainer>
+          <SocketConnections >
+            <BottomSheetProvider>
+              <Routes backgroundColor={background} />
+            </BottomSheetProvider>
+          </SocketConnections>
+        </NavigationContainer>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
+  </>)
 
 }
 
-function App() {
+export default function App() {
+
   return (
     <Provider store={store}>
       <Root />
     </Provider>
   );
-}
-
-export default App;
+};

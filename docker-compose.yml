@@ -1,83 +1,10 @@
-version: '3.1'
+version: '3.8'  # Specify the version of Docker Compose
 
 services:
-  app:
-    image: akashmondal0/react-native-backend:latest
-    restart: always
-    ports:
-      - 4000:4000
-    env_file:
-      - ./.env
-
-  mongo:
-    image: mongo:latest
-    restart: always
-    ports:
-      - 27017:27017
+  ubuntu-container:
+    image: ubuntu:latest  # Use the latest Ubuntu image
+    container_name: ubuntu-dev-container  # Optional: Name of the container
     volumes:
-      - ./data:/data/db
-    env_file:
-      - ./.env
-
-  redis:
-    image: redis:latest
-    restart: always
-    ports:
-      - "6379:6379"
-    command: redis-server --save 60 1
-    volumes:
-      - ./rdata:/rdata
-      - ./docker_datas/redis.conf:/usr/local/etc/redis/redis.conf
-    env_file:
-      - ./.env
-
-  storage:
-    image: akashmondal0/sky-storage:latest
-    restart: always
-    ports:
-      - 4001:4001
-    container_name: storage
-    volumes:
-      - ./storage:/app/storage
-    environment:
-      - PORT=4001
-      - HOST=http://192.168.31.212:4001
-  
-  zookeeper:
-    image: confluentinc/cp-zookeeper:latest
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-    ports:
-      - 2181:2181
-    
-  kafka:
-    image: confluentinc/cp-kafka:latest
-    depends_on:
-      - zookeeper
-    ports:
-      - 9092:9092
-      - 29092:29092
-    env_file:
-      - ./.env
-
-  # prom-server:
-  #   image: prom/prometheus
-  #   restart: always
-  #   ports:
-  #     - 9090:9090
-  #   volumes:
-  #     - ./prometheus-config.yml:/etc/prometheus/prometheus.yml
-  
-  # grafana:
-  #   image: grafana/grafana-oss:latest
-  #   restart: always
-  #   ports:
-  #     - "3000:3000"
-
-  # grafana-loki:
-  #   image: grafana/loki:latest
-  #   restart: always
-  #   ports:
-  #     - "3100:3100"
-
+      - .:/mnt/root  # Mount the current directory to /mnt/root inside the container
+    tty: true  # Keep the container running with an interactive terminal
+    stdin_open: true  # Keep stdin open to enable interactive shell

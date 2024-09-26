@@ -1,0 +1,117 @@
+import { Loader } from '@/components/skysolo-ui';
+import { AnimatedFlashList } from '@shopify/flash-list';
+import debounce from "@/lib/debouncing";
+import { fetchAccountFeedApi } from "@/redux-stores/slice/account/api.service";
+import { RootState } from "@/redux-stores/store";
+import { NavigationProps, Post, disPatchResponse } from "@/types";
+import React, { useCallback, useRef, memo, useState } from "react";
+import { Animated, View } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
+import { resetFeeds } from '@/redux-stores/slice/account';
+import { FeedItem, HomeHeader, ListEmptyComponent } from '@/components/home';
+import { resetComments, resetLike } from '@/redux-stores/slice/post';
+import { ProfileStories } from '@/components/profile';
+let totalFetchedItemCount: number = 0
+
+const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: NavigationProps }) {
+    const stopRef = useRef(false)
+    const feedList = useSelector((state: RootState) => state.AccountState.feeds)
+    const feedListLoading = useSelector((state: RootState) => state.AccountState.feedsLoading)
+    const dispatch = useDispatch()
+    const [firstFetchAttend, setFirstFetchAttend] = useState(true)
+    // 
+    const ref = useRef(null)
+    const scrollY = useRef(new Animated.Value(0));
+    const handleScroll = Animated.event([{ nativeEvent: { contentOffset: { y: scrollY.current } } }], { useNativeDriver: true });
+    const diffClamp = (value: Animated.Value, lowerBound: number, upperBound: number) => {
+        return Animated.diffClamp(value, lowerBound, upperBound);
+    };
+    const scrollYClamped = diffClamp(scrollY.current, 0, 130);
+    const translateY = scrollYClamped.interpolate({
+        inputRange: [0, 130],
+        outputRange: [0, -(130 / 2)],
+    });
+
+
+    /// 
+    const getPostApi = useCallback(async (reset?: boolean) => {
+        if (stopRef.current || totalFetchedItemCount === -1) return
+        // console.log('fetching more posts', totalFetchedItemCount)
+        try {
+            const res = await dispatch(fetchAccountFeedApi({
+                limit: 12,
+                offset: reset ? 0 : totalFetchedItemCount
+            }) as any) as disPatchResponse<Post[]>
+
+            // console.log('fetching more posts', res.)
+            if (res.payload.length > 0) {
+                // if less than 12 items fetched, stop fetching
+                if (res.payload.length < 12) {
+                    return totalFetchedItemCount = -1
+                }
+                // if more than 12 items fetched, continue fetching
+                totalFetchedItemCount += res.payload.length
+            }
+        } finally {
+            if (firstFetchAttend) {
+                setFirstFetchAttend(false)
+            }
+            stopRef.current = false
+        }
+    }, [])
+
+    const fetchPosts = debounce(getPostApi, 1000)
+
+    const onRefresh = useCallback(() => {
+        totalFetchedItemCount = 0
+        dispatch(resetFeeds())
+        getPostApi(true)
+    }, [])
+
+    const onPress = useCallback((item: Post, path: "post/like" | "post/comment") => {
+        if (path === "post/like") {
+            dispatch(resetLike())
+        } else if (path === "post/comment") {
+            dispatch(resetComments())
+        }
+        navigation.navigate(path, { post: item })
+    }, [])
+
+    const onNavigate = useCallback((username: string) => {
+        navigation.navigate("profile", { screen: 'profile', params: { username } });
+    }, [])
+
+
+    return (
+        <View style={{
+            width: "100%",
+            height: "100%",
+        }}>
+            <HomeHeader navigation={navigation} translateY={translateY} />
+            <AnimatedFlashList
+                ListHeaderComponent={ProfileStories}
+                contentContainerStyle={{ paddingTop: 60 }}
+                scrollEventThrottle={16}
+                ref={ref}
+                data={feedList}
+                renderItem={({ item }) => <FeedItem data={item} onPress={onPress} onNavigate={onNavigate} />}
+                keyExtractor={(item, index) => index.toString()}
+                estimatedItemSize={100}
+                onEndReached={fetchPosts}
+                onEndReachedThreshold={0.5}
+                bounces={false}
+                refreshing={false}
+                onRefresh={onRefresh}
+                onScroll={handleScroll}
+                ListEmptyComponent={() => {
+                    if (feedListLoading || firstFetchAttend) return <></>
+                    return <ListEmptyComponent text='No Feeds' />
+                }}
+                ListFooterComponent={() => (
+                    <View style={{ height: 50, padding: 10 }}>
+                        {feedListLoading ? <Loader size={40} /> : <></>}
+                    </View>)} />
+        </View>
+    )
+})
+export default FeedsScreen;

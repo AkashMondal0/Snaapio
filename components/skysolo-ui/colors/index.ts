@@ -21,7 +21,6 @@ export type ColorsProp = {
   border: string;
   input: string;
   ring: string;
-  radius?: string;
   chart_1?: string;
   chart_2?: string;
   chart_3?: string;
