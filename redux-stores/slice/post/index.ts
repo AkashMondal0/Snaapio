@@ -123,7 +123,9 @@ export const PostsSlice = createSlice({
                 state.commentsLoading = true
             })
             .addCase(fetchPostCommentsApi.fulfilled, (state, action: PayloadAction<Comment[]>) => {
-                state.comments.push(...action.payload)
+                const commentsId = action.payload.map((comment) => comment.id)
+                const uniqueComments = action.payload.filter((comment, index) => commentsId.indexOf(comment.id) === index)
+                state.comments = uniqueComments
                 state.commentsLoading = false
             })
             .addCase(fetchPostCommentsApi.rejected, (state, action) => {
