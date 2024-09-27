@@ -1,10 +1,11 @@
-import { View, Text as RNText, TouchableOpacity } from "react-native"
+import { View, Text as RNText, TouchableOpacity, Animated } from "react-native"
 import { Icon, Separator, Text, AnimatedView } from '@/components/skysolo-ui';
 import { NavigationProps } from "@/types";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { setOffNotificationPopup, setOnNotificationPopup } from "@/redux-stores/slice/notification";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { Heart, MessageCircle } from "lucide-react-native";
 let initial = false
 
 
@@ -113,14 +114,23 @@ const HomeHeader = ({ navigation, translateY }: {
 export default HomeHeader
 
 const NotificationPopup = () => {
+    const scaleValue = useRef(new Animated.Value(0)).current;
     const notifications = useSelector((state: RootState) => state.NotificationState)
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
     const dispatch = useDispatch()
+
+    const scaleAnimation = (value: 0 | 1) => {
+        Animated.timing(scaleValue, {
+            toValue: value, // Scale to 1
+            duration: 400, // Duration of the animation
+            useNativeDriver: true, // Improves performance
+        }).start();
+    };
 
     useEffect(() => {
         const time = setTimeout(() => {
             if (!initial) {
                 if (notifications.unreadPostLikeCount > 0 || notifications.unreadCommentCount > 0) {
+                    scaleAnimation(1)
                     dispatch(setOnNotificationPopup())
                 }
                 initial = true
@@ -134,30 +144,47 @@ const NotificationPopup = () => {
     useEffect(() => {
         if (notifications.notificationPopup) {
             const time = setTimeout(() => {
+                scaleAnimation(0)
                 dispatch(setOffNotificationPopup())
-            }, 7000)
+            }, 5000)
             return () => {
                 clearTimeout(time)
             }
         }
     }, [notifications.notificationPopup])
 
-    if (!notifications.notificationPopup) return <View />
-
-    return <View style={{
-        position: "absolute",
-        zIndex: 2,
-        top: 50,
-        borderColor: currentTheme?.destructive,
-    }}>
+    return <Animated.View
+        style={[
+            {
+                position: "absolute",
+                zIndex: 2,
+                top: 50,
+                justifyContent: "center",
+                alignItems: "center",
+                borderColor: "hsl(0 84.2% 60.2%)",
+            },
+            {
+                transform: [{ scale: scaleValue }],
+            },
+        ]}>
         <View style={{
-            backgroundColor: currentTheme?.destructive,
+            width: 18,
+            height: 18,
+            borderRadius: 4,
+            backgroundColor: "hsl(0 84.2% 60.2%)",
+            transform: [{ rotate: "45deg" }],
+            position: "absolute",
+            top: -6,
+        }} />
+        <View style={{
+            backgroundColor: "hsl(0 84.2% 60.2%)",
             flexDirection: "row",
             justifyContent: "space-around",
             alignItems: "center",
             padding: 5,
             paddingHorizontal: 8,
             borderRadius: 10,
+            gap: 5,
         }}>
             {notifications.unreadPostLikeCount > 0 ? <View style={{
                 flexDirection: "row",
@@ -165,9 +192,9 @@ const NotificationPopup = () => {
                 alignItems: "center",
                 gap: 2,
             }}>
-                <Icon iconName="Heart" size={26} color={currentTheme?.destructive_foreground} />
+                <Heart fill={"hsl(0 0% 98%)"} size={24} color={"hsl(0 0% 98%)"} />
                 <Text variant="heading3" style={{
-                    color: currentTheme?.destructive_foreground,
+                    color: "hsl(0 0% 98%)",
                 }}>
                     {notifications.unreadPostLikeCount}
                 </Text>
@@ -178,13 +205,13 @@ const NotificationPopup = () => {
                 alignItems: "center",
                 gap: 2,
             }}>
-                <Icon iconName="MessageCircle" size={26} color={currentTheme?.destructive_foreground} />
+                <MessageCircle fill={"hsl(0 0% 98%)"} size={24} color={"hsl(0 0% 98%)"} />
                 <Text variant="heading3" style={{
-                    color: currentTheme?.destructive_foreground,
+                    color: "hsl(0 0% 98%)",
                 }}>
                     {notifications.unreadCommentCount}
                 </Text>
             </View> : <></>}
         </View>
-    </View>
+    </Animated.View>
 }

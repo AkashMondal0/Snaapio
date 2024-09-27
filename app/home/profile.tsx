@@ -26,7 +26,7 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
     const userDataLoading = useSelector((state: RootState) => state.ProfileState.loading)
     const userDataError = useSelector((state: RootState) => state.ProfileState.error)
     const postsLoading = useSelector((state: RootState) => state.ProfileState.postLoading)
-    const username = useMemo(() => route.params.params.username, [route.params.params.username])
+    const username = useMemo(() => route.params?.params?.username, [route.params?.params?.username])
     const isProfile = useMemo(() => session?.username === username, [username])
     const [pageLoading, setPageLoading] = useState(true)
     const userPost = useSelector((state: RootState) => state.ProfileState.posts)
