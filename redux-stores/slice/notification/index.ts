@@ -105,7 +105,7 @@ export const NotificationSlice = createSlice({
             .addCase(fetchAccountNotificationApi.fulfilled, (state, action: PayloadAction<Notification[]>) => {
                 state.loading = false
                 state.error = null
-                state.notifications = action.payload
+                state.notifications.push(...action.payload)
             })
             .addCase(fetchAccountNotificationApi.rejected, (state, action: PayloadAction<any>) => {
                 state.loading = false

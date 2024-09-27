@@ -31,7 +31,8 @@ const MessageItem = memo(function Item({
                 }}>
                 {timeFormat(data?.createdAt as string)}
             </Text>
-            {myself && seenMessage ? <Icon iconName="CheckCheck" size={20} color={color} /> : <View style={{ width: 10 }} />}
+            {myself ? <Icon iconName="CheckCheck" size={20} color={seenMessage ? currentTheme?.chart_1 : color} />
+                : <View style={{ width: 10 }} />}
         </View>)
     }
 
@@ -105,6 +106,6 @@ const MessageItem = memo(function Item({
             <TimeFooter />
         </View>
     </View>
-}, () => true)
+}, (prev, next) => prev.seenMessage === next.seenMessage)
 
 export default MessageItem;

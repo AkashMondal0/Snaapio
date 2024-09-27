@@ -15,6 +15,7 @@ const ChatScreenNavbar = memo(function ChatScreenNavbar({
     pressBack: () => void
 }) {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+    const currentTyping = useSelector((Root: RootState) => Root.ConversationState.currentTyping)
 
 
     return (
@@ -55,7 +56,7 @@ const ChatScreenNavbar = memo(function ChatScreenNavbar({
                             colorVariant="secondary"
                             style={{ fontWeight: "400" }}
                             variant="heading4">
-                            {"status"}
+                            {currentTyping?.conversationId === conversation.id && currentTyping.typing ? "typing..." : "status"}
                         </Text>
                     </View>
                 </View>

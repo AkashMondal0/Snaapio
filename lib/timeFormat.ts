@@ -40,7 +40,8 @@ const dateFormat = (date: string) => {
     { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric', })
 }
 
-const timeFormat = (date: string) => {
+const timeFormat = (date?: string) => {
+  if (!date) return ""
   const time = new Date(date).toLocaleTimeString("en-US",
     {
       hour: "2-digit",

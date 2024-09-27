@@ -38,8 +38,8 @@ const AppHeader = memo(function HomeScreen({
                         navigation.goBack()
                     }} />
                 <Text variant="heading3" style={{
-                    fontSize: 20,
-                    fontWeight: 'semibold'
+                    fontSize: 22,
+                    fontWeight: "600"
                 }}>
                     {title}
                 </Text>
@@ -74,8 +74,8 @@ const AppHeader = memo(function HomeScreen({
                         navigation.goBack()
                     }} />
                 <Text variant="heading3" style={{
-                    fontSize: 20,
-                    fontWeight: 'semibold'
+                    fontSize: 22,
+                    fontWeight: "600"
                 }}>
                     {title}
                 </Text>

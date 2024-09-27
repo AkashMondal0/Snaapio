@@ -77,7 +77,7 @@ export const ConversationSlice = createSlice({
                 state.conversationList[index].totalUnreadMessagesCount += 1
             }
             if (state?.conversation && action.payload.conversationId === state?.conversation.id) {
-                state.messages.push(action.payload)
+                state.messages.unshift(action.payload)
             }
         },
         setMessageSeen: (state, action: PayloadAction<{ conversationId: string, authorId: string }>) => {

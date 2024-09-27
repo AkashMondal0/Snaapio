@@ -1,9 +1,8 @@
 import { RootState } from '@/redux-stores/store';
 import { RotateCcw } from 'lucide-react-native';
 import { useState } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View, Image, type ImageProps } from 'react-native';
 import { useSelector } from 'react-redux';
-import { Image, type ImageProps } from 'expo-image';
 
 export type Props = ImageProps & {
     lightColor?: string;
@@ -61,8 +60,10 @@ const SkysoloImage = ({
 
     return (
         <Image
-            source={url}
-            contentFit="cover"
+            source={{ uri: url }}
+            resizeMode='contain'
+            borderRadius={10}
+            progressiveRenderingEnabled={true}
             onError={() => {
                 if (!error) setError(true)
             }}

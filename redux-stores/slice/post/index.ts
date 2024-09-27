@@ -111,7 +111,6 @@ export const PostsSlice = createSlice({
                 // state.commentsLoading = true
             })
             .addCase(createPostCommentApi.fulfilled, (state, action: PayloadAction<Comment>) => {
-                // console.info(action.payload)
                 state.comments.unshift(action.payload)
                 // state.commentsLoading = false
             })
@@ -123,7 +122,9 @@ export const PostsSlice = createSlice({
                 state.commentsLoading = true
             })
             .addCase(fetchPostCommentsApi.fulfilled, (state, action: PayloadAction<Comment[]>) => {
-                state.comments.push(...action.payload)
+                const commentsId = action.payload.map((comment) => comment.id)
+                const uniqueComments = action.payload.filter((comment, index) => commentsId.indexOf(comment.id) === index)
+                state.comments = uniqueComments
                 state.commentsLoading = false
             })
             .addCase(fetchPostCommentsApi.rejected, (state, action) => {

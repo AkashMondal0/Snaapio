@@ -62,9 +62,8 @@ const ChatScreenInput = memo(function ChatScreenInput({
         onBlurTyping()
     }, []);
 
-    // console.log("sendMessageHandle", conversation.id)
     const sendMessageHandle = useCallback(async (_data: { message: string }) => {
-        setLoading(true)
+        setLoading((pre) => !pre)
         try {
             if (!session?.id || !conversation.id) return ToastAndroid.show("Something went wrong CI", ToastAndroid.SHORT)
             // if (isFile.length > 6) return toast.error("You can only send 6 files at a time")
@@ -91,10 +90,9 @@ const ChatScreenInput = memo(function ChatScreenInput({
             reset()
             // setIsFile([])
         } catch (error) {
-            console.error(error)
             ToastAndroid.show("Something went wrong", ToastAndroid.SHORT)
         } finally {
-            setLoading(false)
+            setLoading((pre) => !pre)
         }
     }, [conversation.id, members, session?.id, socketState.socket])
 
@@ -116,7 +114,10 @@ const ChatScreenInput = memo(function ChatScreenInput({
                         multiline
                         disabled={loading}
                         onBlur={onBlur}
-                        onChangeText={onChange}
+                        onChangeText={(text)=>{
+                            onChange(text)
+                            onTyping()
+                        }}
                         value={value}
                         returnKeyType="send"
                         onSubmitEditing={handleSubmit(sendMessageHandle)}

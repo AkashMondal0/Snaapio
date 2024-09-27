@@ -11,12 +11,15 @@ import { resetFeeds } from '@/redux-stores/slice/account';
 import { FeedItem, HomeHeader, ListEmptyComponent } from '@/components/home';
 import { resetComments, resetLike } from '@/redux-stores/slice/post';
 import { ProfileStories } from '@/components/profile';
+import ErrorScreen from '@/components/error/page';
 let totalFetchedItemCount: number = 0
 
 const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: NavigationProps }) {
     const stopRef = useRef(false)
     const feedList = useSelector((state: RootState) => state.AccountState.feeds)
     const feedListLoading = useSelector((state: RootState) => state.AccountState.feedsLoading)
+    const feedsError = useSelector((state: RootState) => state.AccountState.feedsError)
+
     const dispatch = useDispatch()
     const [firstFetchAttend, setFirstFetchAttend] = useState(true)
     // 
@@ -36,14 +39,12 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: Navi
     /// 
     const getPostApi = useCallback(async (reset?: boolean) => {
         if (stopRef.current || totalFetchedItemCount === -1) return
-        // console.log('fetching more posts', totalFetchedItemCount)
         try {
             const res = await dispatch(fetchAccountFeedApi({
                 limit: 12,
                 offset: reset ? 0 : totalFetchedItemCount
             }) as any) as disPatchResponse<Post[]>
 
-            // console.log('fetching more posts', res.)
             if (res.payload.length > 0) {
                 // if less than 12 items fetched, stop fetching
                 if (res.payload.length < 12) {
@@ -105,6 +106,7 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: Navi
                 onScroll={handleScroll}
                 ListEmptyComponent={() => {
                     if (feedListLoading || firstFetchAttend) return <></>
+                    if (feedsError) return <ErrorScreen message={feedsError} />
                     return <ListEmptyComponent text='No Feeds' />
                 }}
                 ListFooterComponent={() => (

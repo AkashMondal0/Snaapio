@@ -1,3 +1,4 @@
+import ErrorScreen from "@/components/error/page";
 import { ProfileHeader, ProfileNavbar, ProfileStories } from "@/components/profile";
 import { Image, Loader } from "@/components/skysolo-ui";
 import debounce from "@/lib/debouncing";
@@ -8,7 +9,7 @@ import { RootState } from "@/redux-stores/store";
 import { AuthorData, disPatchResponse, NavigationProps, Post } from "@/types";
 import { FlashList } from "@shopify/flash-list";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { View } from "react-native";
+import { ToastAndroid, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 let totalFetchedItemCount: number = 0
 interface ScreenProps {
@@ -23,9 +24,10 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
     const session = useSelector((state: RootState) => state.AuthState.session.user)
     const userData = useSelector((state: RootState) => state.ProfileState.state)
     const userDataLoading = useSelector((state: RootState) => state.ProfileState.loading)
+    const userDataError = useSelector((state: RootState) => state.ProfileState.error)
     const postsLoading = useSelector((state: RootState) => state.ProfileState.postLoading)
-    const username = useMemo(() => route.params.params.username, [route.params.params.username])
-    const isProfile = useMemo(() => session?.username === username, [username])
+    const username = useMemo(() => route.params?.params?.username, [route.params?.params?.username])
+    const isProfile = useMemo(() => session?.username === username, [username, session?.username])
     const [pageLoading, setPageLoading] = useState(true)
     const userPost = useSelector((state: RootState) => state.ProfileState.posts)
     const itemCount = useMemo(() => Math.ceil(userPost.length / 3), [userPost.length])
@@ -33,7 +35,6 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
     const dispatch = useDispatch()
 
     const fetchProfilePosts = useCallback(async (userId?: string, reset?: boolean) => {
-        // console.log('fetching profile posts', totalFetchedItemCount)
         if (stopRef.current || totalFetchedItemCount === -1 || !userId) return
         try {
             const res = await dispatch(fetchUserProfilePostsApi({
@@ -57,9 +58,9 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
 
     const fetchProfileData = useCallback(async () => {
         if (stopRef.current) return
-        if (!username) return console.warn('No username provided')
+        if (!username) return ToastAndroid.show("User not found", ToastAndroid.SHORT)
         const res = await dispatch(fetchUserProfileDetailApi(username) as any) as disPatchResponse<AuthorData>
-        if (res.error || !res.payload.id) return console.warn('Error fetching profile data')
+        if (res.error || !res.payload.id) return ToastAndroid.show("User not found", ToastAndroid.SHORT)
         totalFetchedItemCount = 0
         fetchProfilePosts(res.payload.id, false)
     }, [username])
@@ -74,6 +75,8 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
         dispatch(resetProfileState())
         fetchProfileData()
     }, [username])
+
+    if (userDataError) return <ErrorScreen message={userDataError} />
 
     return (
         <View style={{

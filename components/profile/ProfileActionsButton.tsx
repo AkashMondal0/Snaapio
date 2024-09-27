@@ -52,8 +52,8 @@ const ProfileActionsButton = memo(function ProfileActionsButton({
         if (loadingRef.current) return
         loadingRef.current = true
         try {
-            if (!session?.id) return alert('You are not logged in')
-            if (!userData?.id) return alert('User login issue')
+            if (!session?.id) return ToastAndroid.show('You are not logged in', ToastAndroid.SHORT)
+            if (!userData?.id) return ToastAndroid.show('User login issue', ToastAndroid.SHORT)
             const res = await dispatch(destroyFriendshipApi({
                 authorUserId: session?.id,
                 authorUsername: session?.username,
@@ -74,7 +74,7 @@ const ProfileActionsButton = memo(function ProfileActionsButton({
         if (loadingRef.current) return
         loadingRef.current = true
         try {
-            if (!session?.id) return alert('You are not logged in')
+            if (!session?.id) return ToastAndroid.show('You are not logged in', ToastAndroid.SHORT)
             if (!userData || userData?.id === session?.id) return ToastAndroid.show("Something's went Wrong", ToastAndroid.SHORT)
             const res = await dispatch(CreateConversationApi([userData.id]) as any) as disPatchResponse<Conversation>
             if (res.error) return ToastAndroid.show("Something's went Wrong", ToastAndroid.SHORT)

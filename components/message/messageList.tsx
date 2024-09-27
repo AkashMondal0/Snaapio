@@ -1,5 +1,5 @@
 import { FlashList } from '@shopify/flash-list';
-import { memo, useCallback, useRef } from 'react';
+import { memo, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { Conversation, Message, disPatchResponse } from '@/types';
 import { View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -9,6 +9,7 @@ import debounce from "@/lib/debouncing";
 import { ToastAndroid } from "react-native";
 import { fetchConversationAllMessagesApi } from "@/redux-stores/slice/conversation/api.service";
 import MessageItem from './messageItem';
+import { SocketContext } from '@/provider/SocketConnections';
 
 const MessageList = memo(function MessageList({
     conversation,
@@ -18,13 +19,21 @@ const MessageList = memo(function MessageList({
     const stopFetch = useRef(false)
     const dispatch = useDispatch()
     const totalFetchedItemCount = useRef<number>(0)
-    // const scrollViewRef = useRef<any>(null);
     const session = useSelector((Root: RootState) => Root.AuthState.session.user)
     const messagesLoading = useSelector((Root: RootState) => Root.ConversationState?.messageLoading)
     const messages = useSelector((Root: RootState) => Root.ConversationState?.messages)
+    const socketState = useContext(SocketContext)
+    const firstSeen = useRef(false)
+    const cMembers = useMemo(() => conversation.members?.map((m) => m).length, [conversation.members])
+
+    useEffect(() => {
+        if (!firstSeen.current) {
+            socketState.seenAllMessage(conversation.id)
+            firstSeen.current = true
+        }
+    }, [])
 
     const loadMoreMessages = useCallback(async (conversationId?: string) => {
-        // console.log('loadMoreMessages', totalFetchedItemCount)
         if (totalFetchedItemCount.current === -1 || stopFetch.current) return
         if (!conversationId) return ToastAndroid.show('Chat Not Found', ToastAndroid.SHORT)
         try {
@@ -48,13 +57,12 @@ const MessageList = memo(function MessageList({
     return (<FlashList
         inverted
         onEndReached={fetchMore}
-        // ref={scrollViewRef}
         data={messages}
         estimatedItemSize={100}
         bounces={false}
         showsVerticalScrollIndicator={false}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <MessageItem data={item} seenMessage={conversation.members?.length === item.seenBy?.length}
+        renderItem={({ item }) => <MessageItem data={item} seenMessage={cMembers === item.seenBy?.length}
             key={item.id} myself={session?.id === item.authorId} />}
         ListFooterComponent={<View style={{ width: "100%", height: 50 }}>
             {messagesLoading ? <Loader size={36} /> : <></>}

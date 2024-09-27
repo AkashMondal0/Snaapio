@@ -1,4 +1,4 @@
-import { View } from "react-native";
+import { ToastAndroid, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { Avatar, Button, Loader, Text, TouchableOpacity } from "@/components/skysolo-ui";
 import debounce from "@/lib/debouncing";
@@ -29,7 +29,7 @@ const FollowingScreen = memo(function FollowingScreen({ navigation, route }: Scr
     const dispatch = useDispatch()
 
     const fetchApi = useCallback(async (reset?: boolean) => {
-        if (!username) return console.warn('username not found')
+        if (!username) return ToastAndroid.show("User not found", ToastAndroid.SHORT)
         if (stopRef.current || totalFetchedItemCount.current === -1) return
         try {
             const res = await dispatch(fetchUserProfileFollowingUserApi({

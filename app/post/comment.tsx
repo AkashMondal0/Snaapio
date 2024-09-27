@@ -71,24 +71,24 @@ const CommentScreen = memo(function CommentScreen({ navigation, route }: Comment
             if (data.user.id === session.id) return reset()
             if (commentRes.payload.id) {
                 // notification
-                // const notificationRes = await dispatch(createNotificationApi({
-                //     postId: data.id,
-                //     commentId: commentRes.payload.id,
-                //     authorId: session?.id,
-                //     type: NotificationType.Comment,
-                //     recipientId: data.user.id
-                // }) as any) as disPatchResponse<Notification>
-                // SocketState.sendDataToServer(event_name.notification.post, {
-                //     ...notificationRes.payload,
-                //     author: {
-                //         username: session.username,
-                //         profilePicture: session.profilePicture as string
-                //     },
-                //     post: {
-                //         id: data.id,
-                //         fileUrl: data.fileUrl,
-                //     },
-                // })
+                const notificationRes = await dispatch(createNotificationApi({
+                    postId: data.id,
+                    commentId: commentRes.payload.id,
+                    authorId: session?.id,
+                    type: NotificationType.Comment,
+                    recipientId: data.user.id
+                }) as any) as disPatchResponse<Notification>
+                SocketState.sendDataToServer("notification_post", {
+                    ...notificationRes.payload,
+                    author: {
+                        username: session.username,
+                        profilePicture: session.profilePicture as string
+                    },
+                    post: {
+                        id: data.id,
+                        fileUrl: data.fileUrl,
+                    },
+                })
                 reset()
             } else {
                 ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
@@ -101,7 +101,6 @@ const CommentScreen = memo(function CommentScreen({ navigation, route }: Comment
 
     const fetchCommentsApi = useCallback(async (reset?: boolean) => {
         if (stopRef.current || totalFetchedItemCount.current === -1) return
-        // console.log('fetching more posts', totalFetchedItemCount.current)
         try {
             const res = await dispatch(fetchPostCommentsApi({
                 id: route?.params?.post?.id,
@@ -125,7 +124,6 @@ const CommentScreen = memo(function CommentScreen({ navigation, route }: Comment
     }, [route?.params?.post?.id])
 
     const onPress = (item: Comment) => {
-        console.log('item', item)
     }
 
     const fetchComments = debounce(fetchCommentsApi, 1000)
