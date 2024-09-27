@@ -1,5 +1,5 @@
 import { FlashList } from '@shopify/flash-list';
-import { memo, useCallback, useContext, useEffect, useRef } from 'react';
+import { memo, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { Conversation, Message, disPatchResponse } from '@/types';
 import { View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -25,6 +25,7 @@ const MessageList = memo(function MessageList({
     const messages = useSelector((Root: RootState) => Root.ConversationState?.messages)
     const socketState = useContext(SocketContext)
     const firstSeen = useRef(false)
+    const cMembers = useMemo(() => conversation.members?.map((m) => m).length, [conversation.members])
 
     useEffect(() => {
         if (!firstSeen.current) {
@@ -64,7 +65,7 @@ const MessageList = memo(function MessageList({
         bounces={false}
         showsVerticalScrollIndicator={false}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <MessageItem data={item} seenMessage={conversation.members?.length === item.seenBy?.length}
+        renderItem={({ item }) => <MessageItem data={item} seenMessage={cMembers === item.seenBy?.length}
             key={item.id} myself={session?.id === item.authorId} />}
         ListFooterComponent={<View style={{ width: "100%", height: 50 }}>
             {messagesLoading ? <Loader size={36} /> : <></>}

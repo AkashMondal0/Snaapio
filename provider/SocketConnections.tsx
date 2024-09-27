@@ -8,9 +8,7 @@ import { Typing, Notification, Message } from "@/types";
 import { setMessage, setMessageSeen, setTyping } from "@/redux-stores/slice/conversation";
 import { conversationSeenAllMessage, fetchConversationsApi } from "@/redux-stores/slice/conversation/api.service";
 import { setNotification } from "@/redux-stores/slice/notification";
-import {
-    fetchUnreadMessageNotificationCountApi,
-} from "@/redux-stores/slice/notification/api.service";
+import { fetchUnreadMessageNotificationCountApi } from "@/redux-stores/slice/notification/api.service";
 import debounce from "@/lib/debouncing";
 
 export type SocketEmitType = "conversation_message" | "conversation_message_seen" | "conversation_user_keyboard_pressing" | "notification_post" | "conversation_list_refetch" | "test"
@@ -54,10 +52,9 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
         }
     }
 
-    const seenAllMessage = (conversationId: string) => {
+    const seenAllMessage = debounce((conversationId: string) => {
         if (!conversationId || !session?.id || !currentConversation?.id) return
         if (currentConversation?.id === conversationId) {
-            // console.log("seenAllMessage")
             dispatch(conversationSeenAllMessage({
                 conversationId: currentConversation.id,
                 authorId: session?.id,
@@ -68,7 +65,7 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
                 members: currentConversation.members?.filter((member) => member !== session?.id),
             })
         }
-    }
+    }, 1000)
 
     useEffect(() => {
         SocketConnection()
@@ -78,12 +75,14 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
                     if (list.find(con => con.id === data.conversationId)) {
                         dispatch(setMessage(data))
                     } else {
-                        dispatch(fetchConversationsApi({
-                            limit: 12,
-                            offset: 0,
-                        }) as any)
+                        if (list.length > 0) {
+                            dispatch(fetchConversationsApi({
+                                limit: 12,
+                                offset: 0,
+                            }) as any)
+                        }
                     }
-                    // dispatch(fetchUnreadMessageNotificationCountApi() as any)
+                    dispatch(fetchUnreadMessageNotificationCountApi() as any)
                     seenAllMessage(data.conversationId)
                 }
             });
@@ -122,7 +121,7 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
                 socketRef.current?.off(configs.eventNames.notification.post)
             }
         }
-    }, [session?.id, socketRef.current, currentConversation?.id])
+    }, [session?.id, socketRef.current, currentConversation?.id, list.length])
 
 
     const sendDataToServer = useCallback((eventName: SocketEmitType, data: unknown) => {
