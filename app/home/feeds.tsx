@@ -39,14 +39,12 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: Navi
     /// 
     const getPostApi = useCallback(async (reset?: boolean) => {
         if (stopRef.current || totalFetchedItemCount === -1) return
-        // console.log('fetching more posts', totalFetchedItemCount)
         try {
             const res = await dispatch(fetchAccountFeedApi({
                 limit: 12,
                 offset: reset ? 0 : totalFetchedItemCount
             }) as any) as disPatchResponse<Post[]>
 
-            // console.log('fetching more posts', res.)
             if (res.payload.length > 0) {
                 // if less than 12 items fetched, stop fetching
                 if (res.payload.length < 12) {

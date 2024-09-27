@@ -1,9 +1,8 @@
-import { memo, useCallback, useRef, useState } from "react";
+import { memo, useCallback, useRef } from "react";
 import AppHeader from "@/components/AppHeader";
 import { ListEmptyComponent } from "@/components/home";
 import { Avatar, Loader, Text, TouchableOpacity } from "@/components/skysolo-ui";
 import debounce from "@/lib/debouncing";
-import { resetLike } from "@/redux-stores/slice/post";
 import { RootState } from "@/redux-stores/store";
 import { Notification, disPatchResponse, NavigationProps, Post, NotificationType } from "@/types";
 import { FlashList } from "@shopify/flash-list";
@@ -32,14 +31,12 @@ const NotificationScreen = memo(function NotificationScreen({ navigation, route 
 
     const fetchNotificationApi = useCallback(async (reset?: boolean) => {
         if (stopRef.current || totalFetchedItemCount === -1) return
-        // console.log('fetching more posts', totalFetchedItemCount)
         try {
             const res = await dispatch(fetchAccountNotificationApi({
                 limit: 12,
                 offset: reset ? 0 : totalFetchedItemCount,
             }) as any) as disPatchResponse<Notification[]>
 
-            // console.log('fetching more posts', res.)
             if (res.payload?.length > 0) {
                 // if less than 12 items fetched, stop fetching
                 if (res.payload?.length < 12) {
@@ -75,12 +72,13 @@ const NotificationScreen = memo(function NotificationScreen({ navigation, route 
                 />)}
                 keyExtractor={(item, index) => index.toString()}
                 ListFooterComponent={() => <>{notificationsLoading ? <Loader size={50} /> : <></>}</>}
-                ListEmptyComponent={allNotifications.length <= 0 ? <ListEmptyComponent text="No Notifications yet" /> : <></>}
+                ListEmptyComponent={!notificationsLoading ? <ListEmptyComponent text="No Notifications yet" /> : <></>}
                 estimatedItemSize={100}
                 bounces={false}
                 onEndReachedThreshold={0.5}
                 onEndReached={fetchNotifications}
                 refreshing={false}
+                scrollEventThrottle={16}
                 onRefresh={onRefresh} />
         </View>
     )

@@ -30,7 +30,6 @@ const LikeScreen = memo(function LikeScreen({ navigation, route }: CommentScreen
 
     const fetchLikesApi = useCallback(async (reset?: boolean) => {
         if (stopRef.current || totalFetchedItemCount.current === -1) return
-        // console.log('fetching more posts', totalFetchedItemCount)
         try {
             const res = await dispatch(fetchPostLikesApi({
                 id: route?.params?.post?.id,
@@ -38,7 +37,6 @@ const LikeScreen = memo(function LikeScreen({ navigation, route }: CommentScreen
                 limit: 12
             }) as any) as disPatchResponse<Comment[]>
 
-            // console.log('fetching more posts', res.)
             if (res.payload?.length > 0) {
                 // if less than 12 items fetched, stop fetching
                 if (res.payload?.length < 12) {
@@ -64,7 +62,6 @@ const LikeScreen = memo(function LikeScreen({ navigation, route }: CommentScreen
     }, [])
     
     const onPress = (item: AuthorData) => {
-        console.log('item', item)
     }
     return (
         <View style={{

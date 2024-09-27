@@ -41,7 +41,6 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
 
     const fetchConversationList = useCallback(async (reset?: boolean) => {
         if (stopRef.current || totalFetchedItemCount === -1) return
-        // console.log("fetching")
         try {
             const res = await dispatch(fetchConversationsApi({
                 limit: 12,

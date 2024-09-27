@@ -27,7 +27,6 @@ const PreConfiguration = () => {
         const session = await SecureStorage("get", "skylight-session") as Session | any
         if (session) {
             dispatch(setSession(session))
-            // fetchAllNotification 
             dispatch(fetchUnreadNotificationCountApi() as any)
         }
         // first time
@@ -52,13 +51,12 @@ const PreConfiguration = () => {
     }
 
     const onChangeTheme = async (theme: Theme) => {
-        if (!theme) return console.error("Theme is not defined")
+        if (!theme) return
         if (theme === "system") {
             await localStorage("remove", "skysolo-theme")
             await localStorage("remove", "skysolo-theme-name")
             return
         }
-        // console.log("changing Theme", theme)
         await localStorage("set", "skysolo-theme", theme)
         await localStorage("set", "skysolo-theme-name", "Zinc")
         dispatch(changeColorSchema(theme))

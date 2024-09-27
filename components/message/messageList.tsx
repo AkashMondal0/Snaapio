@@ -19,7 +19,6 @@ const MessageList = memo(function MessageList({
     const stopFetch = useRef(false)
     const dispatch = useDispatch()
     const totalFetchedItemCount = useRef<number>(0)
-    // const scrollViewRef = useRef<any>(null);
     const session = useSelector((Root: RootState) => Root.AuthState.session.user)
     const messagesLoading = useSelector((Root: RootState) => Root.ConversationState?.messageLoading)
     const messages = useSelector((Root: RootState) => Root.ConversationState?.messages)
@@ -35,7 +34,6 @@ const MessageList = memo(function MessageList({
     }, [])
 
     const loadMoreMessages = useCallback(async (conversationId?: string) => {
-        // console.log('loadMoreMessages', totalFetchedItemCount)
         if (totalFetchedItemCount.current === -1 || stopFetch.current) return
         if (!conversationId) return ToastAndroid.show('Chat Not Found', ToastAndroid.SHORT)
         try {
@@ -59,7 +57,6 @@ const MessageList = memo(function MessageList({
     return (<FlashList
         inverted
         onEndReached={fetchMore}
-        // ref={scrollViewRef}
         data={messages}
         estimatedItemSize={100}
         bounces={false}

@@ -101,7 +101,6 @@ const CommentScreen = memo(function CommentScreen({ navigation, route }: Comment
 
     const fetchCommentsApi = useCallback(async (reset?: boolean) => {
         if (stopRef.current || totalFetchedItemCount.current === -1) return
-        // console.log('fetching more posts', totalFetchedItemCount.current)
         try {
             const res = await dispatch(fetchPostCommentsApi({
                 id: route?.params?.post?.id,
@@ -125,7 +124,6 @@ const CommentScreen = memo(function CommentScreen({ navigation, route }: Comment
     }, [route?.params?.post?.id])
 
     const onPress = (item: Comment) => {
-        console.log('item', item)
     }
 
     const fetchComments = debounce(fetchCommentsApi, 1000)

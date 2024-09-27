@@ -105,11 +105,11 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
                 ToastAndroid.show("Test from socket server", ToastAndroid.SHORT)
             });
             socketRef.current?.on("connect", () => {
-                console.log("Connected to socket server")
+                ToastAndroid.show("Connected to socket server", ToastAndroid.SHORT)
             });
             socketRef.current?.on("disconnect", () => {
                 socketRef.current = null
-                console.warn("Disconnected from socket server")
+                ToastAndroid.show("Disconnected from socket server", ToastAndroid.SHORT)
             });
             return () => {
                 socketRef.current?.off('connect')

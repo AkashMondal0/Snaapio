@@ -90,7 +90,6 @@ const ChatScreenInput = memo(function ChatScreenInput({
             reset()
             // setIsFile([])
         } catch (error) {
-            console.error(error)
             ToastAndroid.show("Something went wrong", ToastAndroid.SHORT)
         } finally {
             setLoading((pre) => !pre)

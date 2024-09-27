@@ -27,7 +27,7 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
     const userDataError = useSelector((state: RootState) => state.ProfileState.error)
     const postsLoading = useSelector((state: RootState) => state.ProfileState.postLoading)
     const username = useMemo(() => route.params?.params?.username, [route.params?.params?.username])
-    const isProfile = useMemo(() => session?.username === username, [username])
+    const isProfile = useMemo(() => session?.username === username, [username, session?.username])
     const [pageLoading, setPageLoading] = useState(true)
     const userPost = useSelector((state: RootState) => state.ProfileState.posts)
     const itemCount = useMemo(() => Math.ceil(userPost.length / 3), [userPost.length])
@@ -35,7 +35,6 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
     const dispatch = useDispatch()
 
     const fetchProfilePosts = useCallback(async (userId?: string, reset?: boolean) => {
-        // console.log('fetching profile posts', totalFetchedItemCount)
         if (stopRef.current || totalFetchedItemCount === -1 || !userId) return
         try {
             const res = await dispatch(fetchUserProfilePostsApi({

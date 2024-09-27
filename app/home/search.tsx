@@ -41,7 +41,6 @@ const SearchScreen = memo(function SearchScreen({
     }, [])
 
     const onRemove = useCallback((id: string) => {
-        console.log('remove', id)
     }, [])
 
     return (
