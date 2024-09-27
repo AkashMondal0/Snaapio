@@ -1,8 +1,11 @@
 import { View, Text as RNText, TouchableOpacity } from "react-native"
 import { Icon, Separator, Text, AnimatedView } from '@/components/skysolo-ui';
 import { NavigationProps } from "@/types";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
+import { setOffNotificationPopup, setOnNotificationPopup } from "@/redux-stores/slice/notification";
+import { useEffect } from "react";
+let initial = false
 
 
 const HomeHeader = ({ navigation, translateY }: {
@@ -10,7 +13,9 @@ const HomeHeader = ({ navigation, translateY }: {
     translateY: any
 }) => {
     const unreadChatCount = useSelector((state: RootState) => state.NotificationState.unreadChatCount)
-    const idCommentNotification = useSelector((state: RootState) => state.NotificationState.commentNotification.isNotification)
+    const unreadCommentCount = useSelector((state: RootState) => state.NotificationState.unreadCommentCount)
+    const unreadPostLikeCount = useSelector((state: RootState) => state.NotificationState.unreadPostLikeCount)
+
 
 
     return <AnimatedView style={[{
@@ -39,7 +44,12 @@ const HomeHeader = ({ navigation, translateY }: {
                 alignItems: "center",
                 marginHorizontal: 10
             }}>
+                <NotificationPopup />
                 <TouchableOpacity
+                    style={{
+                        justifyContent: "center",
+                        alignItems: "center",
+                    }}
                     activeOpacity={0.8}
                     onPress={() => {
                         navigation.navigate("notification")
@@ -48,7 +58,7 @@ const HomeHeader = ({ navigation, translateY }: {
                         position: "absolute",
                         right: 0,
                         top: 1,
-                        backgroundColor: idCommentNotification ? "red" : "transparent",
+                        backgroundColor: unreadCommentCount > 0 || unreadPostLikeCount > 0 ? "red" : "transparent",
                         borderRadius: 50,
                         width: 8,
                         height: 8,
@@ -96,8 +106,85 @@ const HomeHeader = ({ navigation, translateY }: {
                 </TouchableOpacity>
             </View>
         </View>
-        <Separator />
+        <Separator style={{ zIndex: -1 }} />
     </AnimatedView>
 }
 
 export default HomeHeader
+
+const NotificationPopup = () => {
+    const notifications = useSelector((state: RootState) => state.NotificationState)
+    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+    const dispatch = useDispatch()
+
+    useEffect(() => {
+        const time = setTimeout(() => {
+            if (!initial) {
+                if (notifications.unreadPostLikeCount > 0 || notifications.unreadCommentCount > 0) {
+                    dispatch(setOnNotificationPopup())
+                }
+                initial = true
+            }
+        }, 1600)
+        return () => {
+            clearTimeout(time)
+        }
+    }, [notifications.unreadPostLikeCount, notifications.unreadCommentCount])
+
+    useEffect(() => {
+        if (notifications.notificationPopup) {
+            const time = setTimeout(() => {
+                dispatch(setOffNotificationPopup())
+            }, 7000)
+            return () => {
+                clearTimeout(time)
+            }
+        }
+    }, [notifications.notificationPopup])
+
+    if (!notifications.notificationPopup) return <View />
+
+    return <View style={{
+        position: "absolute",
+        zIndex: 2,
+        top: 50,
+        borderColor: currentTheme?.destructive,
+    }}>
+        <View style={{
+            backgroundColor: currentTheme?.destructive,
+            flexDirection: "row",
+            justifyContent: "space-around",
+            alignItems: "center",
+            padding: 5,
+            paddingHorizontal: 8,
+            borderRadius: 10,
+        }}>
+            {notifications.unreadPostLikeCount > 0 ? <View style={{
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: 2,
+            }}>
+                <Icon iconName="Heart" size={26} color={currentTheme?.destructive_foreground} />
+                <Text variant="heading3" style={{
+                    color: currentTheme?.destructive_foreground,
+                }}>
+                    {notifications.unreadPostLikeCount}
+                </Text>
+            </View> : <></>}
+            {notifications.unreadCommentCount > 0 ? <View style={{
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: 2,
+            }}>
+                <Icon iconName="MessageCircle" size={26} color={currentTheme?.destructive_foreground} />
+                <Text variant="heading3" style={{
+                    color: currentTheme?.destructive_foreground,
+                }}>
+                    {notifications.unreadCommentCount}
+                </Text>
+            </View> : <></>}
+        </View>
+    </View>
+}
