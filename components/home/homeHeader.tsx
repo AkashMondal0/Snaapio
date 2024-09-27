@@ -143,6 +143,7 @@ const NotificationPopup = () => {
 
     useEffect(() => {
         if (notifications.notificationPopup) {
+            scaleAnimation(1)
             const time = setTimeout(() => {
                 scaleAnimation(0)
                 dispatch(setOffNotificationPopup())
