@@ -1,8 +1,7 @@
-import { memo, useCallback, useRef } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import { memo, useCallback, useEffect, useRef } from "react";
 import AppHeader from "@/components/AppHeader";
-import { ListEmptyComponent } from "@/components/home";
 import { Avatar, Loader, Text, TouchableOpacity } from "@/components/skysolo-ui";
-import debounce from "@/lib/debouncing";
 import { RootState } from "@/redux-stores/store";
 import { Notification, disPatchResponse, NavigationProps, Post, NotificationType } from "@/types";
 import { FlashList } from "@shopify/flash-list";
@@ -11,51 +10,46 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchAccountNotificationApi } from "@/redux-stores/slice/notification/api.service";
 import { resetNotificationState } from "@/redux-stores/slice/notification";
 import { timeAgoFormat } from "@/lib/timeFormat";
+import ErrorScreen from "@/components/error/page";
+import ListEmpty from "@/components/ListEmpty";
 let totalFetchedItemCount = 0
 
-interface NotificationScreenProps {
-    navigation: NavigationProps;
-    route: {
-        params: {
-            post: Post
-        }
-    }
-}
-
-
-const NotificationScreen = memo(function NotificationScreen({ navigation, route }: NotificationScreenProps) {
-    const allNotifications = useSelector((state: RootState) => state.NotificationState.notifications)
+const NotificationScreen = memo(function NotificationScreen({ navigation }: { navigation: NavigationProps }) {
+    const notifications = useSelector((state: RootState) => state.NotificationState.notifications)
     const notificationsLoading = useSelector((state: RootState) => state.NotificationState.loading)
+    const notificationsError = useSelector((state: RootState) => state.NotificationState.error)
     const stopRef = useRef(false)
     const dispatch = useDispatch()
 
-    const fetchNotificationApi = useCallback(async (reset?: boolean) => {
+    const fetchApi = useCallback(async () => {
         if (stopRef.current || totalFetchedItemCount === -1) return
+        stopRef.current = true
         try {
             const res = await dispatch(fetchAccountNotificationApi({
                 limit: 12,
-                offset: reset ? 0 : totalFetchedItemCount,
+                offset: totalFetchedItemCount,
             }) as any) as disPatchResponse<Notification[]>
-
-            if (res.payload?.length > 0) {
-                // if less than 12 items fetched, stop fetching
-                if (res.payload?.length < 12) {
-                    return totalFetchedItemCount = -1
-                }
-                // if more than 12 items fetched, continue fetching
+            if (res.payload.length >= 12) {
                 totalFetchedItemCount += res.payload.length
+                return
             }
-        } finally {
-            stopRef.current = false
-        }
-    }, [route?.params?.post?.id])
+            totalFetchedItemCount = -1
+        } finally { stopRef.current = false }
+    }, [])
 
-    const fetchNotifications = debounce(fetchNotificationApi, 1000)
+    const onEndReached = useCallback(() => {
+        if (stopRef.current || totalFetchedItemCount < 10) return
+        fetchApi()
+    }, [])
 
     const onRefresh = useCallback(() => {
         totalFetchedItemCount = 0
         dispatch(resetNotificationState())
-        fetchNotificationApi(true)
+        fetchApi()
+    }, [])
+
+    useEffect(() => {
+        onRefresh()
     }, [])
 
     return (
@@ -66,20 +60,25 @@ const NotificationScreen = memo(function NotificationScreen({ navigation, route 
         }}>
             <AppHeader title="Notifications" navigation={navigation} />
             <FlashList
-                data={allNotifications}
+                data={notifications}
                 renderItem={({ item }) => (<NotificationItem data={item}
                     navigation={navigation}
                 />)}
                 keyExtractor={(item, index) => index.toString()}
-                ListFooterComponent={() => <>{notificationsLoading ? <Loader size={50} /> : <></>}</>}
-                ListEmptyComponent={!notificationsLoading ? <ListEmptyComponent text="No Notifications yet" /> : <></>}
                 estimatedItemSize={100}
                 bounces={false}
                 onEndReachedThreshold={0.5}
-                onEndReached={fetchNotifications}
+                onEndReached={onEndReached}
                 refreshing={false}
                 scrollEventThrottle={16}
-                onRefresh={onRefresh} />
+                onRefresh={onRefresh}
+                ListEmptyComponent={() => {
+                    if (notificationsLoading === "idle") return <View />
+                    if (notificationsError) return <ErrorScreen message={notificationsError} />
+                    if (!notificationsError && notificationsLoading === "normal") return <ListEmpty text="No Notification yet" />
+                }}
+                ListFooterComponent={notificationsLoading === "pending" ? <Loader size={50} /> : <></>}
+            />
         </View>
     )
 })

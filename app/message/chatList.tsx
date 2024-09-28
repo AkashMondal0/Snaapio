@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { FlashList } from '@shopify/flash-list';
-import React, { useCallback, useMemo, useRef, memo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, memo, useState, useEffect } from 'react';
 import { View, Vibration } from 'react-native';
 import { Conversation, disPatchResponse } from '@/types';
 import { ActionSheet, Loader } from '@/components/skysolo-ui';
@@ -14,18 +14,19 @@ import searchText from '@/lib/TextSearch';
 import { ListEmptyComponent } from '@/components/home';
 import ErrorScreen from '@/components/error/page';
 import { ConversationDetailsSheet, ConversationItem, ListHeader } from '@/components/message';
+import ListEmpty from '@/components/ListEmpty';
 let totalFetchedItemCount: number = 0
-
+let pageLoaded = false
 const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
-    const bottomSheetModalRef = useRef<BottomSheetModal>(null);
     const stopRef = useRef(false)
     const list = useSelector((Root: RootState) => Root.ConversationState.conversationList)
     const listLoading = useSelector((Root: RootState) => Root.ConversationState.listLoading)
     const listError = useSelector((Root: RootState) => Root.ConversationState.listError)
 
+    const [BottomSheetData, setBottomSheetData] = useState<Conversation | null>(null)
+    const bottomSheetModalRef = useRef<BottomSheetModal>(null);
     const snapPoints = useMemo(() => ["50%", '50%', "70%"], []);
     const [inputText, setInputText] = useState("")
-    const [BottomSheetData, setBottomSheetData] = useState<Conversation | null>(null)
     const dispatch = useDispatch()
 
     const conversationList = useMemo(() => {
@@ -39,28 +40,6 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
             .filter((item) => searchText(item?.user?.name, inputText))
     }, [list, inputText])
 
-    const fetchConversationList = useCallback(async (reset?: boolean) => {
-        if (stopRef.current || totalFetchedItemCount === -1) return
-        try {
-            const res = await dispatch(fetchConversationsApi({
-                limit: 12,
-                offset: reset ? 0 : totalFetchedItemCount
-            }) as any) as disPatchResponse<Conversation[]>
-            if (res.payload.length > 0) {
-                // if less than 12 items fetched, stop fetching
-                if (res.payload.length < 12) {
-                    // setFinishedFetching(true)
-                    return totalFetchedItemCount = -1
-                }
-                // if more than 12 items fetched, continue fetching
-                totalFetchedItemCount += 12
-            }
-        } finally {
-            stopRef.current = false
-        }
-    }, [])
-
-    // callbacks
     const handlePresentModalPress = useCallback((data: Conversation) => {
         setBottomSheetData(data)
         bottomSheetModalRef.current?.present();
@@ -72,20 +51,47 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
             setBottomSheetData(null)
         }
     }, []);
+    const onChangeInput = debounce((text: string) => setInputText(text), 400)
 
     const pushToPage = useCallback((data: Conversation) => {
         dispatch(setConversation(data))
         navigation?.navigate("message/conversation", { id: data.id })
     }, [])
 
-    const onChangeInput = debounce((text: string) => setInputText(text), 400)
+    // fetch -------------------------------------------------------------------------------------
 
-    const fetchConversations = debounce(fetchConversationList, 500)
+    const fetchApi = useCallback(async () => {
+        if (stopRef.current || totalFetchedItemCount === -1) return
+        stopRef.current = true
+        try {
+            const res = await dispatch(fetchConversationsApi({
+                limit: 12,
+                offset: totalFetchedItemCount
+            }) as any) as disPatchResponse<Conversation[]>
+            if (res.payload.length >= 12) {
+                totalFetchedItemCount += res.payload.length
+                return
+            }
+            totalFetchedItemCount = -1
+        } finally { stopRef.current = false }
+    }, [])
+
+    const onEndReached = useCallback(() => {
+        if (stopRef.current || totalFetchedItemCount < 10) return
+        fetchApi()
+    }, [])
 
     const onRefresh = useCallback(() => {
         totalFetchedItemCount = 0
         dispatch(resetConversationState())
-        fetchConversationList(true)
+        fetchApi()
+    }, [])
+
+    useEffect(() => {
+        if (!pageLoaded) {
+            pageLoaded = true
+            onRefresh()
+        }
     }, [])
 
     return <View style={{
@@ -95,30 +101,25 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
         <FlashList
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode="on-drag"
-            renderItem={({ item }) => <ConversationItem data={item}
-                onClick={pushToPage}
-                onLongPress={handlePresentModalPress} />}
+            renderItem={({ item }) => <ConversationItem data={item} onClick={pushToPage} onLongPress={handlePresentModalPress} />}
             keyExtractor={(item, index) => index.toString()}
             estimatedItemSize={5}
             onEndReachedThreshold={0.5}
             bounces={false}
             refreshing={false}
             onRefresh={onRefresh}
-            onEndReached={fetchConversations}
+            onEndReached={onEndReached}
             ListHeaderComponent={<ListHeader
                 pageToNewChat={() => { navigation?.navigate("message/searchNewChat") }}
                 pressBack={() => { navigation?.goBack() }}
                 InputOnChange={onChangeInput} />}
             data={conversationList}
-            ListFooterComponent={() => <>{listLoading ? <Loader size={50} /> : <></>}</>}
             ListEmptyComponent={() => {
-                if (listError) {
-                    return <ErrorScreen message={listError} />
-                }
-                if (conversationList.length <= 0 && !listLoading && !listError) {
-                    return <ListEmptyComponent text="No Chat yet" />
-                }
-            }} />
+                if (listLoading === "idle") return <View />
+                if (listError) return <ErrorScreen message={listError} />
+                if (!listError && listLoading === "normal") return <ListEmpty text="No Comments yet" />
+            }}
+            ListFooterComponent={listLoading === "pending" ? <Loader size={50} /> : <></>} />
         <ActionSheet
             bottomSheetModalRef={bottomSheetModalRef}
             snapPoints={snapPoints}

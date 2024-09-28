@@ -3,10 +3,11 @@ import { Conversation, Message, Typing } from '@/types'
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 
+export type loadingType = 'idle' | 'pending' | 'normal'
 // Define a type for the slice state
 interface ConversationStateType {
     conversationList: Conversation[]
-    listLoading: boolean
+    listLoading: loadingType
     listError: string | null
 
     conversation: Conversation | null
@@ -34,7 +35,7 @@ interface ConversationStateType {
 // Define the initial state using that type
 const ConversationState: ConversationStateType = {
     conversationList: [],
-    listLoading: false,
+    listLoading: "idle",
     listError: null,
 
     conversation: null,
@@ -128,15 +129,15 @@ export const ConversationSlice = createSlice({
     extraReducers: (builder) => {
         // fetchConversationsApi
         builder.addCase(fetchConversationsApi.pending, (state) => {
-            state.listLoading = true
+            state.listLoading = "pending"
             state.listError = null
         })
         builder.addCase(fetchConversationsApi.fulfilled, (state, action: PayloadAction<Conversation[]>) => {
             state.conversationList = action.payload
-            state.listLoading = false
+            state.listLoading = "normal"
         })
         builder.addCase(fetchConversationsApi.rejected, (state, action) => {
-            state.listLoading = false
+            state.listLoading = "normal"
             state.listError = "error"
         })
         // fetchConversationApi

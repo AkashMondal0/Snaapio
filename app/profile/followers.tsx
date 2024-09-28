@@ -1,14 +1,14 @@
 import { ToastAndroid, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { Avatar, Button, Loader, Text, TouchableOpacity } from "@/components/skysolo-ui";
-import debounce from "@/lib/debouncing";
 import { fetchUserProfileFollowerUserApi } from "@/redux-stores/slice/profile/api.service";
 import { RootState } from "@/redux-stores/store";
 import { AuthorData, disPatchResponse, NavigationProps } from "@/types";
 import { FlashList } from "@shopify/flash-list";
-import { memo, useCallback, useMemo, useRef, useState } from "react";
-import { ListEmptyComponent } from "@/components/home";
+import { memo, useCallback, useEffect, useRef } from "react";
 import { resetProfileFollowList } from "@/redux-stores/slice/profile";
+import ErrorScreen from "@/components/error/page";
+import ListEmpty from "@/components/ListEmpty";
 interface ScreenProps {
     navigation: NavigationProps;
     route: {
@@ -17,54 +17,62 @@ interface ScreenProps {
         }
     }
 }
+let totalFetchedItemCount = 0
+let profileId = "NO_ID"
 
 const FollowersScreen = memo(function FollowersScreen({ navigation, route }: ScreenProps) {
     const username = useSelector((Root: RootState) => Root.ProfileState.state?.username)
     const session = useSelector((Root: RootState) => Root.AuthState.session.user)
     const followersList = useSelector((Root: RootState) => Root.ProfileState.followerList)
     const listLoading = useSelector((Root: RootState) => Root.ProfileState.followerListLoading)
+    const listError = useSelector((Root: RootState) => Root.ProfileState.followerListError)
+
     const stopRef = useRef(false)
-    const totalFetchedItemCount = useRef<number>(0)
-    const [firstFetchAttend, setFirstFetchAttend] = useState(true)
     const dispatch = useDispatch()
-
-    const fetchApi = useCallback(async (reset?: boolean) => {
-        if (!username) return ToastAndroid.show("User not found", ToastAndroid.SHORT)
-        if (stopRef.current || totalFetchedItemCount.current === -1) return
-        try {
-            const res = await dispatch(fetchUserProfileFollowerUserApi({
-                username: username,
-                offset: reset ? 0 : totalFetchedItemCount.current,
-                limit: 12,
-            }) as any) as disPatchResponse<AuthorData[]>
-
-            if (res.payload?.length > 0) {
-                // if less than 12 items fetched, stop fetching
-                if (res.payload?.length < 12) {
-                    return totalFetchedItemCount.current = -1
-                }
-                // if more than 12 items fetched, continue fetching
-                totalFetchedItemCount.current += res.payload.length
-            }
-        } finally {
-            if (firstFetchAttend) {
-                setFirstFetchAttend(false)
-            }
-            stopRef.current = false
-        }
-    }, [username])
-
-    const fetchList = debounce(fetchApi, 1000)
-
-    const onRefresh = useCallback(() => {
-        totalFetchedItemCount.current = 0
-        dispatch(resetProfileFollowList())
-        fetchApi(true)
-    }, [])
 
     const onPress = (item: AuthorData) => {
         // navigation.navigate('Profile', { username: item.username })
     }
+
+    // v1 fetch ---------------------
+    const fetchApi = useCallback(async () => {
+        if (!username) return ToastAndroid.show("User not found", ToastAndroid.SHORT)
+        if (stopRef.current || totalFetchedItemCount === -1) return
+        stopRef.current = true
+        try {
+            const res = await dispatch(fetchUserProfileFollowerUserApi({
+                username: username,
+                offset: totalFetchedItemCount,
+                limit: 12,
+            }) as any) as disPatchResponse<AuthorData[]>
+            if (res.payload.length >= 12) {
+                totalFetchedItemCount += res.payload.length
+                return
+            }
+            totalFetchedItemCount = -1
+        } finally { stopRef.current = false }
+    }, [username])
+
+    useEffect(() => {
+        if (profileId !== username) {
+            profileId = username || "NO_ID"
+            totalFetchedItemCount = 0
+            dispatch(resetProfileFollowList())
+            fetchApi()
+        }
+    }, [username])
+
+    const onEndReached = useCallback(() => {
+        if (stopRef.current || totalFetchedItemCount < 10) return
+        fetchApi()
+    }, [])
+
+    const onRefresh = useCallback(() => {
+        totalFetchedItemCount = 0
+        dispatch(resetProfileFollowList())
+        fetchApi()
+    }, [])
+
 
     return (
         <View style={{
@@ -81,11 +89,15 @@ const FollowersScreen = memo(function FollowersScreen({ navigation, route }: Scr
                 estimatedItemSize={100}
                 bounces={false}
                 onEndReachedThreshold={0.5}
-                onEndReached={fetchList}
+                onEndReached={onEndReached}
                 refreshing={false}
                 onRefresh={onRefresh}
-                ListFooterComponent={() => <>{listLoading || !listLoading && firstFetchAttend ? <Loader size={50} /> : <></>}</>}
-                ListEmptyComponent={!firstFetchAttend && followersList.length <= 0 ? <ListEmptyComponent text="No followers yet" /> : <></>}
+                ListEmptyComponent={() => {
+                    if (listLoading === "idle") return <View />
+                    if (listError) return <ErrorScreen message={listError} />
+                    if (!listError && listLoading === "normal") return <ListEmpty text="No followers yet" />
+                }}
+                ListFooterComponent={listLoading === "pending" ? <Loader size={50} /> : <></>} 
             />
         </View>
     )

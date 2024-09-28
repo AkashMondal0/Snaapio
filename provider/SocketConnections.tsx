@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { createContext, memo, useCallback, useEffect, useRef } from "react";
@@ -37,7 +38,7 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
     const list = useSelector((state: RootState) => state.ConversationState.conversationList)
     const socketRef = useRef<Socket | null>(null)
 
-    async function SocketConnection() {
+    const SocketConnection = useCallback(async () => {
         if (session?.id && !socketRef.current) {
             socketRef.current = io(`${configs.serverApi.baseUrl.replace("/v1", "")}/chat`, {
                 transports: ['websocket'],
@@ -50,7 +51,7 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
                 }
             })
         }
-    }
+    }, [session?.accessToken, session?.id, session?.username])
 
     const seenAllMessage = debounce((conversationId: string) => {
         if (!conversationId || !session?.id || !currentConversation?.id) return
@@ -104,15 +105,15 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
             socketRef.current?.on("test", (data: Typing) => {
                 ToastAndroid.show("Test from socket server", ToastAndroid.SHORT)
             });
-            socketRef.current?.on("connect", () => {
-                ToastAndroid.show("Connected to socket server", ToastAndroid.SHORT)
-            });
+            // socketRef.current?.on("connect", () => {
+            //     ToastAndroid.show("Connected to socket server", ToastAndroid.SHORT)
+            // });
             socketRef.current?.on("disconnect", () => {
                 socketRef.current = null
                 ToastAndroid.show("Disconnected from socket server", ToastAndroid.SHORT)
             });
             return () => {
-                socketRef.current?.off('connect')
+                // socketRef.current?.off('connect')
                 socketRef.current?.off('disconnect')
                 socketRef.current?.off('test')
                 socketRef.current?.off(configs.eventNames.conversation.message)
@@ -121,7 +122,7 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
                 socketRef.current?.off(configs.eventNames.notification.post)
             }
         }
-    }, [session?.id, socketRef.current, currentConversation?.id, list.length])
+    }, [session?.id, currentConversation?.id, list.length, list.length])
 
 
     const sendDataToServer = useCallback((eventName: SocketEmitType, data: unknown) => {

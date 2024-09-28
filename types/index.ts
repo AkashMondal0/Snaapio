@@ -254,8 +254,10 @@ interface Session {
         accessToken: string,
     } | null
 }
+type loadingType = 'idle' | 'pending' | 'normal'
 
 export type {
+    loadingType,
     Session,
     User,
     Message,

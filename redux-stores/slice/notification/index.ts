@@ -12,26 +12,28 @@ type NotificationType = {
     isNotification: boolean,
     notificationCount: number
 }
+export type loadingType = 'idle' | 'pending' | 'normal'
 
 // Define a type for the slice state
 type NotificationStateType = {
-    notificationPopup: boolean,
-    loading: boolean,
+    loading: loadingType,
     error: string | null,
+    notifications: Notification[]
+
+    notificationPopup: boolean,
     unreadCommentCount: number,
     unreadPostLikeCount: number
     unreadChatCount: number
     postNotification: NotificationType,
     chatNotification: NotificationType,
     commentNotification: NotificationType
-    notifications: Notification[]
     receivedNotification: string[]
 }
 
 // Define the initial state using that type
 const NotificationState: NotificationStateType = {
     notificationPopup: false,
-    loading: false,
+    loading: "idle",
     error: null,
     notifications: [],
     unreadCommentCount: 0,
@@ -99,17 +101,16 @@ export const NotificationSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(fetchAccountNotificationApi.pending, (state) => {
-                state.loading = true
+                state.loading = 'pending'
                 state.error = null
             })
             .addCase(fetchAccountNotificationApi.fulfilled, (state, action: PayloadAction<Notification[]>) => {
-                state.loading = false
-                state.error = null
                 state.notifications.push(...action.payload)
+                state.loading = 'normal'
             })
             .addCase(fetchAccountNotificationApi.rejected, (state, action: PayloadAction<any>) => {
-                state.loading = false
                 state.error = action.payload || 'Failed to fetch notification'
+                state.loading = "normal"
             })
             // fetchUnreadNotificationCountApi
             .addCase(fetchUnreadNotificationCountApi.pending, (state) => {
