@@ -1,12 +1,8 @@
 import { Dimensions, View } from "react-native";
-import { Text } from "@/components/skysolo-ui";
+import { Loader, Text } from "@/components/skysolo-ui";
 
 
-const ListEmptyComponent = ({
-    text = "No data found"
-}: {
-    text: string | undefined | null
-}) => {
+const ListLoader = () => {
     const windowHeight = Dimensions.get('window').height;
     return (
         <View style={{
@@ -16,9 +12,9 @@ const ListEmptyComponent = ({
             width: '100%',
             flex: 1,
         }}>
-            <Text variant="heading2" >{text}</Text>
+            <Loader size={40} />
         </View>
     )
 }
 
-export default ListEmptyComponent;
+export default ListLoader;

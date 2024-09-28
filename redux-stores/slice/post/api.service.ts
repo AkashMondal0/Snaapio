@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { graphqlQuery } from "@/lib/GraphqlQuery";
 import { AuthorData } from "@/types";
 import { createAsyncThunk } from "@reduxjs/toolkit";
@@ -20,39 +21,29 @@ export const fetchOnePostApi = createAsyncThunk(
     }
 );
 
-export const createPostLikeApi = createAsyncThunk(
-    'createPostLikeApi/post',
-    async (createLikeId: string, thunkApi) => {
-        try {
-            const res = await graphqlQuery({
-                query: QPost.createLike,
-                variables: { createLikeId }
-            })
-            return res
-        } catch (error: any) {
-            return thunkApi.rejectWithValue({
-                ...error?.response?.data,
-            })
-        }
+export const createPostLikeApi = async (createLikeId: string): Promise<boolean> => {
+    try {
+        await graphqlQuery({
+            query: QPost.createLike,
+            variables: { createLikeId }
+        })
+        return true
+    } catch (error: any) {
+        return false
     }
-);
+}
 
-export const destroyPostLikeApi = createAsyncThunk(
-    'destroyPostLikeApi/post',
-    async (destroyLikeId: string, thunkApi) => {
-        try {
-            const res = await graphqlQuery({
-                query: QPost.destroyLike,
-                variables: { destroyLikeId }
-            })
-            return res
-        } catch (error: any) {
-            return thunkApi.rejectWithValue({
-                ...error?.response?.data,
-            })
-        }
+export const destroyPostLikeApi = async (destroyLikeId: string): Promise<boolean> => {
+    try {
+        await graphqlQuery({
+            query: QPost.destroyLike,
+            variables: { destroyLikeId }
+        })
+        return true
+    } catch (error: any) {
+        return false
     }
-);
+}
 
 export const createPostCommentApi = createAsyncThunk(
     'createPostCommentApi/post',

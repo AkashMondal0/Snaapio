@@ -4,22 +4,19 @@ import { AuthorData, Comment, Post } from '@/types'
 import { createPostCommentApi, fetchOnePostApi, fetchPostCommentsApi, fetchPostLikesApi } from './api.service'
 
 export type TypeActionLike = 'feeds' | 'singleFeed'
+export type loadingType = 'idle' | 'pending' | 'normal'
 // Define a type for the slice state
 export interface PostStateType {
-    feeds: Post[]
-    feedsLoading: boolean
-    feedsError: string | null
-    // 
     viewPost: Post | null
     viewPostLoading: boolean
     viewPostError: string | null
     // like
-    likesLoading?: boolean
-    likesError?: string | null
     likesUserList: AuthorData[]
+    likesLoading?: loadingType
+    likesError?: string | null
     // comment
     comments: Comment[]
-    commentsLoading: boolean
+    commentsLoading: loadingType
     commentsError: string | null
 
     createLikeLoading?: boolean
@@ -31,20 +28,17 @@ export interface PostStateType {
 
 // Define the initial state using that type
 const PostState: PostStateType = {
-    feeds: [],
-    feedsLoading: false,
-    feedsError: null,
 
     viewPost: null,
     viewPostLoading: false,
     viewPostError: null,
 
     likesUserList: [],
-    likesLoading: false,
+    likesLoading: 'idle',
     likesError: null,
 
     comments: [],
-    commentsLoading: false,
+    commentsLoading: 'idle',
     commentsError: null
 }
 
@@ -52,13 +46,7 @@ export const PostsSlice = createSlice({
     name: 'PostFeed',
     initialState: PostState,
     reducers: {
-        setMorePosts: (state, action: PayloadAction<Post[]>) => {
-            if (action.payload?.length > 0) {
-                state.feeds.push(...action.payload)
-            }
-        },
         resetPostState: (state) => {
-            state.feeds = []
             state.viewPost = null
             state.likesUserList = []
             state.comments = []
@@ -95,49 +83,49 @@ export const PostsSlice = createSlice({
                 state.viewPostError = action.error.message || 'Failed to fetch post'
             })
             .addCase(fetchPostLikesApi.pending, (state) => {
-                state.likesLoading = true
+                state.likesLoading = "pending"
                 state.likesUserList = []
             })
             .addCase(fetchPostLikesApi.fulfilled, (state, action: PayloadAction<AuthorData[]>) => {
                 state.likesUserList.push(...action.payload)
-                state.likesLoading = false
+                state.likesLoading = "normal"
             })
             .addCase(fetchPostLikesApi.rejected, (state, action) => {
-                state.likesLoading = false
+                state.likesLoading = "normal"
                 state.likesUserList = []
             })
             // createPostCommentApi
             .addCase(createPostCommentApi.pending, (state) => {
-                // state.commentsLoading = true
+                state.createCommentLoading = true
             })
             .addCase(createPostCommentApi.fulfilled, (state, action: PayloadAction<Comment>) => {
                 state.comments.unshift(action.payload)
-                // state.commentsLoading = false
+                state.createCommentLoading = false
             })
             .addCase(createPostCommentApi.rejected, (state, action) => {
-                // state.commentsLoading = false
+                state.createCommentLoading = false
             })
             //fetchPostCommentsApi
             .addCase(fetchPostCommentsApi.pending, (state) => {
-                state.commentsLoading = true
+                state.commentsLoading ="pending"
             })
             .addCase(fetchPostCommentsApi.fulfilled, (state, action: PayloadAction<Comment[]>) => {
                 const commentsId = action.payload.map((comment) => comment.id)
                 const uniqueComments = action.payload.filter((comment, index) => commentsId.indexOf(comment.id) === index)
                 state.comments = uniqueComments
-                state.commentsLoading = false
+                state.commentsLoading = "normal"
             })
             .addCase(fetchPostCommentsApi.rejected, (state, action) => {
-                state.commentsLoading = false
+                state.commentsLoading = "normal"
             })
     },
 })
 
 export const {
-    setMorePosts,
+    setViewPost,
     resetPostState,
     resetViewPost,
-    setViewPost,
+
     resetComments,
     resetLike
 } = PostsSlice.actions

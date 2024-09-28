@@ -2,7 +2,7 @@ import { Dimensions, View } from "react-native";
 import { Text } from "@/components/skysolo-ui";
 
 
-const ListEmptyComponent = ({
+const ListEmpty = ({
     text = "No data found"
 }: {
     text: string | undefined | null
@@ -21,4 +21,4 @@ const ListEmptyComponent = ({
     )
 }
 
-export default ListEmptyComponent;
+export default ListEmpty;

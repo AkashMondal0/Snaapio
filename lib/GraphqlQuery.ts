@@ -44,6 +44,8 @@ export const graphqlQuery = async <T>({
             query,
             variables,
         }),
+        cache: 'no-cache',
+        priority: 'high',
     });
 
     if (!response.ok) {

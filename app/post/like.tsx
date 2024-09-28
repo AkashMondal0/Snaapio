@@ -1,8 +1,7 @@
-import { memo, useCallback, useRef, useState } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import { memo, useCallback, useEffect, useRef } from "react";
 import AppHeader from "@/components/AppHeader";
-import { ListEmptyComponent } from "@/components/home";
 import { Avatar, Loader, Text, TouchableOpacity } from "@/components/skysolo-ui";
-import debounce from "@/lib/debouncing";
 import { resetLike } from "@/redux-stores/slice/post";
 import { fetchPostLikesApi } from "@/redux-stores/slice/post/api.service";
 import { RootState } from "@/redux-stores/store";
@@ -10,7 +9,9 @@ import { AuthorData, Comment, disPatchResponse, NavigationProps, Post } from "@/
 import { FlashList } from "@shopify/flash-list";
 import { View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-interface CommentScreenProps {
+import ErrorScreen from "@/components/error/page";
+import ListEmpty from "@/components/ListEmpty";
+interface ScreenProps {
     navigation: NavigationProps;
     route: {
         params: {
@@ -19,50 +20,54 @@ interface CommentScreenProps {
     }
 }
 
+let totalFetchedItemCount = 0
+let postId = "NO_ID"
 
-const LikeScreen = memo(function LikeScreen({ navigation, route }: CommentScreenProps) {
+const LikeScreen = memo(function LikeScreen({ navigation, route }: ScreenProps) {
+    const post = route?.params?.post
     const likes = useSelector((Root: RootState) => Root.PostState.likesUserList)
     const likeLoading = useSelector((Root: RootState) => Root.PostState.likesLoading)
+    const likesError = useSelector((Root: RootState) => Root.PostState.likesError)
     const stopRef = useRef(false)
-    const totalFetchedItemCount = useRef<number>(0)
-    const [firstFetchAttend, setFirstFetchAttend] = useState(true)
     const dispatch = useDispatch()
 
-    const fetchLikesApi = useCallback(async (reset?: boolean) => {
-        if (stopRef.current || totalFetchedItemCount.current === -1) return
+    const fetchApi = useCallback(async () => {
+        if (stopRef.current || totalFetchedItemCount === -1) return
+        stopRef.current = true
         try {
             const res = await dispatch(fetchPostLikesApi({
                 id: route?.params?.post?.id,
-                offset: reset ? 0 : totalFetchedItemCount.current,
+                offset: totalFetchedItemCount,
                 limit: 12
             }) as any) as disPatchResponse<Comment[]>
+            if (res.payload.length >= 12) {
+                totalFetchedItemCount += res.payload.length
+                return
+            }
+            totalFetchedItemCount = -1
+        } finally { stopRef.current = false }
+    }, [post.id])
 
-            if (res.payload?.length > 0) {
-                // if less than 12 items fetched, stop fetching
-                if (res.payload?.length < 12) {
-                    return totalFetchedItemCount.current = -1
-                }
-                // if more than 12 items fetched, continue fetching
-                totalFetchedItemCount.current += res.payload.length
-            }
-        } finally {
-            if (firstFetchAttend) {
-                setFirstFetchAttend(false)
-            }
-            stopRef.current = false
+    useEffect(() => {
+        if (postId !== post.id) {
+            postId = post.id
+            totalFetchedItemCount = 0
+            dispatch(resetLike())
+            fetchApi()
         }
-    }, [route?.params?.post?.id])
-    
-    const fetchLikes = debounce(fetchLikesApi, 1000)
-    
-    const onRefresh = useCallback(() => {
-        totalFetchedItemCount.current = 0
-        dispatch(resetLike())
-        fetchLikesApi(true)
+    }, [post.id])
+
+    const onEndReached = useCallback(() => {
+        if (stopRef.current || totalFetchedItemCount < 10) return
+        fetchApi()
     }, [])
-    
-    const onPress = (item: AuthorData) => {
-    }
+
+    const onRefresh = useCallback(() => {
+        totalFetchedItemCount = 0
+        dispatch(resetLike())
+        fetchApi()
+    }, [])
+
     return (
         <View style={{
             flex: 1,
@@ -72,17 +77,19 @@ const LikeScreen = memo(function LikeScreen({ navigation, route }: CommentScreen
             <AppHeader title="Likes" navigation={navigation} />
             <FlashList
                 data={likes}
-                renderItem={({ item }) => (<LikeItem data={item}
-                    isProfile={item.id === route?.params?.post?.user.id}
-                    onPress={onPress} />)}
+                renderItem={({ item }) => (<LikeItem data={item} />)}
                 keyExtractor={(item, index) => index.toString()}
-                ListFooterComponent={() => <>{likeLoading || !likeLoading && firstFetchAttend ? <Loader size={50} /> : <></>}</>}
-                ListEmptyComponent={!firstFetchAttend && likes.length <= 0 ? <ListEmptyComponent text="No likes yet" /> : <></>}
                 estimatedItemSize={100}
                 bounces={false}
                 onEndReachedThreshold={0.5}
-                onEndReached={fetchLikes}
+                onEndReached={onEndReached}
                 refreshing={false}
+                ListEmptyComponent={() => {
+                    if (likeLoading === "idle") return <View />
+                    if (likesError) return <ErrorScreen message={likesError} />
+                    if (!likesError && likeLoading === "normal") return <ListEmpty text="No likes yet" />
+                }}
+                ListFooterComponent={likeLoading === "pending" ? <Loader size={50} /> : <></>}
                 onRefresh={onRefresh} />
         </View>
     )
@@ -90,13 +97,9 @@ const LikeScreen = memo(function LikeScreen({ navigation, route }: CommentScreen
 export default LikeScreen;
 
 const LikeItem = memo(function CommentItem({
-    data,
-    isProfile,
-    onPress
+    data
 }: {
-    data: AuthorData,
-    isProfile: boolean,
-    onPress: (item: AuthorData) => void
+    data: AuthorData
 }) {
     return (<TouchableOpacity style={{
         flexDirection: 'row',
@@ -113,7 +116,7 @@ const LikeItem = memo(function CommentItem({
             gap: 10,
             alignItems: 'center',
         }}>
-            <Avatar url={data.profilePicture} size={50} onPress={() => onPress(data)} />
+            <Avatar url={data.profilePicture} size={50} onPress={() => { }} />
             <View>
                 <View style={{
                     display: 'flex',
@@ -130,6 +133,6 @@ const LikeItem = memo(function CommentItem({
                 </Text>
             </View>
         </View>
-        <Text variant="heading4" colorVariant="secondary">{isProfile ? 'You' : ''}</Text>
+        {/* <Text variant="heading4" colorVariant="secondary">{isProfile ? 'You' : ''}</Text> */}
     </TouchableOpacity>)
 })

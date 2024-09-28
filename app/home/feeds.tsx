@@ -1,29 +1,26 @@
-import { Loader } from '@/components/skysolo-ui';
+/* eslint-disable react-hooks/exhaustive-deps */
 import { AnimatedFlashList } from '@shopify/flash-list';
-import debounce from "@/lib/debouncing";
 import { fetchAccountFeedApi } from "@/redux-stores/slice/account/api.service";
 import { RootState } from "@/redux-stores/store";
 import { NavigationProps, Post, disPatchResponse } from "@/types";
-import React, { useCallback, useRef, memo, useState } from "react";
+import React, { useCallback, useRef, memo, useEffect } from "react";
 import { Animated, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { resetFeeds } from '@/redux-stores/slice/account';
-import { FeedItem, HomeHeader, ListEmptyComponent } from '@/components/home';
-import { resetComments, resetLike } from '@/redux-stores/slice/post';
+import { FeedItem, HomeHeader } from '@/components/home';
 import { ProfileStories } from '@/components/profile';
 import ErrorScreen from '@/components/error/page';
+import ListEmpty from '@/components/ListEmpty';
+import { Loader } from '@/components/skysolo-ui';
 let totalFetchedItemCount: number = 0
 
 const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: NavigationProps }) {
-    const stopRef = useRef(false)
     const feedList = useSelector((state: RootState) => state.AccountState.feeds)
     const feedListLoading = useSelector((state: RootState) => state.AccountState.feedsLoading)
     const feedsError = useSelector((state: RootState) => state.AccountState.feedsError)
-
+    const stopRef = useRef(false)
     const dispatch = useDispatch()
-    const [firstFetchAttend, setFirstFetchAttend] = useState(true)
-    // 
-    const ref = useRef(null)
+    // animation 
     const scrollY = useRef(new Animated.Value(0));
     const handleScroll = Animated.event([{ nativeEvent: { contentOffset: { y: scrollY.current } } }], { useNativeDriver: true });
     const diffClamp = (value: Animated.Value, lowerBound: number, upperBound: number) => {
@@ -35,53 +32,40 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: Navi
         outputRange: [0, -(130 / 2)],
     });
 
-
-    /// 
-    const getPostApi = useCallback(async (reset?: boolean) => {
+    const fetchApi = useCallback(async () => {
         if (stopRef.current || totalFetchedItemCount === -1) return
+        stopRef.current = true
         try {
             const res = await dispatch(fetchAccountFeedApi({
                 limit: 12,
-                offset: reset ? 0 : totalFetchedItemCount
+                offset: totalFetchedItemCount
             }) as any) as disPatchResponse<Post[]>
-
-            if (res.payload.length > 0) {
-                // if less than 12 items fetched, stop fetching
-                if (res.payload.length < 12) {
-                    return totalFetchedItemCount = -1
-                }
-                // if more than 12 items fetched, continue fetching
+            if (res.payload.length >= 12) {
                 totalFetchedItemCount += res.payload.length
+                return
             }
-        } finally {
-            if (firstFetchAttend) {
-                setFirstFetchAttend(false)
-            }
-            stopRef.current = false
-        }
+            totalFetchedItemCount = -1
+        } finally { stopRef.current = false }
     }, [])
 
-    const fetchPosts = debounce(getPostApi, 1000)
+    useEffect(() => {
+        fetchApi()
+    }, [])
+
+    const onEndReached = useCallback(() => {
+        if (stopRef.current || totalFetchedItemCount < 10) return
+        fetchApi()
+    }, [])
 
     const onRefresh = useCallback(() => {
         totalFetchedItemCount = 0
         dispatch(resetFeeds())
-        getPostApi(true)
+        fetchApi()
     }, [])
 
-    const onPress = useCallback((item: Post, path: "post/like" | "post/comment") => {
-        if (path === "post/like") {
-            dispatch(resetLike())
-        } else if (path === "post/comment") {
-            dispatch(resetComments())
-        }
-        navigation.navigate(path, { post: item })
+    const onNavigate = useCallback((path: string, options?: { params?: any }) => {
+        navigation.navigate(path, options);
     }, [])
-
-    const onNavigate = useCallback((username: string) => {
-        navigation.navigate("profile", { screen: 'profile', params: { username } });
-    }, [])
-
 
     return (
         <View style={{
@@ -93,26 +77,23 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: Navi
                 ListHeaderComponent={ProfileStories}
                 contentContainerStyle={{ paddingTop: 60 }}
                 scrollEventThrottle={16}
-                ref={ref}
                 data={feedList}
-                renderItem={({ item }) => <FeedItem data={item} onPress={onPress} onNavigate={onNavigate} />}
+                renderItem={({ item }) => <FeedItem data={item} onNavigate={onNavigate} />}
                 keyExtractor={(item, index) => index.toString()}
                 estimatedItemSize={100}
-                onEndReached={fetchPosts}
+                onEndReached={onEndReached}
                 onEndReachedThreshold={0.5}
                 bounces={false}
                 refreshing={false}
                 onRefresh={onRefresh}
                 onScroll={handleScroll}
                 ListEmptyComponent={() => {
-                    if (feedListLoading || firstFetchAttend) return <></>
+                    if (feedListLoading === "idle") return <View />
                     if (feedsError) return <ErrorScreen message={feedsError} />
-                    return <ListEmptyComponent text='No Feeds' />
+                    if (!feedsError && feedListLoading === "normal") return <ListEmpty text="No feeds available" />
                 }}
-                ListFooterComponent={() => (
-                    <View style={{ height: 50, padding: 10 }}>
-                        {feedListLoading ? <Loader size={40} /> : <></>}
-                    </View>)} />
+                ListFooterComponent={() => feedListLoading === "pending" ? <Loader size={40} /> : <></>}
+                removeClippedSubviews={true} />
         </View>
     )
 })

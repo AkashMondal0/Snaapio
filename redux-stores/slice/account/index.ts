@@ -5,25 +5,25 @@ import { fetchAccountFeedApi } from './api.service'
 
 
 export type AccountState = {
-  uploadFiles: {
-    loading: boolean,
-    currentUploadImg: string | null,
-    error: any
-  },
+  // uploadFiles: {
+  //   loading: "idle" | "pending" | "fulfilled" | "rejected",
+  //   currentUploadImg: string | null,
+  //   error: string | null
+  // },
   feeds: Post[]
-  feedsLoading: boolean
+  feedsLoading: "idle" | "pending" | "normal"
   feedsError: string | null
 }
 
 
 const initialState: AccountState = {
-  uploadFiles: {
-    loading: false,
-    currentUploadImg: null,
-    error: null
-  },
+  // uploadFiles: {
+  //   loading: false,
+  //   currentUploadImg: null,
+  //   error: null
+  // },
   feeds: [],
-  feedsLoading: false,
+  feedsLoading: "idle",
   feedsError: null,
 }
 
@@ -41,17 +41,17 @@ export const AccountSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchAccountFeedApi.pending, (state) => {
-        state.feedsLoading = true
+        state.feedsLoading = "pending"
         state.feedsError = null
       })
       .addCase(fetchAccountFeedApi.fulfilled, (state, action: PayloadAction<Post[]>) => {
         if (action.payload?.length > 0) {
           state.feeds.push(...action.payload)
         }
-        state.feedsLoading = false
+        state.feedsLoading = "normal"
       })
       .addCase(fetchAccountFeedApi.rejected, (state, action: PayloadAction<any>) => {
-        state.feedsLoading = false
+        state.feedsLoading = "normal"
         state.feedsError = action.payload?.message ?? "fetch error"
       })
     //   .addCase(UploadImagesFireBaseApi.pending, (state) => {
