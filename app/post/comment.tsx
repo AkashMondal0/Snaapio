@@ -227,7 +227,6 @@ const CommentInput = memo(function CommentInput({
                     alignItems: "center",
                     justifyContent: "space-between",
                     padding: "1.6%",
-                    borderBottomWidth: 0.8,
                 }}>
                 <Controller
                     control={control}

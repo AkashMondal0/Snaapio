@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Avatar, Text, Image, Icon } from '@/components/skysolo-ui';
 import { SocketContext } from '@/provider/SocketConnections';
 import { createNotificationApi, destroyNotificationApi } from '@/redux-stores/slice/notification/api.service';
@@ -22,7 +21,7 @@ const FeedItem = memo(function FeedItem({
     const navigateToProfile = useCallback(() => {
         if (!data.user) return ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
         onNavigate("profile", { username: data.user.username })
-    }, [])
+    }, [data.user])
 
     const navigateToPost = useCallback((path: "post/like" | "post/comment", post: Post) => {
         if (!post) return ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
