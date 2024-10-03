@@ -17,6 +17,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import ErrorScreen from "@/components/error/page";
 import ListEmpty from "@/components/ListEmpty";
+import React from "react";
 
 const schema = z.object({
     text: z.string().min(1)

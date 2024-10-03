@@ -36,8 +36,8 @@ const SearchScreen = memo(function SearchScreen({
 
     const delayFetchUsers = debounce(fetchUsers, 600)
 
-    const onNavigate = useCallback((username: string) => {
-        navigation.navigate("profile", { screen: 'profile', params: { username } });
+    const onNavigate = useCallback((path: string, options?: { params?: any }) => {
+        navigation.push(path, options);
     }, [])
 
     const onRemove = useCallback((id: string) => {
@@ -76,26 +76,27 @@ const SearchScreen = memo(function SearchScreen({
                 keyboardShouldPersistTaps='handled'
                 data={users}
                 renderItem={({ item }) => <UserItem data={item}
-                    onPress={onNavigate} onRemove={onRemove} />}
+                    onNavigate={onNavigate} onRemove={onRemove} />}
                 keyExtractor={(item, index) => index.toString()}
                 estimatedItemSize={100}
                 bounces={false}
-                ListFooterComponent={() => <>{loading ? <Loader size={50} /> : <></>}</>}
-                ListEmptyComponent={!loading ? <ListEmptyComponent text="No User yet" /> : <></>} />
+                ListFooterComponent={() => <View>{loading ? <Loader size={50} /> : <View></View>}</View>}
+                ListEmptyComponent={!loading ? <ListEmptyComponent text="No User yet" /> : <View></View>} />
         </View>
     )
 })
 export default SearchScreen;
 
 const UserItem = memo(function UserItem({
-    data, onPress, onRemove
+    data, onNavigate, onRemove
 }: {
     data: AuthorData,
-    onPress: (text: string) => void,
+    onNavigate: (path: string, options?: any) => void
     onRemove: (text: string) => void
 }) {
+
     return (<TouchableOpacity
-        onPress={() => onPress(data.username)}
+        onPress={() => onNavigate("profile", { username: data.username })}
         style={{
             flexDirection: 'row',
             padding: 12,

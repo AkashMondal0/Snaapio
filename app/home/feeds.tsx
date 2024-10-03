@@ -64,7 +64,7 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: Navi
     }, [])
 
     const onNavigate = useCallback((path: string, options?: { params?: any }) => {
-        navigation.navigate(path, options);
+        navigation.push(path, options);
     }, [])
 
     return (

@@ -6,54 +6,17 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import { RootState, store } from '@/redux-stores/store';
 import { SettingScreen, ThemeSettingScreen } from '@/app/setting';
-// import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { InitialScreen, LoginScreen, RegisterScreen } from '@/app/auth';
-import HomeScreen from '@/app/home';
-import CameraScreen from '@/app/camera';
+import BottomTabComponent from '@/app/home';
 import { ChatListScreen, ChatScreen, NewChatScreen } from '@/app/message';
 import PreConfiguration from '@/provider/PreConfiguration';
 import BottomSheetProvider from '@/provider/BottomSheetProvider';
-import { PostScreen, CommentScreen, LikeScreen } from '@/app/post';
-import { NotificationScreen } from '@/app/screens';
-import { PostsScreen, TabFollowingAndFollowers } from './app/profile';
-import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import SocketConnections from '@/provider/SocketConnections';
 import { resetConversation } from '@/redux-stores/slice/conversation';
 
-// import Toast from 'react-native-toast-message';
 SplashScreen.preventAutoHideAsync();
-// const Tab = createMaterialTopTabNavigator();
 const Stack = createNativeStackNavigator();
-
-// export function TopTabBar() {
-//   const background = useSelector((state: RootState) => state.ThemeState.currentTheme?.background, (prev, next) => prev === next)
-//   const tabSwiped = useSelector((state: RootState) => state.ThemeState.tabSwiped, (prev, next) => prev === next)
-//   if (!background) {
-//     return <></>;
-//   }
-
-//   return (
-//     <Tab.Navigator
-//       tabBar={() => null}
-//       initialRouteName='home'
-//       backBehavior="initialRoute"
-//       initialLayout={{ width: "100%", height: 100 }}
-//       tabBarBounces={false}
-//       screenOptions={{
-//         swipeEnabled: tabSwiped,
-//         headerShown: false,
-//         contentStyle: { backgroundColor: background }
-//       }}
-//       sceneContainerStyle={{ backgroundColor: background }}>
-//       <Tab.Screen name="camera" component={CameraScreen} />
-//       <Tab.Screen name="home" component={HomeScreen} />
-//       <Tab.Screen name="message" component={ChatListScreen} />
-//     </Tab.Navigator>
-//   );
-// }
 
 function Routes(backgroundColor: any) {
   const session = useSelector((state: RootState) => state.AuthState.session)
@@ -76,20 +39,12 @@ function Routes(backgroundColor: any) {
           paddingBottom: insets.bottom,
           paddingLeft: insets.left,
           paddingRight: insets.right,
-        },
-        animation: 'slide_from_right',
-        transitionSpec: {
-          open: { animation: 'timing', config: { duration: 150 } },  // Fast opening transition
-          close: { animation: 'timing', config: { duration: 150 } }, // Fast closing transition
-        },
-        detachPreviousScreen: true, // Optimize memory by detaching previous screen
-        cardOverlayEnabled: false, // No dimmed overlay
-        // gestureEnabled: Platform.OS === 'ios', // Disable gestures on Android
+        }
       }}>
       {session.user ?
         <>
           {/* feeds */}
-          <Stack.Screen name="Root" component={HomeScreen} />
+          <Stack.Screen name="Root" component={BottomTabComponent} />
           {/* settings */}
           <Stack.Screen name={"settings"} component={SettingScreen} />
           <Stack.Screen name={"settings/theme"} component={ThemeSettingScreen} />
@@ -97,18 +52,6 @@ function Routes(backgroundColor: any) {
           <Stack.Screen name="message" component={ChatListScreen} />
           <Stack.Screen name="message/conversation" component={ChatScreen} />
           <Stack.Screen name="message/searchNewChat" component={NewChatScreen} />
-
-          {/* post */}
-          <Stack.Screen name="post" component={PostScreen} />
-          <Stack.Screen name="post/like" component={LikeScreen} />
-          <Stack.Screen name="post/comment" component={CommentScreen} />
-          {/* notification */}
-          <Stack.Screen name="notification" component={NotificationScreen} />
-          {/* profile */}
-          <Stack.Screen name="profile/posts" component={PostsScreen} />
-          <Stack.Screen name="profile/followersAndFollowing" component={TabFollowingAndFollowers} />
-          {/* camera */}
-          <Stack.Screen name="camera" component={CameraScreen} />
         </> :
         <>
           <Stack.Screen name="auth" component={InitialScreen} />
@@ -123,7 +66,6 @@ function Root() {
   const background = useSelector((state: RootState) => state.ThemeState.currentTheme?.background, (prev, next) => prev === next)
 
   return (<>
-    {/* <Toast /> */}
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: background }}>
       <SafeAreaProvider>
         <NavigationContainer>

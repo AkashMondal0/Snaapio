@@ -81,16 +81,14 @@ const PreConfiguration = () => {
     }, [])
 
     if (!themeLoaded) {
-        return <StatusBar
+        return (<StatusBar
             backgroundColor="transparent"
-            translucent={true} />
+            translucent={true} />)
     }
 
-    return <>
-        <StatusBar
-            barStyle={themeSchema === "dark" ? "light-content" : "dark-content"}
-            backgroundColor={background} translucent={true} />
-    </>
+    return (<StatusBar
+        barStyle={themeSchema === "dark" ? "light-content" : "dark-content"}
+        backgroundColor={background} translucent={true} />)
 }
 
 

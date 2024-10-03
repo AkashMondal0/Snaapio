@@ -21,7 +21,7 @@ const FeedItem = memo(function FeedItem({
 }) {
     const navigateToProfile = useCallback(() => {
         if (!data.user) return ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
-        onNavigate("profile", { screen: 'profile', params: { username: data.user.username } })
+        onNavigate("profile", { username: data.user.username })
     }, [])
 
     const navigateToPost = useCallback((path: "post/like" | "post/comment", post: Post) => {
@@ -32,7 +32,6 @@ const FeedItem = memo(function FeedItem({
     return <View style={{
         width: "100%",
         paddingVertical: 14,
-        // borderBottomWidth: 0.2,
     }}>
         <View style={{
             marginHorizontal: "3%",
@@ -91,7 +90,7 @@ const FeedItem = memo(function FeedItem({
             }}>
                 {data?.content ? <Text variant="heading4" style={{
                     fontWeight: "600"
-                }}>{data?.content}</Text> : <></>}
+                }}>{data?.content}</Text> : <View />}
             </View>
             <View>
                 <TouchableOpacity activeOpacity={0.5} onPress={() => navigateToPost("post/comment", data)}>
@@ -124,7 +123,8 @@ const FeedItemActionsButtons = (
         post: Post
     }
 ) => {
-    // const SocketState = useContext(SocketContext)
+    const SocketState = useContext(SocketContext)
+    const dispatch = useDispatch()
     const session = useSelector((state: RootState) => state.AuthState.session.user)
     const [like, setLike] = useState({
         isLike: post.is_Liked,
@@ -145,24 +145,24 @@ const FeedItemActionsButtons = (
                 isLike: true,
                 likeCount: like.likeCount + 1
             })
-            // if (post.user.id === session.id) return
-            // const notificationRes = await dispatch(createNotificationApi({
-            //     postId: post.id,
-            //     authorId: session.id,
-            //     type: NotificationType.Like,
-            //     recipientId: post.user.id
-            // }) as any) as disPatchResponse<Notification>
-            // SocketState.sendDataToServer("notification_post", {
-            //     ...notificationRes.payload,
-            //     author: {
-            //         username: session?.username,
-            //         profilePicture: session?.profilePicture
-            //     },
-            //     post: {
-            //         id: post.id,
-            //         fileUrl: post.fileUrl,
-            //     }
-            // })
+            if (post.user.id === session.id) return
+            const notificationRes = await dispatch(createNotificationApi({
+                postId: post.id,
+                authorId: session.id,
+                type: NotificationType.Like,
+                recipientId: post.user.id
+            }) as any) as disPatchResponse<Notification>
+            SocketState.sendDataToServer("notification_post", {
+                ...notificationRes.payload,
+                author: {
+                    username: session?.username,
+                    profilePicture: session?.profilePicture
+                },
+                post: {
+                    id: post.id,
+                    fileUrl: post.fileUrl,
+                }
+            })
         } catch (error) {
             ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
         } finally {
@@ -183,13 +183,13 @@ const FeedItemActionsButtons = (
                 isLike: false,
                 likeCount: like.likeCount - 1
             })
-            // if (post.user.id === session.id) return
-            // await dispatch(destroyNotificationApi({
-            //     postId: post.id,
-            //     authorId: session.id,
-            //     type: NotificationType.Like,
-            //     recipientId: post.user.id
-            // }) as any)
+            if (post.user.id === session.id) return
+            await dispatch(destroyNotificationApi({
+                postId: post.id,
+                authorId: session.id,
+                type: NotificationType.Like,
+                recipientId: post.user.id
+            }) as any)
         } catch (error: any) {
             ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
         } finally {
