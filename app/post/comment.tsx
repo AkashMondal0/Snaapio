@@ -4,9 +4,8 @@ import { Avatar, Icon, Input, Text, TouchableOpacity, Separator, Loader } from "
 import { timeAgoFormat } from "@/lib/timeFormat";
 import { createPostCommentApi, fetchPostCommentsApi } from "@/redux-stores/slice/post/api.service";
 import { Comment, disPatchResponse, NavigationProps, NotificationType, Post } from "@/types";
-import { FlashList } from "@shopify/flash-list";
 import { memo, useCallback, useContext, useEffect, useRef } from "react";
-import { ToastAndroid, View } from "react-native";
+import { FlatList, ToastAndroid, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { resetComments } from "@/redux-stores/slice/post";
@@ -85,11 +84,13 @@ const CommentScreen = memo(function CommentScreen({ navigation, route }: Comment
             height: '100%',
         }}>
             <AppHeader title="Comments" navigation={navigation} />
-            <FlashList
+            <FlatList
                 data={Comments}
                 renderItem={({ item }) => <CommentItem data={item} />}
                 keyExtractor={(item, index) => index.toString()}
-                estimatedItemSize={100}
+                removeClippedSubviews={true}
+                scrollEventThrottle={16}
+                windowSize={10}
                 bounces={false}
                 onEndReachedThreshold={0.5}
                 onEndReached={onEndReached}

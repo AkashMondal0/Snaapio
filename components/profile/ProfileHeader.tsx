@@ -66,7 +66,7 @@ const ProfileHeader = memo(function HomeScreen({
                         }}
                         url={user?.profilePicture} />
                     <ProfileInfoCount navigation={navigation}
-                        userData={user} isProfile />
+                        userData={user} />
                 </View>
                 <Text
                     style={{

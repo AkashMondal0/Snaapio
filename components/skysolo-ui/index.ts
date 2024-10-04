@@ -8,7 +8,6 @@ import Skeleton from "./Skeleton";
 import Switch from "./Switch";
 import Input from "./Input";
 import Image from "./Image";
-import VirtualizedList from "./VirtualizedList";
 import Collapsible from "./Collapsible"
 import Modal from "./Modal";
 import Alert from "./Alert";
@@ -33,7 +32,6 @@ export {
     Input,
     Image,
     ScrollView,
-    VirtualizedList,
     Collapsible,
     Modal,
     Alert,

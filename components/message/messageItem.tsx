@@ -32,7 +32,7 @@ const MessageItem = memo(function Item({
                 {timeFormat(data?.createdAt as string)}
             </Text>
             {myself ? <Icon iconName="CheckCheck" size={20} color={seenMessage ? currentTheme?.chart_1 : color} />
-                : <View style={{ width: 10 }} />}
+                : <View/>}
         </View>)
     }
 

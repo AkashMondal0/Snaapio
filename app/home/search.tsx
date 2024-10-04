@@ -4,9 +4,8 @@ import debounce from "@/lib/debouncing";
 import { searchUsersProfileApi } from "@/redux-stores/slice/users/api.service";
 import { RootState } from "@/redux-stores/store";
 import { AuthorData, NavigationProps } from "@/types";
-import { FlashList } from "@shopify/flash-list";
 import { memo, useCallback, useRef } from "react";
-import { View } from "react-native";
+import { FlatList, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 
 const SearchScreen = memo(function SearchScreen({
@@ -71,14 +70,16 @@ const SearchScreen = memo(function SearchScreen({
             </View>
 
             {/* list */}
-            <FlashList
+            <FlatList
                 keyboardDismissMode='on-drag'
                 keyboardShouldPersistTaps='handled'
                 data={users}
                 renderItem={({ item }) => <UserItem data={item}
                     onNavigate={onNavigate} onRemove={onRemove} />}
                 keyExtractor={(item, index) => index.toString()}
-                estimatedItemSize={100}
+                removeClippedSubviews={true}
+                scrollEventThrottle={16}
+                windowSize={10}
                 bounces={false}
                 ListFooterComponent={() => <View>{loading ? <Loader size={50} /> : <View></View>}</View>}
                 ListEmptyComponent={!loading ? <ListEmptyComponent text="No User yet" /> : <View></View>} />

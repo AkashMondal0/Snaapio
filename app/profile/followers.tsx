@@ -1,10 +1,10 @@
-import { ToastAndroid, View } from "react-native";
+import React from "react";
+import { FlatList, ToastAndroid, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { Avatar, Button, Loader, Text, TouchableOpacity } from "@/components/skysolo-ui";
 import { fetchUserProfileFollowerUserApi } from "@/redux-stores/slice/profile/api.service";
 import { RootState } from "@/redux-stores/store";
 import { AuthorData, disPatchResponse, NavigationProps } from "@/types";
-import { FlashList } from "@shopify/flash-list";
 import { memo, useCallback, useEffect, useRef } from "react";
 import { resetProfileFollowList } from "@/redux-stores/slice/profile";
 import ErrorScreen from "@/components/error/page";
@@ -21,6 +21,7 @@ let totalFetchedItemCount = 0
 let profileId = "NO_ID"
 
 const FollowersScreen = memo(function FollowersScreen({ navigation, route }: ScreenProps) {
+    // console.log(route.params.username)
     const username = useSelector((Root: RootState) => Root.ProfileState.state?.username)
     const session = useSelector((Root: RootState) => Root.AuthState.session.user)
     const followersList = useSelector((Root: RootState) => Root.ProfileState.followerList)
@@ -80,13 +81,15 @@ const FollowersScreen = memo(function FollowersScreen({ navigation, route }: Scr
             width: '100%',
             height: '100%',
         }}>
-            <FlashList
+            <FlatList
+                removeClippedSubviews={true}
+                scrollEventThrottle={16}
+                windowSize={10}
                 data={followersList}
                 renderItem={({ item }) => (<FollowingItem data={item}
                     isFollowing={session?.username === item.username}
                     onPress={onPress} />)}
                 keyExtractor={(item, index) => index.toString()}
-                estimatedItemSize={100}
                 bounces={false}
                 onEndReachedThreshold={0.5}
                 onEndReached={onEndReached}
@@ -97,7 +100,7 @@ const FollowersScreen = memo(function FollowersScreen({ navigation, route }: Scr
                     if (listError) return <ErrorScreen message={listError} />
                     if (!listError && listLoading === "normal") return <ListEmpty text="No followers yet" />
                 }}
-                ListFooterComponent={listLoading === "pending" ? <Loader size={50} /> : <></>} 
+                ListFooterComponent={listLoading === "pending" ? <Loader size={50} /> : <></>}
             />
         </View>
     )
@@ -145,7 +148,7 @@ const FollowingItem = memo(function FollowingItem({
                 </Text>
             </View>
         </View>
-        {isFollowing?<Text>You</Text>:<Button
+        {isFollowing ? <Text>You</Text> : <Button
             textStyle={{
                 fontSize: 14,
             }}

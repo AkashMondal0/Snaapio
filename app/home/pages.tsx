@@ -1,9 +1,11 @@
 import { RootState } from "@/redux-stores/store";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useSelector } from "react-redux";
-import { ProfileScreen, TabFollowingAndFollowers } from '../profile';
+import { ProfileScreen } from '../profile';
 import { NotificationScreen } from "../screens";
 import { CommentScreen, LikeScreen, PostScreen } from "../post";
+import FollowersScreen from "../profile/followers";
+import FollowingScreen from "../profile/following";
 
 const Stack = createNativeStackNavigator();
 
@@ -28,7 +30,8 @@ function Pages({
             }}>
             <Stack.Screen name={mainRouteName} component={ScreenComponent} />
             <Stack.Screen name={"profile"} component={ProfileScreen} />
-            <Stack.Screen name="profile/followersAndFollowing" component={TabFollowingAndFollowers} />
+            <Stack.Screen name="profile/followers" component={FollowersScreen} />
+            <Stack.Screen name="profile/following" component={FollowingScreen} />
             <Stack.Screen name="notification" component={NotificationScreen} />
             {/* post */}
             <Stack.Screen name="post" component={PostScreen} />

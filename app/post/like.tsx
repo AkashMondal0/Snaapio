@@ -1,13 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { memo, useCallback, useEffect, useRef } from "react";
+import React, { memo, useCallback, useEffect, useRef } from "react";
 import AppHeader from "@/components/AppHeader";
 import { Avatar, Loader, Text, TouchableOpacity } from "@/components/skysolo-ui";
 import { resetLike } from "@/redux-stores/slice/post";
 import { fetchPostLikesApi } from "@/redux-stores/slice/post/api.service";
 import { RootState } from "@/redux-stores/store";
 import { AuthorData, Comment, disPatchResponse, NavigationProps, Post } from "@/types";
-import { FlashList } from "@shopify/flash-list";
-import { View } from "react-native";
+import { FlatList, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import ErrorScreen from "@/components/error/page";
 import ListEmpty from "@/components/ListEmpty";
@@ -75,11 +74,13 @@ const LikeScreen = memo(function LikeScreen({ navigation, route }: ScreenProps) 
             height: '100%',
         }}>
             <AppHeader title="Likes" navigation={navigation} />
-            <FlashList
+            <FlatList
+                removeClippedSubviews={true}
+                scrollEventThrottle={16}
+                windowSize={10}
                 data={likes}
                 renderItem={({ item }) => (<LikeItem data={item} />)}
                 keyExtractor={(item, index) => index.toString()}
-                estimatedItemSize={100}
                 bounces={false}
                 onEndReachedThreshold={0.5}
                 onEndReached={onEndReached}
