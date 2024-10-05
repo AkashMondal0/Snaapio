@@ -10,7 +10,6 @@ import { fetchConversationsApi } from '@/redux-stores/slice/conversation/api.ser
 import { resetConversationState, setConversation } from '@/redux-stores/slice/conversation';
 import debounce from '@/lib/debouncing';
 import searchText from '@/lib/TextSearch';
-import { ListEmptyComponent } from '@/components/home';
 import ErrorScreen from '@/components/error/page';
 import { ConversationDetailsSheet, ConversationItem, ListHeader } from '@/components/message';
 import ListEmpty from '@/components/ListEmpty';

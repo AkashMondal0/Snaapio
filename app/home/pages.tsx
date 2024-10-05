@@ -4,8 +4,6 @@ import { useSelector } from "react-redux";
 import { ProfileScreen, TabFollowingAndFollowers } from '../profile';
 import { NotificationScreen } from "../screens";
 import { CommentScreen, LikeScreen, PostScreen } from "../post";
-import FollowersScreen from "../profile/followers";
-import FollowingScreen from "../profile/following";
 
 const Stack = createNativeStackNavigator();
 
