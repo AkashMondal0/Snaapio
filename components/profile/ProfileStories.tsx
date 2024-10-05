@@ -1,10 +1,9 @@
-import { memo, useCallback, useRef } from "react";
+import { memo, useCallback } from "react";
 import { FlatList, TouchableOpacity, View } from "react-native";
 import { Avatar, Text } from "@/components/skysolo-ui"
 import { NavigationProps, User } from "@/types";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
-let totalFetchedItemCount = 0
 
 const ProfileStories = ({
     navigation, userData, isProfile
@@ -13,28 +12,6 @@ const ProfileStories = ({
     userData?: User
     isProfile?: boolean
 }) => {
-    const stopRef = useRef(false)
-    const getStoriesApi = useCallback(async (reset?: boolean) => {
-        if (stopRef.current || totalFetchedItemCount === -1) return
-        try {
-            // const res = await dispatch(fetchAccountFeedApi({
-            //     limit: 12,
-            //     offset: reset ? 0 : totalFetchedItemCount
-            // }) as any) as disPatchResponse<Post[]>
-
-            // if (res.payload.length > 0) {
-            //     // if less than 12 items fetched, stop fetching
-            //     if (res.payload.length < 12) {
-            //         return totalFetchedItemCount = -1
-            //     }
-            //     // if more than 12 items fetched, continue fetching
-            //     totalFetchedItemCount += res.payload.length
-            // }
-        } finally {
-            stopRef.current = false
-        }
-    }, [])
-
     const onPress = useCallback((item: any) => {
     }, [])
 
@@ -71,9 +48,8 @@ const StoriesItem = memo(function StoriesItem({
         style={{
             alignItems: 'center',
             justifyContent: 'center',
-            width: 110,
+            width: 100,
             height: 110,
-            aspectRatio: 1,
         }}>
         <Avatar url={session?.profilePicture} size={80} />
         <Text variant="heading4" colorVariant="secondary" style={{ padding: 4 }} numberOfLines={1}>

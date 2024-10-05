@@ -89,37 +89,37 @@ export const profileSlice = createSlice({
     extraReducers: (builder) => {
         builder
             // find user profile
-            .addCase(fetchUserProfileDetailApi.pending, (state) => {
-                state.loading = true
-                state.error = null
-                state.state = null
-                state.postLoading = true
-                state.posts = []
-            })
-            .addCase(fetchUserProfileDetailApi.fulfilled, (state, action: PayloadAction<User>) => {
-                state.posts = []
-                state.state = action.payload
-                state.loading = false
-                state.error = null
-            })
-            .addCase(fetchUserProfileDetailApi.rejected, (state, action: PayloadAction<any>) => {
-                state.loading = false
-                state.error = action.payload?.message || "Something went wrong!"
-                state.state = null
-            })
+            // .addCase(fetchUserProfileDetailApi.pending, (state) => {
+            //     state.loading = true
+            //     state.error = null
+            //     state.state = null
+            //     state.postLoading = true
+            //     state.posts = []
+            // })
+            // .addCase(fetchUserProfileDetailApi.fulfilled, (state, action: PayloadAction<User>) => {
+            //     state.posts = []
+            //     state.state = action.payload
+            //     state.loading = false
+            //     state.error = null
+            // })
+            // .addCase(fetchUserProfileDetailApi.rejected, (state, action: PayloadAction<any>) => {
+            //     state.loading = false
+            //     state.error = action.payload?.message || "Something went wrong!"
+            //     state.state = null
+            // })
             // find user profile posts
-            .addCase(fetchUserProfilePostsApi.pending, (state) => {
-                state.postLoading = true
-                state.postError = null
-            })
-            .addCase(fetchUserProfilePostsApi.fulfilled, (state, action: PayloadAction<Post[]>) => {
-                state.posts.push(...action.payload)
-                state.postLoading = false
-            })
-            .addCase(fetchUserProfilePostsApi.rejected, (state, action) => {
-                state.postLoading = false
-                state.postError = action.error.message || null
-            })
+            // .addCase(fetchUserProfilePostsApi.pending, (state) => {
+            //     state.postLoading = true
+            //     state.postError = null
+            // })
+            // .addCase(fetchUserProfilePostsApi.fulfilled, (state, action: PayloadAction<Post[]>) => {
+            //     state.posts.push(...action.payload)
+            //     state.postLoading = false
+            // })
+            // .addCase(fetchUserProfilePostsApi.rejected, (state, action) => {
+            //     state.postLoading = false
+            //     state.postError = action.error.message || null
+            // })
             // find user profile following list
             .addCase(fetchUserProfileFollowingUserApi.pending, (state) => {
                 state.followingListLoading = "pending"

@@ -4,7 +4,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { QProfile } from "./profile.queries";
 
 export const fetchUserProfileDetailApi = createAsyncThunk(
-    'fetchProfileFeedApi/get',
+    'fetchUserProfileDetailApi/get',
     async (username: string, thunkApi) => {
         try {
             await new Promise(resolve => setTimeout(resolve, 400))
@@ -23,7 +23,7 @@ export const fetchUserProfileDetailApi = createAsyncThunk(
 );
 
 export const fetchUserProfilePostsApi = createAsyncThunk(
-    'fetchUserProfilePostApi/get',
+    'fetchUserProfilePostsApi/get',
     async (data: findDataInput, thunkApi) => {
         const { username, ...findAllPosts } = data
         findAllPosts.id = username

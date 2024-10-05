@@ -1,13 +1,12 @@
 import ErrorScreen from "@/components/error/page";
 import { ProfileHeader, ProfileNavbar } from "@/components/profile";
 import { Loader } from "@/components/skysolo-ui";
-import { useGraphqlQuery, useGraphqlQueryList } from "@/lib/useGraphqlQuery";
-import { QProfile } from "@/redux-stores/slice/profile/profile.queries";
+import { fetchUserProfileDetailApi, fetchUserProfilePostsApi } from "@/redux-stores/slice/profile/api.service";
 import { RootState } from "@/redux-stores/store";
-import { NavigationProps, Post, User } from "@/types";
-import React from "react";
-import { View, Image, FlatList } from "react-native";
-import { useSelector } from "react-redux";
+import { disPatchResponse, loadingType, NavigationProps, Post, User } from "@/types";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { View, Image, FlatList, ToastAndroid } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
 
 interface ScreenProps {
     navigation: NavigationProps;
@@ -15,43 +14,91 @@ interface ScreenProps {
         params: { username: string }
     }
 }
-const AccountScreen = ({ navigation, route }: ScreenProps) => {
+const ProfileScreen = ({ navigation, route }: ScreenProps) => {
     const session = useSelector((state: RootState) => state.AuthState.session.user)
-    const UserData = useGraphqlQuery<User>({
-        query: QProfile.findUserProfile,
-        variables: { username: session?.username },
-        initialFetch: session?.username ? true : false
-    });
-    const Posts = useGraphqlQueryList<Post[]>({
-        query: QProfile.findAllPosts,
-        variables: {
-            findAllPosts: {
-                id: UserData.data?.id,
-                limit: 120,
-                offset: 0,
-            }
-        },
-        initialFetch: UserData.data ? true : false,
-    });
-    const loading = Posts.loading === "idle" || Posts.loading === "pending"
+    const username = session?.username
+    const isProfile = session?.username === username
+    const [loading, setLoading] = useState<loadingType>('idle')
+    const [error, setError] = useState<string | null>(null)
+    const Posts = useRef<Post[]>([])
+    const UserData = useRef<User | null>(null)
+    const totalFetchedItemCount = useRef<number>(0)
+    const dispatch = useDispatch()
 
-    if (UserData.error) return <ErrorScreen />
+    const fetchPosts = useCallback(async () => {
+        if (loading === "pending" || totalFetchedItemCount.current === -1) return
+        setLoading("pending")
+        try {
+            const res = await dispatch(fetchUserProfilePostsApi({
+                username: UserData.current?.id,
+                offset: totalFetchedItemCount.current,
+                limit: 12
+            }) as any) as disPatchResponse<Post[]>
+            if (res.error) {
+                ToastAndroid.show("Post Not Found", ToastAndroid.LONG)
+                return
+            }
+            if (res.payload.length <= 0) {
+                totalFetchedItemCount.current = -1
+                return
+            }
+            Posts.current.push(...res.payload)
+            totalFetchedItemCount.current += res.payload.length
+        } finally {
+            setLoading("normal")
+        }
+    }, [loading])
+
+    const fetchUserData = useCallback(async () => {
+        if (UserData.current || !username) return
+        const res = await dispatch(fetchUserProfileDetailApi(username) as any) as disPatchResponse<User>
+        if (res.error) {
+            setError(res?.error?.message || "An error occurred")
+            setLoading("normal")
+            return
+        }
+        UserData.current = res.payload
+        fetchPosts()
+    }, [username])
+
+    const onEndReached = useCallback(() => {
+        if (totalFetchedItemCount.current < 10) return
+        fetchPosts()
+    }, [])
+
+    const onRefresh = useCallback(() => {
+        UserData.current = null
+        Posts.current = []
+        totalFetchedItemCount.current = 0
+        fetchUserData()
+    }, [])
+
+    useEffect(() => {
+        fetchUserData()
+    }, [])
+
+    if (error) return <ErrorScreen />
 
     return (
         <View style={{
             width: '100%',
             height: '100%',
         }}>
-            <ProfileNavbar navigation={navigation} isProfile username={session?.username || "No User"} />
+            <ProfileNavbar navigation={navigation}
+                isProfile={isProfile} username={username || "No User"} />
             <FlatList
-                data={Posts.data}
+                data={Posts.current}
                 keyExtractor={(item, index) => index.toString()}
                 numColumns={3}
                 bounces={false}
+                bouncesZoom={false}
+                alwaysBounceVertical={false}
                 refreshing={false}
                 onEndReachedThreshold={0.5}
                 removeClippedSubviews={true}
                 windowSize={10}
+                onEndReached={onEndReached}
+                onRefresh={onRefresh}
                 columnWrapperStyle={{
                     gap: 2,
                     paddingVertical: 1,
@@ -72,23 +119,23 @@ const AccountScreen = ({ navigation, route }: ScreenProps) => {
                             }} />
                     </View>
                 )}
-                ListHeaderComponent={UserData.data ? <>
+                ListHeaderComponent={UserData.current ? <>
                     <ProfileHeader
                         navigation={navigation}
-                        userData={UserData.data}
-                        isProfile />
+                        userData={UserData.current}
+                        isProfile={isProfile} />
                 </> : <></>}
-                ListFooterComponent={() => <>{loading ? <View style={{
+                ListFooterComponent={loading === "pending" || loading === "idle" ? <View style={{
                     width: '100%',
-                    height: 100,
+                    height: 50,
                     justifyContent: 'center',
                     alignItems: 'center',
                 }}>
                     <Loader size={40} />
-                </View> : <></>}</>}
+                </View> : <View style={{ height: totalFetchedItemCount.current === -1 ? 0 : 50 }} />}
             />
         </View>
     )
 }
 
-export default AccountScreen;
+export default ProfileScreen;
