@@ -1,7 +1,6 @@
-import { FlashList } from '@shopify/flash-list';
-import { memo, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { Conversation, Message, disPatchResponse } from '@/types';
-import { View } from 'react-native';
+import { FlatList, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
 import { Loader } from '@/components/skysolo-ui';
@@ -54,12 +53,14 @@ const MessageList = memo(function MessageList({
 
     const fetchMore = debounce(() => { loadMoreMessages(conversation.id) }, 1000)
 
-    return (<FlashList
+    return (<FlatList
         inverted
+        removeClippedSubviews={true}
+        windowSize={16}
         onEndReached={fetchMore}
         data={messages}
-        estimatedItemSize={100}
         bounces={false}
+        scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <MessageItem data={item} seenMessage={cMembers === item.seenBy?.length}

@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { FlashList } from '@shopify/flash-list';
 import React, { useCallback, useMemo, useRef, memo, useState, useEffect } from 'react';
-import { View, Vibration } from 'react-native';
+import { View, Vibration, FlatList } from 'react-native';
 import { Conversation, disPatchResponse } from '@/types';
 import { ActionSheet, Loader } from '@/components/skysolo-ui';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -11,7 +10,6 @@ import { fetchConversationsApi } from '@/redux-stores/slice/conversation/api.ser
 import { resetConversationState, setConversation } from '@/redux-stores/slice/conversation';
 import debounce from '@/lib/debouncing';
 import searchText from '@/lib/TextSearch';
-import { ListEmptyComponent } from '@/components/home';
 import ErrorScreen from '@/components/error/page';
 import { ConversationDetailsSheet, ConversationItem, ListHeader } from '@/components/message';
 import ListEmpty from '@/components/ListEmpty';
@@ -98,13 +96,17 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
         width: "100%",
         height: "100%",
     }}>
-        <FlashList
+        <FlatList
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode="on-drag"
-            renderItem={({ item }) => <ConversationItem data={item} onClick={pushToPage} onLongPress={handlePresentModalPress} />}
+            renderItem={({ item }) => <ConversationItem
+                data={item}
+                onClick={pushToPage}
+                onLongPress={handlePresentModalPress} />}
             keyExtractor={(item, index) => index.toString()}
-            estimatedItemSize={5}
             onEndReachedThreshold={0.5}
+            removeClippedSubviews={true}
+            windowSize={10}
             bounces={false}
             refreshing={false}
             onRefresh={onRefresh}

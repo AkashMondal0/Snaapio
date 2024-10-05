@@ -3,30 +3,27 @@ import { BottomTabBarProps, createBottomTabNavigator } from '@react-navigation/b
 import { Film, HomeIcon, PlusCircle, Search } from "lucide-react-native"
 import { TouchableOpacity, View } from 'react-native';
 import { RootState } from '@/redux-stores/store';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
+import { Avatar } from '@/components/skysolo-ui';
 // screens
 import FeedsScreen from "./feeds";
-import ProfileScreen from "./profile";
+import ProfileScreen from "./account";
 import ReelsScreen from "./reels";
 import SearchScreen from "./search";
 import CameraScreen from '../camera';
-import { changeTabSwiped } from '@/redux-stores/slice/theme';
-import { Avatar } from '@/components/skysolo-ui';
+import Pages from './pages';
 const Tab = createBottomTabNavigator();
 
 const HomeScreen = memo(function HomeScreen() {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme, (prev, next) => prev === next)
-    const session = useSelector((state: RootState) => state.AuthState.session.user)
-    // const tabSwiped = useSelector((state: RootState) => state.ThemeState.tabSwiped, (prev, next) => prev === next)
-    const dispatch = useDispatch()
-
+    const session = useSelector((state: RootState) => state.AuthState.session.user?.profilePicture, (prev, next) => prev === next)
 
     function MyTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 
         const getIcon = (routeName: string, isFocused: boolean) => {
-            let iconSize = isFocused ? 34 : 28;
+            let iconSize = isFocused ? 32 : 28;
             let iconColor = isFocused ? currentTheme?.primary : currentTheme?.foreground;
-            if (routeName === 'feeds') {
+            if (routeName === 'home') {
                 return <HomeIcon size={iconSize} color={iconColor} />
             }
             else if (routeName === 'search') {
@@ -38,13 +35,10 @@ const HomeScreen = memo(function HomeScreen() {
             else if (routeName === 'reels') {
                 return <Film size={iconSize} color={iconColor} />
             }
-            else if (routeName === 'profile') {
-                return <Avatar size={iconSize} url={session?.profilePicture}
-                    onPress={() => {
-                        navigation.navigate("profile", {
-                            screen: 'profile', params: { username: session?.username }
-                        })
-                    }} />
+            else if (routeName === 'account') {
+                return <Avatar size={iconSize} url={session} onPress={() => {
+                    navigation.navigate(routeName)
+                }} />
             }
         }
 
@@ -87,20 +81,7 @@ const HomeScreen = memo(function HomeScreen() {
                             accessibilityState={isFocused ? { selected: true } : {}}
                             accessibilityLabel={options.tabBarAccessibilityLabel}
                             testID={options.tabBarTestID}
-                            onPress={() => {
-                                if (route.name === "profile") {
-                                    navigation.navigate("profile", {
-                                        screen: 'profile', params: { username: session?.username }
-                                    })
-                                }
-                                // else if (route.name === "create") {
-                                //     if (!tabSwiped) dispatch(changeTabSwiped(true))
-                                //     navigation.navigate("Root", { screen: 'camera' })
-                                // }
-                                else {
-                                    onPress()
-                                }
-                            }}
+                            onPress={onPress}
                             onLongPress={onLongPress}
                             style={{ flex: 1, alignItems: 'center' }}>
                             {getIcon(route.name, isFocused)}
@@ -116,19 +97,11 @@ const HomeScreen = memo(function HomeScreen() {
     }
 
     return (
-        <View style={{ flex: 1 }}>
+        <View style={{
+            flex: 1,
+            backgroundColor: currentTheme?.background
+        }}>
             <Tab.Navigator
-                // screenListeners={() => ({
-                //     state: (e: any) => {
-                //         if (e.data.state.index === 0) {
-                //             if (tabSwiped) return
-                //             dispatch(changeTabSwiped(true))
-                //         } else {
-                //             if (!tabSwiped) return
-                //             dispatch(changeTabSwiped(false))
-                //         }
-                //     },
-                // })}
                 sceneContainerStyle={{
                     backgroundColor: currentTheme?.background
                 }}
@@ -137,11 +110,11 @@ const HomeScreen = memo(function HomeScreen() {
                     headerShown: false,
                 }}
                 tabBar={MyTabBar}>
-                <Tab.Screen name="feeds" component={FeedsScreen} />
-                <Tab.Screen name="search" component={SearchScreen} />
+                <Tab.Screen name="home" component={HomeTab} />
+                <Tab.Screen name="search" component={SearchTab} />
                 <Tab.Screen name="create" component={CameraScreen} />
                 <Tab.Screen name="reels" component={ReelsScreen} />
-                <Tab.Screen name="profile" component={ProfileScreen} />
+                <Tab.Screen name="account" component={AccountTab} />
             </Tab.Navigator>
         </View>
     )
@@ -149,4 +122,20 @@ const HomeScreen = memo(function HomeScreen() {
 
 export default HomeScreen
 
+function HomeTab() {
+    return (
+        <Pages mainRouteName="feeds-index" ScreenComponent={FeedsScreen} />
+    )
+}
 
+function SearchTab() {
+    return (
+        <Pages mainRouteName="Search-index" ScreenComponent={SearchScreen} />
+    )
+}
+
+function AccountTab() {
+    return (
+        <Pages mainRouteName="Profile-index" ScreenComponent={ProfileScreen} />
+    )
+}

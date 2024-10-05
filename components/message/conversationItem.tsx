@@ -19,17 +19,18 @@ const ConversationItem = memo(function ConversationItem({
     const currentTheme = useSelector((Root: RootState) => Root.ThemeState.currentTheme)
 
 
-    return (<View style={{ padding: 4 }}>
+    return (<View style={{ paddingHorizontal: 4 }}>
         <TouchableOpacity
             onPress={() => { onClick(data) }}
             style={{
                 width: "100%",
-                padding: 10,
+                height: 75,
+                paddingHorizontal: 10,
                 display: 'flex',
                 flexDirection: "row",
                 alignItems: "center",
                 gap: 10,
-                borderRadius: 15
+                borderRadius: 15,
             }}>
             <Avatar size={55} url={data.user?.profilePicture} onLongPress={() => { onLongPress(data) }} />
             <View style={{

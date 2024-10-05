@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { AnimatedFlashList } from '@shopify/flash-list';
 import { fetchAccountFeedApi } from "@/redux-stores/slice/account/api.service";
 import { RootState } from "@/redux-stores/store";
 import { NavigationProps, Post, disPatchResponse } from "@/types";
@@ -64,7 +63,7 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: Navi
     }, [])
 
     const onNavigate = useCallback((path: string, options?: { params?: any }) => {
-        navigation.navigate(path, options);
+        navigation.push(path, options);
     }, [])
 
     return (
@@ -73,14 +72,15 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: Navi
             height: "100%",
         }}>
             <HomeHeader navigation={navigation} translateY={translateY} />
-            <AnimatedFlashList
+            <Animated.FlatList
                 ListHeaderComponent={ProfileStories}
                 contentContainerStyle={{ paddingTop: 60 }}
                 scrollEventThrottle={16}
+                removeClippedSubviews={true}
+                windowSize={12}
                 data={feedList}
                 renderItem={({ item }) => <FeedItem data={item} onNavigate={onNavigate} />}
                 keyExtractor={(item, index) => index.toString()}
-                estimatedItemSize={100}
                 onEndReached={onEndReached}
                 onEndReachedThreshold={0.5}
                 bounces={false}
@@ -93,7 +93,7 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: Navi
                     if (!feedsError && feedListLoading === "normal") return <ListEmpty text="No feeds available" />
                 }}
                 ListFooterComponent={() => feedListLoading === "pending" ? <Loader size={40} /> : <></>}
-                removeClippedSubviews={true} />
+            />
         </View>
     )
 })

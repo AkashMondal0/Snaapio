@@ -1,11 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { memo, useCallback, useEffect, useRef } from "react";
+import React, { memo, useCallback, useEffect, useRef } from "react";
 import AppHeader from "@/components/AppHeader";
 import { Avatar, Loader, Text, TouchableOpacity } from "@/components/skysolo-ui";
 import { RootState } from "@/redux-stores/store";
-import { Notification, disPatchResponse, NavigationProps, Post, NotificationType } from "@/types";
-import { FlashList } from "@shopify/flash-list";
-import { ToastAndroid, View } from "react-native";
+import { Notification, disPatchResponse, NavigationProps, NotificationType } from "@/types";
+import { FlatList, ToastAndroid, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAccountNotificationApi } from "@/redux-stores/slice/notification/api.service";
 import { resetNotificationState } from "@/redux-stores/slice/notification";
@@ -59,18 +58,19 @@ const NotificationScreen = memo(function NotificationScreen({ navigation }: { na
             height: '100%',
         }}>
             <AppHeader title="Notifications" navigation={navigation} />
-            <FlashList
+            <FlatList
                 data={notifications}
                 renderItem={({ item }) => (<NotificationItem data={item}
                     navigation={navigation}
                 />)}
                 keyExtractor={(item, index) => index.toString()}
-                estimatedItemSize={100}
+                removeClippedSubviews={true}
+                scrollEventThrottle={16}
+                windowSize={10}
                 bounces={false}
                 onEndReachedThreshold={0.5}
                 onEndReached={onEndReached}
                 refreshing={false}
-                scrollEventThrottle={16}
                 onRefresh={onRefresh}
                 ListEmptyComponent={() => {
                     if (notificationsLoading === "idle") return <View />

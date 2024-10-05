@@ -30,7 +30,7 @@ const ChatScreenInput = memo(function ChatScreenInput({
         return conversation.members?.filter((i) => i !== session?.id) ?? []
     }, [conversation.members, session?.id])
 
-    const { control, reset, handleSubmit, formState: { errors } } = useForm({
+    const { control, reset, handleSubmit } = useForm({
         resolver: zodResolver(schema),
         defaultValues: {
             message: "",

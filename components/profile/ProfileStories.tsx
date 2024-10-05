@@ -1,11 +1,9 @@
-import { memo, useCallback, useRef } from "react";
-import { TouchableOpacity, View } from "react-native";
+import { memo, useCallback } from "react";
+import { FlatList, TouchableOpacity, View } from "react-native";
 import { Avatar, Text } from "@/components/skysolo-ui"
 import { NavigationProps, User } from "@/types";
-import { FlashList } from "@shopify/flash-list";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
-let totalFetchedItemCount = 0
 
 const ProfileStories = ({
     navigation, userData, isProfile
@@ -14,42 +12,20 @@ const ProfileStories = ({
     userData?: User
     isProfile?: boolean
 }) => {
-
-    const stopRef = useRef(false)
-    // const dispatch = useDispatch()
-    const getStoriesApi = useCallback(async (reset?: boolean) => {
-        if (stopRef.current || totalFetchedItemCount === -1) return
-        try {
-            // const res = await dispatch(fetchAccountFeedApi({
-            //     limit: 12,
-            //     offset: reset ? 0 : totalFetchedItemCount
-            // }) as any) as disPatchResponse<Post[]>
-
-            // if (res.payload.length > 0) {
-            //     // if less than 12 items fetched, stop fetching
-            //     if (res.payload.length < 12) {
-            //         return totalFetchedItemCount = -1
-            //     }
-            //     // if more than 12 items fetched, continue fetching
-            //     totalFetchedItemCount += res.payload.length
-            // }
-        } finally {
-            stopRef.current = false
-        }
-    }, [])
-
     const onPress = useCallback((item: any) => {
-        // navigation.navigate('Story', { story: item })
     }, [])
 
     return (
-        <View style={{ marginVertical: 16 }}>
-            <FlashList
-                data={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
+        <View style={{
+            width: '100%',
+            paddingTop: 8,
+        }}>
+            <FlatList
+                data={Array(100).fill(0)}
                 renderItem={({ item }) => <StoriesItem data={item} onPress={onPress} />}
                 keyExtractor={(item, index) => index.toString()}
-                estimatedItemSize={50}
                 horizontal
+                scrollEventThrottle={16}
                 ListHeaderComponent={<View style={{ width: 6 }} />}
                 ListFooterComponent={<View style={{ width: 6 }} />}
                 showsHorizontalScrollIndicator={false} />
@@ -68,17 +44,16 @@ const StoriesItem = memo(function StoriesItem({
     const session = useSelector((state: RootState) => state.AuthState.session.user)
 
     return (<TouchableOpacity
-        activeOpacity={0.8}
+        activeOpacity={0.9}
         style={{
             alignItems: 'center',
             justifyContent: 'center',
-            width: 82,
+            width: 100,
+            height: 110,
         }}>
-        <Avatar url={session?.profilePicture} size={70} />
-        <Text variant="heading4" colorVariant="secondary"
-            style={{ paddingHorizontal: 4, marginTop: 4 }}
-            numberOfLines={1}>
+        <Avatar url={session?.profilePicture} size={80} />
+        <Text variant="heading4" colorVariant="secondary" style={{ padding: 4 }} numberOfLines={1}>
             {session?.username}
         </Text>
     </TouchableOpacity>)
-})
+}, () => true)

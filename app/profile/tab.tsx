@@ -19,9 +19,15 @@ interface ScreenProps {
     }
 }
 
-
 const TabFollowingAndFollowers = memo(function TabFollowingAndFollowers({ navigation, route }: ScreenProps) {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+
+    const FollowersTab = () => {
+        return <FollowersScreen navigation={navigation} username={route?.params?.params?.username} />
+    }
+    const FollowingTab = () => {
+        return <FollowingScreen navigation={navigation} username={route?.params?.params?.username} />
+    }
     return (
         <View style={{
             flex: 1,
@@ -62,8 +68,8 @@ const TabFollowingAndFollowers = memo(function TabFollowingAndFollowers({ naviga
                         {children}
                     </Text>
                 }}>
-                <Tab.Screen name="followers" component={FollowersScreen} />
-                <Tab.Screen name="following" component={FollowingScreen} />
+                <Tab.Screen name="followers" component={FollowersTab} />
+                <Tab.Screen name="following" component={FollowingTab} />
             </Tab.Navigator>
         </View>
     )

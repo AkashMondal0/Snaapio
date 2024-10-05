@@ -1,3 +1,4 @@
+import React from "react";
 import AppHeader from "@/components/AppHeader";
 import { ListEmptyComponent } from "@/components/home";
 import { Avatar, Input, Loader, TouchableOpacity, Text } from "@/components/skysolo-ui";
@@ -7,9 +8,8 @@ import { CreateConversationApi } from "@/redux-stores/slice/conversation/api.ser
 import { searchUsersProfileApi } from "@/redux-stores/slice/users/api.service";
 import { RootState } from "@/redux-stores/store";
 import { AuthorData, Conversation, disPatchResponse, NavigationProps } from "@/types";
-import { FlashList } from "@shopify/flash-list";
 import { memo, useCallback, useRef } from "react";
-import { ToastAndroid, View } from "react-native";
+import { FlatList, ToastAndroid, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 
 const NewChatScreen = memo(function NewChatScreen({
@@ -74,14 +74,16 @@ const NewChatScreen = memo(function NewChatScreen({
                     }} />
             </View>
             {/* list */}
-            <FlashList
+            <FlatList
                 keyboardShouldPersistTaps="handled"
                 keyboardDismissMode="on-drag"
                 data={users}
                 renderItem={({ item }) => <UserItem data={item}
                     onPress={onNavigate} />}
                 keyExtractor={(item, index) => index.toString()}
-                estimatedItemSize={100}
+                removeClippedSubviews={true}
+                scrollEventThrottle={16}
+                windowSize={10}
                 bounces={false}
                 ListFooterComponent={() => <>{loading ? <Loader size={50} /> : <></>}</>}
                 ListEmptyComponent={!loading ? <ListEmptyComponent text="No User yet" /> : <></>} />
