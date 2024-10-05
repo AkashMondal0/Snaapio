@@ -1,75 +1,71 @@
-import React from "react";
-import { FlatList, ToastAndroid, View } from "react-native";
+import { fetchUserProfileFollowingUserApi } from "@/redux-stores/slice/profile/api.service";
+import React, { useState } from "react";
+import { FlatList, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { Avatar, Button, Loader, Text, TouchableOpacity } from "@/components/skysolo-ui";
-import { fetchUserProfileFollowingUserApi } from "@/redux-stores/slice/profile/api.service";
 import { RootState } from "@/redux-stores/store";
-import { AuthorData, disPatchResponse, NavigationProps } from "@/types";
+import { AuthorData, disPatchResponse, loadingType, NavigationProps } from "@/types";
 import { memo, useCallback, useEffect, useRef } from "react";
-import { resetProfileFollowing } from "@/redux-stores/slice/profile";
 import ErrorScreen from "@/components/error/page";
 import ListEmpty from "@/components/ListEmpty";
 interface ScreenProps {
     navigation: NavigationProps;
-    route: {
-        params: {
-            username: string
-        }
-    }
+    username: string
 }
-let totalFetchedItemCount = 0
-let profileId = "NO_ID"
 
-const FollowingScreen = memo(function FollowingScreen({ navigation, route }: ScreenProps) {
-    // console.log(route?.params?.username)
-
-    const username = useSelector((Root: RootState) => Root.ProfileState.state?.username)
-    const session = useSelector((Root: RootState) => Root.AuthState.session.user)
-    const followingList = useSelector((Root: RootState) => Root.ProfileState.followingList)
-    const listLoading = useSelector((Root: RootState) => Root.ProfileState.followingListLoading)
-    const listError = useSelector((Root: RootState) => Root.ProfileState.followingListError)
-    const stopRef = useRef(false)
+const FollowingScreen = memo(function FollowingScreen({ navigation, username }: ScreenProps) {
+    const session = useSelector((state: RootState) => state.AuthState.session.user)
+    const [loading, setLoading] = useState<loadingType>('idle')
+    const [error, setError] = useState<string | null>(null)
+    const users = useRef<AuthorData[]>([])
+    const totalFetchedItemCount = useRef(0)
     const dispatch = useDispatch()
-    const onPress = (item: AuthorData) => {
-        // navigation.navigate('Profile', { username: item.username })
-    }
-    // v1 fetch ---------------------
-    const fetchApi = useCallback(async () => {
-        if (!username) return ToastAndroid.show("User not found", ToastAndroid.SHORT)
-        if (stopRef.current || totalFetchedItemCount === -1) return
-        stopRef.current = true
+
+    const fetchData = useCallback(async () => {
+        if (loading === "pending" || totalFetchedItemCount.current === -1) return
+        setLoading("pending")
         try {
             const res = await dispatch(fetchUserProfileFollowingUserApi({
                 username: username,
-                offset: totalFetchedItemCount,
-                limit: 10
+                offset: totalFetchedItemCount.current,
+                limit: 12
             }) as any) as disPatchResponse<AuthorData[]>
-            if (res.payload.length >= 12) {
-                totalFetchedItemCount += res.payload.length
+            if (res.error) {
+                setError(res?.error?.message || "An error occurred")
                 return
             }
-            totalFetchedItemCount = -1
-        } finally { stopRef.current = false }
-    }, [username])
-
-    useEffect(() => {
-        if (profileId !== username) {
-            profileId = username || "NO_ID"
-            totalFetchedItemCount = 0
-            dispatch(resetProfileFollowing())
-            fetchApi()
+            if (res.payload.length <= 0) {
+                totalFetchedItemCount.current = -1
+                return
+            }
+            users.current.push(...res.payload)
+            totalFetchedItemCount.current += res.payload.length
+        } finally {
+            setLoading("normal")
         }
-    }, [username])
+    }, [loading])
 
     const onEndReached = useCallback(() => {
-        if (stopRef.current || totalFetchedItemCount < 10) return
-        fetchApi()
-    }, [])
+        if (totalFetchedItemCount.current < 10 || loading === "pending" || loading === "idle") return
+        fetchData()
+    }, [loading])
 
     const onRefresh = useCallback(() => {
-        totalFetchedItemCount = 0
-        dispatch(resetProfileFollowing())
-        fetchApi()
+        if (loading === "pending" || loading === "idle") return
+        setLoading("pending")
+        users.current = []
+        totalFetchedItemCount.current = 0
+        fetchData()
+    }, [loading])
+
+    const navigationHandler = useCallback((uname: string) => {
+        navigation.navigate('profile', { username: uname })
+    }, [])
+
+    useEffect(() => {
+        users.current = []
+        totalFetchedItemCount.current = 0
+        fetchData()
     }, [])
 
     return (
@@ -79,25 +75,25 @@ const FollowingScreen = memo(function FollowingScreen({ navigation, route }: Scr
             height: '100%',
         }}>
             <FlatList
-                data={followingList}
-                renderItem={({ item }) => (<FollowingItem data={item}
-                    isFollowing={session?.username === item.username}
-                    onPress={onPress} />)}
-                keyExtractor={(item, index) => index.toString()}
                 removeClippedSubviews={true}
                 scrollEventThrottle={16}
                 windowSize={10}
+                data={users.current}
+                renderItem={({ item }) => (<FollowingItem data={item}
+                    isFollowing={session?.username === item.username}
+                    onPress={navigationHandler} />)}
+                keyExtractor={(item, index) => index.toString()}
                 bounces={false}
                 onEndReachedThreshold={0.5}
                 onEndReached={onEndReached}
                 refreshing={false}
                 onRefresh={onRefresh}
                 ListEmptyComponent={() => {
-                    if (listLoading === "idle") return <View />
-                    if (listError) return <ErrorScreen message={listError} />
-                    if (!listError && listLoading === "normal") return <ListEmpty text="No following yet" />
+                    if (loading === "idle") return <View />
+                    if (error) return <ErrorScreen message={error} />
+                    if (!error && loading === "normal") return <ListEmpty text="No following yet" />
                 }}
-                ListFooterComponent={listLoading === "pending" ? <Loader size={50} /> : <></>}
+                ListFooterComponent={loading === "pending" ? <Loader size={50} /> : <></>}
             />
         </View>
     )
@@ -111,9 +107,11 @@ const FollowingItem = memo(function FollowingItem({
 }: {
     data: AuthorData,
     isFollowing: boolean,
-    onPress: (item: AuthorData) => void
+    onPress: (uname: string) => void
 }) {
-    return (<TouchableOpacity style={{
+    return (<TouchableOpacity 
+        onPress={() => onPress(data.username)}
+        style={{
         flexDirection: 'row',
         padding: 12,
         alignItems: 'center',
@@ -128,7 +126,7 @@ const FollowingItem = memo(function FollowingItem({
             gap: 10,
             alignItems: 'center',
         }}>
-            <Avatar url={data.profilePicture} size={50} onPress={() => onPress(data)} />
+            <Avatar url={data.profilePicture} size={60} onPress={() => onPress(data.username)} />
             <View>
                 <View style={{
                     display: 'flex',

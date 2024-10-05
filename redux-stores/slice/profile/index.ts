@@ -121,31 +121,31 @@ export const profileSlice = createSlice({
             //     state.postError = action.error.message || null
             // })
             // find user profile following list
-            .addCase(fetchUserProfileFollowingUserApi.pending, (state) => {
-                state.followingListLoading = "pending"
-                state.followingListError = null
-            })
-            .addCase(fetchUserProfileFollowingUserApi.fulfilled, (state, action: PayloadAction<AuthorData[]>) => {
-                state.followingList = action.payload
-                state.followingListLoading = "normal"
-            })
-            .addCase(fetchUserProfileFollowingUserApi.rejected, (state, action) => {
-                state.followingListLoading = "normal"
-                state.followingListError = action.error.message || null
-            })
+            // .addCase(fetchUserProfileFollowingUserApi.pending, (state) => {
+            //     state.followingListLoading = "pending"
+            //     state.followingListError = null
+            // })
+            // .addCase(fetchUserProfileFollowingUserApi.fulfilled, (state, action: PayloadAction<AuthorData[]>) => {
+            //     state.followingList = action.payload
+            //     state.followingListLoading = "normal"
+            // })
+            // .addCase(fetchUserProfileFollowingUserApi.rejected, (state, action) => {
+            //     state.followingListLoading = "normal"
+            //     state.followingListError = action.error.message || null
+            // })
             // find user profile follower list
-            .addCase(fetchUserProfileFollowerUserApi.pending, (state) => {
-                state.followerListLoading = "pending"
-                state.followerListError = null
-            })
-            .addCase(fetchUserProfileFollowerUserApi.fulfilled, (state, action: PayloadAction<AuthorData[]>) => {
-                state.followerList = action.payload
-                state.followerListLoading = "normal"
-            })
-            .addCase(fetchUserProfileFollowerUserApi.rejected, (state, action) => {
-                state.followerListLoading = "normal"
-                state.followerListError = action.error.message || null
-            })
+            // .addCase(fetchUserProfileFollowerUserApi.pending, (state) => {
+            //     state.followerListLoading = "pending"
+            //     state.followerListError = null
+            // })
+            // .addCase(fetchUserProfileFollowerUserApi.fulfilled, (state, action: PayloadAction<AuthorData[]>) => {
+            //     state.followerList = action.payload
+            //     state.followerListLoading = "normal"
+            // })
+            // .addCase(fetchUserProfileFollowerUserApi.rejected, (state, action) => {
+            //     state.followerListLoading = "normal"
+            //     state.followerListError = action.error.message || null
+            // })
     },
 })
 

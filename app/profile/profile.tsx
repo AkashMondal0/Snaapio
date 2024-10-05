@@ -62,16 +62,18 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
     }, [username])
 
     const onEndReached = useCallback(() => {
-        if (totalFetchedItemCount.current < 10) return
+        if (totalFetchedItemCount.current < 10 || loading === "pending" || loading === "idle") return
         fetchPosts()
-    }, [])
+    }, [loading])
 
     const onRefresh = useCallback(() => {
+        if (loading === "pending" || loading === "idle") return
+        setLoading("pending")
         UserData.current = null
         Posts.current = []
         totalFetchedItemCount.current = 0
         fetchUserData()
-    }, [])
+    }, [loading])
 
     useEffect(() => {
         fetchUserData()
