@@ -23,7 +23,7 @@ const ErrorScreen = ({
 
     function displayErrorMessage(ErrorType: ErrorType | string) {
         let title, description;
-        let errorTypeUpper = ErrorType.toUpperCase();
+        let errorTypeUpper = typeof ErrorType === "string" ? ErrorType.toUpperCase() : ErrorType
 
         if (errorTypeUpper === "GENERAL_SERVER_ERROR") {
             title = "Oops! Something went wrong.";
