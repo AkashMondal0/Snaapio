@@ -1,4 +1,5 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+import { memo, useCallback, useContext, useRef, useState } from 'react';
+import { ToastAndroid, TouchableOpacity, View } from 'react-native';
 import { Avatar, Text, Image, Icon } from '@/components/skysolo-ui';
 import { SocketContext } from '@/provider/SocketConnections';
 import { createNotificationApi, destroyNotificationApi } from '@/redux-stores/slice/notification/api.service';
@@ -6,10 +7,9 @@ import { createPostLikeApi, destroyPostLikeApi } from '@/redux-stores/slice/post
 import { RootState } from '@/redux-stores/store';
 import { disPatchResponse, NotificationType, Post } from '@/types';
 import { Heart } from 'lucide-react-native';
-import { memo, useCallback, useContext, useRef, useState } from 'react';
-import { ToastAndroid, TouchableOpacity, View } from 'react-native';
 import PagerView from 'react-native-pager-view';
 import { useDispatch, useSelector } from 'react-redux';
+import useDebounce from '@/lib/debouncing';
 
 const FeedItem = memo(function FeedItem({
     data,
@@ -33,7 +33,7 @@ const FeedItem = memo(function FeedItem({
         paddingVertical: 14,
     }}>
         <View style={{
-            marginHorizontal: "3%",
+            marginHorizontal: "2%",
             paddingVertical: 10,
             display: 'flex',
             flexDirection: "row",
@@ -71,12 +71,13 @@ const FeedItem = memo(function FeedItem({
                     alignItems: 'center',
                 }} key={index}>
                     <Image
+                        // blurRadius={10}
                         isBorder
                         url={mediaUrl}
                         style={{
-                            width: "96%",
+                            width: "100%",
                             flex: 1,
-                            borderRadius: 20
+                            borderRadius: 0
                         }} />
                 </View>
             ))}
@@ -84,11 +85,10 @@ const FeedItem = memo(function FeedItem({
         {/* action */}
         <View>
             <FeedItemActionsButtons post={data} onPress={navigateToPost} />
-            <View style={{
-                marginHorizontal: "3%",
-            }}>
+            <View>
                 {data?.content ? <Text variant="heading4" style={{
-                    fontWeight: "600"
+                    fontWeight: "600",
+                    marginHorizontal: "2%",
                 }}>{data?.content}</Text> : <View />}
             </View>
             <View>
@@ -96,7 +96,7 @@ const FeedItem = memo(function FeedItem({
                     <Text variant="heading4"
                         colorVariant="secondary"
                         style={{
-                            marginHorizontal: "3%",
+                            marginHorizontal: "2%",
                             fontWeight: "400",
                             paddingVertical: 5
                         }}>
@@ -140,10 +140,6 @@ const FeedItemActionsButtons = (
             if (!res) {
                 return ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
             }
-            setLike({
-                isLike: true,
-                likeCount: like.likeCount + 1
-            })
             if (post.user.id === session.id) return
             const notificationRes = await dispatch(createNotificationApi({
                 postId: post.id,
@@ -167,7 +163,7 @@ const FeedItemActionsButtons = (
         } finally {
             loading.current = false
         }
-    }, [like.likeCount, post.id, session?.id])
+    }, [post.fileUrl, post.id, post.user.id, session])
 
     const disLikeHandle = useCallback(async () => {
         if (loading.current) return
@@ -178,10 +174,6 @@ const FeedItemActionsButtons = (
             if (!res) {
                 return ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
             }
-            setLike({
-                isLike: false,
-                likeCount: like.likeCount - 1
-            })
             if (post.user.id === session.id) return
             await dispatch(destroyNotificationApi({
                 postId: post.id,
@@ -194,15 +186,33 @@ const FeedItemActionsButtons = (
         } finally {
             loading.current = false
         }
-    }, [like.likeCount, post.id, session?.id])
+    }, [post.id, post.user.id, session])
 
-    const onLike = useCallback(() => {
+
+    const delayLike = useCallback(() => {
         if (like.isLike) {
             disLikeHandle()
         } else {
             likeHandle()
         }
     }, [like.isLike])
+
+    const debounceLike = useDebounce(delayLike, 500)
+
+    const onLike = useCallback(() => {
+        if (like.isLike) {
+            setLike({
+                isLike: false,
+                likeCount: like.likeCount - 1
+            })
+        } else {
+            setLike({
+                isLike: true,
+                likeCount: like.likeCount + 1
+            })
+        }
+        debounceLike()
+    }, [like.isLike, like.likeCount])
 
     const AData = [
         {
@@ -223,7 +233,7 @@ const FeedItemActionsButtons = (
             display: 'flex',
             flexDirection: "row",
             justifyContent: "space-between",
-            marginHorizontal: "3%",
+            marginHorizontal: "2%",
             paddingTop: 10,
             gap: 10
         }}>
