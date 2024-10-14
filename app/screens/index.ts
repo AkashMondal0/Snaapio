@@ -1,4 +1,4 @@
-import NotificationScreen from "./notificationScreen";
+import NotificationScreen from "./notification";
 
 export {
     NotificationScreen

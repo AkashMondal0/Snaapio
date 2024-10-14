@@ -7,6 +7,7 @@ import PostReducer from './slice/post'
 import ProfileReducer from './slice/profile'
 import UsersReducer from './slice/users'
 import NotificationReducer from './slice/notification'
+import DialogsReducer from './slice/dialog'
 
 export const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ export const store = configureStore({
     ProfileState: ProfileReducer,
     UsersState: UsersReducer,
     NotificationState: NotificationReducer,
+    DialogsState: DialogsReducer
   },
 })
 

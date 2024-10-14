@@ -1,12 +1,7 @@
 import { Text, Button } from '@/components/skysolo-ui'
-import React, { useRef, useEffect } from 'react'
-import { View } from 'react-native'
-import LottieView from 'lottie-react-native';
+import React from 'react'
+import { View,Image } from 'react-native'
 export default function InitialScreen({ navigation }: any) {
-    const animation = useRef<LottieView>(null);
-    useEffect(() => {
-        animation.current?.play();
-    }, []);
     return (
         <View style={{
             flex: 1,
@@ -27,15 +22,13 @@ export default function InitialScreen({ navigation }: any) {
                     }}>
                     Skylight
                 </Text>
-                <LottieView
-                    autoPlay
-                    ref={animation}
+                <Image
                     style={{
-                        width: 300,
-                        height: 300,
+                        width: 100,
+                        height: 100,
                         alignContent: "center",
                     }}
-                    source={require('../../assets/lottie/Animation - 1727195986028.json')}
+                    source={require('../../assets/icon.png')}
                 />
             </View>
             <Text style={{

@@ -10,7 +10,7 @@ import FeedsScreen from "./feeds";
 import ProfileScreen from "./account";
 import ReelsScreen from "./reels";
 import SearchScreen from "./search";
-import CameraScreen from '../camera';
+import CameraScreen from '../upload';
 import Pages from './pages';
 const Tab = createBottomTabNavigator();
 

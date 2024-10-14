@@ -1,61 +1,119 @@
-import React, { useState } from 'react';
-import { Button, Image, View } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
-import { decode } from 'base64-arraybuffer';
-import { supabase } from '@/configs/initSupabase';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { View, FlatList, Vibration, ToastAndroid } from 'react-native';
+import * as MediaLibrary from 'expo-media-library';
+import throttle from '@/lib/throttling';
+import AppPermissionDialog from '@/components/dialogs/app-permission';
+import PhotosPermissionRequester from '@/components/upload/no-permission';
+import ImageItem from '@/components/upload/image';
 
-export default function App() {
-    const [imageUri, setImageUri] = useState<any>(null);
 
-    const pickImage = async () => {
-        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (permissionResult.granted === false) {
-            alert('Permission to access media library is required!');
+export default function UploadScreen() {
+    const [permission, requestPermission] = MediaLibrary.usePermissions();
+    const [media, setMedia] = useState<MediaLibrary.Asset[]>([]);
+    const [totalCount, setTotalCount] = useState<number>(0);
+    const [selectedAssets, setSelectedAssets] = useState<MediaLibrary.Asset[]>([]);
+    const selectedCount = useRef(0);
+
+    const alertMessage = throttle(() => {
+        ToastAndroid.show("You can select up to 5 images", ToastAndroid.LONG);
+    }, 5000);
+
+    const getMediaPermission = useCallback(async () => {
+        if (!permission) return
+        const rePermission = await requestPermission();
+        if (!rePermission.granted) {
             return;
         }
+        return rePermission;
+    }, [permission]);
 
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            quality: 1,
+    const fetchMediaPagination = useCallback(async () => {
+        getMediaPermission()
+        const {
+            assets: mediaResult,
+            endCursor,
+            hasNextPage,
+            totalCount: totalMediaCount,
+        } = await MediaLibrary.getAssetsAsync({
+            mediaType: ['photo'],
+            first: 20,
+            sortBy: MediaLibrary.SortBy.default,
+            after: totalCount.toString(),
         });
 
-        if (!result.canceled) {
-            if (!result.assets[0]?.uri) return;
-            setImageUri(result.assets[0].uri);
-            uploadFileToSupabase(result?.assets[0]?.uri, result?.assets[0]?.type);
+        if (totalCount < totalMediaCount) {
+            setMedia([...media, ...mediaResult]);
+            setTotalCount(Number(endCursor))
         }
-    };
+    }, [media, totalCount]);
 
-    const uploadFileToSupabase = async (uri: any, fileType: any) => {
-        try {
-            const fileContents = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
-            const fileName = `${new Date().getTime()}.jpg`; // Change as needed
-            const fileBuffer = decode(fileContents);
+    const throttledFunction = throttle(() => fetchMediaPagination(), 1000);
 
-            const { data, error } = await supabase.storage
-                .from('skylight')
-                .upload(fileName, fileBuffer, {
-                    contentType: fileType,
-                    cacheControl: '3600',
-                    upsert: false,
-                });
+    const removeSelectedAsset = useCallback((assets: MediaLibrary.Asset) => {
+        setSelectedAssets((selectedAssets) => selectedAssets.filter(asset => asset.id !== assets.id));
+        selectedCount.current -= 1;
+    }, [selectedAssets]);
 
-            if (error) {
-                throw error;
-            }
-
-            console.log('File uploaded successfully:', data);
-        } catch (error) {
-            console.error('Error uploading file:', error);
+    const selectingAsset = useCallback(async (assets: MediaLibrary.Asset) => {
+        if (selectedCount.current >= 5) {
+            return alertMessage();
         }
-    };
+        if (selectedAssets.find(asset => asset.id === assets.id)) {
+            removeSelectedAsset(assets);
+        } else {
+            setSelectedAssets((selectedAssets) => [...selectedAssets, assets]);
+            selectedCount.current += 1;
+            Vibration.vibrate(10);
+        }
+    }, [selectedAssets]);
+
+    const onEndReached = useCallback(() => {
+       if (totalCount >10) {
+            throttledFunction();
+        }
+    }, [totalCount]);
+
+    useEffect(() => {
+        if (permission && permission.granted) {
+            fetchMediaPagination();
+        }
+    }, [permission]);
+
+    if (!permission) {
+        // Permission request is in progress
+        return <View />;
+    }
+
+    if (!permission.granted) {
+        // Permission was denied
+        return <>
+            <AppPermissionDialog confirm={getMediaPermission} />
+            <PhotosPermissionRequester permission={permission} />
+        </>
+    }
 
     return (
         <View>
-            <Button title="Pick an image" onPress={pickImage} />
-            {imageUri && <Image source={{ uri: imageUri }} style={{ width: 200, height: 200 }} />}
+            <FlatList
+                data={media}
+                keyExtractor={(item, index) => index.toString()}
+                numColumns={3}
+                onEndReachedThreshold={0.5}
+                scrollEventThrottle={16}
+                removeClippedSubviews={true}
+                windowSize={10}
+                onEndReached={onEndReached}
+                columnWrapperStyle={{ gap: 2, paddingVertical: 1 }}
+                renderItem={({ item, index }) => {
+                    return <ImageItem
+                        item={item}
+                        index={index}
+                        selectedAsset={selectedAssets.find(asset => asset.id === item.id) ? true : false}
+                        selectAsset={selectingAsset}
+                        removeSelectedAsset={removeSelectedAsset}
+                    />
+                }} />
         </View>
     );
 }
+

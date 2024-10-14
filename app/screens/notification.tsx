@@ -50,7 +50,7 @@ const NotificationScreen = memo(function NotificationScreen({ navigation }: { na
     useEffect(() => {
         onRefresh()
     }, [])
-
+    
     return (
         <View style={{
             flex: 1,
@@ -137,13 +137,13 @@ const NotificationItem = memo(function NotificationItem({
                 </Text>
             </View>
         </View>
-        <Avatar url={data.post?.fileUrl[0]} size={60} style={{
+        {/* <Avatar url={data.post?.fileUrl[0]} size={60} style={{
             borderRadius: 10,
         }} onPress={() => {
             if (!data.post?.id) return ToastAndroid.show('Post not found', ToastAndroid.SHORT)
             ToastAndroid.show('Feature Coming Soon', ToastAndroid.SHORT)
             // navigation.navigate("post", { screen: 'post', params: { post: data.post } })
-        }} />
+        }} /> */}
     </TouchableOpacity>)
 }, (prevProps, nextProps) => {
     return prevProps.data.id === nextProps.data.id

@@ -1,4 +1,4 @@
-import React, { memo } from 'react'
+import React, { memo, useCallback } from 'react'
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useState } from 'react';
 import { Button, FlatList, Text, TouchableOpacity, View, Image, StatusBar, Vibration } from 'react-native';
@@ -17,8 +17,8 @@ interface SendImagesScreenProps {
     }
 }
 const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
     // const session = useSelector((state: RootState) => state.AuthState.session.user)
+    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
     const [facing, setFacing] = useState<"front" | "back">('back');
     const cameraRef = React.useRef<CameraView>(null);
     const [permission, requestPermission] = useCameraPermissions();
@@ -28,34 +28,9 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
     const [disable, setDisable] = useState<boolean>(false);
 
 
-
-    if (!permission) {
-        // Camera permissions are still loading
-        return <View />;
-    }
-
-    if (!permission.granted) {
-        // Camera permissions are not granted yet
-        return (
-            <View style={{
-                flex: 1,
-                backgroundColor: currentTheme?.background,
-                justifyContent: 'center',
-                alignItems: 'center',
-            }}>
-                <Text style={{
-                    textAlign: 'center',
-                    color: currentTheme?.foreground
-                }}>We need your permission to show the camera</Text>
-                <Button onPress={requestPermission} title="grant permission" />
-            </View>
-        );
-    }
-
-
-    const toggleCameraType = () => {
+    const toggleCameraType = useCallback(() => {
         setFacing(current => (current === 'back' ? 'front' : 'back'));
-    }
+    }, [])
 
     const photoCapture = async () => {
         const options = {
@@ -82,8 +57,7 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
             }
         }
     }
-    // Asset ID of the last item returned on the previous page. 
-    // To get the ID of the next page, pass endCursor as its value.
+
     const fetchMediaPagination = async () => {
         setDisable(true)
         // permission
@@ -97,7 +71,7 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
             hasNextPage,
             totalCount: totalMediaCount,
         } = await MediaLibrary.getAssetsAsync({
-            mediaType: ['photo', 'video'],
+            mediaType: ['photo'],
             first: 20,
             sortBy: MediaLibrary.SortBy.default,
             after: totalCount.toString(),
@@ -151,6 +125,28 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
     }
 
 
+    if (!permission) {
+        // Camera permissions are still loading
+        return <View />;
+    }
+
+    if (!permission.granted) {
+        // Camera permissions are not granted yet
+        return (
+            <View style={{
+                flex: 1,
+                backgroundColor: currentTheme?.background,
+                justifyContent: 'center',
+                alignItems: 'center',
+            }}>
+                <Text style={{
+                    textAlign: 'center',
+                    color: currentTheme?.foreground
+                }}>We need your permission to show the camera</Text>
+                <Button onPress={requestPermission} title="grant permission" />
+            </View>
+        );
+    }
     return (
         <View style={{
             flex: 1,
@@ -318,67 +314,67 @@ const Footer = ({
 }
 
 
-const StatusHeader = ({
-}) => {
+// const StatusHeader = ({
+// }) => {
 
-    return (
-        <>
-            <View style={{
-                height: 80,
-                justifyContent: "center",
-                paddingHorizontal: 15,
-                alignContent: "space-between",
-                paddingTop: StatusBar.currentHeight,
-            }}>
-                {/* <Padding size={30} /> */}
-                <View style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                }}>
-                    <Text style={{
-                        fontSize: 25,
-                        fontWeight: 'bold',
-                        color: theme.primaryTextColor,
-                    }}>
-                        <Icon_Button
-                            theme={theme}
-                            onPress={() => {
-                                navigation.goBack()
-                            }}
-                            size={40}
-                            icon={<X
-                                size={30} color={theme.iconColor} />} />
-                    </Text>
-                    {/* <View style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        gap: 15,
-                    }}>
-                        <Icon_Button
-                            theme={theme}
-                            onPress={() => { }}
-                            size={40}
-                            icon={<ArrowLeft
-                                size={30} color={theme.iconColor} />} />
-                        <TouchableOpacity
-                            onPress={() => {
-                                AnimatedState.SearchList_on()
-                            }}>
-                            <TouchableOpacity
-                                onPress={() => {
-                                    navigation.navigate("Setting")
-                                }}>
-                                <Settings2 size={30} color={theme.iconColor} />
-                            </TouchableOpacity>
-                        </TouchableOpacity>
-                    </View> */}
-                </View>
-            </View>
-        </>
-    );
-};
+//     return (
+//         <>
+//             <View style={{
+//                 height: 80,
+//                 justifyContent: "center",
+//                 paddingHorizontal: 15,
+//                 alignContent: "space-between",
+//                 paddingTop: StatusBar.currentHeight,
+//             }}>
+//                 {/* <Padding size={30} /> */}
+//                 <View style={{
+//                     flexDirection: "row",
+//                     alignItems: "center",
+//                     justifyContent: "space-between",
+//                 }}>
+//                     <Text style={{
+//                         fontSize: 25,
+//                         fontWeight: 'bold',
+//                         color: theme.primaryTextColor,
+//                     }}>
+//                         <Icon_Button
+//                             theme={theme}
+//                             onPress={() => {
+//                                 navigation.goBack()
+//                             }}
+//                             size={40}
+//                             icon={<X
+//                                 size={30} color={theme.iconColor} />} />
+//                     </Text>
+//                     {/* <View style={{
+//                         flexDirection: "row",
+//                         alignItems: "center",
+//                         justifyContent: "space-between",
+//                         gap: 15,
+//                     }}>
+//                         <Icon_Button
+//                             theme={theme}
+//                             onPress={() => { }}
+//                             size={40}
+//                             icon={<ArrowLeft
+//                                 size={30} color={theme.iconColor} />} />
+//                         <TouchableOpacity
+//                             onPress={() => {
+//                                 AnimatedState.SearchList_on()
+//                             }}>
+//                             <TouchableOpacity
+//                                 onPress={() => {
+//                                     navigation.navigate("Setting")
+//                                 }}>
+//                                 <Settings2 size={30} color={theme.iconColor} />
+//                             </TouchableOpacity>
+//                         </TouchableOpacity>
+//                     </View> */}
+//                 </View>
+//             </View>
+//         </>
+//     );
+// };
 
 
 const ImageItem = memo(function ImageItem({
