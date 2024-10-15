@@ -1,13 +1,15 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { View, FlatList, Vibration, ToastAndroid } from 'react-native';
 import * as MediaLibrary from 'expo-media-library';
-import throttle from '@/lib/throttling';
+import { Icon } from '@/components/skysolo-ui';
+import AppHeader from '@/components/AppHeader';
 import AppPermissionDialog from '@/components/dialogs/app-permission';
 import PhotosPermissionRequester from '@/components/upload/no-permission';
 import ImageItem from '@/components/upload/image';
+import throttle from '@/lib/throttling';
+import { PageProps } from '@/types';
 
-
-export default function UploadScreen() {
+const NewPostSelectionScreen = memo(function NewPostSelectionScreen({ navigation }: PageProps<any>) {
     const [permission, requestPermission] = MediaLibrary.usePermissions();
     const [media, setMedia] = useState<MediaLibrary.Asset[]>([]);
     const [totalCount, setTotalCount] = useState<number>(0);
@@ -54,7 +56,7 @@ export default function UploadScreen() {
         selectedCount.current -= 1;
     }, [selectedAssets]);
 
-    const selectingAsset = useCallback(async (assets: MediaLibrary.Asset) => {
+    const selectingAsset = useCallback((assets: MediaLibrary.Asset) => {
         if (selectedCount.current >= 5) {
             return alertMessage();
         }
@@ -68,10 +70,16 @@ export default function UploadScreen() {
     }, [selectedAssets]);
 
     const onEndReached = useCallback(() => {
-       if (totalCount >10) {
+        if (totalCount > 10) {
             throttledFunction();
         }
     }, [totalCount]);
+
+    const navigateToPostReview = useCallback(() => {
+        navigation.navigate('upload/post/review', {
+            assets: selectedAssets,
+        });
+    }, [selectedAssets]);
 
     useEffect(() => {
         if (permission && permission.granted) {
@@ -93,27 +101,40 @@ export default function UploadScreen() {
     }
 
     return (
-        <View>
-            <FlatList
-                data={media}
-                keyExtractor={(item, index) => index.toString()}
-                numColumns={3}
-                onEndReachedThreshold={0.5}
-                scrollEventThrottle={16}
-                removeClippedSubviews={true}
-                windowSize={10}
-                onEndReached={onEndReached}
-                columnWrapperStyle={{ gap: 2, paddingVertical: 1 }}
-                renderItem={({ item, index }) => {
-                    return <ImageItem
-                        item={item}
-                        index={index}
-                        selectedAsset={selectedAssets.find(asset => asset.id === item.id) ? true : false}
-                        selectAsset={selectingAsset}
-                        removeSelectedAsset={removeSelectedAsset}
-                    />
-                }} />
-        </View>
+        <>
+            <AppHeader
+                titleCenter
+                title="New Post"
+                rightSideComponent={selectedCount.current > 0 ? <Icon
+                    iconName='Check' isButton
+                    onPress={navigateToPostReview}
+                    variant="secondary" /> : <View />}
+                navigation={navigation} />
+            <View style={{
+                flex: 1
+            }}>
+                <FlatList
+                    data={media}
+                    keyExtractor={(item, index) => index.toString()}
+                    numColumns={3}
+                    onEndReachedThreshold={0.5}
+                    scrollEventThrottle={16}
+                    removeClippedSubviews={true}
+                    windowSize={10}
+                    onEndReached={onEndReached}
+                    columnWrapperStyle={{ gap: 2, paddingVertical: 1 }}
+                    renderItem={({ item, index }) => {
+                        return <ImageItem
+                            item={item}
+                            index={index}
+                            selectAssetIndex={selectedAssets.findIndex(asset => asset.id === item.id)}
+                            selectAsset={selectingAsset}
+                            removeSelectedAsset={removeSelectedAsset}
+                        />
+                    }} />
+            </View>
+        </>
     );
-}
+}, () => true);
 
+export default NewPostSelectionScreen

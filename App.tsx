@@ -14,6 +14,7 @@ import BottomSheetProvider from '@/provider/BottomSheetProvider';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import SocketConnections from '@/provider/SocketConnections';
 import { resetConversation } from '@/redux-stores/slice/conversation';
+import { PostReviewScreen, NewPostSelectionScreen } from '@/app/upload';
 
 SplashScreen.preventAutoHideAsync();
 const Stack = createNativeStackNavigator();
@@ -52,6 +53,9 @@ function Routes(backgroundColor: any) {
           <Stack.Screen name="message" component={ChatListScreen} />
           <Stack.Screen name="message/conversation" component={ChatScreen} />
           <Stack.Screen name="message/searchNewChat" component={NewChatScreen} />
+          {/* upload */}
+          <Stack.Screen name="upload/post/selection" component={NewPostSelectionScreen} />
+          <Stack.Screen name="upload/post/review" component={PostReviewScreen} />
         </> :
         <>
           <Stack.Screen name="auth" component={InitialScreen} />

@@ -45,6 +45,7 @@ const AppHeader = memo(function HomeScreen({
                 </Text>
                 <View style={{
                     width: 28,
+                    marginRight: 6
                 }}>
                     {rightSideComponent}
                 </View>
@@ -80,7 +81,7 @@ const AppHeader = memo(function HomeScreen({
                     {title}
                 </Text>
             </View>
-            <View style={{ width: 28 }}>
+            <View style={{ width: 28, marginRight: 6 }}>
                 {rightSideComponent}
             </View>
         </View>

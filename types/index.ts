@@ -1,11 +1,13 @@
 export type loadingType = 'idle' | 'pending' | 'normal'
-export interface Route<T> {
-    key: string,
-    name: string,
-    params: {
-        [key: string]: T
-    },
-    path: undefined
+export interface PageProps<T> {
+    navigation: NavigationProps;
+    route: {
+        params: {
+            [key: string]: T
+        },
+        name: string;
+        key: string;
+    }
 }
 export type Theme = "light" | "dark" | "system";
 export interface NavigationProps {
