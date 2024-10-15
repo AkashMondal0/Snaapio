@@ -1,27 +1,25 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { Post } from '@/types'
-import { fetchAccountFeedApi } from './api.service'
+import { loadingType, Post } from '@/types'
+import { fetchAccountFeedApi, uploadFilesApi } from './api.service'
 
 
 export type AccountState = {
-  // uploadFiles: {
-  //   loading: "idle" | "pending" | "fulfilled" | "rejected",
-  //   currentUploadImg: string | null,
-  //   error: string | null
-  // },
+  uploadFile: string | null
+  uploadFilesLoading: loadingType
+  uploadFilesError: string | null
+  //
   feeds: Post[]
-  feedsLoading: "idle" | "pending" | "normal"
+  feedsLoading: loadingType
   feedsError: string | null
 }
 
 
 const initialState: AccountState = {
-  // uploadFiles: {
-  //   loading: false,
-  //   currentUploadImg: null,
-  //   error: null
-  // },
+  uploadFile: null,
+  uploadFilesLoading: "idle",
+  uploadFilesError: null,
+  //
   feeds: [],
   feedsLoading: "idle",
   feedsError: null,
@@ -37,6 +35,9 @@ export const AccountSlice = createSlice({
     resetFeeds: (state) => {
       state.feeds = []
     },
+    currentUploadingFile: (state, action: PayloadAction<string>) => {
+      state.uploadFile = action.payload
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -54,26 +55,27 @@ export const AccountSlice = createSlice({
         state.feedsLoading = "normal"
         state.feedsError = action.payload?.message ?? "fetch error"
       })
-    //   .addCase(UploadImagesFireBaseApi.pending, (state) => {
-    //     state.UploadFiles.loading = true
-    //     state.UploadFiles.error = null
-    //     state.UploadFiles.currentUploadImg = null
-    //   })
-    //   .addCase(UploadImagesFireBaseApi.fulfilled, (state) => {
-    //     state.UploadFiles.loading = false
-    //     state.UploadFiles.error = null
-    //     state.UploadFiles.currentUploadImg = null
-    //   })
-    //   .addCase(UploadImagesFireBaseApi.rejected, (state, action) => {
-    //     state.UploadFiles.loading = false
-    //     state.UploadFiles.error = action.payload
-    //   })
+      .addCase(uploadFilesApi.pending, (state) => {
+        state.uploadFilesLoading = "pending"
+        state.uploadFilesError = null
+        state.uploadFile = null
+      })
+      .addCase(uploadFilesApi.fulfilled, (state) => {
+        state.uploadFilesLoading = "normal"
+        state.uploadFile = null
+      })
+      .addCase(uploadFilesApi.rejected, (state, action: any) => {
+        state.uploadFilesError = action.payload?.message ?? "upload error"
+        state.uploadFilesLoading = "normal"
+        state.uploadFile = null
+      })
   },
 })
 
 export const {
   resetAccountState,
-  resetFeeds
+  resetFeeds,
+  currentUploadingFile
 } = AccountSlice.actions
 
 export default AccountSlice.reducer

@@ -2,30 +2,45 @@ import React, { memo, useCallback, useState } from 'react';
 import { View, Image, TouchableOpacity, ScrollView, ToastAndroid } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import * as MediaLibrary from 'expo-media-library';
-import { Button, Icon, Text, Separator, TouchableOpacity as SU_TouchableOpacity, Input } from '@/components/skysolo-ui';
+import {
+    Button,
+    Icon,
+    Text,
+    Separator,
+    TouchableOpacity as SU_TouchableOpacity,
+    Input
+} from '@/components/skysolo-ui';
 import AppHeader from '@/components/AppHeader';
 import { PageProps } from '@/types';
 import { Plus } from 'lucide-react-native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
+import { uploadFilesApi } from '@/redux-stores/slice/account/api.service';
 
 const PostReviewScreen = memo(function PostReviewScreen({
     navigation,
     route
 }: PageProps<MediaLibrary.Asset[]>) {
     const [assets, setAssets] = useState([...route.params?.assets] ?? [])
+    const dispatch = useDispatch()
 
     const handleDelete = useCallback((id: string) => {
         setAssets((prev) => prev.filter((item) => item.id !== id))
     }, [])
 
-    const handledShare = useCallback(() => {
+    const handledShare = useCallback(async () => {
         // hit api and loading all global uploading state
         // and reset all states
+        // await ImageCompressor({ image: assets[0].uri, quality: "low" })
         setAssets([])
-        ToastAndroid.show("Post shared", ToastAndroid.SHORT)
+        dispatch(uploadFilesApi({
+            files: assets,
+            caption: "caption 1",
+            location: "kol-sky-007",
+            tags: []
+        }) as any)
         navigation.navigate("Root", { screen: "home" })
-    }, [])
+    }, [assets])
 
     return (
         <>

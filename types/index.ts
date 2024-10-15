@@ -138,7 +138,7 @@ export type Typing = {
 // user post and content
 export interface Post {
     id: string
-    fileUrl: Assets[]
+    files: Assets[]
     commentCount: number
     likeCount: number
     createdAt: Date | string
@@ -173,28 +173,9 @@ export interface Comment {
 }
 export type Assets = {
     id?: string,
-    files?: {
-        original: {
-            url: string
-            height: number
-            width: number
-        },
-        medium: {
-            url: string
-            height: number
-            width: number
-        },
-        avatar: {
-            url: string
-            height: 150
-            width: 150
-        },
-        thumbnail: {
-            url: string
-            height: number
-            width: number
-        }
-    },
+    urls?: {
+        [key: string]: string
+    }[],
     type?: 'photo' | 'video' | 'audio' | "text"
     caption?: string;
 }
