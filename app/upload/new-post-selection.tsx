@@ -76,8 +76,13 @@ const NewPostSelectionScreen = memo(function NewPostSelectionScreen({ navigation
     }, [totalCount]);
 
     const navigateToPostReview = useCallback(() => {
+        const _selectedAssets = [...selectedAssets];
+        // reset all selected assets
+        setSelectedAssets([]);
+        selectedCount.current = 0;
+        // navigate to post review screen
         navigation.navigate('upload/post/review', {
-            assets: selectedAssets,
+            assets: _selectedAssets,
         });
     }, [selectedAssets]);
 
@@ -108,7 +113,7 @@ const NewPostSelectionScreen = memo(function NewPostSelectionScreen({ navigation
                 rightSideComponent={selectedCount.current > 0 ? <Icon
                     iconName='Check' isButton
                     onPress={navigateToPostReview}
-                    variant="secondary" /> : <View />}
+                    variant="primary" /> : <View />}
                 navigation={navigation} />
             <View style={{
                 flex: 1

@@ -1,6 +1,5 @@
 import { memo, useCallback } from "react";
-import { TouchableOpacity, Image, View } from "react-native";
-import { Text } from "@/components/skysolo-ui";
+import { TouchableOpacity, Image, View, Text } from "react-native";
 import * as MediaLibrary from 'expo-media-library';
 
 const ImageItem = memo(function ImageItem({
@@ -60,7 +59,11 @@ const ImageItem = memo(function ImageItem({
                     margin: 4,
                     elevation: 2,
                 }}>
-                    <Text variant="heading4">{selectAssetIndex + 1}</Text>
+                    <Text style={{
+                        color: "white",
+                        fontSize: 18,
+                        fontWeight: "semibold",
+                    }}>{selectAssetIndex + 1}</Text>
                 </View>
             </TouchableOpacity> : <></>}
 

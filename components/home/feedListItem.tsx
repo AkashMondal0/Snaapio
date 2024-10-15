@@ -63,23 +63,25 @@ const FeedItem = memo(function FeedItem({
             initialPage={0}
             style={{
                 width: "100%",
-                minHeight: 460,
+                height: "auto",
+                aspectRatio: 4 / 5, // portrait
+                // aspectRatio: 9 / 16, // story
+                // aspectRatio: 16 / 9,  // landscape
+                // aspectRatio: 1 / 1, // square
             }}>
             {data.fileUrl.map((mediaUrl, index) => (
-                <View style={{
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }} key={index}>
-                    <Image
-                        // blurRadius={10}
-                        isBorder
-                        url={mediaUrl}
-                        style={{
-                            width: "100%",
-                            flex: 1,
-                            borderRadius: 0
-                        }} />
-                </View>
+                <Image
+                    key={index}
+                    // blurRadius={10}
+                    isBorder
+                    url={mediaUrl}
+                    style={{
+                        width: "100%",
+                        flex: 1,
+                        borderRadius: 0,
+                        // resizeMode: "contain",
+                        resizeMode: "cover",
+                    }} />
             ))}
         </PagerView>
         {/* action */}
