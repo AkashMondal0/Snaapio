@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
 import { memo, useCallback, useContext, useRef, useState } from 'react';
 import { ToastAndroid, TouchableOpacity, View } from 'react-native';
 import { Avatar, Text, Image, Icon } from '@/components/skysolo-ui';
@@ -69,12 +71,11 @@ const FeedItem = memo(function FeedItem({
                 // aspectRatio: 16 / 9,  // landscape
                 // aspectRatio: 1 / 1, // square
             }}>
-            {data.fileUrl.map((mediaUrl, index) => (
+            {data.fileUrl.map((item, index) => (
                 <Image
                     key={index}
-                    // blurRadius={10}
                     isBorder
-                    url={mediaUrl}
+                    url={item.urls?.high}
                     style={{
                         width: "100%",
                         flex: 1,
@@ -157,7 +158,7 @@ const FeedItemActionsButtons = (
                 },
                 post: {
                     id: post.id,
-                    fileUrl: post.fileUrl,
+                    fileUrl: post.fileUrl[0].urls?.low,
                 }
             })
         } catch (error) {
@@ -165,7 +166,7 @@ const FeedItemActionsButtons = (
         } finally {
             loading.current = false
         }
-    }, [post.fileUrl, post.id, post.user.id, session])
+    }, [post.fileUrl.length, post.id, post.user.id, session])
 
     const disLikeHandle = useCallback(async () => {
         if (loading.current) return

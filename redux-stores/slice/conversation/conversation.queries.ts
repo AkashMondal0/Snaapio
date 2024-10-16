@@ -38,7 +38,15 @@ const conversationQueries = {
         conversationId
         authorId
         content
-        fileUrl
+        fileUrl {
+      id
+      urls {
+        low
+        high
+      }
+      type
+      caption
+    }
         deleted
         seenBy
         createdAt
@@ -72,7 +80,15 @@ const conversationQueries = {
         name
         profilePicture
       }
-      fileUrl
+      fileUrl {
+      id
+      urls {
+        low
+        high
+      }
+      type
+      caption
+    }
       deleted
       seenBy
       createdAt
@@ -92,7 +108,15 @@ const conversationQueries = {
       conversationId
       authorId
       content
-      fileUrl
+      fileUrl {
+      id
+      urls {
+        low
+        high
+      }
+      type
+      caption
+    }
       deleted
       seenBy
       createdAt

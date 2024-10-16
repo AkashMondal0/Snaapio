@@ -1,3 +1,4 @@
+import { configs } from '@/configs';
 import { RootState } from '@/redux-stores/store';
 import { RotateCcw } from 'lucide-react-native';
 import { useState } from 'react';
@@ -31,9 +32,8 @@ const SkysoloImage = ({
                 style={{
                     width: "100%",
                     height: "auto",
-                    borderRadius: 20,
                     backgroundColor: currentTheme?.muted,
-                    // borderWidth: isBorder ? 1 : 0,
+                    borderWidth: isBorder ? 1 : 0,
                     justifyContent: "center",
                     alignItems: "center",
                     ...style as any,
@@ -60,9 +60,8 @@ const SkysoloImage = ({
 
     return (
         <Image
-            source={{ uri: url }}
+            source={{ uri: configs.serverApi.supabaseStorageUrl + url }}
             resizeMode='contain'
-            borderRadius={10}
             progressiveRenderingEnabled={true}
             onError={() => {
                 if (!error) setError(true)
@@ -71,7 +70,6 @@ const SkysoloImage = ({
                 {
                     width: "100%",
                     height: "auto",
-                    borderRadius: 20,
                     resizeMode: "cover",
                 }, style
             ]}

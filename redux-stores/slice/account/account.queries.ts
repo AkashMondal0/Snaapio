@@ -4,7 +4,15 @@ export const AQ = {
       id
       content
       title
-      fileUrl
+      fileUrl {
+      id
+      urls {
+        low
+        high
+      }
+      type
+      caption
+    }
       createdAt
       updatedAt
       authorId
@@ -31,4 +39,24 @@ export const AQ = {
       website
     }
   }`,
+  createPost: `mutation CreatePost($createPostInput: CreatePostInput!) {
+    createPost(createPostInput: $createPostInput) {
+      updatedAt
+      title
+      id
+      fileUrl {
+      id
+      urls {
+        low
+        high
+      }
+      type
+      caption
+    }
+      createdAt
+      content
+      username
+      authorId
+    }
+  }`
 }

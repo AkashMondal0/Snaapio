@@ -5,8 +5,9 @@ import { fetchUserProfileDetailApi, fetchUserProfilePostsApi } from "@/redux-sto
 import { RootState } from "@/redux-stores/store";
 import { disPatchResponse, loadingType, NavigationProps, Post, User } from "@/types";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { View, Image, FlatList, ToastAndroid } from "react-native";
+import { View, FlatList, ToastAndroid } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
+import { Image } from '@/components/skysolo-ui'
 
 interface ScreenProps {
     navigation: NavigationProps;
@@ -113,8 +114,9 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
                             aspectRatio: 1,
                         }}>
                         <Image
-                            source={{ uri: item.fileUrl[0] }}
+                            url={item.fileUrl[0].urls?.low}
                             resizeMode="cover"
+                            showImageError
                             style={{
                                 width: '100%',
                                 height: "100%",

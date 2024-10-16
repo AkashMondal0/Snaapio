@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { TouchableOpacityProps, TouchableOpacity } from 'react-native';
 import { Image, type ImageProps } from 'expo-image';
+import { configs } from '@/configs';
 
 export type Props = ImageProps & {
     lightColor?: string;
@@ -17,6 +18,7 @@ export type Props = ImageProps & {
 
 const SkysoloAvatar = memo(function SkysoloAvatar({ style, showImageError, size = 40, url, TouchableOpacityOptions, ...otherProps }: Props) {
     size = Number(size)
+
     return (
         <TouchableOpacity
             {...TouchableOpacityOptions}
@@ -24,7 +26,7 @@ const SkysoloAvatar = memo(function SkysoloAvatar({ style, showImageError, size 
             onLongPress={otherProps.onLongPress}
             onPress={otherProps.onPress}>
             <Image
-                source={!url ? require('../../assets/images/user.jpg') : url}
+                source={!url ? require('../../assets/images/user.jpg') : configs.serverApi.supabaseStorageUrl + url}
                 contentFit="cover"
                 transition={300}
                 style={[

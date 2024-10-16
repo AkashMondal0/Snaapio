@@ -5,7 +5,6 @@ import { memo } from 'react';
 import { View, Text } from 'react-native';
 import { useSelector } from 'react-redux';
 import { Icon, TouchableOpacity, Image } from '@/components/skysolo-ui';
-// import { Image } from "expo-image"
 
 
 
@@ -52,11 +51,11 @@ const MessageItem = memo(function Item({
                 width: '70%',
                 maxWidth: '96%',
             }}>
-                {data?.fileUrl.map((url, index) => {
+                {data?.fileUrl.map((file, index) => {
                     return (<Image
                         key={index}
                         isBorder
-                        url={url}
+                        url={file.urls?.high}
                         style={{
                             width: "100%",
                             height: 300,

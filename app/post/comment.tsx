@@ -1,11 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import AppHeader from "@/components/AppHeader";
+import { memo, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { Avatar, Icon, Input, Text, TouchableOpacity, Separator, Loader } from "@/components/skysolo-ui";
+import { FlatList, ToastAndroid, View, TouchableOpacity as RNTouchableOpacity } from "react-native";
 import { timeAgoFormat } from "@/lib/timeFormat";
 import { createPostCommentApi, fetchPostCommentsApi } from "@/redux-stores/slice/post/api.service";
+import AppHeader from "@/components/AppHeader";
 import { Comment, disPatchResponse, NavigationProps, NotificationType, Post } from "@/types";
-import { memo, useCallback, useContext, useEffect, useRef } from "react";
-import { FlatList, ToastAndroid, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { resetComments } from "@/redux-stores/slice/post";
@@ -115,37 +115,61 @@ const CommentItem = memo(function CommentItem({
     data: Comment,
     onPress?: (item: Comment) => void
 }) {
-    return (<TouchableOpacity style={{
-        flexDirection: 'row',
-        padding: 12,
-        alignItems: 'center',
-        width: '100%',
-        gap: 10,
-        marginVertical: 2,
-        justifyContent: 'space-between',
-    }}>
-        <View style={{
-            display: 'flex',
+    const [readMore, setReadMore] = useState(false)
+    return (<TouchableOpacity
+        onPress={() => setReadMore(!readMore)}
+        style={{
             flexDirection: 'row',
+            padding: 12,
+            alignItems: 'center',
+            width: '100%',
+            gap: 6,
+            marginVertical: 2,
+            justifyContent: 'space-between',
+        }}>
+        <View style={{
             gap: 10,
             alignItems: 'center',
+            flexDirection: 'row',
+            flexBasis: '76%',
         }}>
             <Avatar url={data.user.profilePicture} size={50}
                 onPress={() => onPress(data)} />
             <View>
+                <Text numberOfLines={readMore ? 100 : 3} ellipsizeMode="tail">
+                    <Text variant="heading3" lineBreakMode="clip" numberOfLines={2}>
+                        {data.user.name}
+                    </Text>
+                    <Text variant="heading4"
+                        colorVariant="secondary"
+                        numberOfLines={2}>
+                        {data.content}
+                    </Text>
+                </Text>
+                {/* action */}
                 <View style={{
-                    display: 'flex',
                     flexDirection: 'row',
-                    alignItems: 'center',
                     gap: 10,
+                    alignItems: 'center',
+                    width: '100%',
                 }}>
-                    <Text variant="heading3">{data.user.name}</Text>
-                    <Text variant="heading4">{data.content}</Text>
+                    <Text variant="heading4" colorVariant="secondary">
+                        {timeAgoFormat(data.createdAt)}
+                    </Text>
+                    <Text variant="heading4" colorVariant="default">
+                        reply
+                    </Text>
+                    <Text variant="heading4" colorVariant="danger">
+                        report
+                    </Text>
                 </View>
-                <Text variant="heading4" colorVariant="secondary">{timeAgoFormat(data?.createdAt)}</Text>
             </View>
         </View>
-        <Icon iconName="Heart" size={24} onPress={() => onPress(data)} />
+        <Icon iconName="Heart" size={24}
+            onPress={() => onPress(data)}
+            style={{
+                width: "10%"
+            }} />
     </TouchableOpacity>)
 }, (prevProps, nextProps) => {
     return prevProps.data.id === nextProps.data.id

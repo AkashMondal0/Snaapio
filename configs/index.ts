@@ -1,8 +1,9 @@
 const _configs = {
     sessionName: "skylight-session",
     serverApi: {
-        baseUrl: "https://skylight-backend-latest.onrender.com/v1",
-        // baseUrl: "http://192.168.31.212:5000/v1",
+        // baseUrl: "https://skylight-backend-latest.onrender.com/v1",
+        baseUrl: "http://192.168.31.232:5000/v1",
+        supabaseStorageUrl: process.env.EXPO_PUBLIC_SUPABASE_STORAGE_URL,
     },
     eventNames: {
         conversation: {
