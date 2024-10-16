@@ -23,24 +23,29 @@ const PostReviewScreen = memo(function PostReviewScreen({
 }: PageProps<MediaLibrary.Asset[]>) {
     const [assets, setAssets] = useState([...route.params?.assets] ?? [])
     const dispatch = useDispatch()
+    const session = useSelector((state: RootState) => state.AuthState.session.user)
 
     const handleDelete = useCallback((id: string) => {
         setAssets((prev) => prev.filter((item) => item.id !== id))
     }, [])
 
     const handledShare = useCallback(async () => {
+        if (assets.length === 0) return
+        if (!session) return ToastAndroid.show("Please login", ToastAndroid.SHORT)
         // hit api and loading all global uploading state
         // and reset all states
-        // await ImageCompressor({ image: assets[0].uri, quality: "low" })
         setAssets([])
-        dispatch(uploadFilesApi({
-            files: assets,
-            caption: "caption 1",
-            location: "kol-sky-007",
-            tags: []
-        }) as any)
         navigation.navigate("Root", { screen: "home" })
-    }, [assets])
+        setTimeout(() => {
+            dispatch(uploadFilesApi({
+                files: assets,
+                caption: "caption 1",
+                location: "kol-sky-007",
+                tags: [],
+                authorId: session?.id
+            }) as any)
+        }, 1000);
+    }, [assets, session?.id])
 
     return (
         <>

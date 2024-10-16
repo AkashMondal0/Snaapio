@@ -2,12 +2,11 @@ import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import * as FileSystem from 'expo-file-system'
 import { Assets } from '@/types';
 import { uploadFileToSupabase } from './SupaBase-uploadFile';
-const qualityArray = [
-    { value: 0.2, name: "low" },
-    { value: 0.4, name: "medium" },
-    { value: 0.8, name: "high" },
-    { value: 0.08, name: "blur" },
-    { value: 0.1, name: "thumbnail" }
+type QA = { value: number, name: "low" | "high" }[];
+const qualityArray: QA = [
+    { value: 0.05, name: "low" },
+    // { value: 0.3, name: "medium" },
+    { value: 0.5, name: "high" }
 ];
 export const ImageCompressor = async ({
     image,
@@ -32,12 +31,17 @@ export const ImageCompressor = async ({
                 return 0.4;
         }
     }
-    const compressedImage = await manipulateAsync(image, [], {
-        compress: QualityFu(quality),
-        format: SaveFormat.WEBP,
-        base64: true,
-    });
-    return compressedImage;
+    try {
+        const compressedImage = await manipulateAsync(image, [], {
+            compress: QualityFu(quality),
+            format: SaveFormat.JPEG,
+            base64: true,
+        });
+        return compressedImage.uri;
+    } catch (error) {
+        console.error('Error:', error);
+        return null;
+    }
 };
 
 export const saveImage = async (image: any) => {
@@ -59,19 +63,27 @@ export const ImageCompressorAllQuality = async ({
     image,
 }: {
     image: string,
-}): Promise<Assets["urls"] | []> => {
-    let arr: Assets["urls"] = [];
-    await Promise.all(qualityArray.map(async (quality) => {
+}): Promise<Assets["urls"] | null> => {
+    let assetUrls: Assets["urls"] = {
+        low: null, // 0.05
+        high: null // 0.5
+    }
+    await Promise.all(qualityArray.map(async (quality, i) => {
         const CompressedImage = await manipulateAsync(image, [], {
             compress: quality.value,
-            format: SaveFormat.WEBP,
+            format: SaveFormat.JPEG,
             base64: true,
         });
-        if (!CompressedImage) return;
         // upload the compressed image to the server storage and get the url
-        const fileUrl = await uploadFileToSupabase(CompressedImage, "image/webp");
-        if (!fileUrl) return;
-        arr.push({ [quality.name]: fileUrl });
+        if (!CompressedImage?.uri) return;
+        try {
+            const fileUrl = await uploadFileToSupabase(CompressedImage.uri, "image/jpeg", quality.name);
+            if (!fileUrl) return;
+            assetUrls[quality.name] = fileUrl;
+        } catch (error) {
+            assetUrls[quality.name] = null;
+            console.error('Error:', error);
+        }
     }))
-    return arr;
+    return assetUrls;
 };

@@ -1,6 +1,6 @@
 import { Text, Button } from '@/components/skysolo-ui'
 import React from 'react'
-import { View,Image } from 'react-native'
+import { View, Image } from 'react-native'
 export default function InitialScreen({ navigation }: any) {
     return (
         <View style={{
@@ -27,6 +27,7 @@ export default function InitialScreen({ navigation }: any) {
                         width: 100,
                         height: 100,
                         alignContent: "center",
+                        margin: "20%"
                     }}
                     source={require('../../assets/icon.png')}
                 />

@@ -99,7 +99,7 @@ export type Friendship = {
 export interface Message {
     id: string;
     content: string;
-    fileUrl: string[];
+    fileUrl: Assets[];
     authorId: string;
     deleted: boolean;
     seenBy: string[];
@@ -138,7 +138,7 @@ export type Typing = {
 // user post and content
 export interface Post {
     id: string
-    files: Assets[]
+    fileUrl: Assets[]
     commentCount: number
     likeCount: number
     createdAt: Date | string
@@ -174,8 +174,12 @@ export interface Comment {
 export type Assets = {
     id?: string,
     urls?: {
-        [key: string]: string
-    }[],
+        low?: string | null,
+        medium?: string| null,
+        high?: string| null,
+        blur?: string| null,
+        thumbnail?: string| null,
+    }
     type?: 'photo' | 'video' | 'audio' | "text"
     caption?: string;
 }

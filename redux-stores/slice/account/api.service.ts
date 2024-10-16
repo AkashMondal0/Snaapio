@@ -1,10 +1,11 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { graphqlQuery } from "@/lib/GraphqlQuery";
-import { Assets, findDataInput } from "@/types";
+import { Assets, findDataInput, Post } from "@/types";
 import { AQ } from "./account.queries";
-import { currentUploadingFile } from "./";
+// import { currentUploadingFile } from ".";
 import * as MediaLibrary from "expo-media-library";
-import { ImageCompressorAllQuality } from "@/lib/RN-ImageCompressor";
+import { ImageCompressor } from "@/lib/RN-ImageCompressor";
+import { uploadFileToSupabase } from "@/lib/SupaBase-uploadFile";
 
 export const fetchAccountFeedApi = createAsyncThunk(
     'fetchAccountFeedApi/get',
@@ -30,17 +31,20 @@ export const uploadFilesApi = createAsyncThunk(
         caption?: string
         location?: string
         tags?: string[]
+        authorId: string
     }, thunkApi) => {
         try {
-            let fileUrls: Assets["urls"][] = []
+            let fileUrls: Post["files"] = []
             await Promise.all(data.files.map(async (file) => {
-                thunkApi.dispatch(currentUploadingFile(file.uri))
-                const fileUrl = await ImageCompressorAllQuality({ image: file.uri })
+                // thunkApi.dispatch(currentUploadingFile(file.uri))
+                const compressedImage = await ImageCompressor({ image: file.uri, quality: "medium" })
                 // get the file url and push it to the fileUrls array
-                if (!fileUrl) return
-                fileUrls.push(fileUrl)
+                if (!compressedImage) return
+                // upload the compressed image to the server storage and get the url
+                const fileUrl = await uploadFileToSupabase(compressedImage, "image/jpeg", data.authorId);
+                if (!fileUrl) return;
+                fileUrls.push({ urls: [fileUrl], type: file.mediaType === "photo" ? "photo" : "video" })
             }))
-            console.log(fileUrls)
             // const res = await graphqlQuery({
             //     query: AQ.feedTimelineConnection,
             //     variables: { limitAndOffset }
