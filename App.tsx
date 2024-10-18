@@ -15,6 +15,7 @@ import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-cont
 import SocketConnections from '@/provider/SocketConnections';
 import { resetConversation } from '@/redux-stores/slice/conversation';
 import { PostReviewScreen, NewPostSelectionScreen } from '@/app/upload';
+import { ProfileEditScreen } from '@/app/profile';
 
 SplashScreen.preventAutoHideAsync();
 const Stack = createNativeStackNavigator();
@@ -46,6 +47,8 @@ function Routes(backgroundColor: any) {
         <>
           {/* feeds */}
           <Stack.Screen name="Root" component={BottomTabComponent} />
+          {/* profile */}
+          <Stack.Screen name={"profile/edit"} component={ProfileEditScreen} />
           {/* settings */}
           <Stack.Screen name={"settings"} component={SettingScreen} />
           <Stack.Screen name={"settings/theme"} component={ThemeSettingScreen} />

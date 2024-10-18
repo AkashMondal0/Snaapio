@@ -82,10 +82,6 @@ const ProfileHeader = memo(function HomeScreen({
                     style={{ fontWeight: "400" }}
                     variant="heading4">
                     {user?.bio}
-                    {`🌍 Adventurer |🍳 Foodie`}
-                    {`🏍️ ⚙️ "1 N 2 3 4 5" ⚙️`}
-                    {`⛰️ Mountain Enthusiast`}
-                    {`🐞 Software Developer`}
                 </Text>
                 <ProfileActionsButton
                     navigation={navigation}

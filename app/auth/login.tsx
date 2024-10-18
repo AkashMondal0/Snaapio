@@ -49,9 +49,7 @@ const LoginScreen = ({ navigation }: any) => {
                 password: data.password,
             }) as ApiResponse<Session["user"]>
             if (_data.code === 1) {
-                const session = _data.data
-                dispatch(setSession(session))
-                SecureStorage("set", configs.sessionName, JSON.stringify(_data.data))
+                dispatch(setSession(_data.data))
                 return
             }
             setStats((pre) => ({ ...pre, errorMessage: _data.message }))

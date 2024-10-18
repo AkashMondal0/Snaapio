@@ -95,6 +95,7 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
                 numColumns={3}
                 bounces={false}
                 bouncesZoom={false}
+                alwaysBounceHorizontal={false}
                 alwaysBounceVertical={false}
                 refreshing={false}
                 onEndReachedThreshold={0.5}

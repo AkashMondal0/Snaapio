@@ -101,7 +101,7 @@ const ProfileActionsButton = memo(function ProfileActionsButton({
             gap: 10,
         }}>
             <Button
-                // onPress={() => navigation?.navigate('profile/edit')}
+                onPress={() => navigation?.navigate('profile/edit')}
                 size="auto"
                 variant="secondary" style={{
                     flex: 1,

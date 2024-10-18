@@ -3,6 +3,8 @@ const _configs = {
     serverApi: {
         baseUrl: process.env.EXPO_PUBLIC_SERVER_URL,
         supabaseStorageUrl: process.env.EXPO_PUBLIC_SUPABASE_STORAGE_URL,
+        supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
+        supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
     },
     eventNames: {
         conversation: {

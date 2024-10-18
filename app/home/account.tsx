@@ -96,6 +96,7 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
                 bounces={false}
                 bouncesZoom={false}
                 alwaysBounceVertical={false}
+                alwaysBounceHorizontal={false}
                 refreshing={false}
                 onEndReachedThreshold={0.5}
                 removeClippedSubviews={true}

@@ -44,7 +44,10 @@ export default function ParallaxScrollView({
 
   return (
     <SkysoloView style={styles.container}>
-      <Animated.ScrollView ref={scrollRef} scrollEventThrottle={16}>
+      <Animated.ScrollView
+        keyboardDismissMode='on-drag'
+        keyboardShouldPersistTaps='handled'
+        ref={scrollRef} scrollEventThrottle={16}>
         <Animated.View
           style={[
             styles.header,
