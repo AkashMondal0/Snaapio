@@ -16,14 +16,15 @@ import { Plus } from 'lucide-react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
 import { uploadFilesApi } from '@/redux-stores/slice/account/api.service';
+import { AddImage, PreviewImage } from '@/components/upload/preview-image';
 
 const PostReviewScreen = memo(function PostReviewScreen({
     navigation,
     route
 }: PageProps<MediaLibrary.Asset[]>) {
-    const [assets, setAssets] = useState([...route.params?.assets] ?? [])
-    const dispatch = useDispatch()
+    const [assets, setAssets] = useState(route?.params?.assets ? [...route.params?.assets] : [])
     const session = useSelector((state: RootState) => state.AuthState.session.user)
+    const dispatch = useDispatch()
 
     const handleDelete = useCallback((id: string) => {
         setAssets((prev) => prev.filter((item) => item.id !== id))
@@ -35,7 +36,7 @@ const PostReviewScreen = memo(function PostReviewScreen({
         // hit api and loading all global uploading state
         // and reset all states
         setAssets([])
-        navigation.navigate("Root", { screen: "home" })
+        navigation?.navigate("Root", { screen: "home" })
         setTimeout(() => {
             dispatch(uploadFilesApi({
                 files: assets,
@@ -66,7 +67,7 @@ const PostReviewScreen = memo(function PostReviewScreen({
                         data={assets}
                         keyExtractor={(item, index) => index.toString()}
                         renderItem={({ item, index }) => (
-                            <ImagePreview
+                            <PreviewImage
                                 asset={item}
                                 handleDelete={handleDelete} />)}
                         horizontal
@@ -116,106 +117,6 @@ const PostReviewScreen = memo(function PostReviewScreen({
 }, () => true);
 
 export default PostReviewScreen;
-
-
-const ImagePreview = memo(function ImagePreview({
-    asset,
-    handleDelete,
-}: {
-    asset: MediaLibrary.Asset,
-    handleDelete: (i: string) => void
-}) {
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
-
-    return (<TouchableOpacity
-        activeOpacity={0.8}
-        style={{
-            elevation: 0.5,
-            width: 290,
-            flex: 1,
-            borderRadius: 16,
-            aspectRatio: 4 / 5,
-            marginHorizontal: 10,
-        }}>
-        <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={() => { handleDelete(asset.id) }}
-            style={{
-                position: "absolute",
-                zIndex: 1,
-                alignItems: "flex-end",
-                width: "100%",
-            }}>
-            <View style={{
-                backgroundColor: currentTheme?.muted,
-                borderRadius: 100,
-                width: 30,
-                height: 30,
-                justifyContent: "center",
-                alignItems: "center",
-                margin: 6,
-                elevation: 5,
-            }}>
-                <Icon
-                    iconName="Trash2"
-                    color={currentTheme?.foreground} size={20}
-                    onPress={() => { handleDelete(asset.id) }} />
-            </View>
-        </TouchableOpacity>
-        <Image
-            source={{ uri: asset.uri }}
-            style={{
-                width: "auto",
-                flex: 1,
-                borderRadius: 16,
-                aspectRatio: 4 / 5,
-                resizeMode: "cover",
-                // resizeMode: "contain",
-                // aspectRatio: 9 / 16, // story
-                // aspectRatio: 16 / 9,  // landscape
-                // aspectRatio: 1 / 1, // square
-            }} />
-    </TouchableOpacity>)
-}, (prev, next) => prev.asset.id === next.asset.id);
-
-const AddImage = memo(function AddImage({
-    onPress
-}: {
-    onPress: () => void
-}) {
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
-
-    return (<>
-        <TouchableOpacity
-            activeOpacity={0.8}
-            style={{
-                width: 288,
-                borderRadius: 16,
-                aspectRatio: 4 / 5,
-                backgroundColor: currentTheme?.muted,
-                justifyContent: "center",
-                alignItems: "center",
-                borderWidth: 2,
-                borderColor: currentTheme?.border,
-                elevation: 0.5,
-                marginHorizontal: 10
-            }}>
-            <TouchableOpacity
-                activeOpacity={0.8}
-                style={{
-                    width: 80,
-                    height: 80,
-                    borderRadius: 60,
-                    borderColor: currentTheme?.border,
-                    borderWidth: 2,
-                    justifyContent: "center",
-                    alignItems: "center"
-                }}>
-                <Plus color={currentTheme?.muted_foreground} size={70} strokeWidth={0.8} />
-            </TouchableOpacity>
-        </TouchableOpacity>
-    </>)
-}, () => true);
 
 const InfoComponent = memo(function InfoComponent() {
     const list = [

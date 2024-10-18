@@ -1,8 +1,7 @@
 const _configs = {
     sessionName: "skylight-session",
     serverApi: {
-        // baseUrl: "https://skylight-backend-latest.onrender.com/v1",
-        baseUrl: "http://192.168.31.232:5000/v1",
+        baseUrl: process.env.EXPO_PUBLIC_SERVER_URL,
         supabaseStorageUrl: process.env.EXPO_PUBLIC_SUPABASE_STORAGE_URL,
     },
     eventNames: {

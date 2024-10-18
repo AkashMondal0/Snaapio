@@ -1,10 +1,8 @@
 export type loadingType = 'idle' | 'pending' | 'normal'
 export interface PageProps<T> {
-    navigation: NavigationProps;
-    route: {
-        params: {
-            [key: string]: T
-        },
+    navigation?: NavigationProps;
+    route?: {
+        params?:T,
         name: string;
         key: string;
     }

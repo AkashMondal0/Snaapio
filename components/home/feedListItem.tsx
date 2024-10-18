@@ -90,8 +90,9 @@ const FeedItem = memo(function FeedItem({
             <FeedItemActionsButtons post={data} onPress={navigateToPost} />
             <View>
                 {data?.content ? <Text variant="heading4" style={{
-                    fontWeight: "600",
+                    fontWeight: "500",
                     marginHorizontal: "2%",
+                    marginTop: 5
                 }}>{data?.content}</Text> : <View />}
             </View>
             <View>

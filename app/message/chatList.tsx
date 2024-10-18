@@ -119,7 +119,7 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
             ListEmptyComponent={() => {
                 if (listLoading === "idle") return <View />
                 if (listError) return <ErrorScreen message={listError} />
-                if (!listError && listLoading === "normal") return <ListEmpty text="No Comments yet" />
+                if (!listError && listLoading === "normal") return <ListEmpty text="No Messages" />
             }}
             ListFooterComponent={listLoading === "pending" ? <Loader size={50} /> : <></>} />
         <ActionSheet

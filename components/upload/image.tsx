@@ -4,27 +4,19 @@ import * as MediaLibrary from 'expo-media-library';
 
 const ImageItem = memo(function ImageItem({
     item,
-    index,
     selectAssetIndex = -1,
     //
-    selectAsset,
-    removeSelectedAsset,
+    onPressAssetHandle,
 }: {
     item: MediaLibrary.Asset,
-    index: number,
     selectAssetIndex: number,
-    // 
-    selectAsset: (assets: MediaLibrary.Asset) => void,
-    removeSelectedAsset: (assets: MediaLibrary.Asset) => void,
+    //
+    onPressAssetHandle: (assets: MediaLibrary.Asset) => void,
 }) {
 
     const pressHandler = useCallback(() => {
-        if (selectAssetIndex !== -1) {
-            removeSelectedAsset(item);
-        } else {
-            selectAsset(item);
-        }
-    }, [item, selectAssetIndex]);
+        onPressAssetHandle(item);
+    }, [item]);
 
     return (
         <TouchableOpacity
@@ -38,7 +30,7 @@ const ImageItem = memo(function ImageItem({
             activeOpacity={0.8}
             onPress={pressHandler}
             onLongPress={pressHandler}>
-            {selectAssetIndex !== -1 ? <TouchableOpacity
+            <TouchableOpacity
                 activeOpacity={0.8}
                 onPress={pressHandler}
                 style={{
@@ -47,10 +39,10 @@ const ImageItem = memo(function ImageItem({
                     alignItems: "flex-end",
                     width: "100%",
                     height: "100%",
-                    backgroundColor: "rgba(0,0,0,0.3)",
+                    backgroundColor: selectAssetIndex !== -1 ? "rgba(0,0,0,0.3)" : "transparent",
                 }}>
                 <View style={{
-                    backgroundColor: "#259bf5",
+                    backgroundColor: selectAssetIndex !== -1 ? "#259bf5" : "rgba(0,0,0,0.5)",
                     borderRadius: 100,
                     width: 30,
                     height: 30,
@@ -58,15 +50,19 @@ const ImageItem = memo(function ImageItem({
                     alignItems: "center",
                     margin: 4,
                     elevation: 2,
+                    borderWidth: 0.8,
+                    borderColor: "white"
                 }}>
-                    <Text style={{
-                        color: "white",
-                        fontSize: 18,
-                        fontWeight: "semibold",
-                    }}>{selectAssetIndex + 1}</Text>
+                    {selectAssetIndex !== -1 ?
+                        <Text style={{
+                            color: "white",
+                            fontSize: 18,
+                            fontWeight: "semibold",
+                        }}>
+                            {selectAssetIndex !== -1 ? selectAssetIndex + 1 : ""}
+                        </Text> : <></>}
                 </View>
-            </TouchableOpacity> : <></>}
-
+            </TouchableOpacity>
             <Image
                 source={{ uri: item.uri }}
                 resizeMode="cover"
@@ -74,7 +70,7 @@ const ImageItem = memo(function ImageItem({
                     width: '100%',
                     height: "100%",
                 }} />
-        </TouchableOpacity>
+        </TouchableOpacity >
     )
 }, (prevProps, nextProps) => {
     return prevProps.selectAssetIndex === nextProps.selectAssetIndex;

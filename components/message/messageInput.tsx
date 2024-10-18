@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Icon, Input } from "@/components/skysolo-ui";
 import { memo, useCallback, useContext, useMemo, useRef, useState } from "react";
-import { Conversation, disPatchResponse, Message } from "@/types";
+import { Conversation, disPatchResponse, Message, NavigationProps } from "@/types";
 import { ToastAndroid, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
@@ -15,14 +17,15 @@ const schema = z.object({
     message: z.string().min(1)
 })
 const ChatScreenInput = memo(function ChatScreenInput({
-    conversation
+    conversation,
+    navigation,
 }: {
     conversation: Conversation
+    navigation: NavigationProps
 }) {
     const dispatch = useDispatch()
     const ConversationList = useSelector((state: RootState) => state.ConversationState.conversationList, (prev, next) => prev.length === next.length)
     const session = useSelector((state: RootState) => state.AuthState.session.user)
-    // const [isFile, setIsFile] = useState<File[]>([])
     const [loading, setLoading] = useState(false)
     const socketState = useContext(SocketContext)
     const stopTypingRef = useRef(true)
@@ -89,13 +92,16 @@ const ChatScreenInput = memo(function ChatScreenInput({
             }
             reset()
             // setIsFile([])
-        } catch (error) {
+        } catch (error: any) {
             ToastAndroid.show("Something went wrong", ToastAndroid.SHORT)
         } finally {
             setLoading((pre) => !pre)
         }
     }, [conversation.id, members, session?.id, socketState.socket])
 
+    const navigateToSelectFile = useCallback(() => {
+        navigation.navigate("message/asset/selection", { conversation })
+    }, [])
 
     return (
         <View style={{
@@ -105,40 +111,58 @@ const ChatScreenInput = memo(function ChatScreenInput({
             alignItems: "center",
             justifyContent: "space-between",
             padding: "1.6%",
+            gap: 6
         }}>
             <Controller
                 control={control}
                 render={({ field: { onChange, onBlur, value } }) => (
-                    <Input placeholder="Type a message"
+                    <Input
+                        keyboardType="default"
+                        returnKeyType="done"
+                        placeholder="Type a message"
                         secondaryColor
                         multiline
                         disabled={loading}
                         onBlur={onBlur}
-                        onChangeText={(text)=>{
+                        onChangeText={(text) => {
                             onChange(text)
                             onTyping()
                         }}
                         value={value}
-                        returnKeyType="send"
                         onSubmitEditing={handleSubmit(sendMessageHandle)}
                         style={{
-                            width: "84%",
+                            flex: 1,
                             height: "100%",
-                            borderRadius: 18,
+                            borderRadius: 20,
                             borderWidth: 0,
                             maxHeight: 100,
-                        }} />
+                        }}
+                        rightSideComponent={<Icon
+                            iconName="ImagePlus"
+                            variant="secondary"
+                            iconColorVariant="secondary"
+                            size={28}
+                            disabled={loading}
+                            onPress={navigateToSelectFile}
+                            style={{
+                                width: "10%",
+                                height: 45,
+                                marginHorizontal: 5,
+                                aspectRatio: 1 / 1,
+                            }} />} />
                 )}
                 name="message"
                 rules={{ required: true }} />
-            <Icon iconName={"Send"}
-                isButton size={26}
+            <Icon
+                iconName="Send"
+                isButton
+                size={26}
                 disabled={loading}
                 onPress={handleSubmit(sendMessageHandle)}
                 style={{
-                    padding: "4%",
-                    width: "auto",
+                    width: "10%",
                     height: 45,
+                    aspectRatio: 1 / 1,
                 }} />
         </View>
     )

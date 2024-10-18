@@ -2,9 +2,13 @@ import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { loadingType, Post } from '@/types'
 import { fetchAccountFeedApi, uploadFilesApi } from './api.service'
+import * as MediaLibrary from 'expo-media-library';
 
 
 export type AccountState = {
+  //
+  deviceAssets: MediaLibrary.Asset[]
+  //
   uploadFile: string | null
   uploadFilesLoading: loadingType
   uploadFilesError: string | null
@@ -16,6 +20,8 @@ export type AccountState = {
 
 
 const initialState: AccountState = {
+  deviceAssets: [],
+
   uploadFile: null,
   uploadFilesLoading: "idle",
   uploadFilesError: null,
@@ -37,7 +43,10 @@ export const AccountSlice = createSlice({
     },
     currentUploadingFile: (state, action: PayloadAction<string>) => {
       state.uploadFile = action.payload
-    }
+    },
+    setDeviceAssets: (state, action: PayloadAction<MediaLibrary.Asset[]>) => {
+      state.deviceAssets = [...state.deviceAssets, ...action.payload]
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -75,7 +84,8 @@ export const AccountSlice = createSlice({
 export const {
   resetAccountState,
   resetFeeds,
-  currentUploadingFile
+  currentUploadingFile,
+  setDeviceAssets
 } = AccountSlice.actions
 
 export default AccountSlice.reducer
