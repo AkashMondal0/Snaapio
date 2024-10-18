@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { loadingType, Post } from '@/types'
-import { fetchAccountFeedApi, uploadFilesApi } from './api.service'
+import { fetchAccountFeedApi } from './api.service'
 import * as MediaLibrary from 'expo-media-library';
 
 
@@ -41,12 +41,12 @@ export const AccountSlice = createSlice({
     resetFeeds: (state) => {
       state.feeds = []
     },
-    currentUploadingFile: (state, action: PayloadAction<string>) => {
-      state.uploadFile = action.payload
-    },
     setDeviceAssets: (state, action: PayloadAction<MediaLibrary.Asset[]>) => {
       state.deviceAssets = [...state.deviceAssets, ...action.payload]
     },
+    currentUploadingFile: (state, action: PayloadAction<string | null>) => {
+      state.uploadFile = action.payload
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -64,20 +64,20 @@ export const AccountSlice = createSlice({
         state.feedsLoading = "normal"
         state.feedsError = action.payload?.message ?? "fetch error"
       })
-      .addCase(uploadFilesApi.pending, (state) => {
-        state.uploadFilesLoading = "pending"
-        state.uploadFilesError = null
-        state.uploadFile = null
-      })
-      .addCase(uploadFilesApi.fulfilled, (state) => {
-        state.uploadFilesLoading = "normal"
-        state.uploadFile = null
-      })
-      .addCase(uploadFilesApi.rejected, (state, action: any) => {
-        state.uploadFilesError = action.payload?.message ?? "upload error"
-        state.uploadFilesLoading = "normal"
-        state.uploadFile = null
-      })
+    // .addCase(uploadFilesApi.pending, (state) => {
+    //   state.uploadFilesLoading = "pending"
+    //   state.uploadFilesError = null
+    //   state.uploadFile = null
+    // })
+    // .addCase(uploadFilesApi.fulfilled, (state) => {
+    //   state.uploadFilesLoading = "normal"
+    //   state.uploadFile = null
+    // })
+    // .addCase(uploadFilesApi.rejected, (state, action: any) => {
+    //   state.uploadFilesError = action.payload?.message ?? "upload error"
+    //   state.uploadFilesLoading = "normal"
+    //   state.uploadFile = null
+    // })
   },
 })
 

@@ -12,16 +12,17 @@ import {
 } from '@/components/skysolo-ui';
 import AppHeader from '@/components/AppHeader';
 import { PageProps } from '@/types';
-import { Plus } from 'lucide-react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
-import { uploadFilesApi } from '@/redux-stores/slice/account/api.service';
 import { AddImage, PreviewImage } from '@/components/upload/preview-image';
+import { uploadFilesApi } from '@/redux-stores/slice/account/upload.api.service';
 
 const PostReviewScreen = memo(function PostReviewScreen({
     navigation,
     route
-}: PageProps<MediaLibrary.Asset[]>) {
+}: PageProps<{
+    assets: MediaLibrary.Asset[]
+}>) {
     const [assets, setAssets] = useState(route?.params?.assets ? [...route.params?.assets] : [])
     const session = useSelector((state: RootState) => state.AuthState.session.user)
     const dispatch = useDispatch()
@@ -46,7 +47,7 @@ const PostReviewScreen = memo(function PostReviewScreen({
                 authorId: session?.id
             }) as any)
         }, 1000);
-    }, [assets, session?.id])
+    }, [assets.length, session?.id])
 
     return (
         <>

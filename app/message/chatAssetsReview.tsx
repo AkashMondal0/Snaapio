@@ -5,7 +5,8 @@ import * as MediaLibrary from 'expo-media-library';
 import {
     Button,
     Separator,
-    Input
+    Input,
+    Text
 } from '@/components/skysolo-ui';
 import AppHeader from '@/components/AppHeader';
 import { Conversation, disPatchResponse, Message, PageProps } from '@/types';
@@ -29,7 +30,7 @@ const ChatAssetsReviewScreen = memo(function ChatAssetsReviewScreen({
     const socketState = useContext(SocketContext)
     const members = conversation?.members ?? []
     const ConversationList = useSelector((state: RootState) => state.ConversationState.conversationList, (prev, next) => prev.length === next.length)
-    // const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(false)
     const dispatch = useDispatch()
 
     const handleDelete = useCallback((id: string) => {
@@ -37,7 +38,7 @@ const ChatAssetsReviewScreen = memo(function ChatAssetsReviewScreen({
     }, [])
 
     const sendMessageHandle = useCallback(async () => {
-        // setLoading((pre) => !pre)
+        setLoading((pre) => !pre)
         try {
             if (!session?.id || !conversation?.id) return ToastAndroid.show("Something went wrong CI", ToastAndroid.SHORT)
             const newMessage = await dispatch(CreateMessageApi({
@@ -68,7 +69,7 @@ const ChatAssetsReviewScreen = memo(function ChatAssetsReviewScreen({
         } catch (error: any) {
             ToastAndroid.show("Something went wrong", ToastAndroid.SHORT)
         } finally {
-            // setLoading((pre) => !pre)
+            setLoading((pre) => !pre)
         }
     }, [
         ConversationList.length,
@@ -80,7 +81,22 @@ const ChatAssetsReviewScreen = memo(function ChatAssetsReviewScreen({
     ])
 
     return (
-        <>
+        <View style={{
+            flex: 1,
+        }}>
+            {loading ? <View style={{
+                position: "absolute",
+                width: "100%",
+                height: "100%",
+                backgroundColor: "rgba(0,0,0,0.6)",
+                justifyContent: "center",
+                alignItems: "center",
+                zIndex: 100,
+            }}>
+                <Text variant="heading3" style={{ textAlign: "center", padding: 10 }}>
+                    Sending...
+                </Text>
+            </View> : <View />}
             <AppHeader
                 title={conversation?.user?.username ?? "Chat"}
                 navigation={navigation} titleCenter />
@@ -129,7 +145,6 @@ const ChatAssetsReviewScreen = memo(function ChatAssetsReviewScreen({
                         width: "95%",
                         margin: "2.5%",
                     }}
-                    // secondaryColor
                     placeholder='Write a caption...' />
                 <Separator value={0.6} style={{ marginVertical: 2 }} />
             </ScrollView>
@@ -143,7 +158,7 @@ const ChatAssetsReviewScreen = memo(function ChatAssetsReviewScreen({
                     Send
                 </Button>
             </View>
-        </>
+        </View>
     );
 }, () => true);
 

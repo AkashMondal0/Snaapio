@@ -114,7 +114,7 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
                             aspectRatio: 1,
                         }}>
                         <Image
-                            url={item.fileUrl[0].urls?.low}
+                            url={item.fileUrl[0].urls?.high}
                             showImageError
                             resizeMode="cover"
                             style={{
