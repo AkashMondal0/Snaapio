@@ -5,6 +5,7 @@ import { NavigationProps, User } from "@/types";
 import ProfileInfoCount from "./ProfileInfoCount";
 import ProfileActionsButton from "./ProfileActionsButton";
 import ProfileStories from "./ProfileStories";
+import ProfilePicView from "./ProfilePicView";
 
 
 const ProfileHeader = memo(function HomeScreen({
@@ -59,24 +60,23 @@ const ProfileHeader = memo(function HomeScreen({
                     width: '100%',
                     marginBottom: 8,
                 }}>
-                    <Avatar
-                        size={120}
-                        TouchableOpacityOptions={{
-                            activeOpacity: 0.9
-                        }}
-                        url={user?.profilePicture} />
-                    <ProfileInfoCount navigation={navigation}
-                        userData={user} />
+                    <ProfilePicView profilePic={user?.profilePicture} />
+                    <ProfileInfoCount navigation={navigation} userData={user} />
                 </View>
                 <Text
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
                     style={{
                         fontWeight: "600",
-                        marginVertical: 4
+                        marginVertical: 4,
+                        width: '80%'
                     }}
                     variant="heading3">
                     {user?.name}
                 </Text>
                 <Text
+                    numberOfLines={6}
+                    ellipsizeMode="tail"
                     colorVariant='secondary'
                     lineBreakMode="tail"
                     style={{ fontWeight: "400" }}

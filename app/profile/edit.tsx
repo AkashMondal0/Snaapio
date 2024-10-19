@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
-import { ScrollView, ToastAndroid, View } from 'react-native';
-import { Button, Icon, Image, Input, Text, View as ThemedView } from '@/components/skysolo-ui';
+import { ScrollView, ToastAndroid, TouchableOpacity, View } from 'react-native';
+import { Avatar, Button, Icon, Image, Input, Text, View as ThemedView } from '@/components/skysolo-ui';
 import AppHeader from '@/components/AppHeader';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm } from 'react-hook-form';
 import { profileUpdateApi } from '@/redux-stores/slice/auth/api.service';
+import * as ImagePicker from 'expo-image-picker';
 
 const schema = z.object({
     username: z.string().min(2, {
@@ -29,7 +30,7 @@ const schema = z.object({
 const ProfileEditScreen = memo(function ProfileEditScreen({
     navigation,
 }: PageProps<any>) {
-    const session = useSelector((state: RootState) => state.AuthState.session.user)
+    const session = useSelector((state: RootState) => state.AuthState.session.user);
     const [state, setStats] = useState<{
         showPassword: boolean,
         loading: boolean,
@@ -37,9 +38,23 @@ const ProfileEditScreen = memo(function ProfileEditScreen({
     }>({
         showPassword: false,
         loading: false,
-        errorMessage: null
+        errorMessage: null,
     });
-    const dispatch = useDispatch()
+    const [image, setImage] = useState<string | null>(null);
+    const dispatch = useDispatch();
+    const pickImage = async () => {
+        if (!session || state.loading) return;
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.2,
+            base64: true,
+        });
+        if (!result.canceled) {
+            setImage(result.assets[0].uri);
+        }
+    };
 
     const { control, handleSubmit, reset, formState: { errors } } = useForm({
         defaultValues: {
@@ -57,9 +72,9 @@ const ProfileEditScreen = memo(function ProfileEditScreen({
         username: string,
         bio: string,
     }) => {
-        if (!session) return ToastAndroid.show("Session not found", ToastAndroid.SHORT)
+        if (!session?.id) return ToastAndroid.show("Session not found", ToastAndroid.SHORT);
         try {
-            setStats((pre) => ({ ...pre, loading: true }))
+            setStats((pre) => ({ ...pre, loading: true }));
             await dispatch(profileUpdateApi({
                 profileId: session?.id,
                 updateUsersInput: {
@@ -67,12 +82,14 @@ const ProfileEditScreen = memo(function ProfileEditScreen({
                     username: inputData.username,
                     bio: inputData.bio,
                 },
-                file: undefined
-            }) as any)
-        } finally {
-            setStats((pre) => ({ ...pre, loading: false }))
+                fileUrl: image
+            }) as any);
+            ToastAndroid.show("Profile updated", ToastAndroid.SHORT);
         }
-    }, [session, state.loading])
+        finally {
+            setStats((pre) => ({ ...pre, loading: false }));
+        }
+    }, [image, session?.id]);
 
     useEffect(() => {
         if (session) {
@@ -83,7 +100,8 @@ const ProfileEditScreen = memo(function ProfileEditScreen({
                 bio: session.bio
             })
         }
-    }, [session])
+    }, [session]);
+
 
     const ErrorMessage = ({ text }: any) => {
         return <Text
@@ -105,49 +123,41 @@ const ProfileEditScreen = memo(function ProfileEditScreen({
         <ScrollView
             keyboardDismissMode='on-drag'
             keyboardShouldPersistTaps='handled'>
-            {session?.profilePicture ? <Image
-                url={session?.profilePicture}
+            <ThemedView
+                variant="secondary"
                 style={{
                     width: 120,
-                    aspectRatio: 1,
-                    borderRadius: 100,
-                    margin: "auto",
+                    aspectRatio: 1 / 1,
+                    marginHorizontal: "auto",
                     marginTop: 20,
-                }} /> : <ThemedView
-                    variant='secondary'
-                    style={{
-                        width: 120,
-                        aspectRatio: 1,
-                        borderRadius: 100,
-                        margin: "auto",
-                        marginTop: 20,
-                        justifyContent: "center",
-                        alignItems: "center",
-                        borderWidth: 1,
-                    }}>
-                <Icon
-                    iconName='User'
-                    size={80}
-                    style={{
-                        marginTop: "auto",
-                        marginBottom: "auto",
-                        marginLeft: "auto",
-                        marginRight: "auto"
-                    }} />
-                <View style={{
-                    position: "absolute",
-                    width: "100%",
-                    backgroundColor: "transparent",
-                    alignItems: "flex-end",
-                    bottom: -1,
-                    left: 1,
+                    borderRadius: 100,
                 }}>
+                <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={pickImage}
+                    style={{
+                        position: "absolute",
+                        zIndex: 1,
+                        width: "100%",
+                        height: "100%",
+                        backgroundColor: "rgba(0,0,0,0.3)",
+                        alignItems: "center",
+                        justifyContent: "center",
+                    }}>
                     <Icon
-                        iconName='Plus'
-                        size={28}
-                        isButton />
-                </View>
-            </ThemedView>}
+                        onPress={pickImage}
+                        iconName='Camera'
+                        color="white"
+                        size={34} />
+                </TouchableOpacity>
+                {image ? <Avatar
+                    serverImage={false}
+                    size={120}
+                    url={image} /> :
+                    <Avatar
+                        size={120}
+                        url={session?.profilePicture} />}
+            </ThemedView>
             <View style={{
                 padding: 20,
                 paddingTop: 10,
@@ -224,7 +234,7 @@ const ProfileEditScreen = memo(function ProfileEditScreen({
                             textContentType="none"
                             keyboardType="default"
                             returnKeyType="done"
-                             />
+                        />
                     )}
                     name="bio"
                     rules={{ required: false }} />

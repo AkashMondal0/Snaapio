@@ -1,5 +1,5 @@
 import { configs } from "@/configs";
-import { SecureStorage } from "@/lib/SecureStore";
+import { getSecureStorage, SecureStorage } from "@/lib/SecureStore";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { resetAccountState } from "../account";
 import { resetConversationState } from "../conversation";
@@ -11,19 +11,7 @@ import { graphqlQuery } from "@/lib/GraphqlQuery";
 import { AQ } from "../account/account.queries";
 import { uploadFileToSupabase } from "@/lib/SupaBase-uploadFile";
 import { ImageCompressor } from "@/lib/RN-ImageCompressor";
-import { Asset } from "expo-media-library";
-type UpdateProfile = {
-    updateUsersInput?: {
-        username?: string
-        email?: string
-        name?: string
-        bio?: string
-        website?: string[]
-        profilePicture?: string
-    },
-    file?: Asset,
-    profileId: string
-}
+import { Session } from "@/types";
 export const loginApi = async ({
     email,
     password,
@@ -52,7 +40,7 @@ export const loginApi = async ({
                     code: 0
                 }
             }
-            SecureStorage("set", configs.sessionName, JSON.stringify(_data.data))
+            SecureStorage("set", configs.sessionName, JSON.stringify(_data))
             return {
                 data: _data,
                 message: "Login Successful",
@@ -103,7 +91,7 @@ export const registerApi = async ({
                     code: 0
                 }
             }
-            SecureStorage("set", configs.sessionName, JSON.stringify(_data.data))
+            SecureStorage("set", configs.sessionName, JSON.stringify(_data))
             return {
                 data: _data,
                 message: "Register Successful",
@@ -149,42 +137,63 @@ export const logoutApi = createAsyncThunk(
 
 export const profileUpdateApi = createAsyncThunk(
     'profileUpdateApi/post',
-    async (data: UpdateProfile, thunkApi) => {
-        const { file, profileId, updateUsersInput } = data
+    async (data: {
+        updateUsersInput?: {
+            username?: string
+            email?: string
+            name?: string
+            bio?: string
+            website?: string[]
+            profilePicture?: string
+        },
+        fileUrl?: string | null
+        profileId: string
+    }, thunkApi) => {
+        const { fileUrl, profileId, updateUsersInput } = data;
         try {
-            let data;
-            if (file) {
+            let data; // to store the response
+            if (fileUrl) {
+                // Compress the image
                 const CImg = await ImageCompressor({
-                    image: file.uri,
+                    image: fileUrl,
                     quality: "low"
-                })
+                });
+                // Upload the image to supabase
                 const url = await uploadFileToSupabase(CImg, "image/jpeg", profileId);
                 if (!url) {
-                    return ""
+                    return "";
                 }
+                // Update the user profile with the new image
                 const res = await graphqlQuery({
                     query: AQ.updateUserProfile,
                     variables: {
                         updateUsersInput: { profilePicture: url }
                     }
-                })
-                data = res
+                });
+                data = res;
             }
+            // Update only the user profile with the new details
             else {
                 const res = await graphqlQuery({
                     query: AQ.updateUserProfile,
                     variables: {
                         updateUsersInput
                     }
-                })
-                data = res
+                });
+                data = res;
             }
-            SecureStorage("set", configs.sessionName, JSON.stringify(data))
-            return data
+            // Update the session with the new details
+            const { id, ...updatedDetails } = data;
+            const session = await getSecureStorage<Session["user"]>(configs.sessionName);
+            await SecureStorage("set", configs.sessionName, JSON.stringify({
+                ...session,
+                ...updatedDetails
+            }));
+            return updatedDetails;
         } catch (error: any) {
             return thunkApi.rejectWithValue({
                 ...error?.response?.data,
-            })
+            });
         }
     }
 );

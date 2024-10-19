@@ -13,6 +13,7 @@ export type Props = ImageProps & {
     isLocalImage?: boolean;
     isBorder?: boolean;
     showImageError?: boolean;
+    serverImage?: boolean;
 };
 
 
@@ -20,13 +21,16 @@ const SkysoloImage = ({
     style,
     url,
     isLocalImage,
+    serverImage = true,
     isBorder = true,
     showImageError = false,
     ...otherProps }: Props) => {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
     const [error, setError] = useState(false);
 
-    if (error && showImageError || !url) {
+    if (!url) return null
+
+    if (error && showImageError) {
         return (
             <View
                 style={{
@@ -60,7 +64,7 @@ const SkysoloImage = ({
 
     return (
         <Image
-            source={{ uri: configs.serverApi.supabaseStorageUrl + url }}
+            source={{ uri: serverImage ? configs.serverApi.supabaseStorageUrl + url : url }}
             resizeMode='contain'
             progressiveRenderingEnabled={true}
             onError={() => {
