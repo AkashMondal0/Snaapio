@@ -1,19 +1,24 @@
 import { configs } from '@/configs';
 import { RootState } from '@/redux-stores/store';
 import { RotateCcw } from 'lucide-react-native';
-import { useState } from 'react';
-import { Text, TouchableOpacity, View, Image, type ImageProps } from 'react-native';
+import { useRef, useState } from 'react';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
+import { Image, type ImageProps } from "expo-image"
+import { loadingType } from '@/types';
+import Loader from './Loader';
+
 
 export type Props = ImageProps & {
     lightColor?: string;
     darkColor?: string;
-    url?: string | null;
+    url?: string | null | undefined;
     size?: number | string;
     isLocalImage?: boolean;
     isBorder?: boolean;
     showImageError?: boolean;
     serverImage?: boolean;
+    blurUrl?: string | null | undefined;
 };
 
 
@@ -24,13 +29,13 @@ const SkysoloImage = ({
     serverImage = true,
     isBorder = true,
     showImageError = false,
+    blurUrl,
     ...otherProps }: Props) => {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
-    const [error, setError] = useState(false);
+    const error = useRef(false)
+    const [state, setState] = useState<loadingType>("idle")
 
-    if (!url) return null
-
-    if (error && showImageError) {
+    if (error.current && showImageError || !url) {
         return (
             <View
                 style={{
@@ -42,18 +47,18 @@ const SkysoloImage = ({
                     alignItems: "center",
                     ...style as any,
                 }}>
-                <TouchableOpacity activeOpacity={0.6} style={{
-                    width: "100%",
-                    height: "100%",
-                    justifyContent: "center",
-                    alignItems: "center",
-                }}>
-                    <RotateCcw color={currentTheme?.muted_foreground} size={40} strokeWidth={0.8} />
+                <TouchableOpacity activeOpacity={0.6}
+                    style={{
+                        width: "100%",
+                        height: "100%",
+                        justifyContent: "center",
+                        alignItems: "center",
+                    }}>
+                    <RotateCcw color={currentTheme?.foreground} size={40} strokeWidth={0.8} />
                     <Text style={{
-                        color: currentTheme?.muted_foreground,
+                        color: currentTheme?.foreground,
                         fontSize: 16,
                         textAlign: "center",
-                        marginVertical: 10,
                     }}>
                         Failed to load image
                     </Text>
@@ -63,21 +68,41 @@ const SkysoloImage = ({
     }
 
     return (
-        <Image
-            source={{ uri: serverImage ? configs.serverApi.supabaseStorageUrl + url : url }}
-            resizeMode='contain'
-            progressiveRenderingEnabled={true}
-            onError={() => {
-                if (!error) setError(true)
-            }}
-            style={[
-                {
-                    width: "100%",
-                    height: "auto",
-                    resizeMode: "cover",
-                }, style
-            ]}
-            {...otherProps} />
+        <>
+            <View style={[{
+                position: "absolute",
+                width: "100%",
+                height: "100%",
+                // backgroundColor: currentTheme?.muted,
+                justifyContent: "center",
+                alignItems: "center",
+                zIndex: 1,
+                display: state === "pending" ? "flex" : "none",
+            }, style]}>
+                <Loader size={40} />
+            </View>
+            <Image
+                source={{ uri: serverImage ? configs.serverApi.supabaseStorageUrl + url : url }}
+                contentFit="cover"
+                transition={150}
+                style={[{
+                    width: '100%',
+                    height: "100%",
+                    backgroundColor: currentTheme?.muted,
+                }, style]}
+                onLoadStart={() => {
+                    if (state === "pending") return;
+                    setState("pending");
+                }}
+                onError={() => {
+                    error.current = true;
+                }}
+                onLoadEnd={() => {
+                    if (state === "normal") return;
+                    setState("normal");
+                }}
+                {...otherProps} />
+        </>
     )
 }
 

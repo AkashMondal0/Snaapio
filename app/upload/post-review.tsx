@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useState } from 'react';
-import { View, Image, TouchableOpacity, ScrollView, ToastAndroid } from 'react-native';
+import { View, ScrollView, ToastAndroid } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import * as MediaLibrary from 'expo-media-library';
 import {
@@ -8,14 +8,15 @@ import {
     Text,
     Separator,
     TouchableOpacity as SU_TouchableOpacity,
-    Input
+    Input,
+    PageLoader
 } from '@/components/skysolo-ui';
 import AppHeader from '@/components/AppHeader';
 import { PageProps } from '@/types';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
 import { AddImage, PreviewImage } from '@/components/upload/preview-image';
-import { uploadFilesApi } from '@/redux-stores/slice/account/upload.api.service';
+import { uploadFilesApi } from '@/redux-stores/slice/account/api.service';
 
 const PostReviewScreen = memo(function PostReviewScreen({
     navigation,
@@ -25,6 +26,8 @@ const PostReviewScreen = memo(function PostReviewScreen({
 }>) {
     const [assets, setAssets] = useState(route?.params?.assets ? [...route.params?.assets] : [])
     const session = useSelector((state: RootState) => state.AuthState.session.user)
+    const loading = useSelector((state: RootState) => state.AccountState.uploadFilesLoading, (prev, next) => prev === next)
+
     const dispatch = useDispatch()
 
     const handleDelete = useCallback((id: string) => {
@@ -36,21 +39,20 @@ const PostReviewScreen = memo(function PostReviewScreen({
         if (!session) return ToastAndroid.show("Please login", ToastAndroid.SHORT)
         // hit api and loading all global uploading state
         // and reset all states
+        await dispatch(uploadFilesApi({
+            files: assets,
+            caption: "caption 1",
+            location: "kol-sky-007",
+            tags: [],
+            authorId: session?.id
+        }) as any)
         setAssets([])
-        navigation?.navigate("Root", { screen: "home" })
-        setTimeout(() => {
-            dispatch(uploadFilesApi({
-                files: assets,
-                caption: "caption 1",
-                location: "kol-sky-007",
-                tags: [],
-                authorId: session?.id
-            }) as any)
-        }, 1000);
+        navigation?.replace("Root", { screen: "home" })
     }, [assets.length, session?.id])
 
     return (
         <>
+            <PageLoader loading={loading} text='Uploading' />
             <AppHeader title="New Post" navigation={navigation} titleCenter />
             <ScrollView
                 keyboardDismissMode='on-drag'

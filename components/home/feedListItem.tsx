@@ -71,19 +71,7 @@ const FeedItem = memo(function FeedItem({
                 // aspectRatio: 16 / 9,  // landscape
                 // aspectRatio: 1 / 1, // square
             }}>
-            {data.fileUrl.map((item, index) => (
-                <Image
-                    key={index}
-                    isBorder
-                    url={item.urls?.high}
-                    style={{
-                        width: "100%",
-                        flex: 1,
-                        borderRadius: 0,
-                        // resizeMode: "contain",
-                        resizeMode: "cover",
-                    }} />
-            ))}
+            {data.fileUrl.map((item, index) => (<ImageItem key={index} item={item} index={index} />))}
         </PagerView>
         {/* action */}
         <View>
@@ -110,9 +98,7 @@ const FeedItem = memo(function FeedItem({
             </View>
         </View>
     </View>
-}, (prev, next) => {
-    return prev.data.id === next.data.id
-})
+}, () =>true)
 
 
 export default FeedItem;
@@ -287,3 +273,16 @@ const FeedItemActionsButtons = (
         </View>
     )
 }
+const ImageItem = memo(function ImageItem({ item, index }: { item: any, index: number }) {
+    return <Image
+        key={index}
+        isBorder
+        url={item.urls?.high}
+        style={{
+            width: "100%",
+            flex: 1,
+            borderRadius: 0,
+        }} />
+}, (prev, next) => {
+    return prev.item.id === next.item.id
+})

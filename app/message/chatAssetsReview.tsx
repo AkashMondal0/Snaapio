@@ -6,7 +6,7 @@ import {
     Button,
     Separator,
     Input,
-    Text
+    PageLoader
 } from '@/components/skysolo-ui';
 import AppHeader from '@/components/AppHeader';
 import { Conversation, disPatchResponse, Message, PageProps } from '@/types';
@@ -55,14 +55,11 @@ const ChatAssetsReviewScreen = memo(function ChatAssetsReviewScreen({
                 })
             }
             if (ConversationList.findIndex((i) => i.id === conversation?.id) === -1) {
-                // toast.success("New conversation created")
-                dispatch(fetchConversationsApi({
+                await dispatch(fetchConversationsApi({
                     limit: 12,
                     offset: 0,
                 }) as any)
             }
-            // reset()
-            // setIsFile([])
             if (navigation?.canGoBack()) {
                 navigation.goBack()
             }
@@ -81,22 +78,8 @@ const ChatAssetsReviewScreen = memo(function ChatAssetsReviewScreen({
     ])
 
     return (
-        <View style={{
-            flex: 1,
-        }}>
-            {loading ? <View style={{
-                position: "absolute",
-                width: "100%",
-                height: "100%",
-                backgroundColor: "rgba(0,0,0,0.6)",
-                justifyContent: "center",
-                alignItems: "center",
-                zIndex: 100,
-            }}>
-                <Text variant="heading3" style={{ textAlign: "center", padding: 10 }}>
-                    Sending...
-                </Text>
-            </View> : <View />}
+        <>
+            <PageLoader loading={loading} text='Sending' />
             <AppHeader
                 title={conversation?.user?.username ?? "Chat"}
                 navigation={navigation} titleCenter />
@@ -158,7 +141,7 @@ const ChatAssetsReviewScreen = memo(function ChatAssetsReviewScreen({
                     Send
                 </Button>
             </View>
-        </View>
+        </>
     );
 }, () => true);
 

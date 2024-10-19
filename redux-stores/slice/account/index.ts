@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { loadingType, Post } from '@/types'
-import { fetchAccountFeedApi } from './api.service'
+import { fetchAccountFeedApi, uploadFilesApi } from './api.service'
 import * as MediaLibrary from 'expo-media-library';
 
 
@@ -10,7 +10,7 @@ export type AccountState = {
   deviceAssets: MediaLibrary.Asset[]
   //
   uploadFile: string | null
-  uploadFilesLoading: loadingType
+  uploadFilesLoading: boolean
   uploadFilesError: string | null
   //
   feeds: Post[]
@@ -23,7 +23,7 @@ const initialState: AccountState = {
   deviceAssets: [],
 
   uploadFile: null,
-  uploadFilesLoading: "idle",
+  uploadFilesLoading: false,
   uploadFilesError: null,
   //
   feeds: [],
@@ -64,20 +64,17 @@ export const AccountSlice = createSlice({
         state.feedsLoading = "normal"
         state.feedsError = action.payload?.message ?? "fetch error"
       })
-    // .addCase(uploadFilesApi.pending, (state) => {
-    //   state.uploadFilesLoading = "pending"
-    //   state.uploadFilesError = null
-    //   state.uploadFile = null
-    // })
-    // .addCase(uploadFilesApi.fulfilled, (state) => {
-    //   state.uploadFilesLoading = "normal"
-    //   state.uploadFile = null
-    // })
-    // .addCase(uploadFilesApi.rejected, (state, action: any) => {
-    //   state.uploadFilesError = action.payload?.message ?? "upload error"
-    //   state.uploadFilesLoading = "normal"
-    //   state.uploadFile = null
-    // })
+      .addCase(uploadFilesApi.pending, (state) => {
+        state.uploadFilesLoading = true
+        state.uploadFilesError = null
+      })
+      .addCase(uploadFilesApi.fulfilled, (state) => {
+        state.uploadFilesLoading = false
+      })
+      .addCase(uploadFilesApi.rejected, (state, action: any) => {
+        state.uploadFilesError = action.payload?.message ?? "upload error"
+        state.uploadFilesLoading = false
+      })
   },
 })
 

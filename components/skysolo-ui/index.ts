@@ -12,7 +12,7 @@ import Collapsible from "./Collapsible"
 import Modal from "./Modal";
 import Alert from "./Alert";
 import ToastAndroid from "./ToastAndroid";
-import Loader from "./Loader";
+import Loader, { PageLoader } from "./Loader";
 import ActionSheet from "./ActionSheet";
 import Avatar from "./Avatar";
 import TouchableOpacity from "./TouchableOpacity";
@@ -44,5 +44,6 @@ export {
     TouchableOpacity,
     Separator,
     IconName,
-    AnimatedView
+    AnimatedView,
+    PageLoader
 }

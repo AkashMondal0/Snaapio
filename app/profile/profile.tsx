@@ -1,13 +1,12 @@
 import ErrorScreen from "@/components/error/page";
-import { ProfileEmptyPosts, ProfileHeader, ProfileNavbar } from "@/components/profile";
-import { Loader } from "@/components/skysolo-ui";
+import { ProfileEmptyPosts, ProfileGridItem, ProfileHeader, ProfileNavbar } from "@/components/profile";
+import { Loader, Image } from "@/components/skysolo-ui";
 import { fetchUserProfileDetailApi, fetchUserProfilePostsApi } from "@/redux-stores/slice/profile/api.service";
 import { RootState } from "@/redux-stores/store";
 import { disPatchResponse, loadingType, NavigationProps, Post, User } from "@/types";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import { View, FlatList, ToastAndroid } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import { Image } from '@/components/skysolo-ui'
 
 interface ScreenProps {
     navigation: NavigationProps;
@@ -99,8 +98,6 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
                 alwaysBounceVertical={false}
                 refreshing={false}
                 onEndReachedThreshold={0.5}
-                removeClippedSubviews={true}
-                windowSize={10}
                 onEndReached={onEndReached}
                 onRefresh={onRefresh}
                 columnWrapperStyle={{
@@ -108,21 +105,7 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
                     paddingVertical: 1,
                 }}
                 renderItem={({ item, index }) => (
-                    <View
-                        style={{
-                            width: "33%",
-                            height: "100%",
-                            aspectRatio: 1,
-                        }}>
-                        <Image
-                            url={item.fileUrl[0].urls?.high}
-                            resizeMode="cover"
-                            showImageError
-                            style={{
-                                width: '100%',
-                                height: "100%",
-                            }} />
-                    </View>
+                    <ProfileGridItem item={item} index={index} />
                 )}
                 ListHeaderComponent={UserData.current ? <>
                     <ProfileHeader

@@ -185,15 +185,17 @@ const ImageComponent = ({
                         padding: 5,
                         marginBottom: 5,
                     }}>
-                    <Image
-                        isBorder
-                        url={file.urls?.high}
-                        style={{
-                            width: "100%",
-                            height: 300,
-                            borderRadius: 16,
-                            marginBottom: 4,
-                        }} />
+                    <View>
+                        <Image
+                            isBorder
+                            url={file.urls?.high}
+                            style={{
+                                width: "100%",
+                                height: 300,
+                                borderRadius: 16,
+                                marginBottom: 4,
+                            }} />
+                    </View>
                     {footer}
                 </View>)
             })}

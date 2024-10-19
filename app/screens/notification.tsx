@@ -138,12 +138,14 @@ const NotificationItem = memo(function NotificationItem({
                 </Text>
             </View>
         </View>
-        <Image url={data.post?.fileUrl[0].urls?.low} showImageError style={{
-            width: 60,
-            borderRadius: 10,
-            aspectRatio: 1 / 1,
-            flex: 0,
-        }}/>
+        <Image url={data.post?.fileUrl[0].urls?.low}
+            showImageError
+            style={{
+                width: 60,
+                borderRadius: 10,
+                aspectRatio: 1 / 1,
+                flex: 0,
+            }} />
     </TouchableOpacity>)
 }, (prevProps, nextProps) => {
     return prevProps.data.id === nextProps.data.id
