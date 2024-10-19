@@ -1,10 +1,11 @@
 import React, { memo, useState } from "react";
 import { View } from "react-native";
-import { Avatar, Text } from "@/components/skysolo-ui"
+import { Separator, Text } from "@/components/skysolo-ui"
 import { NavigationProps, User } from "@/types";
 import ProfileInfoCount from "./ProfileInfoCount";
 import ProfileActionsButton from "./ProfileActionsButton";
 import ProfileStories from "./ProfileStories";
+import ProfilePicView from "./ProfilePicView";
 
 
 const ProfileHeader = memo(function HomeScreen({
@@ -59,33 +60,28 @@ const ProfileHeader = memo(function HomeScreen({
                     width: '100%',
                     marginBottom: 8,
                 }}>
-                    <Avatar
-                        size={120}
-                        TouchableOpacityOptions={{
-                            activeOpacity: 0.9
-                        }}
-                        url={user?.profilePicture} />
-                    <ProfileInfoCount navigation={navigation}
-                        userData={user} />
+                    <ProfilePicView profilePic={user?.profilePicture} />
+                    <ProfileInfoCount navigation={navigation} userData={user} />
                 </View>
                 <Text
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
                     style={{
                         fontWeight: "600",
-                        marginVertical: 4
+                        marginVertical: 4,
+                        width: '80%'
                     }}
                     variant="heading3">
                     {user?.name}
                 </Text>
                 <Text
+                    numberOfLines={6}
+                    ellipsizeMode="tail"
                     colorVariant='secondary'
                     lineBreakMode="tail"
                     style={{ fontWeight: "400" }}
                     variant="heading4">
                     {user?.bio}
-                    {`🌍 Adventurer |🍳 Foodie`}
-                    {`🏍️ ⚙️ "1 N 2 3 4 5" ⚙️`}
-                    {`⛰️ Mountain Enthusiast`}
-                    {`🐞 Software Developer`}
                 </Text>
                 <ProfileActionsButton
                     navigation={navigation}
@@ -95,6 +91,8 @@ const ProfileHeader = memo(function HomeScreen({
                     isProfile={isProfile} />
             </View>
             <ProfileStories navigation={navigation} />
+            <View style={{height: 14}} />
+            <Separator value={0.8}/>
         </>
     )
 

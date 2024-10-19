@@ -23,4 +23,15 @@ const SecureStorage = async (method: "get" | "set" | "remove", key: string, setI
     }
 }
 
-export { SecureStorage }
+const getSecureStorage = async <T>(key: string): Promise<T | null> => {
+    try {
+        const value = await SecureStore.getItemAsync(key);
+        if (!value) return null
+        return JSON.parse(value)
+    } catch (err) {
+        console.error("Error in getting theme from redux async storage", err)
+        return null
+    }
+}
+
+export { SecureStorage, getSecureStorage }

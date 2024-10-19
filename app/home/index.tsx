@@ -10,8 +10,8 @@ import FeedsScreen from "./feeds";
 import ProfileScreen from "./account";
 import ReelsScreen from "./reels";
 import SearchScreen from "./search";
-import CameraScreen from '../camera';
 import Pages from './pages';
+import { NewPostSelectionScreen } from '@/app/upload';
 const Tab = createBottomTabNavigator();
 
 const HomeScreen = memo(function HomeScreen() {
@@ -112,7 +112,7 @@ const HomeScreen = memo(function HomeScreen() {
                 tabBar={MyTabBar}>
                 <Tab.Screen name="home" component={HomeTab} />
                 <Tab.Screen name="search" component={SearchTab} />
-                <Tab.Screen name="create" component={CameraScreen} />
+                <Tab.Screen name="create" component={NewPostSelectionScreen} />
                 <Tab.Screen name="reels" component={ReelsScreen} />
                 <Tab.Screen name="account" component={AccountTab} />
             </Tab.Navigator>

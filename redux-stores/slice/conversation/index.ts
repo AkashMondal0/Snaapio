@@ -2,6 +2,7 @@ import { CreateMessageApi, conversationSeenAllMessage, fetchConversationAllMessa
 import { Conversation, Message, Typing } from '@/types'
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
+import { Asset } from 'expo-media-library'
 
 export type loadingType = 'idle' | 'pending' | 'normal'
 // Define a type for the slice state
@@ -26,10 +27,9 @@ interface ConversationStateType {
     createMessageError: string | null
 
     // sending image in message
-    UploadFiles: {
-        error?: string | any,
-        currentUploadImgLength?: number | null,
-    }
+    uploadFiles: Asset[]
+    uploadFilesLoading: boolean
+    uploadFilesError: string | null
 }
 
 // Define the initial state using that type
@@ -53,11 +53,10 @@ const ConversationState: ConversationStateType = {
     createMessageLoading: false,
     createMessageError: null,
 
-    // sending image in message
-    UploadFiles: {
-        error: null,
-        currentUploadImgLength: null,
-    }
+    // sending assets in message
+    uploadFiles: [],
+    uploadFilesLoading: false,
+    uploadFilesError: null
 }
 
 export const ConversationSlice = createSlice({
@@ -115,15 +114,15 @@ export const ConversationSlice = createSlice({
             currentUploadImgLength?: number | null,
             error?: string
         }>) => {
-            if (action.payload.error) {
-                state.UploadFiles.error = action.payload.error
-                return
-            }
-            state.UploadFiles.currentUploadImgLength = action.payload.currentUploadImgLength
+
         },
         setConversation: (state, action: PayloadAction<Conversation>) => {
             state.conversation = action.payload
             state.messages = []
+        },
+        //
+        setUploadFiles: (state, action: PayloadAction<Asset[] | []>) => {
+            state.uploadFiles = action.payload
         },
     },
     extraReducers: (builder) => {
@@ -237,7 +236,8 @@ export const {
     setConversation,
     showUploadImageInMessage,
     setUploadImageInMessage,
-    resetConversationState
+    resetConversationState,
+    setUploadFiles
 } = ConversationSlice.actions
 
 export default ConversationSlice.reducer

@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { TouchableOpacityProps, TouchableOpacity } from 'react-native';
 import { Image, type ImageProps } from 'expo-image';
+import { configs } from '@/configs';
 
 export type Props = ImageProps & {
     lightColor?: string;
@@ -8,15 +9,39 @@ export type Props = ImageProps & {
     url?: string | null;
     source?: null;
     size?: number | string;
+    serverImage?: boolean;
     onPress?: () => void;
     onLongPress?: () => void;
     showImageError?: boolean;
     TouchableOpacityOptions?: TouchableOpacityProps
+    touchableOpacity?: boolean
 };
 
 
-const SkysoloAvatar = memo(function SkysoloAvatar({ style, showImageError, size = 40, url, TouchableOpacityOptions, ...otherProps }: Props) {
+const SkysoloAvatar = memo(function SkysoloAvatar({ style,
+    serverImage = true,
+    touchableOpacity = true,
+    showImageError, size = 40, url, TouchableOpacityOptions, ...otherProps }: Props) {
     size = Number(size)
+
+    if (!touchableOpacity) {
+        return (<Image
+            source={!url ? require('../../assets/images/user.jpg') : serverImage ? configs.serverApi.supabaseStorageUrl + url : url}
+            contentFit="cover"
+            transition={300}
+            style={[
+                {
+                    resizeMode: "cover",
+                    width: size,
+                    height: size,
+                    borderRadius: 1000,
+                    aspectRatio: 1,
+                    justifyContent: 'center',
+                }, style
+            ]}
+            {...otherProps} />)
+    }
+
     return (
         <TouchableOpacity
             {...TouchableOpacityOptions}
@@ -24,7 +49,7 @@ const SkysoloAvatar = memo(function SkysoloAvatar({ style, showImageError, size 
             onLongPress={otherProps.onLongPress}
             onPress={otherProps.onPress}>
             <Image
-                source={!url ? require('../../assets/images/user.jpg') : url}
+                source={!url ? require('../../assets/images/user.jpg') : serverImage ? configs.serverApi.supabaseStorageUrl + url : url}
                 contentFit="cover"
                 transition={300}
                 style={[
@@ -32,8 +57,8 @@ const SkysoloAvatar = memo(function SkysoloAvatar({ style, showImageError, size 
                         resizeMode: "cover",
                         width: size,
                         height: size,
-                        borderRadius: size / 2,
-                        justifyContent: 'center',
+                        borderRadius: 1000,
+                        aspectRatio: 1,
                     }, style
                 ]}
                 {...otherProps} />

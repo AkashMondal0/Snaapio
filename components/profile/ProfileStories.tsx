@@ -1,6 +1,6 @@
 import { memo, useCallback } from "react";
-import { FlatList, TouchableOpacity, View } from "react-native";
-import { Avatar, Text } from "@/components/skysolo-ui"
+import { FlatList, Image, TouchableOpacity, View } from "react-native";
+import { Avatar, Text, Loader } from "@/components/skysolo-ui"
 import { NavigationProps, User } from "@/types";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
@@ -12,6 +12,9 @@ const ProfileStories = ({
     userData?: User
     isProfile?: boolean
 }) => {
+    const uploadAssets = useSelector((state: RootState) => state.AccountState.uploadFile, (prev, next) => prev === next)
+    const borderColor = useSelector((state: RootState) => state.ThemeState.currentTheme?.border, (prev, next) => prev === next)
+
     const onPress = useCallback((item: any) => {
     }, [])
 
@@ -29,6 +32,36 @@ const ProfileStories = ({
                 ListHeaderComponent={<View style={{ width: 6 }} />}
                 ListFooterComponent={<View style={{ width: 6 }} />}
                 showsHorizontalScrollIndicator={false} />
+            {uploadAssets ? <View>
+                <View style={{
+                    padding: 10,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: "space-between",
+                    borderTopWidth: 1,
+                    borderBottomWidth: 1,
+                    borderColor: borderColor,
+                }}>
+                    <View style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: 8
+                    }}>
+                        <Loader size={30} />
+                        <Text variant="heading3" style={{ padding: 4 }}>
+                            Uploading...
+                        </Text>
+                    </View>
+                    <Image
+                        source={{ uri: uploadAssets }}
+                        style={{
+                            width: 80,
+                            height: 80,
+                            borderRadius: 18
+                        }}
+                    />
+                </View>
+            </View> : <></>}
         </View>)
 
 }
@@ -48,7 +81,7 @@ const StoriesItem = memo(function StoriesItem({
         style={{
             alignItems: 'center',
             justifyContent: 'center',
-            width: 100,
+            width: 94,
             height: 110,
         }}>
         <Avatar url={session?.profilePicture} size={80} />

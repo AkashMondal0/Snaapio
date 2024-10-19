@@ -20,7 +20,15 @@ export const QProfile = {
   findAllPosts: `query FindUserProfile($findAllPosts: GraphQLPageQuery!) {
     findAllPosts(findAllPosts: $findAllPosts) {
       id
-      fileUrl
+      fileUrl {
+      id
+      urls {
+        low
+        high
+      }
+      type
+      caption
+    }
       commentCount
       likeCount
     }

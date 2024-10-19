@@ -1,12 +1,13 @@
 import ErrorScreen from "@/components/error/page";
-import { ProfileHeader, ProfileNavbar } from "@/components/profile";
+import { ProfileEmptyPosts, ProfileHeader, ProfileNavbar } from "@/components/profile";
 import { Loader } from "@/components/skysolo-ui";
 import { fetchUserProfileDetailApi, fetchUserProfilePostsApi } from "@/redux-stores/slice/profile/api.service";
 import { RootState } from "@/redux-stores/store";
 import { disPatchResponse, loadingType, NavigationProps, Post, User } from "@/types";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { View, Image, FlatList, ToastAndroid } from "react-native";
+import { View, FlatList, ToastAndroid } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
+import { Image } from '@/components/skysolo-ui'
 
 interface ScreenProps {
     navigation: NavigationProps;
@@ -95,6 +96,7 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
                 bounces={false}
                 bouncesZoom={false}
                 alwaysBounceVertical={false}
+                alwaysBounceHorizontal={false}
                 refreshing={false}
                 onEndReachedThreshold={0.5}
                 removeClippedSubviews={true}
@@ -105,22 +107,23 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
                     gap: 2,
                     paddingVertical: 1,
                 }}
-                renderItem={({ item, index }) => (
-                    <View
+                renderItem={({ item, index }) => {
+                    return <View
                         style={{
                             width: "33%",
                             height: "100%",
                             aspectRatio: 1,
                         }}>
                         <Image
-                            source={{ uri: item.fileUrl[0] }}
+                            url={item.fileUrl[0].urls?.high}
+                            showImageError
                             resizeMode="cover"
                             style={{
                                 width: '100%',
                                 height: "100%",
                             }} />
                     </View>
-                )}
+                }}
                 ListHeaderComponent={UserData.current ? <>
                     <ProfileHeader
                         navigation={navigation}
@@ -135,6 +138,7 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
                 }}>
                     <Loader size={40} />
                 </View> : <View style={{ height: totalFetchedItemCount.current === -1 ? 0 : 50 }} />}
+                ListEmptyComponent={<ProfileEmptyPosts loading={loading} />}
             />
         </View>
     )

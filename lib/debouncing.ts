@@ -1,12 +1,15 @@
-const debounce = (func: any, delay: number = 500) => {
-    let timerId: any;
-    return (...args: any) => {
-        clearTimeout(timerId)
-        timerId = setTimeout(() => {
-            func(...args)
-        }, delay)
-    }
-}
+import { useRef, useCallback } from 'react';
+const useDebounce = (func: (...args: any[]) => void, delay: number = 500) => {
+    const timerId = useRef<NodeJS.Timeout | null>(null);
 
+    return useCallback((...args: any[]) => {
+        if (timerId.current) {
+            clearTimeout(timerId.current);
+        }
+        timerId.current = setTimeout(() => {
+            func(...args);
+        }, delay);
+    }, [func, delay]);
+};
 
-export default debounce
+export default useDebounce;

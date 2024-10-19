@@ -1,12 +1,13 @@
 import ErrorScreen from "@/components/error/page";
-import { ProfileHeader, ProfileNavbar } from "@/components/profile";
+import { ProfileEmptyPosts, ProfileHeader, ProfileNavbar } from "@/components/profile";
 import { Loader } from "@/components/skysolo-ui";
 import { fetchUserProfileDetailApi, fetchUserProfilePostsApi } from "@/redux-stores/slice/profile/api.service";
 import { RootState } from "@/redux-stores/store";
 import { disPatchResponse, loadingType, NavigationProps, Post, User } from "@/types";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { View, Image, FlatList, ToastAndroid } from "react-native";
+import { View, FlatList, ToastAndroid } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
+import { Image } from '@/components/skysolo-ui'
 
 interface ScreenProps {
     navigation: NavigationProps;
@@ -94,6 +95,7 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
                 numColumns={3}
                 bounces={false}
                 bouncesZoom={false}
+                alwaysBounceHorizontal={false}
                 alwaysBounceVertical={false}
                 refreshing={false}
                 onEndReachedThreshold={0.5}
@@ -113,8 +115,9 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
                             aspectRatio: 1,
                         }}>
                         <Image
-                            source={{ uri: item.fileUrl[0] }}
+                            url={item.fileUrl[0].urls?.high}
                             resizeMode="cover"
+                            showImageError
                             style={{
                                 width: '100%',
                                 height: "100%",
@@ -135,6 +138,7 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
                 }}>
                     <Loader size={40} />
                 </View> : <View style={{ height: totalFetchedItemCount.current === -1 ? 0 : 50 }} />}
+                ListEmptyComponent={<ProfileEmptyPosts loading={loading} />}
             />
         </View>
     )

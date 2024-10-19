@@ -3,7 +3,15 @@ export const QPost = {
     findOnePost(id: $findOnePostId) {
       id
       content
-      fileUrl
+      fileUrl {
+      id
+      urls {
+        low
+        high
+      }
+      type
+      caption
+    }
       createdAt
       updatedAt
       commentCount

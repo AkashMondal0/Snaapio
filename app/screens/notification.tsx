@@ -1,11 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { memo, useCallback, useEffect, useRef } from "react";
-import AppHeader from "@/components/AppHeader";
-import { Avatar, Loader, Text, TouchableOpacity } from "@/components/skysolo-ui";
-import { RootState } from "@/redux-stores/store";
-import { Notification, disPatchResponse, NavigationProps, NotificationType } from "@/types";
+import React, { memo, useCallback, useEffect, useRef, useState } from "react";
+import { Avatar, Loader, Text, TouchableOpacity, Image } from "@/components/skysolo-ui";
 import { FlatList, ToastAndroid, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
+import AppHeader from "@/components/AppHeader";
+import { RootState } from "@/redux-stores/store";
+import { Notification, disPatchResponse, NavigationProps, NotificationType } from "@/types";
 import { fetchAccountNotificationApi } from "@/redux-stores/slice/notification/api.service";
 import { resetNotificationState } from "@/redux-stores/slice/notification";
 import { timeAgoFormat } from "@/lib/timeFormat";
@@ -91,36 +91,37 @@ const NotificationItem = memo(function NotificationItem({
     data: Notification,
     navigation: NavigationProps
 }) {
+    const [readMore, setReadMore] = useState(false)
 
-    return (<TouchableOpacity style={{
-        flexDirection: 'row',
-        padding: 12,
-        alignItems: 'center',
-        width: '100%',
-        gap: 10,
-        marginVertical: 2,
-        justifyContent: 'space-between',
-    }}>
+    return (<TouchableOpacity
+        onPress={() => setReadMore(!readMore)}
+        style={{
+            flexDirection: 'row',
+            padding: 12,
+            alignItems: 'center',
+            width: '100%',
+            gap: 10,
+            marginVertical: 2,
+            justifyContent: 'space-between',
+        }}>
         <View style={{
             display: 'flex',
             flexDirection: 'row',
             gap: 10,
             alignItems: 'center',
-            flex: 1,
+            width: '65%',
         }}>
             <Avatar url={data.author?.profilePicture} size={55} onPress={() => {
                 if (!data.author?.username) return ToastAndroid.show('User not found', ToastAndroid.SHORT)
             }} />
-            <View style={{
-                width: '85%',
-            }}>
+            <View style={{}}>
                 <View style={{
                     display: 'flex',
                     flexDirection: 'row',
                     alignItems: 'center',
                     gap: 6,
                 }}>
-                    <Text numberOfLines={4} ellipsizeMode="tail">
+                    <Text numberOfLines={readMore ? 20 : 3} ellipsizeMode="tail">
                         <Text variant="heading3" lineBreakMode="clip" numberOfLines={2}>
                             {data.author?.username} {' '}
                         </Text>
@@ -137,13 +138,12 @@ const NotificationItem = memo(function NotificationItem({
                 </Text>
             </View>
         </View>
-        <Avatar url={data.post?.fileUrl[0]} size={60} style={{
+        <Image url={data.post?.fileUrl[0].urls?.low} showImageError style={{
+            width: 60,
             borderRadius: 10,
-        }} onPress={() => {
-            if (!data.post?.id) return ToastAndroid.show('Post not found', ToastAndroid.SHORT)
-            ToastAndroid.show('Feature Coming Soon', ToastAndroid.SHORT)
-            // navigation.navigate("post", { screen: 'post', params: { post: data.post } })
-        }} />
+            aspectRatio: 1 / 1,
+            flex: 0,
+        }}/>
     </TouchableOpacity>)
 }, (prevProps, nextProps) => {
     return prevProps.data.id === nextProps.data.id

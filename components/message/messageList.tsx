@@ -42,7 +42,7 @@ const MessageList = memo(function MessageList({
                 limit: 20
             }) as any) as disPatchResponse<Message[]>
             if (resM?.error) return ToastAndroid.show('Error loading messages', ToastAndroid.SHORT)
-            if (resM.payload?.length > 0) {
+            if (resM.payload?.length > 20) {
                 return totalFetchedItemCount.current += resM.payload.length
             }
             totalFetchedItemCount.current = -1
@@ -51,23 +51,25 @@ const MessageList = memo(function MessageList({
         }
     }, [conversation.id])
 
-    const fetchMore = debounce(() => { loadMoreMessages(conversation.id) }, 1000)
+    const fetchMore = debounce(() => loadMoreMessages(conversation.id), 1000)
 
-    return (<FlatList
-        inverted
-        removeClippedSubviews={true}
-        windowSize={16}
-        onEndReached={fetchMore}
-        data={messages}
-        bounces={false}
-        scrollEventThrottle={16}
-        showsVerticalScrollIndicator={false}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <MessageItem data={item} seenMessage={cMembers === item.seenBy?.length}
-            key={item.id} myself={session?.id === item.authorId} />}
-        ListFooterComponent={<View style={{ width: "100%", height: 50 }}>
-            {messagesLoading ? <Loader size={36} /> : <></>}
-        </View>} />)
+    return (
+        <FlatList
+            inverted
+            removeClippedSubviews={true}
+            windowSize={16}
+            onEndReached={fetchMore}
+            data={messages}
+            bounces={false}
+            scrollEventThrottle={16}
+            showsVerticalScrollIndicator={false}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item }) => <MessageItem data={item} seenMessage={cMembers === item.seenBy?.length}
+                key={item.id} myself={session?.id === item.authorId} />}
+            ListFooterComponent={<View style={{ width: "100%", height: 50 }}>
+                {messagesLoading ? <Loader size={36} /> : <></>}
+            </View>}
+        />)
 }, (prev, next) => prev.conversation.id === next.conversation.id)
 
 export default MessageList

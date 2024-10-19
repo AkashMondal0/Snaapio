@@ -3,11 +3,11 @@ import { memo, useCallback, } from "react";
 import { Navbar, Input, MessageList } from "@/components/message";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
-import { NavigationProp } from "@react-navigation/native";
 import { View } from "react-native";
+import { NavigationProps } from "@/types";
 
 interface ChatScreenProps {
-    navigation: NavigationProp<any>;
+    navigation: NavigationProps
     route: {
         params: {
             id: string;
@@ -32,7 +32,7 @@ const ChatScreen = memo(function ChatScreen({ navigation, route }: ChatScreenPro
         }}>
             <Navbar conversation={ConversationData} pressBack={PressBack} />
             <MessageList conversation={ConversationData} />
-            <Input conversation={ConversationData} />
+            <Input conversation={ConversationData} navigation={navigation}/>
         </View>
     )
 }, (prev, next) => prev.route.params.id === next.route.params.id)

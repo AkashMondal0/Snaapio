@@ -1,3 +1,4 @@
+import { configs } from '@/configs';
 import { RootState } from '@/redux-stores/store';
 import { RotateCcw } from 'lucide-react-native';
 import { useState } from 'react';
@@ -12,6 +13,7 @@ export type Props = ImageProps & {
     isLocalImage?: boolean;
     isBorder?: boolean;
     showImageError?: boolean;
+    serverImage?: boolean;
 };
 
 
@@ -19,21 +21,23 @@ const SkysoloImage = ({
     style,
     url,
     isLocalImage,
+    serverImage = true,
     isBorder = true,
     showImageError = false,
     ...otherProps }: Props) => {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
     const [error, setError] = useState(false);
 
-    if (error && showImageError || !url) {
+    if (!url) return null
+
+    if (error && showImageError) {
         return (
             <View
                 style={{
                     width: "100%",
                     height: "auto",
-                    borderRadius: 20,
                     backgroundColor: currentTheme?.muted,
-                    // borderWidth: isBorder ? 1 : 0,
+                    borderWidth: isBorder ? 1 : 0,
                     justifyContent: "center",
                     alignItems: "center",
                     ...style as any,
@@ -60,9 +64,8 @@ const SkysoloImage = ({
 
     return (
         <Image
-            source={{ uri: url }}
+            source={{ uri: serverImage ? configs.serverApi.supabaseStorageUrl + url : url }}
             resizeMode='contain'
-            borderRadius={10}
             progressiveRenderingEnabled={true}
             onError={() => {
                 if (!error) setError(true)
@@ -71,7 +74,6 @@ const SkysoloImage = ({
                 {
                     width: "100%",
                     height: "auto",
-                    borderRadius: 20,
                     resizeMode: "cover",
                 }, style
             ]}

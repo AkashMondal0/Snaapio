@@ -1,13 +1,13 @@
-export interface Route {
-    key: string,
-    name: string,
-    params: {
-        chatId: number
-    },
-    path: undefined
+export type loadingType = 'idle' | 'pending' | 'normal'
+export interface PageProps<T> {
+    navigation?: NavigationProps;
+    route?: {
+        params?:T,
+        name: string;
+        key: string;
+    }
 }
 export type Theme = "light" | "dark" | "system";
-
 export interface NavigationProps {
     addListener: (type: string, callback: () => void) => void,
     canGoBack: () => boolean,
@@ -27,29 +27,19 @@ export interface NavigationProps {
     setParams: (params: any) => void,
     toggleDrawer: () => void,
 }
-
-interface Post {
-    id: string
-    fileUrl: string[]
-    commentCount: number
-    likeCount: number
-    createdAt: Date | string
-    comments: Comment[]
-    likes: AuthorData[]
-    isDummy?: boolean
-    content: string;
-    title: string;
-    updatedAt?: Date;
-    is_Liked: boolean;
-    user: AuthorData;
-    song?: string[];
-    tags?: string[]
-    locations?: string[];
-    country?: string;
-    city?: string;
+// user account
+export interface Session {
+    user: {
+        id: string,
+        username: string,
+        email: string,
+        name: string,
+        profilePicture: string,
+        accessToken: string,
+        bio: string,
+    } | null
 }
-
-interface AuthorData {
+export interface AuthorData {
     id: string
     username: string
     email: string
@@ -60,11 +50,11 @@ interface AuthorData {
     bio?: string;
     website?: string[] | any[];
 }
-enum Role {
+export enum Role {
     User = 'user',
     Admin = 'admin',
 }
-type User = {
+export type User = {
     id: string;
     username: string;
     name: string;
@@ -86,8 +76,7 @@ type User = {
     followerCount: number;
     followingCount: number;
 }
-
-enum FriendshipStatus {
+export enum FriendshipStatus {
     // 'pending', 'accepted', 'rejected', 'blocked', 'deleted'
     Pending = 'pending',
     Accepted = 'accepted',
@@ -95,7 +84,7 @@ enum FriendshipStatus {
     Blocked = 'blocked',
     Deleted = 'deleted',
 }
-type Friendship = {
+export type Friendship = {
     id?: string;
     followingUsername?: string;
     authorUsername?: string;
@@ -105,11 +94,11 @@ type Friendship = {
     updatedAt?: Date | string | unknown;
     status?: FriendshipStatus | string;
 }
-
-interface Message {
+// message
+export interface Message {
     id: string;
     content: string;
-    fileUrl: string[];
+    fileUrl: Assets[];
     authorId: string;
     deleted: boolean;
     seenBy: string[];
@@ -119,13 +108,12 @@ interface Message {
     user?: AuthorData | null;
     tempMessageId?: string;
 }
-
-interface Conversation {
+export interface Conversation {
     id: string;
     members: string[];
     authorId: string;
     messages: Message[]
-    user?: AuthorData | User| null
+    user?: AuthorData | User | null
     isGroup: boolean | null;
     lastMessageContent: string | null;
     totalUnreadMessagesCount: number;
@@ -138,8 +126,36 @@ interface Conversation {
     groupDescription?: string | null;
 
 }
-
-interface Comment {
+export type Typing = {
+    typing: boolean
+    authorId: string
+    members: string[]
+    conversationId: string
+    isGroup: boolean
+    groupUser?: AuthorData
+}
+// user post and content
+export interface Post {
+    id: string
+    fileUrl: Assets[]
+    commentCount: number
+    likeCount: number
+    createdAt: Date | string
+    comments: Comment[]
+    likes: AuthorData[]
+    isDummy?: boolean
+    content: string;
+    title: string;
+    updatedAt?: Date;
+    is_Liked: boolean;
+    user: AuthorData;
+    song?: string[];
+    tags?: string[]
+    locations?: string[];
+    country?: string;
+    city?: string;
+}
+export interface Comment {
     id: string;
     content: string;
     authorId: string;
@@ -154,22 +170,26 @@ interface Comment {
     }
 
 }
-
-type Assets = {
+export type Assets = {
     id?: string,
-    url?: string,
-    type?: 'image' | 'video' | 'audio' | "text"
+    urls?: {
+        low?: string | null,
+        medium?: string| null,
+        high?: string| null,
+        blur?: string| null,
+        thumbnail?: string| null,
+    }
+    type?: 'photo' | 'video' | 'audio' | "text"
     caption?: string;
 }
-
-type findDataInput = {
+export type findDataInput = {
     username?: string
     id?: string
     offset: number
     limit: number
 }
-
-type GraphqlError = {
+// api response
+export type GraphqlError = {
     message: string
     locations: {
         line: number
@@ -185,37 +205,16 @@ type GraphqlError = {
         stacktrace: string[]
     }
 }
-type code = 0 | 1
-interface ApiResponse<T> {
-    code: code,
+export interface ApiResponse<T> {
+    code: 0 | 1,
     message: string,
     data: T,
 }
-type Typing = {
-    typing: boolean
-    authorId: string
-    members: string[]
-    conversationId: string
-    isGroup: boolean
-    groupUser?: AuthorData
-}
-type disPatchResponse<T> = {
+export type disPatchResponse<T> = {
     payload: T,
     error: any
 }
-
-type PostActionsProps = {
-    authorId: string,
-    postId: string,
-    type: NotificationType,
-    recipientId: string,
-
-    // 
-    commentId?: string
-    storyId?: string
-    reelId?: string
-}
-
+// notification
 export enum NotificationType {
     Like = 'like',
     Comment = 'comment',
@@ -227,8 +226,7 @@ export enum NotificationType {
     Story = 'story',
     Post = 'post',
 }
-
-type Notification = {
+export type Notification = {
     id: string;
     type: NotificationType;
     authorId: string;
@@ -242,38 +240,4 @@ type Notification = {
     author?: AuthorData
     post?: Post
     comment?: Comment
-}
-
-interface Session {
-    user: {
-        id: string,
-        username: string,
-        email: string,
-        name: string,
-        profilePicture: string,
-        accessToken: string,
-    } | null
-}
-type loadingType = 'idle' | 'pending' | 'normal'
-
-export type {
-    loadingType,
-    Session,
-    User,
-    Message,
-    Conversation,
-    Post,
-    Comment,
-    PostActionsProps,
-    AuthorData,
-    Assets,
-    Friendship,
-    Role,
-    Notification,
-    FriendshipStatus,
-    findDataInput,
-    GraphqlError,
-    Typing,
-    ApiResponse,
-    disPatchResponse
 }

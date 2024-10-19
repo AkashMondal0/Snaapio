@@ -62,7 +62,8 @@ const SettingScreen = memo(function HomeScreen({ navigation }: any) {
                 <AppHeader title="Settings" navigation={navigation}
                     rightSideComponent={<Icon iconName="Search" size={24} isButton variant="normal" />}
                     key={"setting-page-1"} />
-                <ScrollView>
+                <ScrollView keyboardDismissMode='on-drag'
+                    keyboardShouldPersistTaps='handled'>
                     {settingList.map((data, index) => (
                         <Item
                             key={index}

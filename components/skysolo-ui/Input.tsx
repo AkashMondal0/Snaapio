@@ -32,7 +32,7 @@ const SkySoloInput = ({ disabled,
                 borderRadius: 14,
                 borderWidth: 1,
                 padding: 8,
-                height: 50,
+                minHeight: 30,
                 opacity: disabled ? 0.5 : 1,
                 borderColor: isErrorBorder ? currentTheme?.destructive : disabled || !isFocused ? currentTheme?.border : currentTheme?.primary,
                 backgroundColor: secondaryColor ? currentTheme?.accent : currentTheme?.background,
@@ -41,7 +41,7 @@ const SkySoloInput = ({ disabled,
             <TextInput
                 style={{
                     color: currentTheme?.accent_foreground,
-                    height: 50,
+                    minHeight: 30,
                     width: '100%',
                     ...style as any
                 }}
