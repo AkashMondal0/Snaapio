@@ -1,5 +1,5 @@
 import ErrorScreen from "@/components/error/page";
-import { ProfileHeader, ProfileNavbar } from "@/components/profile";
+import { ProfileEmptyPosts, ProfileHeader, ProfileNavbar } from "@/components/profile";
 import { Loader } from "@/components/skysolo-ui";
 import { fetchUserProfileDetailApi, fetchUserProfilePostsApi } from "@/redux-stores/slice/profile/api.service";
 import { RootState } from "@/redux-stores/store";
@@ -138,6 +138,7 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
                 }}>
                     <Loader size={40} />
                 </View> : <View style={{ height: totalFetchedItemCount.current === -1 ? 0 : 50 }} />}
+                ListEmptyComponent={<ProfileEmptyPosts loading={loading} />}
             />
         </View>
     )

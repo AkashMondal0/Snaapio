@@ -1,6 +1,6 @@
 import React, { memo, useState } from "react";
 import { View } from "react-native";
-import { Avatar, Text } from "@/components/skysolo-ui"
+import { Separator, Text } from "@/components/skysolo-ui"
 import { NavigationProps, User } from "@/types";
 import ProfileInfoCount from "./ProfileInfoCount";
 import ProfileActionsButton from "./ProfileActionsButton";
@@ -91,6 +91,8 @@ const ProfileHeader = memo(function HomeScreen({
                     isProfile={isProfile} />
             </View>
             <ProfileStories navigation={navigation} />
+            <View style={{height: 14}} />
+            <Separator value={0.8}/>
         </>
     )
 
