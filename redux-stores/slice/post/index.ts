@@ -1,14 +1,19 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { AuthorData, Comment, Post } from '@/types'
-import { createPostCommentApi, fetchOnePostApi, fetchPostCommentsApi, fetchPostLikesApi } from './api.service'
+import {
+    createPostCommentApi,
+    //  fetchOnePostApi, 
+    fetchPostCommentsApi,
+    fetchPostLikesApi
+} from './api.service'
 
 export type TypeActionLike = 'feeds' | 'singleFeed'
 export type loadingType = 'idle' | 'pending' | 'normal'
 // Define a type for the slice state
 export interface PostStateType {
     viewPost: Post | null
-    viewPostLoading: boolean
+    viewPostLoading: loadingType
     viewPostError: string | null
     // like
     likesUserList: AuthorData[]
@@ -30,7 +35,7 @@ export interface PostStateType {
 const PostState: PostStateType = {
 
     viewPost: null,
-    viewPostLoading: false,
+    viewPostLoading: 'idle',
     viewPostError: null,
 
     likesUserList: [],
@@ -67,21 +72,22 @@ export const PostsSlice = createSlice({
     extraReducers: (builder) => {
         builder
             // view post
-            .addCase(fetchOnePostApi.pending, (state) => {
-                state.viewPostLoading = true
-                state.viewPostError = null
-                state.viewPost = null
-            })
-            .addCase(fetchOnePostApi.fulfilled, (state, action: PayloadAction<Post>) => {
-                state.viewPost = action.payload
-                state.viewPostLoading = false
-                state.viewPostError = null
-            })
-            .addCase(fetchOnePostApi.rejected, (state, action) => {
-                state.viewPostLoading = false
-                state.viewPost = null
-                state.viewPostError = action.error.message || 'Failed to fetch post'
-            })
+            // .addCase(fetchOnePostApi.pending, (state) => {
+            //     state.viewPostLoading = "pending"
+            //     state.viewPostError = null
+            //     state.viewPost = null
+            // })
+            // .addCase(fetchOnePostApi.fulfilled, (state, action: PayloadAction<Post>) => {
+            //     state.viewPost = action.payload
+            //     state.viewPostLoading = "normal"
+            //     state.viewPostError = null
+            // })
+            // .addCase(fetchOnePostApi.rejected, (state, action) => {
+            //     state.viewPostLoading = "normal"
+            //     state.viewPost = null
+            //     state.viewPostError = action.error.message || 'Failed to fetch post'
+            // })
+            // fetchPostLikesApi
             .addCase(fetchPostLikesApi.pending, (state) => {
                 state.likesLoading = "pending"
                 state.likesUserList = []
@@ -107,7 +113,7 @@ export const PostsSlice = createSlice({
             })
             //fetchPostCommentsApi
             .addCase(fetchPostCommentsApi.pending, (state) => {
-                state.commentsLoading ="pending"
+                state.commentsLoading = "pending"
             })
             .addCase(fetchPostCommentsApi.fulfilled, (state, action: PayloadAction<Comment[]>) => {
                 const commentsId = action.payload.map((comment) => comment.id)

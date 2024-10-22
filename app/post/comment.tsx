@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { memo, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { Avatar, Icon, Input, Text, TouchableOpacity, Separator, Loader, ThemedView } from "@/components/skysolo-ui";
-import { FlatList, ToastAndroid, View } from "react-native";
+import { FlatList, ToastAndroid, View, TouchableOpacity as RNTouchableOpacity } from "react-native";
 import { timeAgoFormat } from "@/lib/timeFormat";
 import { createPostCommentApi, fetchPostCommentsApi } from "@/redux-stores/slice/post/api.service";
 import AppHeader from "@/components/AppHeader";
@@ -86,7 +86,7 @@ const CommentScreen = memo(function CommentScreen({ navigation, route }: Comment
             <AppHeader title="Comments" navigation={navigation} />
             <FlatList
                 data={Comments}
-                renderItem={({ item }) => <CommentItem data={item} />}
+                renderItem={({ item }) => <CommentItem data={item} navigation={navigation} />}
                 keyExtractor={(item, index) => index.toString()}
                 removeClippedSubviews={true}
                 scrollEventThrottle={16}
@@ -110,10 +110,10 @@ export default CommentScreen;
 
 const CommentItem = memo(function CommentItem({
     data,
-    onPress = () => { }
+    navigation
 }: {
     data: Comment,
-    onPress?: (item: Comment) => void
+    navigation: NavigationProps
 }) {
     const [readMore, setReadMore] = useState(false)
     return (<TouchableOpacity
@@ -134,12 +134,20 @@ const CommentItem = memo(function CommentItem({
             flexBasis: '76%',
         }}>
             <Avatar url={data.user.profilePicture} size={50}
-                onPress={() => onPress(data)} />
+                onPress={() => {
+                    navigation.push("profile", { username: data.user.username })
+                }} />
             <View>
                 <Text numberOfLines={readMore ? 100 : 3} ellipsizeMode="tail">
-                    <Text variant="heading3" lineBreakMode="clip" numberOfLines={2}>
-                        {data.user.name}
-                    </Text>
+                    <RNTouchableOpacity
+                        activeOpacity={0.8}
+                        onPress={() => {
+                            navigation.push("profile", { username: data.user.username })
+                        }}>
+                        <Text variant="heading3" lineBreakMode="clip" numberOfLines={2}>
+                            {data.user.name}{" "}
+                        </Text>
+                    </RNTouchableOpacity>
                     <Text variant="heading4"
                         colorVariant="secondary"
                         numberOfLines={2}>
@@ -166,7 +174,9 @@ const CommentItem = memo(function CommentItem({
             </View>
         </View>
         <Icon iconName="Heart" size={24}
-            onPress={() => onPress(data)}
+            onPress={() => {
+                // navigation.push("profile", { username: data.user.username })
+            }}
             style={{
                 width: "10%"
             }} />

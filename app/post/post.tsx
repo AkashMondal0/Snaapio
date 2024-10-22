@@ -1,26 +1,68 @@
-import { memo } from "react";
-import { Text, Button, ThemedView } from "@/components/skysolo-ui";
-import Animated from 'react-native-reanimated';
+import { memo, useCallback, useEffect, useState } from "react";
+import { Loader, ThemedView } from "@/components/skysolo-ui";
+import { disPatchResponse, loadingType, NavigationProps, Post } from "@/types";
+import AppHeader from "@/components/AppHeader";
+import { FeedItem } from "@/components/home";
+import { useDispatch } from "react-redux";
+import { fetchOnePostApi } from "@/redux-stores/slice/post/api.service";
+import ErrorScreen from "@/components/error/page";
+import { ScrollView, View } from "react-native";
 
+interface ScreenProps {
+    navigation: NavigationProps;
+    route: {
+        params: {
+            post: Post,
+            index: number
+        }
+    }
+}
+let prevPostId = ""
+const PostScreen = memo(function PostScreen({ navigation, route }: ScreenProps) {
+    const postId = route.params.post.id
+    const [state, setState] = useState<{
+        loading: loadingType,
+        error: boolean,
+        data: Post | null
+    }>({
+        data: null,
+        error: false,
+        loading: "idle"
+    })
 
-const PostScreen = memo(function PostScreen({ navigation, route }: any) {
+    const dispatch = useDispatch()
+
+    const fetchApi = useCallback(async () => {
+        const res = await dispatch(fetchOnePostApi(postId) as any) as disPatchResponse<Post>
+        if (res.error) return setState({ ...state, loading: "normal", error: true })
+        if (res.payload.id) {
+            setState({ ...state, loading: "normal", data: res.payload })
+        }
+    }, [postId])
+
+    useEffect(() => {
+        if (prevPostId !== postId) {
+            prevPostId = postId
+            fetchApi()
+        }
+    }, [postId])
+
+    const onRefresh = useCallback(() => {
+        fetchApi()
+    }, [])
+
     return (
         <ThemedView style={{
             flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
             width: '100%',
             height: '100%',
         }}>
-            <Animated.Image
-                source={{ uri: 'https://picsum.photos/id/39/200' }}
-                style={{ width: 100, height: 100 }}
-                sharedTransitionTag="tag"
-            />
-            <Button onPress={() => { navigation?.navigate("settings") }} variant="outline">
-                setting
-            </Button>
-            <Text variant="heading2">Post Screen</Text>
+            <AppHeader title="Post" navigation={navigation} titleCenter />
+            <ScrollView>
+                {state.loading !== 'normal' ? <Loader size={50} />
+                    : state.error ? <ErrorScreen message="Not Found" /> :
+                        state.data?.id ? <FeedItem data={state.data} navigation={navigation} /> : <View />}
+            </ScrollView>
         </ThemedView>
     )
 })

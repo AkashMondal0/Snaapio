@@ -7,7 +7,7 @@ import { SocketContext } from '@/provider/SocketConnections';
 import { createNotificationApi, destroyNotificationApi } from '@/redux-stores/slice/notification/api.service';
 import { createPostLikeApi, destroyPostLikeApi } from '@/redux-stores/slice/post/api.service';
 import { RootState } from '@/redux-stores/store';
-import { disPatchResponse, NotificationType, Post } from '@/types';
+import { disPatchResponse, NavigationProps, NotificationType, Post } from '@/types';
 import { Heart } from 'lucide-react-native';
 import PagerView from 'react-native-pager-view';
 import { useDispatch, useSelector } from 'react-redux';
@@ -15,25 +15,29 @@ import useDebounce from '@/lib/debouncing';
 
 const FeedItem = memo(function FeedItem({
     data,
-    onNavigate
+    navigation
 }: {
     data: Post,
-    onNavigate: (path: string, options?: any) => void
+    navigation: NavigationProps
 }) {
+    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+    const [tabIndex, setTabIndex] = useState(0)
+    const imageLength = data.fileUrl.length
     const navigateToProfile = useCallback(() => {
         if (!data.user) return ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
-        onNavigate("profile", { username: data.user.username })
+        navigation.push("profile", { username: data.user.username })
     }, [data.user])
 
     const navigateToPost = useCallback((path: "post/like" | "post/comment", post: Post) => {
         if (!post) return ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
-        onNavigate(path, { post })
+        navigation.push(path, { post, index: 0 })
     }, [])
 
     return <View style={{
         width: "100%",
         paddingVertical: 14,
     }}>
+        {/* header */}
         <View style={{
             marginHorizontal: "2%",
             paddingVertical: 10,
@@ -61,18 +65,65 @@ const FeedItem = memo(function FeedItem({
                 </Text>
             </View>
         </View>
-        <PagerView
-            initialPage={0}
-            style={{
-                width: "100%",
-                height: "auto",
-                aspectRatio: 4 / 5, // portrait
-                // aspectRatio: 9 / 16, // story
-                // aspectRatio: 16 / 9,  // landscape
-                // aspectRatio: 1 / 1, // square
+        {/* view image */}
+        <View style={{
+            width: "100%",
+            height: "auto",
+            aspectRatio: 4 / 5,
+        }}>
+            {/* indicator */}
+            {imageLength > 1 ? <View style={{
+                position: "absolute",
+                top: 0,
+                right: 0,
+                width: "auto",
+                backgroundColor: "rgba(0,0,0,0.6)",
+                zIndex: 10,
+                borderRadius: 10,
+                margin: 10,
+                paddingHorizontal: 4,
             }}>
-            {data.fileUrl.map((item, index) => (<ImageItem key={index} item={item} index={index} />))}
-        </PagerView>
+                <Text variant="heading4" style={{
+                    fontWeight: "400",
+                    color: "white",
+                    padding: 5,
+                    fontSize: 16
+                }}>
+                    {tabIndex + 1}/{imageLength}
+                </Text>
+            </View> : <View />}
+            {/* image */}
+            <PagerView
+                initialPage={tabIndex}
+                onPageSelected={(e) => setTabIndex(e.nativeEvent.position)}
+                style={{
+                    width: "100%",
+                    height: "100%",
+                }}>
+                {data.fileUrl.map((item, index) => (<ImageItem key={index} item={item} index={index} />))}
+            </PagerView>
+        </View>
+        {imageLength > 1 ? <View style={{
+            width: "100%",
+            backgroundColor: "rgba(0,0,0,0.6)",
+            zIndex: 10,
+            borderRadius: 10,
+            margin: 2,
+            padding: 4,
+            justifyContent: "center",
+            alignItems: "center",
+            flexDirection: "row",
+        }}>
+            {Array.from({ length: imageLength }).map((_, index) => (
+                <View key={index} style={{
+                    width: 7,
+                    height: 7,
+                    borderRadius: 14,
+                    backgroundColor: index === tabIndex ? currentTheme?.primary : currentTheme?.muted,
+                    margin: 2
+                }} />
+            ))}
+        </View> : <View />}
         {/* action */}
         <View>
             <FeedItemActionsButtons post={data} onPress={navigateToPost} />
@@ -98,8 +149,7 @@ const FeedItem = memo(function FeedItem({
             </View>
         </View>
     </View>
-}, () =>true)
-
+}, () => true)
 
 export default FeedItem;
 

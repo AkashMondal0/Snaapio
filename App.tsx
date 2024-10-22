@@ -16,6 +16,7 @@ import SocketConnections from '@/provider/SocketConnections';
 import { resetConversation } from '@/redux-stores/slice/conversation';
 import { PostReviewScreen, NewPostSelectionScreen } from '@/app/upload';
 import { ProfileEditScreen } from '@/app/profile';
+import { PostScreen } from '@/app/post';
 
 SplashScreen.preventAutoHideAsync();
 const Stack = createNativeStackNavigator();
@@ -49,6 +50,8 @@ function Routes(backgroundColor: any) {
           <Stack.Screen name="Root" component={BottomTabComponent} />
           {/* profile */}
           <Stack.Screen name={"profile/edit"} component={ProfileEditScreen} />
+          {/* post */}
+          <Stack.Screen name={"post"} component={PostScreen} />
           {/* settings */}
           <Stack.Group>
             <Stack.Screen name={"settings"} component={SettingScreen} />
@@ -59,19 +62,17 @@ function Routes(backgroundColor: any) {
             <Stack.Screen name="message" component={ChatListScreen} />
             <Stack.Screen name="message/conversation" component={ChatScreen} />
             <Stack.Screen name="message/searchNewChat" component={NewChatScreen} />
+            <Stack.Screen name="message/asset/review" component={ChatAssetsReviewScreen} />
             <Stack.Screen name="message/asset/selection" component={AssetSelectScreen}
-              options={{
-                animation: 'slide_from_bottom',
-                presentation: 'modal',
-              }} />
+              options={{ animation: 'slide_from_bottom', presentation: 'modal' }} />
           </Stack.Group>
-          <Stack.Screen name="message/asset/review" component={ChatAssetsReviewScreen} />
           {/* upload */}
-          <Stack.Screen name="upload/post/selection" component={NewPostSelectionScreen} options={{
-            animation: 'slide_from_bottom',
-            presentation: 'modal',
-          }} />
-          <Stack.Screen name="upload/post/review" component={PostReviewScreen} />
+          <Stack.Group>
+            <Stack.Screen name="upload/post/selection" component={NewPostSelectionScreen} options={{
+              animation: 'slide_from_bottom', presentation: 'modal'
+            }} />
+            <Stack.Screen name="upload/post/review" component={PostReviewScreen} />
+          </Stack.Group>
         </> :
         <>
           <Stack.Group>
