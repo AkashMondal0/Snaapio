@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import { ScrollView, ToastAndroid, TouchableOpacity, View } from 'react-native';
-import { Avatar, Button, Icon, Image, Input, Text, View as ThemedView } from '@/components/skysolo-ui';
+import { Avatar, Button, Icon, Input, Text, View as ThemedView } from '@/components/skysolo-ui';
 import AppHeader from '@/components/AppHeader';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
@@ -140,6 +140,7 @@ const ProfileEditScreen = memo(function ProfileEditScreen({
                         zIndex: 1,
                         width: "100%",
                         height: "100%",
+                        borderRadius: 500,
                         backgroundColor: "rgba(0,0,0,0.3)",
                         alignItems: "center",
                         justifyContent: "center",

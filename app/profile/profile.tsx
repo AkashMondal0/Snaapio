@@ -1,10 +1,10 @@
 import ErrorScreen from "@/components/error/page";
 import { ProfileEmptyPosts, ProfileGridItem, ProfileHeader, ProfileNavbar } from "@/components/profile";
-import { Loader, Image } from "@/components/skysolo-ui";
+import { Loader, ThemedView } from "@/components/skysolo-ui";
 import { fetchUserProfileDetailApi, fetchUserProfilePostsApi } from "@/redux-stores/slice/profile/api.service";
 import { RootState } from "@/redux-stores/store";
 import { disPatchResponse, loadingType, NavigationProps, Post, User } from "@/types";
-import React, { memo, useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { View, FlatList, ToastAndroid } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -82,7 +82,8 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
     if (error) return <ErrorScreen />
 
     return (
-        <View style={{
+        <ThemedView style={{
+            flex: 1,
             width: '100%',
             height: '100%',
         }}>
@@ -123,7 +124,7 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
                 </View> : <View style={{ height: totalFetchedItemCount.current === -1 ? 0 : 50 }} />}
                 ListEmptyComponent={<ProfileEmptyPosts loading={loading} />}
             />
-        </View>
+        </ThemedView>
     )
 }
 

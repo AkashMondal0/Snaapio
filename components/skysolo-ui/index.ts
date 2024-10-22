@@ -1,6 +1,6 @@
 import ScrollView from "./ScrollView";
 import Text from "./Text";
-import View from "./View";
+import View, { ThemedView } from "./View";
 import Button from "./Button";
 import Card from "./Card";
 import CheckBox from "./CheckBox";
@@ -20,6 +20,7 @@ import Icon, { IconName } from "./Icon";
 import Toast from "./Toast";
 import Separator from "./Separator";
 import AnimatedView from "./AnimatedView";
+import Statusbar from "./StatusBar";
 
 export {
     View,
@@ -45,5 +46,7 @@ export {
     Separator,
     IconName,
     AnimatedView,
-    PageLoader
+    PageLoader,
+    ThemedView,
+    Statusbar
 }

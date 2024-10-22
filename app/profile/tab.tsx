@@ -6,7 +6,7 @@ import { View } from "react-native";
 import { useSelector } from "react-redux";
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import FollowersScreen from "./followers";
-import { Text } from "@/components/skysolo-ui";
+import { Text, ThemedView } from "@/components/skysolo-ui";
 import FollowingScreen from "./following";
 
 const Tab = createMaterialTopTabNavigator();
@@ -29,7 +29,7 @@ const TabFollowingAndFollowers = memo(function TabFollowingAndFollowers({ naviga
         return <FollowingScreen navigation={navigation} username={route?.params?.params?.username} />
     }
     return (
-        <View style={{
+        <ThemedView style={{
             flex: 1,
             width: '100%',
             height: '100%',
@@ -71,7 +71,7 @@ const TabFollowingAndFollowers = memo(function TabFollowingAndFollowers({ naviga
                 <Tab.Screen name="followers" component={FollowersTab} />
                 <Tab.Screen name="following" component={FollowingTab} />
             </Tab.Navigator>
-        </View>
+        </ThemedView>
     )
 })
 export default TabFollowingAndFollowers;

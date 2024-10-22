@@ -1,12 +1,11 @@
-import { Text, Button } from "@/components/skysolo-ui";
 import { memo } from "react";
-import { View } from "react-native";
+import { Text, Button, ThemedView } from "@/components/skysolo-ui";
 import Animated from 'react-native-reanimated';
 
 
 const PostScreen = memo(function PostScreen({ navigation, route }: any) {
     return (
-        <View style={{
+        <ThemedView style={{
             flex: 1,
             justifyContent: 'center',
             alignItems: 'center',
@@ -22,7 +21,7 @@ const PostScreen = memo(function PostScreen({ navigation, route }: any) {
                 setting
             </Button>
             <Text variant="heading2">Post Screen</Text>
-        </View>
+        </ThemedView>
     )
 })
 export default PostScreen;

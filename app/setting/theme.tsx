@@ -5,6 +5,7 @@ import { changeTheme } from "@/redux-stores/slice/theme";
 import { localStorage } from "@/lib/LocalStorage";
 import { RootState } from "@/redux-stores/store";
 import AppHeader from "@/components/AppHeader";
+import { ThemedView } from "@/components/skysolo-ui";
 
 
 const ThemeSettingScreen = memo(function HomeScreen({ navigation }: any) {
@@ -15,12 +16,12 @@ const ThemeSettingScreen = memo(function HomeScreen({ navigation }: any) {
         await localStorage("set", "skysolo-theme-name", themeName)
         dispatch(changeTheme(themeName))
     }, [])
-    
+
     return (
-        <View style={{
+        <ThemedView style={{
+            flex: 1,
             width: '100%',
             height: '100%',
-            flex: 1,
         }}>
             <AppHeader title="Appearance" titleCenter navigation={navigation} key={"setting-page-2"} />
             <View style={{
@@ -45,7 +46,7 @@ const ThemeSettingScreen = memo(function HomeScreen({ navigation }: any) {
                     </TouchableOpacity>
                 })}
             </View>
-        </View>
+        </ThemedView>
     )
 })
 export default ThemeSettingScreen;

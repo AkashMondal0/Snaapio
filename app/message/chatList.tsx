@@ -2,7 +2,7 @@
 import React, { useCallback, useMemo, useRef, memo, useState, useEffect } from 'react';
 import { View, Vibration, FlatList } from 'react-native';
 import { Conversation, disPatchResponse } from '@/types';
-import { ActionSheet, Loader } from '@/components/skysolo-ui';
+import { ActionSheet, Loader, ThemedView } from '@/components/skysolo-ui';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
@@ -92,7 +92,8 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
         }
     }, [])
 
-    return <View style={{
+    return <ThemedView style={{
+        flex: 1,
         width: "100%",
         height: "100%",
     }}>
@@ -128,6 +129,6 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
             handleSheetChanges={handleSheetChanges}>
             <ConversationDetailsSheet data={BottomSheetData} />
         </ActionSheet>
-    </View>
+    </ThemedView>
 })
 export default ChatListScreen;

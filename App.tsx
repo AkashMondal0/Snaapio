@@ -50,16 +50,21 @@ function Routes(backgroundColor: any) {
           {/* profile */}
           <Stack.Screen name={"profile/edit"} component={ProfileEditScreen} />
           {/* settings */}
-          <Stack.Screen name={"settings"} component={SettingScreen} />
-          <Stack.Screen name={"settings/theme"} component={ThemeSettingScreen} />
+          <Stack.Group>
+            <Stack.Screen name={"settings"} component={SettingScreen} />
+            <Stack.Screen name={"settings/theme"} component={ThemeSettingScreen} />
+          </Stack.Group>
           {/* chat */}
-          <Stack.Screen name="message" component={ChatListScreen} />
-          <Stack.Screen name="message/conversation" component={ChatScreen} />
-          <Stack.Screen name="message/searchNewChat" component={NewChatScreen} />
-          <Stack.Screen name="message/asset/selection" component={AssetSelectScreen} options={{
-            animation: 'slide_from_bottom',
-            presentation: 'modal',
-          }} />
+          <Stack.Group>
+            <Stack.Screen name="message" component={ChatListScreen} />
+            <Stack.Screen name="message/conversation" component={ChatScreen} />
+            <Stack.Screen name="message/searchNewChat" component={NewChatScreen} />
+            <Stack.Screen name="message/asset/selection" component={AssetSelectScreen}
+              options={{
+                animation: 'slide_from_bottom',
+                presentation: 'modal',
+              }} />
+          </Stack.Group>
           <Stack.Screen name="message/asset/review" component={ChatAssetsReviewScreen} />
           {/* upload */}
           <Stack.Screen name="upload/post/selection" component={NewPostSelectionScreen} options={{
@@ -69,9 +74,11 @@ function Routes(backgroundColor: any) {
           <Stack.Screen name="upload/post/review" component={PostReviewScreen} />
         </> :
         <>
-          <Stack.Screen name="auth" component={InitialScreen} />
-          <Stack.Screen name="auth/login" component={LoginScreen} />
-          <Stack.Screen name="auth/register" component={RegisterScreen} />
+          <Stack.Group>
+            <Stack.Screen name="auth" component={InitialScreen} />
+            <Stack.Screen name="auth/login" component={LoginScreen} />
+            <Stack.Screen name="auth/register" component={RegisterScreen} />
+          </Stack.Group>
         </>}
     </Stack.Navigator >
   );

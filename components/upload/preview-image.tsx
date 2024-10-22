@@ -77,7 +77,8 @@ export const AddImage = memo(function AddImage({
         <TouchableOpacity
             activeOpacity={0.8}
             style={{
-                width: 288,
+                flex: 1,
+                width: "100%",
                 borderRadius: 16,
                 aspectRatio: 4 / 5,
                 backgroundColor: currentTheme?.muted,

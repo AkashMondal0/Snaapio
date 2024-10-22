@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from "zod"
-import { Button, Icon, Input, Text } from '@/components/skysolo-ui';
+import { Button, Icon, Input, Text, ThemedView } from '@/components/skysolo-ui';
 import { loginApi } from '@/redux-stores/slice/auth/api.service';
 import { ApiResponse, Session } from '@/types';
 import { setSession } from '@/redux-stores/slice/auth';
@@ -61,123 +61,129 @@ const LoginScreen = ({ navigation }: any) => {
     }, [])
 
     return (
-        <ScrollView
-            keyboardDismissMode='on-drag'
-            keyboardShouldPersistTaps='handled'
-            style={{
-                flex: 1,
-                padding: 20,
-                width: "100%",
-            }}>
-            <Icon
-                disabled={state.loading}
-                iconName="ArrowLeft"
-                size={30}
-                onPress={() => navigation.goBack()}
-                isButton />
+        <ThemedView style={{
+            flex: 1,
+            height: "100%",
+            width: "100%",
+        }}>
+            <ScrollView
+                keyboardDismissMode='on-drag'
+                keyboardShouldPersistTaps='handled'
+                style={{
+                    flex: 1,
+                    padding: 20,
+                    width: "100%",
+                }}>
+                <Icon
+                    disabled={state.loading}
+                    iconName="ArrowLeft"
+                    size={30}
+                    onPress={() => navigation.goBack()}
+                    isButton />
 
-            <View style={{
-                flex: 1,
-                justifyContent: "center",
-                alignItems: "center",
-                marginTop: 50,
-            }}>
-                <Text style={{
-                    fontSize: 32,
-                    fontWeight: '700',
-                    textAlign: 'center',
-                }}>Welcome Back!</Text>
-                <Text
-                    style={{
-                        fontSize: 15,
-                        marginBottom: 40,
-                        marginHorizontal: 25,
-                        textAlign: "center"
-                    }}>
-                    We're so excited to see you again!
-                </Text>
-                <Text
-                    colorVariant="danger"
-                    style={{
-                        fontSize: 18,
-                        textAlign: "left",
-                        fontWeight: 'bold',
-                        margin: 4,
-                        marginBottom: 20,
-                    }}>
-                    {state.errorMessage}
-                </Text>
-                <Controller
-                    control={control}
-                    render={({ field: { onChange, onBlur, value } }) => (
-                        <Input
-                            disabled={state.loading}
-                            style={{
-                                width: "90%",
-                            }}
-                            isErrorBorder={errors.email}
-                            onBlur={onBlur}
-                            onChangeText={value => onChange(value)}
-                            value={value}
-                            placeholder='Email'
-                            textContentType='emailAddress'
-                            keyboardType="email-address"
-                            returnKeyType="next" />
-                    )}
-                    name="email"
-                    rules={{ required: true }} />
-                <Text
-                    colorVariant="danger"
-                    style={{
-                        fontSize: 12,
-                        textAlign: "left",
-                        fontWeight: 'bold',
-                        margin: 4,
-                        marginBottom: 20,
-                    }}>
-                    {errors.email?.message}
-                </Text>
-                <Controller
-                    control={control}
-                    render={({ field: { onChange, onBlur, value } }) => (
-                        <Input
-                            disabled={state.loading}
-                            style={{ width: "90%" }}
-                            secureTextEntry={!state.showPassword}
-                            isErrorBorder={errors.password}
-                            placeholder='Password'
-                            textContentType='password'
-                            returnKeyType="done"
-                            onBlur={onBlur}
-                            onChangeText={value => onChange(value)}
-                            value={value}
-                            rightSideComponent={state.showPassword ? <Icon iconName="Eye" size={26} onPress={() => setStats({ ...state, showPassword: false })} /> :
-                                <Icon iconName="EyeOff" size={26} onPress={() => setStats({ ...state, showPassword: true })} />} />
-                    )}
-                    name="password"
-                    rules={{ required: true }} />
-                <Text
-                    colorVariant="danger"
-                    style={{
-                        fontSize: 12,
-                        textAlign: "left",
-                        fontWeight: 'bold',
-                        margin: 4,
-                        marginBottom: 20,
-                    }}>
-                    {errors.password?.message}
-                </Text>
+                <View style={{
+                    flex: 1,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    marginTop: 50,
+                }}>
+                    <Text style={{
+                        fontSize: 32,
+                        fontWeight: '700',
+                        textAlign: 'center',
+                    }}>Welcome Back!</Text>
+                    <Text
+                        style={{
+                            fontSize: 15,
+                            marginBottom: 40,
+                            marginHorizontal: 25,
+                            textAlign: "center"
+                        }}>
+                        We're so excited to see you again!
+                    </Text>
+                    <Text
+                        colorVariant="danger"
+                        style={{
+                            fontSize: 18,
+                            textAlign: "left",
+                            fontWeight: 'bold',
+                            margin: 4,
+                            marginBottom: 20,
+                        }}>
+                        {state.errorMessage}
+                    </Text>
+                    <Controller
+                        control={control}
+                        render={({ field: { onChange, onBlur, value } }) => (
+                            <Input
+                                disabled={state.loading}
+                                style={{
+                                    width: "90%",
+                                }}
+                                isErrorBorder={errors.email}
+                                onBlur={onBlur}
+                                onChangeText={value => onChange(value)}
+                                value={value}
+                                placeholder='Email'
+                                textContentType='emailAddress'
+                                keyboardType="email-address"
+                                returnKeyType="next" />
+                        )}
+                        name="email"
+                        rules={{ required: true }} />
+                    <Text
+                        colorVariant="danger"
+                        style={{
+                            fontSize: 12,
+                            textAlign: "left",
+                            fontWeight: 'bold',
+                            margin: 4,
+                            marginBottom: 20,
+                        }}>
+                        {errors.email?.message}
+                    </Text>
+                    <Controller
+                        control={control}
+                        render={({ field: { onChange, onBlur, value } }) => (
+                            <Input
+                                disabled={state.loading}
+                                style={{ width: "90%" }}
+                                secureTextEntry={!state.showPassword}
+                                isErrorBorder={errors.password}
+                                placeholder='Password'
+                                textContentType='password'
+                                returnKeyType="done"
+                                onBlur={onBlur}
+                                onChangeText={value => onChange(value)}
+                                value={value}
+                                rightSideComponent={state.showPassword ? <Icon iconName="Eye" size={26} onPress={() => setStats({ ...state, showPassword: false })} /> :
+                                    <Icon iconName="EyeOff" size={26} onPress={() => setStats({ ...state, showPassword: true })} />} />
+                        )}
+                        name="password"
+                        rules={{ required: true }} />
+                    <Text
+                        colorVariant="danger"
+                        style={{
+                            fontSize: 12,
+                            textAlign: "left",
+                            fontWeight: 'bold',
+                            margin: 4,
+                            marginBottom: 20,
+                        }}>
+                        {errors.password?.message}
+                    </Text>
 
-                <Button onPress={handleSubmit(handleLogin)} style={{
-                    width: "90%",
-                    marginVertical: 20,
-                }}
-                    loading={state.loading}
-                    disabled={state.loading}>
-                    Login
-                </Button>
-            </View>
-        </ScrollView>
+                    <Button onPress={handleSubmit(handleLogin)} style={{
+                        width: "90%",
+                        marginVertical: 20,
+                    }}
+                        loading={state.loading}
+                        disabled={state.loading}>
+                        Login
+                    </Button>
+                </View>
+            </ScrollView>
+        </ThemedView>
     );
 };
 

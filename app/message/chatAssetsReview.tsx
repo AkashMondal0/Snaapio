@@ -6,7 +6,8 @@ import {
     Button,
     Separator,
     Input,
-    PageLoader
+    PageLoader,
+    ThemedView
 } from '@/components/skysolo-ui';
 import AppHeader from '@/components/AppHeader';
 import { Conversation, disPatchResponse, Message, PageProps } from '@/types';
@@ -78,8 +79,9 @@ const ChatAssetsReviewScreen = memo(function ChatAssetsReviewScreen({
     ])
 
     return (
-        <>
-            <PageLoader loading={loading} text='Sending' />
+        <ThemedView style={{
+            flex: 1
+        }}>
             <AppHeader
                 title={conversation?.user?.username ?? "Chat"}
                 navigation={navigation} titleCenter />
@@ -137,11 +139,15 @@ const ChatAssetsReviewScreen = memo(function ChatAssetsReviewScreen({
                 justifyContent: "center"
             }}>
                 <Separator value={0.6} />
-                <Button style={{ width: "95%", margin: 10 }} onPress={sendMessageHandle}>
+                <Button
+                    disabled={loading}
+                    loading={loading}
+                    style={{ width: "95%", margin: 10 }}
+                    onPress={sendMessageHandle}>
                     Send
                 </Button>
             </View>
-        </>
+        </ThemedView>
     );
 }, () => true);
 

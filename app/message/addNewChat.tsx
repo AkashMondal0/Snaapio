@@ -1,7 +1,7 @@
 import React from "react";
 import AppHeader from "@/components/AppHeader";
 import { ListEmptyComponent } from "@/components/home";
-import { Avatar, Input, Loader, TouchableOpacity, Text } from "@/components/skysolo-ui";
+import { Avatar, Input, Loader, TouchableOpacity, Text, ThemedView } from "@/components/skysolo-ui";
 import debounce from "@/lib/debouncing";
 import { setConversation } from "@/redux-stores/slice/conversation";
 import { CreateConversationApi } from "@/redux-stores/slice/conversation/api.service";
@@ -49,7 +49,7 @@ const NewChatScreen = memo(function NewChatScreen({
     }, [])
 
     return (
-        <View style={{
+        <ThemedView style={{
             flex: 1,
             width: '100%',
             height: '100%',
@@ -87,7 +87,7 @@ const NewChatScreen = memo(function NewChatScreen({
                 bounces={false}
                 ListFooterComponent={() => <>{loading ? <Loader size={50} /> : <></>}</>}
                 ListEmptyComponent={!loading ? <ListEmptyComponent text="No User yet" /> : <></>} />
-        </View>
+        </ThemedView>
     )
 })
 export default NewChatScreen;

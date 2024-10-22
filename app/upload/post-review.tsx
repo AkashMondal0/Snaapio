@@ -47,12 +47,14 @@ const PostReviewScreen = memo(function PostReviewScreen({
             authorId: session?.id
         }) as any)
         setAssets([])
-        navigation?.replace("Root", { screen: "home" })
+        ToastAndroid.show("Post uploaded", ToastAndroid.SHORT)
+        if (navigation?.canGoBack()) { navigation?.goBack() }
+        // navigation?.navigate("Root", { screen: "home" })
     }, [assets.length, session?.id])
 
     return (
         <>
-            <PageLoader loading={loading} text='Uploading' />
+            {/* <PageLoader loading={loading} text='Uploading' /> */}
             <AppHeader title="New Post" navigation={navigation} titleCenter />
             <ScrollView
                 keyboardDismissMode='on-drag'
@@ -111,7 +113,11 @@ const PostReviewScreen = memo(function PostReviewScreen({
                 justifyContent: "center"
             }}>
                 <Separator value={0.6} />
-                <Button style={{ width: "95%", margin: 10 }} onPress={handledShare}>
+                <Button
+                    loading={loading}
+                    disabled={loading}
+                    style={{ width: "95%", margin: 10 }}
+                    onPress={handledShare}>
                     Share
                 </Button>
             </View>
