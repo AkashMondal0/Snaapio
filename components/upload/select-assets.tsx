@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { FlatList, ToastAndroid } from 'react-native';
 import * as MediaLibrary from 'expo-media-library';
-import { Icon, ThemedView, View } from '@/components/skysolo-ui';
+import { Icon, View } from '@/components/skysolo-ui';
 import AppHeader from '@/components/AppHeader';
 import AppPermissionDialog from '@/components/dialogs/app-permission';
 import PhotosPermissionRequester from '@/components/upload/no-permission';
@@ -109,9 +109,7 @@ const SelectAssets = memo(function SelectAssets({
     }
 
     return (
-        <ThemedView style={{
-            flex: 1
-        }}>
+        <>
             <AppHeader
                 titleCenter
                 title={selectedCount > 0 ? `Selected ${selectedCount} ` : 'Select Photos'}
@@ -137,7 +135,7 @@ const SelectAssets = memo(function SelectAssets({
                             onPressAssetHandle={onPressAssetHandle} />
                     }} />
             </View>
-        </ThemedView>
+        </>
     );
 }, () => true);
 
