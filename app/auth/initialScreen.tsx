@@ -1,9 +1,9 @@
-import { Text, Button } from '@/components/skysolo-ui'
+import { Text, Button ,ThemedView} from '@/components/skysolo-ui'
 import React from 'react'
 import { View, Image } from 'react-native'
 export default function InitialScreen({ navigation }: any) {
     return (
-        <View style={{
+        <ThemedView style={{
             flex: 1,
             height: "100%",
             width: "100%",
@@ -62,6 +62,6 @@ export default function InitialScreen({ navigation }: any) {
             }}>
                 Login
             </Button>
-        </View>
+        </ThemedView>
     )
 }

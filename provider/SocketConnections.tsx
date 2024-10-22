@@ -40,7 +40,7 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
 
     const SocketConnection = useCallback(async () => {
         if (session?.id && !socketRef.current) {
-            socketRef.current = io(`${configs.serverApi.baseUrl.replace("/v1", "")}/chat`, {
+            socketRef.current = io(`${configs.serverApi?.baseUrl?.replace("/v1", "")}/chat`, {
                 transports: ['websocket'],
                 extraHeaders: {
                     Authorization: session.accessToken

@@ -84,6 +84,7 @@ const SelectAssets = memo(function SelectAssets({
         const _selectedAssets = [...selectedAssets.current];
         // reset all selected assets
         setSelectedCount(0)
+        selectedAssets.current = [];
         nextAction(_selectedAssets);
     }, [selectedAssets]);
 

@@ -6,7 +6,8 @@ import {
     Button,
     Separator,
     Input,
-    Text
+    PageLoader,
+    ThemedView
 } from '@/components/skysolo-ui';
 import AppHeader from '@/components/AppHeader';
 import { Conversation, disPatchResponse, Message, PageProps } from '@/types';
@@ -55,14 +56,11 @@ const ChatAssetsReviewScreen = memo(function ChatAssetsReviewScreen({
                 })
             }
             if (ConversationList.findIndex((i) => i.id === conversation?.id) === -1) {
-                // toast.success("New conversation created")
-                dispatch(fetchConversationsApi({
+                await dispatch(fetchConversationsApi({
                     limit: 12,
                     offset: 0,
                 }) as any)
             }
-            // reset()
-            // setIsFile([])
             if (navigation?.canGoBack()) {
                 navigation.goBack()
             }
@@ -81,22 +79,9 @@ const ChatAssetsReviewScreen = memo(function ChatAssetsReviewScreen({
     ])
 
     return (
-        <View style={{
-            flex: 1,
+        <ThemedView style={{
+            flex: 1
         }}>
-            {loading ? <View style={{
-                position: "absolute",
-                width: "100%",
-                height: "100%",
-                backgroundColor: "rgba(0,0,0,0.6)",
-                justifyContent: "center",
-                alignItems: "center",
-                zIndex: 100,
-            }}>
-                <Text variant="heading3" style={{ textAlign: "center", padding: 10 }}>
-                    Sending...
-                </Text>
-            </View> : <View />}
             <AppHeader
                 title={conversation?.user?.username ?? "Chat"}
                 navigation={navigation} titleCenter />
@@ -154,11 +139,15 @@ const ChatAssetsReviewScreen = memo(function ChatAssetsReviewScreen({
                 justifyContent: "center"
             }}>
                 <Separator value={0.6} />
-                <Button style={{ width: "95%", margin: 10 }} onPress={sendMessageHandle}>
+                <Button
+                    disabled={loading}
+                    loading={loading}
+                    style={{ width: "95%", margin: 10 }}
+                    onPress={sendMessageHandle}>
                     Send
                 </Button>
             </View>
-        </View>
+        </ThemedView>
     );
 }, () => true);
 

@@ -1,5 +1,5 @@
 import ErrorScreen from "@/components/error/page";
-import { ProfileEmptyPosts, ProfileHeader, ProfileNavbar } from "@/components/profile";
+import { ProfileEmptyPosts, ProfileGridItem, ProfileHeader, ProfileNavbar } from "@/components/profile";
 import { Loader } from "@/components/skysolo-ui";
 import { fetchUserProfileDetailApi, fetchUserProfilePostsApi } from "@/redux-stores/slice/profile/api.service";
 import { RootState } from "@/redux-stores/store";
@@ -107,23 +107,7 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
                     gap: 2,
                     paddingVertical: 1,
                 }}
-                renderItem={({ item, index }) => {
-                    return <View
-                        style={{
-                            width: "33%",
-                            height: "100%",
-                            aspectRatio: 1,
-                        }}>
-                        <Image
-                            url={item.fileUrl[0].urls?.high}
-                            showImageError
-                            resizeMode="cover"
-                            style={{
-                                width: '100%',
-                                height: "100%",
-                            }} />
-                    </View>
-                }}
+                renderItem={({ item, index }) => (<ProfileGridItem item={item} index={index} />)}
                 ListHeaderComponent={UserData.current ? <>
                     <ProfileHeader
                         navigation={navigation}

@@ -71,3 +71,18 @@ const SkysoloView = ({
 }
 
 export default SkysoloView
+
+
+export const ThemedView = ({
+    style,
+    ...otherProps }: Props) => {
+    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+
+    if (!currentTheme) return <View />
+    return (
+        <View style={[{
+            backgroundColor: currentTheme.background,
+            borderColor: currentTheme.border,
+        }, style]} {...otherProps} />
+    )
+}

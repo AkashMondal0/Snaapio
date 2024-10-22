@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { memo, useCallback, useContext, useEffect, useRef, useState } from "react";
-import { Avatar, Icon, Input, Text, TouchableOpacity, Separator, Loader } from "@/components/skysolo-ui";
-import { FlatList, ToastAndroid, View, TouchableOpacity as RNTouchableOpacity } from "react-native";
+import { Avatar, Icon, Input, Text, TouchableOpacity, Separator, Loader, ThemedView } from "@/components/skysolo-ui";
+import { FlatList, ToastAndroid, View } from "react-native";
 import { timeAgoFormat } from "@/lib/timeFormat";
 import { createPostCommentApi, fetchPostCommentsApi } from "@/redux-stores/slice/post/api.service";
 import AppHeader from "@/components/AppHeader";
@@ -78,7 +78,7 @@ const CommentScreen = memo(function CommentScreen({ navigation, route }: Comment
     }, [])
 
     return (
-        <View style={{
+        <ThemedView style={{
             flex: 1,
             width: '100%',
             height: '100%',
@@ -103,7 +103,7 @@ const CommentScreen = memo(function CommentScreen({ navigation, route }: Comment
                 }}
                 ListFooterComponent={commentsLoading === "pending" ? <Loader size={50} /> : <></>} />
             <CommentInput post={post} />
-        </View>
+        </ThemedView>
     )
 })
 export default CommentScreen;

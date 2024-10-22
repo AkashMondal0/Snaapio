@@ -4,6 +4,7 @@ import SelectAssets from '@/components/upload/select-assets';
 import {
     PageProps
 } from '@/types';
+import { View as ThemedView } from '@/components/skysolo-ui';
 
 const AssetSelectScreen = memo(function AssetSelectScreen({
     navigation,
@@ -15,7 +16,9 @@ const AssetSelectScreen = memo(function AssetSelectScreen({
             conversation: route?.params.conversation
         });
     };
-    return <SelectAssets navigation={navigation} nextAction={nextAction} />
+    return <ThemedView style={{ flex: 1 }}>
+        <SelectAssets navigation={navigation} nextAction={nextAction} />
+    </ThemedView>
 })
 
 export default AssetSelectScreen;

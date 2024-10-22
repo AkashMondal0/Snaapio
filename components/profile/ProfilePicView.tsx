@@ -1,23 +1,30 @@
 import { Avatar } from "@/components/skysolo-ui";
 import { useCallback, useState } from "react";
-import { Modal, TouchableOpacity, Vibration } from "react-native";
+import { Modal, StatusBar, TouchableOpacity, Vibration } from "react-native";
 
 const ProfilePicView = ({ profilePic }: { profilePic?: string | null }) => {
     const [modalVisible, setModalVisible] = useState(false);
 
     const toggleModal = useCallback(() => {
-        if(!modalVisible) {
+        if (!modalVisible) {
             Vibration.vibrate(10);
         }
         setModalVisible(!modalVisible);
     }, [modalVisible]);
+
     return (
         <>
             <Modal
+                style={{ flex: 1 }}
                 animationType="fade"
                 transparent={true}
                 visible={modalVisible}
                 onRequestClose={toggleModal}>
+                {modalVisible ? <StatusBar
+                    animated={true}
+                    barStyle={"light-content"}
+                    backgroundColor={"rgba(0,0,0,0.9)"}
+                    translucent={true} /> : <></>}
                 <TouchableOpacity
                     activeOpacity={1}
                     onPress={toggleModal}

@@ -10,7 +10,7 @@ import { FeedItem, HomeHeader } from '@/components/home';
 import { ProfileStories } from '@/components/profile';
 import ErrorScreen from '@/components/error/page';
 import ListEmpty from '@/components/ListEmpty';
-import { Loader } from '@/components/skysolo-ui';
+import { Loader, ThemedView } from '@/components/skysolo-ui';
 let totalFetchedItemCount: number = 0
 
 const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: NavigationProps }) {
@@ -67,7 +67,8 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: Navi
     }, [])
 
     return (
-        <View style={{
+        <ThemedView style={{
+            flex: 1,
             width: "100%",
             height: "100%",
         }}>
@@ -94,7 +95,7 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: Navi
                 }}
                 ListFooterComponent={() => feedListLoading === "pending" ? <Loader size={40} /> : <></>}
             />
-        </View>
+        </ThemedView>
     )
 })
 export default FeedsScreen;

@@ -126,7 +126,7 @@ const ImageComponent = ({
                                     alignItems: "center",
                                     width: "100%",
                                     height: "100%",
-                                    backgroundColor: "rgba(0,0,0,0.3)"
+                                    backgroundColor: "rgba(0,0,0,0.6)"
                                 }}>
                                 <Text style={{
                                     color: "white",
@@ -157,7 +157,27 @@ const ImageComponent = ({
                             borderRadius: 16,
                         }} />
                 })}
-                {footer}
+                <View style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    right: 0,
+                    marginVertical: 8,
+                    marginHorizontal: 12,
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    gap: 5,
+                }}>
+                    <Text style={{
+                        color: 'white',
+                        fontSize: 14,
+                        fontWeight: '400',
+                    }}>
+                        {timeFormat(data?.createdAt as string)}
+                    </Text>
+                    {myself ? <Icon iconName="CheckCheck" size={20} color="white" />
+                        : <View />}
+                </View>
             </View>
         </TouchableOpacity>
     }
@@ -185,15 +205,17 @@ const ImageComponent = ({
                         padding: 5,
                         marginBottom: 5,
                     }}>
-                    <Image
-                        isBorder
-                        url={file.urls?.high}
-                        style={{
-                            width: "100%",
-                            height: 300,
-                            borderRadius: 16,
-                            marginBottom: 4,
-                        }} />
+                    <View>
+                        <Image
+                            isBorder
+                            url={file.urls?.high}
+                            style={{
+                                width: "100%",
+                                height: 300,
+                                borderRadius: 16,
+                                marginBottom: 4,
+                            }} />
+                    </View>
                     {footer}
                 </View>)
             })}

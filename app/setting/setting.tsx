@@ -1,9 +1,10 @@
 import AppHeader from "@/components/AppHeader";
 import LogOutDialog from "@/components/dialogs/logout";
-import { Icon, TouchableOpacity, Text, type IconName } from "@/components/skysolo-ui";
+import { Icon, TouchableOpacity, Text, type IconName, ThemedView } from "@/components/skysolo-ui";
+import { configs } from "@/configs";
 import { logoutApi } from "@/redux-stores/slice/auth/api.service";
-import { memo, useState } from "react";
-import { ScrollView, View } from "react-native";
+import { memo, useCallback, useState } from "react";
+import { Linking, ScrollView, View } from "react-native";
 import { useDispatch } from "react-redux";
 
 const SettingScreen = memo(function HomeScreen({ navigation }: any) {
@@ -46,8 +47,19 @@ const SettingScreen = memo(function HomeScreen({ navigation }: any) {
         },
     ]
 
+    const handlePress = useCallback(async () => {
+        const supported = await Linking.canOpenURL('https://github.com/AkashMondal0');
+        if (supported) {
+            await Linking.openURL('https://github.com/AkashMondal0');
+        }
+    }, []);
+
     return (
-        <>
+        <ThemedView style={{
+            flex: 1,
+            width: "100%",
+            height: "100%"
+        }}>
             <LogOutDialog
                 setModalVisible={setModalVisible}
                 modalVisible={modalVisible}
@@ -72,7 +84,30 @@ const SettingScreen = memo(function HomeScreen({ navigation }: any) {
                     ))}
                 </ScrollView>
             </View>
-        </>
+            <TouchableOpacity onPress={handlePress} style={{
+                padding: 10,
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+            }}>
+                <Text variant="heading4"
+                    colorVariant="secondary"
+                    style={{
+                        textAlign: "center",
+                        paddingRight: 4
+                    }}>
+                    akashmondal0
+                </Text>
+                <Icon iconName="ExternalLink" size={20} iconColorVariant="secondary" />
+                <Text variant="heading4"
+                    colorVariant="secondary"
+                    style={{
+                        textAlign: "center",
+                        padding: 4
+                    }}>| Version {configs.AppDetails.version}
+                </Text>
+            </TouchableOpacity>
+        </ThemedView>
     )
 })
 export default SettingScreen;

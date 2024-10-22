@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback, useEffect, useRef } from "react";
 import AppHeader from "@/components/AppHeader";
-import { Avatar, Loader, Text, TouchableOpacity } from "@/components/skysolo-ui";
+import { Avatar, Loader, Text, ThemedView, TouchableOpacity } from "@/components/skysolo-ui";
 import { resetLike } from "@/redux-stores/slice/post";
 import { fetchPostLikesApi } from "@/redux-stores/slice/post/api.service";
 import { RootState } from "@/redux-stores/store";
@@ -68,7 +68,7 @@ const LikeScreen = memo(function LikeScreen({ navigation, route }: ScreenProps) 
     }, [])
 
     return (
-        <View style={{
+        <ThemedView style={{
             flex: 1,
             width: '100%',
             height: '100%',
@@ -92,7 +92,7 @@ const LikeScreen = memo(function LikeScreen({ navigation, route }: ScreenProps) 
                 }}
                 ListFooterComponent={likeLoading === "pending" ? <Loader size={50} /> : <></>}
                 onRefresh={onRefresh} />
-        </View>
+        </ThemedView>
     )
 })
 export default LikeScreen;
@@ -136,4 +136,4 @@ const LikeItem = memo(function CommentItem({
         </View>
         {/* <Text variant="heading4" colorVariant="secondary">{isProfile ? 'You' : ''}</Text> */}
     </TouchableOpacity>)
-})
+}, (pre, next) => pre?.data?.id === next?.data?.id)

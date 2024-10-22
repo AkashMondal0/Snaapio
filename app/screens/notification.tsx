@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback, useEffect, useRef, useState } from "react";
-import { Avatar, Loader, Text, TouchableOpacity, Image } from "@/components/skysolo-ui";
+import { Avatar, Loader, Text, TouchableOpacity, Image, ThemedView } from "@/components/skysolo-ui";
 import { FlatList, ToastAndroid, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import AppHeader from "@/components/AppHeader";
@@ -52,7 +52,7 @@ const NotificationScreen = memo(function NotificationScreen({ navigation }: { na
     }, [])
 
     return (
-        <View style={{
+        <ThemedView style={{
             flex: 1,
             width: '100%',
             height: '100%',
@@ -79,7 +79,7 @@ const NotificationScreen = memo(function NotificationScreen({ navigation }: { na
                 }}
                 ListFooterComponent={notificationsLoading === "pending" ? <Loader size={50} /> : <></>}
             />
-        </View>
+        </ThemedView>
     )
 })
 export default NotificationScreen;
@@ -138,12 +138,14 @@ const NotificationItem = memo(function NotificationItem({
                 </Text>
             </View>
         </View>
-        <Image url={data.post?.fileUrl[0].urls?.low} showImageError style={{
-            width: 60,
-            borderRadius: 10,
-            aspectRatio: 1 / 1,
-            flex: 0,
-        }}/>
+        <Image url={data.post?.fileUrl[0].urls?.low}
+            showImageError
+            style={{
+                width: 60,
+                borderRadius: 10,
+                aspectRatio: 1 / 1,
+                flex: 0,
+            }} />
     </TouchableOpacity>)
 }, (prevProps, nextProps) => {
     return prevProps.data.id === nextProps.data.id

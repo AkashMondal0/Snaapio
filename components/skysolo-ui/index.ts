@@ -1,6 +1,6 @@
 import ScrollView from "./ScrollView";
 import Text from "./Text";
-import View from "./View";
+import View, { ThemedView } from "./View";
 import Button from "./Button";
 import Card from "./Card";
 import CheckBox from "./CheckBox";
@@ -12,7 +12,7 @@ import Collapsible from "./Collapsible"
 import Modal from "./Modal";
 import Alert from "./Alert";
 import ToastAndroid from "./ToastAndroid";
-import Loader from "./Loader";
+import Loader, { PageLoader } from "./Loader";
 import ActionSheet from "./ActionSheet";
 import Avatar from "./Avatar";
 import TouchableOpacity from "./TouchableOpacity";
@@ -20,6 +20,7 @@ import Icon, { IconName } from "./Icon";
 import Toast from "./Toast";
 import Separator from "./Separator";
 import AnimatedView from "./AnimatedView";
+import Statusbar from "./StatusBar";
 
 export {
     View,
@@ -44,5 +45,8 @@ export {
     TouchableOpacity,
     Separator,
     IconName,
-    AnimatedView
+    AnimatedView,
+    PageLoader,
+    ThemedView,
+    Statusbar
 }
