@@ -62,10 +62,6 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: Navi
         fetchApi()
     }, [])
 
-    const onNavigate = useCallback((path: string, options?: { params?: any }) => {
-        navigation.push(path, options);
-    }, [])
-
     return (
         <ThemedView style={{
             flex: 1,
@@ -80,7 +76,7 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: Navi
                 removeClippedSubviews={true}
                 windowSize={12}
                 data={feedList}
-                renderItem={({ item }) => <FeedItem data={item} onNavigate={onNavigate} />}
+                renderItem={({ item }) => <FeedItem data={item} navigation={navigation} />}
                 keyExtractor={(item, index) => index.toString()}
                 onEndReached={onEndReached}
                 onEndReachedThreshold={0.5}

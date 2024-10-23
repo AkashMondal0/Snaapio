@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { memo, useCallback, useContext, useRef, useState } from 'react';
-import { ToastAndroid, TouchableOpacity, View } from 'react-native';
+import { ToastAndroid, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { Avatar, Text, Image, Icon } from '@/components/skysolo-ui';
 import { SocketContext } from '@/provider/SocketConnections';
 import { createNotificationApi, destroyNotificationApi } from '@/redux-stores/slice/notification/api.service';
 import { createPostLikeApi, destroyPostLikeApi } from '@/redux-stores/slice/post/api.service';
 import { RootState } from '@/redux-stores/store';
-import { disPatchResponse, NotificationType, Post } from '@/types';
+import { disPatchResponse, NavigationProps, NotificationType, Post } from '@/types';
 import { Heart } from 'lucide-react-native';
 import PagerView from 'react-native-pager-view';
 import { useDispatch, useSelector } from 'react-redux';
@@ -15,25 +15,29 @@ import useDebounce from '@/lib/debouncing';
 
 const FeedItem = memo(function FeedItem({
     data,
-    onNavigate
+    navigation
 }: {
     data: Post,
-    onNavigate: (path: string, options?: any) => void
+    navigation: NavigationProps
 }) {
+    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+    const [tabIndex, setTabIndex] = useState(0)
+    const imageLength = data.fileUrl.length
     const navigateToProfile = useCallback(() => {
         if (!data.user) return ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
-        onNavigate("profile", { username: data.user.username })
+        navigation.push("profile", { username: data.user.username })
     }, [data.user])
 
     const navigateToPost = useCallback((path: "post/like" | "post/comment", post: Post) => {
         if (!post) return ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
-        onNavigate(path, { post })
+        navigation.push(path, { post, index: 0 })
     }, [])
 
     return <View style={{
         width: "100%",
         paddingVertical: 14,
     }}>
+        {/* header */}
         <View style={{
             marginHorizontal: "2%",
             paddingVertical: 10,
@@ -61,32 +65,73 @@ const FeedItem = memo(function FeedItem({
                 </Text>
             </View>
         </View>
-        <PagerView
-            initialPage={0}
-            style={{
-                width: "100%",
-                height: "auto",
-                aspectRatio: 4 / 5, // portrait
-                // aspectRatio: 9 / 16, // story
-                // aspectRatio: 16 / 9,  // landscape
-                // aspectRatio: 1 / 1, // square
+        {/* view image */}
+        <View style={{
+            width: "100%",
+            height: "auto",
+            aspectRatio: 4 / 5,
+        }}>
+            {/* indicator */}
+            {imageLength > 1 ? <View style={{
+                position: "absolute",
+                top: 0,
+                right: 0,
+                width: "auto",
+                backgroundColor: "rgba(0,0,0,0.6)",
+                zIndex: 10,
+                borderRadius: 10,
+                margin: 10,
+                paddingHorizontal: 4,
             }}>
-            {data.fileUrl.map((item, index) => (<ImageItem key={index} item={item} index={index} />))}
-        </PagerView>
+                <Text variant="heading4" style={{
+                    fontWeight: "400",
+                    color: "white",
+                    padding: 5,
+                    fontSize: 16
+                }}>
+                    {tabIndex + 1}/{imageLength}
+                </Text>
+            </View> : <View />}
+            {/* image */}
+            <PagerView
+                initialPage={tabIndex}
+                onPageSelected={(e) => setTabIndex(e.nativeEvent.position)}
+                style={{
+                    width: "100%",
+                    height: "100%",
+                }}>
+                {data.fileUrl.map((item, index) => (<ImageItem key={index} item={item} index={index} />))}
+            </PagerView>
+        </View>
+        {imageLength > 1 ? <View style={{
+            width: "100%",
+            zIndex: 10,
+            borderRadius: 10,
+            margin: 2,
+            padding: 4,
+            justifyContent: "center",
+            alignItems: "center",
+            flexDirection: "row",
+        }}>
+            {Array.from({ length: imageLength }).map((_, index) => (
+                <View key={index} style={{
+                    width: 7,
+                    height: 7,
+                    borderRadius: 14,
+                    backgroundColor: index === tabIndex ? currentTheme?.primary : currentTheme?.muted,
+                    margin: 2
+                }} />
+            ))}
+        </View> : <View />}
         {/* action */}
         <View>
             <FeedItemActionsButtons post={data} onPress={navigateToPost} />
-            <View>
-                {data?.content ? <Text variant="heading4" style={{
-                    fontWeight: "500",
-                    marginHorizontal: "2%",
-                    marginTop: 5
-                }}>{data?.content}</Text> : <View />}
-            </View>
+            {/* text */}
+            <FeedItemContent data={data} navigation={navigation} />
             <View>
                 <TouchableOpacity activeOpacity={0.5} onPress={() => navigateToPost("post/comment", data)}>
-                    <Text variant="heading4"
-                        colorVariant="secondary"
+                    <Text
+                        variant="heading4"
                         style={{
                             marginHorizontal: "2%",
                             fontWeight: "400",
@@ -98,8 +143,7 @@ const FeedItem = memo(function FeedItem({
             </View>
         </View>
     </View>
-}, () =>true)
-
+}, () => true)
 
 export default FeedItem;
 
@@ -286,3 +330,52 @@ const ImageItem = memo(function ImageItem({ item, index }: { item: any, index: n
 }, (prev, next) => {
     return prev.item.id === next.item.id
 })
+const FeedItemContent = memo(function FeedItemContent({ data,
+    navigation
+}: {
+    data: Post,
+    navigation: NavigationProps
+}) {
+    const [readMore, setReadMore] = useState(false)
+
+    if (data.content.length <= 0) {
+        return <></>
+    }
+    return (<Text numberOfLines={readMore ? 100 : 3}
+        style={{
+            alignItems: "center",
+            marginHorizontal: "2%",
+        }}
+        ellipsizeMode="tail">
+        <TouchableWithoutFeedback
+            style={{
+                borderWidth: 0.5,
+                borderColor: "red",
+            }}
+            onPress={() => {
+                navigation.push("profile", { username: data.user.username })
+            }}>
+            <Text variant="heading4"
+                style={{
+                    fontWeight: "500",
+                    fontSize: 16
+                }}
+                lineBreakMode="clip" numberOfLines={2}>
+                {data.user.name}{" "}
+            </Text>
+        </TouchableWithoutFeedback>
+        <TouchableWithoutFeedback onPress={() => setReadMore(!readMore)}>
+            <Text variant="heading4"
+                colorVariant="secondary"
+                style={{
+                    marginHorizontal: "2%",
+                    fontWeight: "400",
+                    paddingVertical: 5,
+                    fontSize: 14
+                }}
+                numberOfLines={readMore ? 100 : 2}>
+                {data.content}
+            </Text>
+        </TouchableWithoutFeedback>
+    </Text>)
+}, () => true)

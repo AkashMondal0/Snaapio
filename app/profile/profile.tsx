@@ -75,6 +75,10 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
         fetchUserData()
     }, [loading])
 
+    const navigateToPostDetail = useCallback((item: Post, index: number) => {
+        navigation.navigate('post', { post: item, index })
+    }, [])
+
     useEffect(() => {
         fetchUserData()
     }, [])
@@ -106,7 +110,7 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
                     paddingVertical: 1,
                 }}
                 renderItem={({ item, index }) => (
-                    <ProfileGridItem item={item} index={index} />
+                    <ProfileGridItem item={item} index={index} onPress={navigateToPostDetail} />
                 )}
                 ListHeaderComponent={UserData.current ? <>
                     <ProfileHeader

@@ -1,13 +1,16 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from "react";
-import { FlatList, View } from "react-native";
+import { FlatList, View, ToastAndroid } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { Avatar, Button, Loader, Text, TouchableOpacity } from "@/components/skysolo-ui";
 import { fetchUserProfileFollowerUserApi } from "@/redux-stores/slice/profile/api.service";
 import { RootState } from "@/redux-stores/store";
-import { AuthorData, disPatchResponse, loadingType, NavigationProps } from "@/types";
+import { AuthorData, Conversation, disPatchResponse, loadingType, NavigationProps } from "@/types";
 import { memo, useCallback, useEffect, useRef } from "react";
 import ErrorScreen from "@/components/error/page";
 import ListEmpty from "@/components/ListEmpty";
+import { setConversation } from "@/redux-stores/slice/conversation";
+import { CreateConversationApi } from "@/redux-stores/slice/conversation/api.service";
 interface ScreenProps {
     navigation: NavigationProps;
     username: string
@@ -68,6 +71,23 @@ const FollowersScreen = memo(function FollowersScreen({ navigation, username }: 
         fetchData()
     }, [])
 
+    const navigateToMessagePage = async (userData: AuthorData) => {
+        try {
+            if (!session?.id) return ToastAndroid.show('You are not logged in', ToastAndroid.SHORT)
+            if (!userData || userData?.id === session?.id) return ToastAndroid.show("Something's went Wrong", ToastAndroid.SHORT)
+            const res = await dispatch(CreateConversationApi([userData.id]) as any) as disPatchResponse<Conversation>
+            if (res.error) return ToastAndroid.show("Something's went Wrong", ToastAndroid.SHORT)
+            dispatch(setConversation({
+                id: res.payload.id,
+                isGroup: false,
+                user: userData,
+            } as Conversation))
+            navigation?.navigate("message/conversation", { id: res.payload.id })
+        } catch (error) {
+            ToastAndroid.show("Something's went Wrong", ToastAndroid.SHORT)
+        }
+    }
+
     return (
         <View style={{
             flex: 1,
@@ -80,6 +100,7 @@ const FollowersScreen = memo(function FollowersScreen({ navigation, username }: 
                 windowSize={10}
                 data={users.current}
                 renderItem={({ item }) => (<FollowingItem data={item}
+                    navigateToMessagePage={navigateToMessagePage}
                     isFollowing={session?.username === item.username}
                     onPress={navigationHandler} />)}
                 keyExtractor={(item, index) => index.toString()}
@@ -103,23 +124,25 @@ export default FollowersScreen;
 const FollowingItem = memo(function FollowingItem({
     data,
     isFollowing,
-    onPress
+    onPress,
+    navigateToMessagePage
 }: {
     data: AuthorData,
     isFollowing: boolean,
     onPress: (uname: string) => void
+    navigateToMessagePage: (userData: AuthorData) => void
 }) {
-    return (<TouchableOpacity 
+    return (<TouchableOpacity
         onPress={() => onPress(data.username)}
         style={{
-        flexDirection: 'row',
-        padding: 12,
-        alignItems: 'center',
-        width: '100%',
-        gap: 10,
-        marginVertical: 2,
-        justifyContent: 'space-between',
-    }}>
+            flexDirection: 'row',
+            padding: 12,
+            alignItems: 'center',
+            width: '100%',
+            gap: 10,
+            marginVertical: 2,
+            justifyContent: 'space-between',
+        }}>
         <View style={{
             display: 'flex',
             flexDirection: 'row',
@@ -147,6 +170,7 @@ const FollowingItem = memo(function FollowingItem({
             textStyle={{
                 fontSize: 14,
             }}
+            onPress={() => navigateToMessagePage(data)}
             size="medium"
             variant="secondary">
             Message

@@ -67,6 +67,10 @@ const LikeScreen = memo(function LikeScreen({ navigation, route }: ScreenProps) 
         fetchApi()
     }, [])
 
+    const onPress = useCallback((username: string) => {
+        navigation.push("profile", { username })
+    }, [])
+
     return (
         <ThemedView style={{
             flex: 1,
@@ -79,7 +83,7 @@ const LikeScreen = memo(function LikeScreen({ navigation, route }: ScreenProps) 
                 scrollEventThrottle={16}
                 windowSize={10}
                 data={likes}
-                renderItem={({ item }) => (<LikeItem data={item} />)}
+                renderItem={({ item }) => (<LikeItem data={item} onPress={onPress} />)}
                 keyExtractor={(item, index) => index.toString()}
                 bounces={false}
                 onEndReachedThreshold={0.5}
@@ -98,37 +102,51 @@ const LikeScreen = memo(function LikeScreen({ navigation, route }: ScreenProps) 
 export default LikeScreen;
 
 const LikeItem = memo(function CommentItem({
-    data
+    data,
+    onPress,
 }: {
     data: AuthorData
+    onPress: (data: string) => void
 }) {
-    return (<TouchableOpacity style={{
-        flexDirection: 'row',
-        padding: 12,
-        alignItems: 'center',
-        width: '100%',
-        gap: 10,
-        marginVertical: 2,
-        justifyContent: 'space-between',
-    }}>
+
+    return (<TouchableOpacity
+        onPress={() => {
+            onPress(data.username)
+        }}
+        style={{
+            flexDirection: 'row',
+            padding: 12,
+            alignItems: 'center',
+            width: '100%',
+            gap: 10,
+            marginVertical: 2,
+            justifyContent: 'space-between',
+        }}>
         <View style={{
             display: 'flex',
             flexDirection: 'row',
             gap: 10,
             alignItems: 'center',
         }}>
-            <Avatar url={data.profilePicture} size={50} onPress={() => { }} />
+            <Avatar url={data.profilePicture} size={50} onPress={() => {
+                onPress(data.username)
+            }} />
             <View>
-                <View style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: 10,
-                }}>
+                <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => {
+                        onPress(data.username)
+                    }}
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: 10,
+                    }}>
                     <Text variant="heading3">
                         {data.username}
                     </Text>
-                </View>
+                </TouchableOpacity>
                 <Text variant="heading4" colorVariant="secondary">
                     {data.name}
                 </Text>
