@@ -39,7 +39,18 @@ const MessageItem = memo(function Item({
         return <ImageComponent
             bg={bg}
             data={data} myself={myself}
-            footer={<TimeFooter />} />
+            footer={<>
+                <Text
+                    style={{
+                        color: color,
+                        fontSize: 16,
+                        lineHeight: 24,
+                        fontWeight: '400',
+                    }}>
+                    {data?.content}
+                </Text>
+                <TimeFooter />
+            </>} />
     }
     // text message
     return <View style={{

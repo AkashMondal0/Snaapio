@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useRef, useState } from 'react';
 import { View, ScrollView, ToastAndroid } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import * as MediaLibrary from 'expo-media-library';
@@ -27,7 +27,7 @@ const PostReviewScreen = memo(function PostReviewScreen({
     const [assets, setAssets] = useState(route?.params?.assets ? [...route.params?.assets] : [])
     const session = useSelector((state: RootState) => state.AuthState.session.user)
     const loading = useSelector((state: RootState) => state.AccountState.uploadFilesLoading, (prev, next) => prev === next)
-
+    const inputRef = useRef("")
     const dispatch = useDispatch()
 
     const handleDelete = useCallback((id: string) => {
@@ -41,15 +41,15 @@ const PostReviewScreen = memo(function PostReviewScreen({
         // and reset all states
         await dispatch(uploadFilesApi({
             files: assets,
-            caption: "caption 1",
+            caption: inputRef.current,
             location: "kol-sky-007",
             tags: [],
             authorId: session?.id
         }) as any)
         setAssets([])
         ToastAndroid.show("Post uploaded", ToastAndroid.SHORT)
-        if (navigation?.canGoBack()) { navigation?.goBack() }
-        // navigation?.navigate("Root", { screen: "home" })
+        // if (navigation?.canGoBack()) { navigation?.goBack() }
+        navigation?.navigate("Root", { screen: "home" })
     }, [assets.length, session?.id])
 
     return (
@@ -93,16 +93,18 @@ const PostReviewScreen = memo(function PostReviewScreen({
                         }}
                         ListFooterComponent={<AddImage onPress={() => { }} />} />
                 </View>
-                <Input
-                    multiline
-                    numberOfLines={4}
-                    style={{
-                        borderWidth: 0,
-                        width: "95%",
-                        margin: "2.5%",
-                    }}
-                    // secondaryColor
-                    placeholder='Write a caption...' />
+                <View style={{
+                    width: "95%",
+                    marginHorizontal: "2.5%",
+                    marginVertical: 10,
+                }}>
+                    <Input
+                        disabled={loading}
+                        multiline
+                        numberOfLines={3}
+                        onChangeText={(text) => inputRef.current = text}
+                        placeholder='Write a caption...' />
+                </View>
                 <Separator value={0.6} style={{ marginVertical: 2 }} />
                 {/* description and details */}
                 <InfoComponent />

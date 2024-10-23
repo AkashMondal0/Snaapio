@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Avatar, Loader, Text, TouchableOpacity, Image, ThemedView } from "@/components/skysolo-ui";
-import { FlatList, ToastAndroid, View, TouchableOpacity as RNTouchableOpacity } from "react-native";
+import { FlatList, ToastAndroid, TouchableWithoutFeedback, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import AppHeader from "@/components/AppHeader";
 import { RootState } from "@/redux-stores/store";
@@ -123,15 +123,14 @@ const NotificationItem = memo(function NotificationItem({
                     gap: 6,
                 }}>
                     <Text numberOfLines={readMore ? 20 : 3} ellipsizeMode="tail">
-                        <RNTouchableOpacity
-                            activeOpacity={0.8}
+                        <TouchableWithoutFeedback
                             onPress={() => {
                                 navigation.push("profile", { username: data.author?.username })
                             }}>
                             <Text variant="heading3" lineBreakMode="clip" numberOfLines={2}>
                                 {data.author?.username} {' '}
                             </Text>
-                        </RNTouchableOpacity>
+                        </TouchableWithoutFeedback>
                         <Text variant="heading4" colorVariant="secondary" lineBreakMode="tail" numberOfLines={2}>
                             {data.type === NotificationType.Like ? 'liked your post' : data.type === NotificationType.Comment ? 'commented on your post: ' : 'followed you'}
                         </Text>

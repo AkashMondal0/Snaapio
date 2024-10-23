@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useState } from 'react';
+import React, { memo, useCallback, useContext, useRef, useState } from 'react';
 import { View, ScrollView, ToastAndroid } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import * as MediaLibrary from 'expo-media-library';
@@ -32,6 +32,7 @@ const ChatAssetsReviewScreen = memo(function ChatAssetsReviewScreen({
     const members = conversation?.members ?? []
     const ConversationList = useSelector((state: RootState) => state.ConversationState.conversationList, (prev, next) => prev.length === next.length)
     const [loading, setLoading] = useState(false)
+    const inputRef = useRef("")
     const dispatch = useDispatch()
 
     const handleDelete = useCallback((id: string) => {
@@ -45,7 +46,7 @@ const ChatAssetsReviewScreen = memo(function ChatAssetsReviewScreen({
             const newMessage = await dispatch(CreateMessageApi({
                 conversationId: conversation?.id,
                 authorId: session?.id,
-                content: "text image",
+                content: inputRef.current,
                 fileUrl: assets,
                 members: members,
             }) as any) as disPatchResponse<Message>
@@ -122,15 +123,18 @@ const ChatAssetsReviewScreen = memo(function ChatAssetsReviewScreen({
                         }}
                         ListFooterComponent={<AddImage onPress={() => { }} />} />
                 </View>
-                <Input
-                    multiline
-                    numberOfLines={4}
-                    style={{
-                        borderWidth: 0,
-                        width: "95%",
-                        margin: "2.5%",
-                    }}
-                    placeholder='Write a caption...' />
+                <View style={{
+                    width: "95%",
+                    marginHorizontal: "2.5%",
+                    marginVertical: 10,
+                }}>
+                    <Input
+                        disabled={loading}
+                        multiline
+                        numberOfLines={3}
+                        onChangeText={(text) => inputRef.current = text}
+                        placeholder='Write a caption...' />
+                </View>
                 <Separator value={0.6} style={{ marginVertical: 2 }} />
             </ScrollView>
             <View style={{

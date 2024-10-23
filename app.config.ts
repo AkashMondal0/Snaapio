@@ -31,11 +31,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       image: "./assets/splash.png",
       resizeMode: "contain",
       backgroundColor: "#ffffff",
-      dark:{
-        backgroundColor: "#000000",
-        image: "./assets/splash.png",
-        resizeMode: "contain"
-      }
+      // dark:{
+      //   backgroundColor: "#000000",
+      //   image: "./assets/splash.png",
+      //   resizeMode: "contain"
+      // }
     },
     package: "com.akashmondal0.skylight",
     permissions: [

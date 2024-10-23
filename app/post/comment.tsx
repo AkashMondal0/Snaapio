@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { memo, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { Avatar, Icon, Input, Text, TouchableOpacity, Separator, Loader, ThemedView } from "@/components/skysolo-ui";
-import { FlatList, ToastAndroid, View, TouchableOpacity as RNTouchableOpacity } from "react-native";
+import { FlatList, ToastAndroid, TouchableWithoutFeedback, View } from "react-native";
 import { timeAgoFormat } from "@/lib/timeFormat";
 import { createPostCommentApi, fetchPostCommentsApi } from "@/redux-stores/slice/post/api.service";
 import AppHeader from "@/components/AppHeader";
@@ -139,15 +139,14 @@ const CommentItem = memo(function CommentItem({
                 }} />
             <View>
                 <Text numberOfLines={readMore ? 100 : 3} ellipsizeMode="tail">
-                    <RNTouchableOpacity
-                        activeOpacity={0.8}
+                    <TouchableWithoutFeedback
                         onPress={() => {
                             navigation.push("profile", { username: data.user.username })
                         }}>
                         <Text variant="heading3" lineBreakMode="clip" numberOfLines={2}>
                             {data.user.name}{" "}
                         </Text>
-                    </RNTouchableOpacity>
+                    </TouchableWithoutFeedback>
                     <Text variant="heading4"
                         colorVariant="secondary"
                         numberOfLines={2}>

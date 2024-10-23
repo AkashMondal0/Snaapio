@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { memo, useCallback, useContext, useRef, useState } from 'react';
-import { ToastAndroid, TouchableOpacity, View } from 'react-native';
+import { ToastAndroid, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { Avatar, Text, Image, Icon } from '@/components/skysolo-ui';
 import { SocketContext } from '@/provider/SocketConnections';
 import { createNotificationApi, destroyNotificationApi } from '@/redux-stores/slice/notification/api.service';
@@ -127,17 +127,12 @@ const FeedItem = memo(function FeedItem({
         {/* action */}
         <View>
             <FeedItemActionsButtons post={data} onPress={navigateToPost} />
-            <View>
-                {data?.content ? <Text variant="heading4" style={{
-                    fontWeight: "500",
-                    marginHorizontal: "2%",
-                    marginTop: 5
-                }}>{data?.content}</Text> : <View />}
-            </View>
+            {/* text */}
+            <FeedItemContent data={data} navigation={navigation} />
             <View>
                 <TouchableOpacity activeOpacity={0.5} onPress={() => navigateToPost("post/comment", data)}>
-                    <Text variant="heading4"
-                        colorVariant="secondary"
+                    <Text
+                        variant="heading4"
                         style={{
                             marginHorizontal: "2%",
                             fontWeight: "400",
@@ -336,3 +331,52 @@ const ImageItem = memo(function ImageItem({ item, index }: { item: any, index: n
 }, (prev, next) => {
     return prev.item.id === next.item.id
 })
+const FeedItemContent = memo(function FeedItemContent({ data,
+    navigation
+}: {
+    data: Post,
+    navigation: NavigationProps
+}) {
+    const [readMore, setReadMore] = useState(false)
+
+    if (data.content.length <= 0) {
+        return <></>
+    }
+    return (<Text numberOfLines={readMore ? 100 : 3}
+        style={{
+            alignItems: "center",
+            marginHorizontal: "2%",
+        }}
+        ellipsizeMode="tail">
+        <TouchableWithoutFeedback
+            style={{
+                borderWidth: 0.5,
+                borderColor: "red",
+            }}
+            onPress={() => {
+                navigation.push("profile", { username: data.user.username })
+            }}>
+            <Text variant="heading4"
+                style={{
+                    fontWeight: "500",
+                    fontSize: 16
+                }}
+                lineBreakMode="clip" numberOfLines={2}>
+                {data.user.name}{" "}
+            </Text>
+        </TouchableWithoutFeedback>
+        <TouchableWithoutFeedback onPress={() => setReadMore(!readMore)}>
+            <Text variant="heading4"
+                colorVariant="secondary"
+                style={{
+                    marginHorizontal: "2%",
+                    fontWeight: "400",
+                    paddingVertical: 5,
+                    fontSize: 14
+                }}
+                numberOfLines={readMore ? 100 : 2}>
+                {data.content}
+            </Text>
+        </TouchableWithoutFeedback>
+    </Text>)
+}, () => true)
