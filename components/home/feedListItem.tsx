@@ -105,7 +105,6 @@ const FeedItem = memo(function FeedItem({
         </View>
         {imageLength > 1 ? <View style={{
             width: "100%",
-            backgroundColor: "rgba(0,0,0,0.6)",
             zIndex: 10,
             borderRadius: 10,
             margin: 2,
