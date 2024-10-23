@@ -31,8 +31,8 @@ const ChatScreen = memo(function ChatScreen({ navigation, route }: ChatScreenPro
             height: '100%',
         }}>
             <Navbar conversation={ConversationData} pressBack={PressBack} />
-            <MessageList conversation={ConversationData} />
-            <Input conversation={ConversationData} navigation={navigation}/>
+            <MessageList conversation={ConversationData} navigation={navigation} />
+            <Input conversation={ConversationData} navigation={navigation} />
         </ThemedView>
     )
 }, (prev, next) => prev.route.params.id === next.route.params.id)

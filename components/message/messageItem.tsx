@@ -6,11 +6,13 @@ import { View, Text } from 'react-native';
 import { useSelector } from 'react-redux';
 import { Icon, TouchableOpacity, Image } from '@/components/skysolo-ui';
 
-
-
 const MessageItem = memo(function Item({
-    data, myself, seenMessage
-}: { data: Message, myself: boolean, seenMessage: boolean }) {
+    data, myself, seenMessage,
+    navigateToImagePreview
+}: {
+    data: Message, myself: boolean, seenMessage: boolean,
+    navigateToImagePreview: (data: Message) => void
+}) {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
     const color = myself ? currentTheme?.primary_foreground : currentTheme?.foreground
     const bg = myself ? currentTheme?.primary : currentTheme?.muted
@@ -37,6 +39,7 @@ const MessageItem = memo(function Item({
 
     if (data.fileUrl.length > 0) {
         return <ImageComponent
+            navigateToImagePreview={navigateToImagePreview}
             bg={bg}
             data={data} myself={myself}
             footer={<>
@@ -87,15 +90,18 @@ const ImageComponent = ({
     myself,
     footer,
     bg,
+    navigateToImagePreview
 }: {
     data: Message,
     myself: boolean,
     footer?: React.ReactNode
     bg?: string
+    navigateToImagePreview: (data: Message) => void
 }) => {
+    // 4+ images
     if (data.fileUrl.length > 3) {
         return <TouchableOpacity
-            onPress={() => { }}
+            onPress={() => { navigateToImagePreview(data) }}
             activeOpacity={0.9}
             style={{
                 flexDirection: 'row',
@@ -192,9 +198,9 @@ const ImageComponent = ({
             </View>
         </TouchableOpacity>
     }
-
+    // 1-3 images
     return <TouchableOpacity
-        onPress={() => { }}
+        onPress={() => { navigateToImagePreview(data) }}
         activeOpacity={0.9}
         style={{
             flexDirection: 'row',

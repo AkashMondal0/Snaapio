@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
-import { Conversation, Message, disPatchResponse } from '@/types';
+import { Conversation, Message, NavigationProps, disPatchResponse } from '@/types';
 import { FlatList, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
@@ -12,8 +12,10 @@ import { SocketContext } from '@/provider/SocketConnections';
 
 const MessageList = memo(function MessageList({
     conversation,
+    navigation
 }: {
     conversation: Conversation,
+    navigation: NavigationProps
 }) {
     const stopFetch = useRef(false)
     const dispatch = useDispatch()
@@ -53,6 +55,10 @@ const MessageList = memo(function MessageList({
 
     const fetchMore = debounce(() => loadMoreMessages(conversation.id), 1000)
 
+    const navigateToImagePreview = useCallback((data: Message) => {
+        navigation.navigate('message/assets/preview', { data })
+    }, [])
+
     return (
         <FlatList
             inverted
@@ -64,7 +70,9 @@ const MessageList = memo(function MessageList({
             scrollEventThrottle={16}
             showsVerticalScrollIndicator={false}
             keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => <MessageItem data={item} seenMessage={cMembers === item.seenBy?.length}
+            renderItem={({ item }) => <MessageItem
+                navigateToImagePreview={navigateToImagePreview}
+                data={item} seenMessage={cMembers === item.seenBy?.length}
                 key={item.id} myself={session?.id === item.authorId} />}
             ListFooterComponent={<View style={{ width: "100%", height: 50 }}>
                 {messagesLoading ? <Loader size={36} /> : <></>}

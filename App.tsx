@@ -8,7 +8,14 @@ import { RootState, store } from '@/redux-stores/store';
 import { SettingScreen, ThemeSettingScreen } from '@/app/setting';
 import { InitialScreen, LoginScreen, RegisterScreen } from '@/app/auth';
 import BottomTabComponent from '@/app/home';
-import { AssetSelectScreen, ChatAssetsReviewScreen, ChatListScreen, ChatScreen, NewChatScreen } from '@/app/message';
+import {
+  AssetSelectScreen,
+  ChatAssetsReviewScreen,
+  ChatListScreen,
+  ChatScreen,
+  ImagePreviewScreen,
+  NewChatScreen
+} from '@/app/message';
 import PreConfiguration from '@/provider/PreConfiguration';
 import BottomSheetProvider from '@/provider/BottomSheetProvider';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -65,6 +72,7 @@ function Routes(backgroundColor: any) {
             <Stack.Screen name="message/asset/review" component={ChatAssetsReviewScreen} />
             <Stack.Screen name="message/asset/selection" component={AssetSelectScreen}
               options={{ animation: 'slide_from_bottom', presentation: 'modal' }} />
+            <Stack.Screen name={"message/assets/preview"} component={ImagePreviewScreen} />
           </Stack.Group>
           {/* upload */}
           <Stack.Group>
