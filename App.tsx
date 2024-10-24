@@ -3,7 +3,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { Provider, useDispatch, useSelector } from 'react-redux';
+import { Provider, useSelector } from 'react-redux';
 import { RootState, store } from '@/redux-stores/store';
 import { SettingScreen, ThemeSettingScreen } from '@/app/setting';
 import { InitialScreen, LoginScreen, RegisterScreen } from '@/app/auth';
@@ -24,6 +24,7 @@ import { resetConversation } from '@/redux-stores/slice/conversation';
 import { PostReviewScreen, NewPostSelectionScreen } from '@/app/upload';
 import { ProfileEditScreen } from '@/app/profile';
 import { PostScreen } from '@/app/post';
+import StoryScreen from '@/app/story';
 
 SplashScreen.preventAutoHideAsync();
 const Stack = createNativeStackNavigator();
@@ -31,14 +32,14 @@ const Stack = createNativeStackNavigator();
 function Routes(backgroundColor: any) {
   const session = useSelector((state: RootState) => state.AuthState.session)
   const insets = useSafeAreaInsets();
-  const dispatch = useDispatch()
+  // const dispatch = useDispatch()
   return (
     <Stack.Navigator
-      screenListeners={({ navigation, route }: any) => ({
-        state: (e: any) => {
-          if (e?.data?.state?.routes[e?.data?.state?.index]?.name === "message") return dispatch(resetConversation())
-        },
-      })}
+      // screenListeners={({ navigation, route }: any) => ({
+      //   state: (e: any) => {
+      //     if (e?.data?.state?.routes[e?.data?.state?.index]?.name === "message") return dispatch(resetConversation())
+      //   },
+      // })}
       screenOptions={{
         headerShown: false,
         contentStyle: {
@@ -59,6 +60,7 @@ function Routes(backgroundColor: any) {
           <Stack.Screen name={"profile/edit"} component={ProfileEditScreen} />
           {/* post */}
           <Stack.Screen name={"post"} component={PostScreen} />
+          <Stack.Screen name={"story"} component={StoryScreen} />
           {/* settings */}
           <Stack.Group>
             <Stack.Screen name={"settings"} component={SettingScreen} />

@@ -7,7 +7,7 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
 import { fetchConversationsApi } from '@/redux-stores/slice/conversation/api.service';
-import { resetConversationState, setConversation } from '@/redux-stores/slice/conversation';
+import { resetConversation, resetConversationState, setConversation } from '@/redux-stores/slice/conversation';
 import debounce from '@/lib/debouncing';
 import searchText from '@/lib/TextSearch';
 import ErrorScreen from '@/components/error/page';
@@ -52,6 +52,7 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
     const onChangeInput = debounce((text: string) => setInputText(text), 400)
 
     const pushToPage = useCallback((data: Conversation) => {
+        dispatch(resetConversation())
         dispatch(setConversation(data))
         navigation?.navigate("message/conversation", { id: data.id })
     }, [])
