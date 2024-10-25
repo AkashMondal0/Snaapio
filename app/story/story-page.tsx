@@ -1,7 +1,9 @@
-import { memo, useCallback } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import { Avatar, Icon, View as Themed, Text, Image } from "@/components/skysolo-ui";
-import { AuthorData, NavigationProps } from "@/types";
+import { AuthorData, disPatchResponse, loadingType, NavigationProps } from "@/types";
 import { View } from "react-native";
+import { useDispatch } from "react-redux";
+import { fetchStoryApi } from "@/redux-stores/slice/account/api.service";
 
 interface ScreenProps {
     navigation: NavigationProps;
@@ -15,7 +17,32 @@ const StoryScreen = memo(function StoryScreen({
     route
 }: ScreenProps) {
     const { user } = route.params;
+    const [state, setState] = useState<{
+        loading: loadingType,
+        error: boolean,
+        data: any | null
+    }>({
+        data: null,
+        error: false,
+        loading: "idle"
+    })
+
+    const dispatch = useDispatch()
+
+    const fetchApi = useCallback(async () => {
+        const res = await dispatch(fetchStoryApi(user.id) as any) as disPatchResponse<any[]>
+        if (res.error) return setState({ ...state, loading: "normal", error: true })
+        if (res.payload.length > 0) {
+            setState({ ...state, loading: "normal", data: res.payload })
+        }
+    }, [user.id])
+
+    useEffect(() => {
+        fetchApi()
+    }, [user.id])
+
     const PressBack = useCallback(() => { navigation?.goBack() }, [])
+    // console.log("fetchStoryApi", state.data)
     return (
         <Themed style={{
             flex: 1,
@@ -35,8 +62,9 @@ const StoryScreen = memo(function StoryScreen({
                 <Image
                     contentFit="cover"
                     url={user?.profilePicture}
-                    style={{ width: "100%", height: "100%" ,
-                        aspectRatio: 9/16,
+                    style={{
+                        width: "100%", height: "100%",
+                        aspectRatio: 9 / 16,
                     }} />
             </View>
         </Themed>
@@ -47,7 +75,7 @@ export default StoryScreen;
 const Header = ({
     PressBack,
     user
-}:{
+}: {
     PressBack: () => void;
     user: AuthorData;
 }) => {

@@ -15,9 +15,9 @@ import { PageProps } from '@/types';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
 import { AddImage, PreviewImage } from '@/components/upload/preview-image';
-import { uploadFilesApi } from '@/redux-stores/slice/account/api.service';
+import { uploadStoryApi } from '@/redux-stores/slice/account/api.service';
 
-const PostReviewScreen = memo(function PostReviewScreen({
+const StoryUploadScreen = memo(function StoryUploadScreen({
     navigation,
     route
 }: PageProps<{
@@ -25,7 +25,7 @@ const PostReviewScreen = memo(function PostReviewScreen({
 }>) {
     const [assets, setAssets] = useState(route?.params?.assets ? [...route.params?.assets] : [])
     const session = useSelector((state: RootState) => state.AuthState.session.user)
-    const loading = useSelector((state: RootState) => state.AccountState.uploadFilesLoading, (prev, next) => prev === next)
+    const loading = useSelector((state: RootState) => state.AccountState.uploadStoryLoading, (prev, next) => prev === next)
     const inputRef = useRef("")
     const dispatch = useDispatch()
 
@@ -38,23 +38,20 @@ const PostReviewScreen = memo(function PostReviewScreen({
         if (!session) return ToastAndroid.show("Please login", ToastAndroid.SHORT)
         // hit api and loading all global uploading state
         // and reset all states
-        await dispatch(uploadFilesApi({
+        await dispatch(uploadStoryApi({
             files: assets,
-            caption: inputRef.current,
-            location: "kol-sky-007",
-            tags: [],
-            authorId: session?.id
+            content: inputRef.current,
+            authorId: session?.id,
+            song: []
         }) as any)
         setAssets([])
-        ToastAndroid.show("Post uploaded", ToastAndroid.SHORT)
-        // if (navigation?.canGoBack()) { navigation?.goBack() }
+        ToastAndroid.show("Story uploaded", ToastAndroid.SHORT)
         navigation?.navigate("Root", { screen: "home" })
     }, [assets.length, session?.id])
 
     return (
         <>
-            {/* <PageLoader loading={loading} text='Uploading' /> */}
-            <AppHeader title="New Post" navigation={navigation} titleCenter />
+            <AppHeader title="New Story" navigation={navigation} titleCenter />
             <ScrollView
                 keyboardDismissMode='on-drag'
                 keyboardShouldPersistTaps='handled'
@@ -126,7 +123,7 @@ const PostReviewScreen = memo(function PostReviewScreen({
     );
 }, () => true);
 
-export default PostReviewScreen;
+export default StoryUploadScreen;
 
 const InfoComponent = memo(function InfoComponent() {
     const list = [

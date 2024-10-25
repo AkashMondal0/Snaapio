@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { loadingType, Post } from '@/types'
-import { fetchAccountFeedApi, uploadFilesApi } from './api.service'
+import { AuthorData, loadingType, Post } from '@/types'
+import { fetchAccountFeedApi, fetchAccountStoryApi, uploadFilesApi, uploadStoryApi } from './api.service'
 import * as MediaLibrary from 'expo-media-library';
 
 
@@ -12,10 +12,17 @@ export type AccountState = {
   uploadFile: string | null
   uploadFilesLoading: boolean
   uploadFilesError: string | null
+  // 
+  uploadStoryLoading: boolean
+  uploadStoryError: string | null
   //
   feeds: Post[]
   feedsLoading: loadingType
   feedsError: string | null
+  // 
+  storyAvatars: AuthorData[]
+  storyAvatarsLoading: loadingType
+  storyAvatarsError: string | null
 }
 
 
@@ -26,9 +33,16 @@ const initialState: AccountState = {
   uploadFilesLoading: false,
   uploadFilesError: null,
   //
+  uploadStoryLoading: false,
+  uploadStoryError: null,
+  //
   feeds: [],
   feedsLoading: "idle",
   feedsError: null,
+  // 
+  storyAvatars: [],
+  storyAvatarsLoading: "idle",
+  storyAvatarsError: null
 }
 
 export const AccountSlice = createSlice({
@@ -40,6 +54,12 @@ export const AccountSlice = createSlice({
     },
     resetFeeds: (state) => {
       state.feeds = []
+      state.feedsLoading = "idle"
+      state.feedsError = null
+      // 
+      // state.storyAvatars = []
+      // state.storyAvatarsLoading = "idle"
+      // state.storyAvatarsError = null
     },
     setDeviceAssets: (state, action: PayloadAction<MediaLibrary.Asset[]>) => {
       state.deviceAssets = [...state.deviceAssets, ...action.payload]
@@ -64,6 +84,7 @@ export const AccountSlice = createSlice({
         state.feedsLoading = "normal"
         state.feedsError = action.payload?.message ?? "fetch error"
       })
+      // uploadFilesApi
       .addCase(uploadFilesApi.pending, (state) => {
         state.uploadFilesLoading = true
         state.uploadFilesError = null
@@ -74,6 +95,33 @@ export const AccountSlice = createSlice({
       .addCase(uploadFilesApi.rejected, (state, action: any) => {
         state.uploadFilesError = action.payload?.message ?? "upload error"
         state.uploadFilesLoading = false
+      })
+      // uploadStoryApi
+      .addCase(uploadStoryApi.pending, (state) => {
+        state.uploadStoryLoading = true
+        state.uploadStoryError = null
+      })
+      .addCase(uploadStoryApi.fulfilled, (state) => {
+        state.uploadStoryLoading = false
+      })
+      .addCase(uploadStoryApi.rejected, (state, action: any) => {
+        state.uploadStoryError = action.payload?.message ?? "upload error"
+        state.uploadStoryLoading = false
+      })
+      // fetchAccountStoryApi
+      .addCase(fetchAccountStoryApi.pending, (state) => {
+        state.storyAvatarsLoading = "pending"
+        state.storyAvatarsError = null
+      })
+      .addCase(fetchAccountStoryApi.fulfilled, (state, action: PayloadAction<AuthorData[]>) => {
+        if (action.payload?.length > 0) {
+          state.storyAvatars.push(...action.payload)
+        }
+        state.storyAvatarsLoading = "normal"
+      })
+      .addCase(fetchAccountStoryApi.rejected, (state, action: PayloadAction<any>) => {
+        state.storyAvatarsLoading = "normal"
+        state.storyAvatarsError = action.payload?.message ?? "fetch error"
       })
   },
 })

@@ -58,5 +58,37 @@ export const AQ = {
       username
       authorId
     }
-  }`
+  }`,
+  createStory: `mutation CreateStory($createStoryInput: CreateStoryInput!) {
+  createStory(createStoryInput: $createStoryInput) {
+    __typename
+  }}`,
+  findStory: `query FindStory($findStoryId: String!) {
+  findStory(id: $findStoryId) {
+    id
+    song
+    expiresAt
+    authorId
+    createdAt
+    content
+    fileUrl {
+      id
+      urls {
+        low
+        medium
+        high
+      }
+      type
+      caption
+    }
+  }}`,
+  storyTimelineConnection: `query StoryTimelineConnection($limitAndOffset: GraphQLPageQuery!) {
+  storyTimelineConnection(limitAndOffset: $limitAndOffset) {
+    id
+    name
+    lastStatusUpdate
+    profilePicture
+    username
+  }
+  }`,
 }
