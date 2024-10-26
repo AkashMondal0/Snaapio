@@ -1,9 +1,12 @@
 import { memo, useCallback, useEffect, useState } from "react";
-import { Avatar, Icon, View as Themed, Text, Image } from "@/components/skysolo-ui";
-import { AuthorData, disPatchResponse, loadingType, NavigationProps } from "@/types";
-import { View } from "react-native";
-import { useDispatch } from "react-redux";
+import { TouchableOpacity, View } from "react-native";
+import { Avatar, Icon, View as Themed, Text, Image, Loader } from "@/components/skysolo-ui";
+import { useDispatch, useSelector } from "react-redux";
 import { fetchStoryApi } from "@/redux-stores/slice/account/api.service";
+import { AuthorData, disPatchResponse, loadingType, NavigationProps, Story } from "@/types";
+import ErrorScreen from "@/components/error/page";
+import { timeFormat } from "@/lib/timeFormat";
+import { RootState } from "@/redux-stores/store";
 
 interface ScreenProps {
     navigation: NavigationProps;
@@ -17,24 +20,33 @@ const StoryScreen = memo(function StoryScreen({
     route
 }: ScreenProps) {
     const { user } = route.params;
+    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
     const [state, setState] = useState<{
         loading: loadingType,
         error: boolean,
-        data: any | null
+        data: Story[]
     }>({
-        data: null,
+        data: [],
         error: false,
-        loading: "idle"
+        loading: "idle",
     })
-
+    const totalImages = state.data.length - 1
+    const [currentImageIndex, setCurrentImageIndex] = useState(0)
     const dispatch = useDispatch()
+    const data = state.data[currentImageIndex]
 
     const fetchApi = useCallback(async () => {
         const res = await dispatch(fetchStoryApi(user.id) as any) as disPatchResponse<any[]>
         if (res.error) return setState({ ...state, loading: "normal", error: true })
         if (res.payload.length > 0) {
-            setState({ ...state, loading: "normal", data: res.payload })
+            setState({
+                ...state,
+                loading: "normal",
+                data: res.payload,
+            })
+            return
         }
+        setState({ ...state, loading: "normal", error: true })
     }, [user.id])
 
     useEffect(() => {
@@ -42,7 +54,32 @@ const StoryScreen = memo(function StoryScreen({
     }, [user.id])
 
     const PressBack = useCallback(() => { navigation?.goBack() }, [])
-    // console.log("fetchStoryApi", state.data)
+
+    const handleNextImage = useCallback(() => {
+        if (currentImageIndex === totalImages) {
+            if (navigation.canGoBack()) {
+                return navigation.goBack()
+            }
+        }
+        setCurrentImageIndex((prev) => prev + 1)
+    }, [currentImageIndex, navigation, totalImages])
+
+    const handlePrevImage = useCallback(() => {
+        if (currentImageIndex === 0) {
+            return
+        }
+        setCurrentImageIndex((prev) => prev - 1)
+    }, [currentImageIndex])
+
+    if (state.loading === "idle" || state.loading === "pending") {
+        return <Themed style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+            <Loader size={50} />
+        </Themed>
+    }
+    if (state.loading === "normal" && state.error) {
+        return <ErrorScreen />
+    }
+
     return (
         <Themed style={{
             flex: 1,
@@ -50,22 +87,80 @@ const StoryScreen = memo(function StoryScreen({
             height: '100%',
         }}>
             {/* header */}
-            <Header PressBack={PressBack} user={user} />
+            <Header
+                PressBack={PressBack}
+                user={user}
+                time={timeFormat(data?.createdAt)} />
+            <View style={{ height: 60 }} />
             {/* story */}
             <View style={{
-                flex: 1,
-                width: '100%',
-                height: '100%',
-                position: "absolute",
-                top: 0,
+                width: "100%",
+                display: 'flex',
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+                gap: 6,
+                paddingVertical: 4,
             }}>
-                <Image
-                    contentFit="cover"
-                    url={user?.profilePicture}
+                {state.data.length>1?state.data.map((_, index) => (
+                    <View
+                        key={index}
+                        style={{
+                            width: `${100 / state.data.length}%`,
+                            height: 5,
+                            borderRadius: 4,
+                            backgroundColor: currentImageIndex === index ? currentTheme?.primary : currentTheme?.accent,
+                        }} />
+                )):<></>}
+            </View>
+            <View
+                style={{
+                    flex: 1,
+                    width: '100%',
+                    height: '100%',
+                }}>
+                <TouchableOpacity
+                    activeOpacity={1}
                     style={{
-                        width: "100%", height: "100%",
-                        aspectRatio: 9 / 16,
+                        position: "absolute",
+                        left: 0,
+                        zIndex: 1,
+                        width: "50%",
+                        height: "100%",
+                    }} onPress={handlePrevImage}>
+                </TouchableOpacity>
+                <Image
+                    contentFit="contain"
+                    url={data?.fileUrl ? data?.fileUrl[0].urls?.high : null}
+                    style={{
+                        width: "100%",
+                        height: "100%",
                     }} />
+                <TouchableOpacity
+                    activeOpacity={1}
+                    style={{
+                        position: "absolute",
+                        right: 0,
+                        zIndex: 1,
+                        width: "50%",
+                        height: "100%",
+                    }} onPress={handleNextImage}>
+                </TouchableOpacity>
+            </View>
+            <View style={{
+                position: "absolute",
+                bottom: 0,
+                width: "100%",
+                display: 'flex',
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
+                paddingVertical: 10,
+                paddingBottom: 20,
+            }}>
+                <Text variant="heading4">
+                    {data?.content}
+                </Text>
             </View>
         </Themed>
     )
@@ -74,24 +169,27 @@ export default StoryScreen;
 
 const Header = ({
     PressBack,
-    user
+    user,
+    time
 }: {
     PressBack: () => void;
     user: AuthorData;
+    time: string;
 }) => {
-    return <View style={{
-        width: "100%",
-        display: 'flex',
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-        paddingVertical: 6,
-        paddingHorizontal: 3,
-        position: "absolute",
-        top: 0,
-        zIndex: 1,
-        height: 70,
-    }}>
+    return <Themed
+        style={{
+            width: "100%",
+            display: 'flex',
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            paddingVertical: 6,
+            paddingHorizontal: 3,
+            position: "absolute",
+            top: 0,
+            zIndex: 2,
+            height: 60,
+        }}>
         <View style={{
             display: 'flex',
             flexDirection: "row",
@@ -118,7 +216,7 @@ const Header = ({
                         colorVariant="secondary"
                         style={{ fontWeight: "400" }}
                         variant="heading4">
-                        today
+                        {time ?? ""}
                     </Text>
                 </View>
             </View>
@@ -126,5 +224,5 @@ const Header = ({
         <View style={{ paddingRight: 10 }}>
             <Icon iconName={"Info"} isButton variant="secondary" size={26} style={{ elevation: 2 }} />
         </View>
-    </View>;
+    </Themed>;
 }

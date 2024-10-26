@@ -87,7 +87,7 @@ const SkysoloImage = ({
                 style={[{
                     width: '100%',
                     height: "100%",
-                    backgroundColor: currentTheme?.muted,
+                    backgroundColor: currentTheme?.background,
                 }, style]}
                 onLoadStart={() => {
                     if (state === "pending") return;

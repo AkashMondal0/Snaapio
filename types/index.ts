@@ -182,6 +182,22 @@ export type Assets = {
     type?: 'photo' | 'video' | 'audio' | "text"
     caption?: string;
 }
+
+export type Story = {
+  id: string;
+  content: string | null;
+  fileUrl?: Assets[] | null;
+  song?: any[];
+  createdAt?: Date | any;
+  updatedAt?: Date | any ;
+  authorId?: string;
+  viewCount?: number;
+  expiresAt?: Date;
+  user?: AuthorData | null | unknown;
+  comments?: Comment[] | any[];
+  likes?: AuthorData[] | any[];
+  status?: "published" | "draft" | "deleted";
+}
 export type findDataInput = {
     username?: string
     id?: string

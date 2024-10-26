@@ -1,11 +1,11 @@
 import { memo, useCallback, useEffect, useRef } from "react";
 import { FlatList, TouchableOpacity, View } from "react-native";
-import { Avatar, Icon, Loader, Text } from "@/components/skysolo-ui"
+import { Avatar, Icon, Loader, Text } from "@/components/skysolo-ui";
 import { AuthorData, disPatchResponse, NavigationProps } from "@/types";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { fetchAccountStoryApi } from "@/redux-stores/slice/account/api.service";
-let totalFetchedItemCount: number = 0
+let totalFetchedItemCount: number = 0;
 
 const StoriesComponent = memo(function StoriesComponent({
     navigation
@@ -19,6 +19,7 @@ const StoriesComponent = memo(function StoriesComponent({
     const dispatch = useDispatch()
 
     const fetchApi = useCallback(async () => {
+        if (stopRef.current || totalFetchedItemCount === -1) return
         stopRef.current = true
         try {
             const res = await dispatch(fetchAccountStoryApi({
@@ -38,7 +39,7 @@ const StoriesComponent = memo(function StoriesComponent({
     }, [])
 
     const onEndReached = useCallback(() => {
-        if (stopRef.current || totalFetchedItemCount < 10 || totalFetchedItemCount === -1) return
+        if (totalFetchedItemCount < 10) return
         fetchApi()
     }, [])
 
@@ -70,12 +71,19 @@ const StoriesComponent = memo(function StoriesComponent({
                     justifyContent: 'center',
                 }}>
                     <View style={{ width: 6 }} />
-                    <AddStories onPress={onPress} addStory={navigateToStoriesUpload}/>
+                    <AddStories onPress={onPress} addStory={navigateToStoriesUpload} />
                 </View>}
                 ListFooterComponent={<View style={{ width: 6 }} />}
                 ListEmptyComponent={() => {
                     if (storyListLoading === "idle" || storyListLoading === "pending") {
-                        return <Loader size={40} />
+                        return <View style={{
+                            width: 100,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            height: 80,
+                        }}>
+                            <Loader size={40} />
+                        </View>
                     }
                     if (storyError && storyListLoading === "normal") return <View />
                     return <View />
@@ -101,9 +109,11 @@ const StoriesItem = memo(function StoriesItem({
             alignItems: 'center',
             justifyContent: 'center',
             width: 94,
-            height: 110,
+            height: 120,
         }}>
-        <Avatar url={data?.profilePicture} size={80}
+        <Avatar
+            isBorder
+            url={data?.profilePicture} size={76}
             onPress={() => onPress?.(data)} />
         <Text variant="heading4" colorVariant="secondary" style={{ padding: 4 }} numberOfLines={1}>
             {data?.username}
@@ -116,7 +126,7 @@ const AddStories = ({
     addStory
 }: {
     onPress: (item: any) => void
-    addStory:() => void
+    addStory: () => void
 }) => {
     const session = useSelector((state: RootState) => state.AuthState.session.user)
 
@@ -127,10 +137,12 @@ const AddStories = ({
             alignItems: 'center',
             justifyContent: 'center',
             width: 94,
-            height: 110,
+            height: 120,
         }}>
         <View>
-            <Avatar url={session?.profilePicture} size={80} onPress={() => onPress?.(session)} />
+            <Avatar
+                isBorder
+                url={session?.profilePicture} size={76} onPress={() => onPress?.(session)} />
             <View
                 style={{
                     position: 'absolute',

@@ -16,7 +16,7 @@ const StorySelectingScreen = memo(function StorySelectingScreen({
             width: '100%',
             height: '100%',
         }}>
-            <SelectAssets navigation={navigation} nextAction={nextAction} />
+            <SelectAssets navigation={navigation} nextAction={nextAction} assetsLimit={1}/>
         </ThemedView>
     )
 })

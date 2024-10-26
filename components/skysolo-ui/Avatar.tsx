@@ -19,43 +19,55 @@ export type Props = ImageProps & {
     showImageError?: boolean;
     TouchableOpacityOptions?: TouchableOpacityProps
     touchableOpacity?: boolean
+    isBorder?: boolean
 };
 
 
 const SkysoloAvatar = memo(function SkysoloAvatar({ style,
     serverImage = true,
     touchableOpacity = true,
+    isBorder = false,
     showImageError, size = 40, url, TouchableOpacityOptions, ...otherProps }: Props) {
     size = Number(size)
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
     const [state, setState] = useState<loadingType>("idle")
     const error = useRef(false)
 
-    if (!touchableOpacity) {
-        return (<Image
-            source={!url ? require('../../assets/images/user.jpg') : serverImage ? configs.serverApi.supabaseStorageUrl + url : url}
-            contentFit="cover"
-            transition={300}
-            style={[
-                {
-                    resizeMode: "cover",
-                    width: size,
-                    height: size,
-                    borderRadius: 1000,
-                    aspectRatio: 1,
-                    justifyContent: 'center',
-                }, style
-            ]}
-            {...otherProps} />)
-    }
+    // if (!touchableOpacity) {
+    //     return (<Image
+    //         source={!url ? require('../../assets/images/user.jpg') : serverImage ? configs.serverApi.supabaseStorageUrl + url : url}
+    //         contentFit="cover"
+    //         transition={300}
+    //         style={[
+    //             {
+    //                 resizeMode: "cover",
+    //                 width: size,
+    //                 height: size,
+    //                 borderRadius: 1000,
+    //                 aspectRatio: 1,
+    //                 justifyContent: 'center',
+    //                 alignItems: 'center',
+    //                 backgroundColor: currentTheme?.muted,
+    //                 borderWidth: isBorder ? 2 : 0,
+    //                 borderColor: currentTheme?.primary,
+    //             }, style
+    //         ]}
+    //         {...otherProps} />)
+    // }
 
     return (
         <TouchableOpacity
             {...TouchableOpacityOptions}
-            activeOpacity={0.6}
+            style={[{
+                borderWidth: isBorder ? 4 : 0,
+                borderColor: currentTheme?.primary,
+                borderRadius: 500,
+                padding: 2.6,
+            }, TouchableOpacityOptions?.style]}
+            activeOpacity={touchableOpacity ? 0.6 : 1}
             onLongPress={otherProps.onLongPress}
             onPress={otherProps.onPress}>
-            <View style={{
+            {/* <View style={{
                 position: "absolute",
                 width: size,
                 height: size,
@@ -67,7 +79,7 @@ const SkysoloAvatar = memo(function SkysoloAvatar({ style,
                 display: state === "pending" ? "flex" : "none",
             }}>
                 <Loader size={30} />
-            </View>
+            </View> */}
             <Image
                 source={!url ? require('../../assets/images/user.jpg') : serverImage ? configs.serverApi.supabaseStorageUrl + url : url}
                 contentFit="cover"
@@ -88,7 +100,7 @@ const SkysoloAvatar = memo(function SkysoloAvatar({ style,
                         resizeMode: "cover",
                         width: size,
                         height: size,
-                        borderRadius: 1000,
+                        borderRadius: 500,
                         aspectRatio: 1,
                     }, style]}
                 {...otherProps} />
