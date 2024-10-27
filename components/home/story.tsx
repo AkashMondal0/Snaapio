@@ -1,12 +1,12 @@
-import { memo, useCallback, useEffect, useRef } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { FlatList, TouchableOpacity, View } from "react-native";
 import { Avatar, Icon, Loader, Text } from "@/components/skysolo-ui";
-import { AuthorData, disPatchResponse, NavigationProps } from "@/types";
+import { AuthorData, disPatchResponse, loadingType, NavigationProps, Session, Story } from "@/types";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
-import { fetchAccountStoryApi } from "@/redux-stores/slice/account/api.service";
+import { fetchAccountStoryApi, fetchStoryApi } from "@/redux-stores/slice/account/api.service";
 let totalFetchedItemCount: number = 0;
-
+let authorStory: boolean = false;
 const StoriesComponent = memo(function StoriesComponent({
     navigation
 }: {
@@ -43,7 +43,7 @@ const StoriesComponent = memo(function StoriesComponent({
         fetchApi()
     }, [])
 
-    const onPress = useCallback((item: any) => {
+    const onPress = useCallback((item: AuthorData | Session) => {
         navigation.push('story', { user: item })
     }, [])
 
@@ -108,7 +108,7 @@ const StoriesItem = memo(function StoriesItem({
         style={{
             alignItems: 'center',
             justifyContent: 'center',
-            width: 94,
+            width: 100,
             height: 120,
         }}>
         <Avatar
@@ -129,20 +129,63 @@ const AddStories = ({
     addStory: () => void
 }) => {
     const session = useSelector((state: RootState) => state.AuthState.session.user)
+    const [state, setState] = useState<{
+        loading: loadingType,
+        error: boolean,
+        data: Story[]
+    }>({
+        data: [],
+        error: false,
+        loading: "idle",
+    })
+    const dispatch = useDispatch()
+
+    const fetchApi = useCallback(async () => {
+        if (!session?.id) return
+        const res = await dispatch(fetchStoryApi(session?.id) as any) as disPatchResponse<any[]>
+        if (res.error) return setState({ ...state, loading: "normal", error: true })
+        if (res.payload.length > 0) {
+            setState({
+                ...state,
+                loading: "normal",
+                data: res.payload,
+            })
+            return
+        }
+        setState({ ...state, loading: "normal", error: true })
+    }, [session?.id])
+
+    useEffect(() => {
+        if (!authorStory) {
+            if (state.data.length > 0) {
+                authorStory = true
+                return
+            }
+            fetchApi()
+        }
+    }, [state.data.length])
+
+    const onClickAvatar = useCallback(() => {
+        if (state.data.length > 0) {
+            onPress?.(session)
+            return
+        }
+        addStory()
+    }, [session, state.data.length])
 
     return (<TouchableOpacity
         activeOpacity={0.9}
-        onPress={() => onPress?.(session)}
+        onPress={onClickAvatar}
         style={{
             alignItems: 'center',
             justifyContent: 'center',
-            width: 94,
+            width: 100,
             height: 120,
         }}>
         <View>
             <Avatar
                 isBorder
-                url={session?.profilePicture} size={76} onPress={() => onPress?.(session)} />
+                url={session?.profilePicture} size={76} onPress={onClickAvatar} />
             <View
                 style={{
                     position: 'absolute',

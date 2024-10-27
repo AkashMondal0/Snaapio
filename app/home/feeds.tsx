@@ -61,7 +61,6 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: Navi
         dispatch(resetFeeds())
         fetchApi()
     }, [])
-    
 
     return (
         <ThemedView style={{
@@ -85,12 +84,12 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: Navi
                 refreshing={false}
                 onRefresh={onRefresh}
                 onScroll={handleScroll}
-                ListEmptyComponent={useCallback(() => {
+                ListEmptyComponent={() => {
                     if (feedListLoading === "idle") return <View />
                     if (feedsError) return <ErrorScreen message={feedsError} />
                     if (!feedsError && feedListLoading === "normal") return <ListEmpty text="No feeds available" />
-                }, [])}
-                ListFooterComponent={useCallback(() => feedListLoading === "pending" ? <Loader size={40} /> : <></>, [])}
+                }}
+                ListFooterComponent={() => feedListLoading === "pending" ? <Loader size={40} /> : <></>}
             />
         </ThemedView>
     )

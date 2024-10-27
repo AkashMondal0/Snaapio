@@ -13,8 +13,12 @@ const ThemeSettingScreen = memo(function HomeScreen({ navigation }: any) {
     const ThemeColors = useSelector((state: RootState) => state.ThemeState.themeColors)
 
     const handleChange = useCallback(async (themeName: any) => {
-        await localStorage("set", "skysolo-theme-name", themeName)
-        dispatch(changeTheme(themeName))
+        try {
+            await localStorage("set", "skysolo-theme-name", themeName)
+            dispatch(changeTheme(themeName))
+        } catch (error) {
+            console.error("Error in setting theme", error)
+        }
     }, [])
 
     return (

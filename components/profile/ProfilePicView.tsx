@@ -1,9 +1,51 @@
 import { Avatar } from "@/components/skysolo-ui";
-import { useCallback, useState } from "react";
+import { fetchStoryApi } from "@/redux-stores/slice/account/api.service";
+import { disPatchResponse, loadingType, Story, User } from "@/types";
+import { useCallback, useEffect, useState } from "react";
 import { Modal, StatusBar, TouchableOpacity, Vibration } from "react-native";
+import { useDispatch } from "react-redux";
+let authorStory = false
 
-const ProfilePicView = ({ profilePic }: { profilePic?: string | null }) => {
+const ProfilePicView = ({ user, onPress }: {
+    user: User | null,
+    onPress: () => void
+}) => {
     const [modalVisible, setModalVisible] = useState(false);
+    const [state, setState] = useState<{
+        loading: loadingType,
+        error: boolean,
+        data: Story[]
+    }>({
+        data: [],
+        error: false,
+        loading: "idle",
+    })
+    const dispatch = useDispatch()
+
+    const fetchApi = useCallback(async () => {
+        if (!user?.id) return
+        const res = await dispatch(fetchStoryApi(user?.id) as any) as disPatchResponse<any[]>
+        if (res.error) return setState({ ...state, loading: "normal", error: true })
+        if (res.payload.length > 0) {
+            setState({
+                ...state,
+                loading: "normal",
+                data: res.payload,
+            })
+            return
+        }
+        setState({ ...state, loading: "normal", error: true })
+    }, [user?.id])
+
+    useEffect(() => {
+        if (!authorStory) {
+            if (state.data.length > 0) {
+                authorStory = true
+                return
+            }
+            fetchApi()
+        }
+    }, [state.data.length])
 
     const toggleModal = useCallback(() => {
         if (!modalVisible) {
@@ -11,6 +53,8 @@ const ProfilePicView = ({ profilePic }: { profilePic?: string | null }) => {
         }
         setModalVisible(!modalVisible);
     }, [modalVisible]);
+
+    if (!user) return <></>
 
     return (
         <>
@@ -40,14 +84,16 @@ const ProfilePicView = ({ profilePic }: { profilePic?: string | null }) => {
                         size={260}
                         touchableOpacity={false}
                         onPress={toggleModal}
-                        url={profilePic} />
+                        url={user.profilePicture} />
                 </TouchableOpacity>
             </Modal>
             <Avatar
+                isBorder={state.data.length > 0}
                 size={120}
                 onLongPress={toggleModal}
+                onPress={state.data.length > 0 ? onPress : undefined}
                 TouchableOpacityOptions={{ activeOpacity: 0.9 }}
-                url={profilePic} />
+                url={user.profilePicture} />
         </>
     );
 };
