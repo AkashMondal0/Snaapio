@@ -2,10 +2,10 @@ const _configs = {
     sessionName: "skylight-session",
     themeName: "skysolo-theme",
     serverApi: {
-        baseUrl: process.env.EXPO_PUBLIC_SERVER_URL,
-        supabaseStorageUrl: process.env.EXPO_PUBLIC_SUPABASE_STORAGE_URL,
-        supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
-        supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
+        baseUrl: process.env.EXPO_PUBLIC_SERVER_URL ?? "https://skylight-backend-latest.onrender.com/v1",
+        supabaseStorageUrl: process.env.EXPO_PUBLIC_SUPABASE_STORAGE_URL ?? "https://srcsaekkccuublpzpsnb.supabase.co/storage/v1/object/public/",
+        supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL ?? "https://srcsaekkccuublpzpsnb.supabase.co",
+        supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNyY3NhZWtrY2N1dWJscHpwc25iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjM2NzIwMDEsImV4cCI6MjAzOTI0ODAwMX0.Ww-SmZsEMFARIromd8xZpMLvxPh8JfWLfE4Xwrk74Bs",
     },
     eventNames: {
         conversation: {
