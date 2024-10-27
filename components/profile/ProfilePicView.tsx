@@ -4,7 +4,6 @@ import { disPatchResponse, loadingType, Story, User } from "@/types";
 import { useCallback, useEffect, useState } from "react";
 import { Modal, StatusBar, TouchableOpacity, Vibration } from "react-native";
 import { useDispatch } from "react-redux";
-let authorStory = false
 
 const ProfilePicView = ({ user, onPress }: {
     user: User | null,
@@ -38,13 +37,7 @@ const ProfilePicView = ({ user, onPress }: {
     }, [user?.id])
 
     useEffect(() => {
-        if (!authorStory) {
-            if (state.data.length > 0) {
-                authorStory = true
-                return
-            }
-            fetchApi()
-        }
+        fetchApi()
     }, [state.data.length])
 
     const toggleModal = useCallback(() => {
