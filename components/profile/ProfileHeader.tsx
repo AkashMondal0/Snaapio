@@ -1,7 +1,7 @@
-import React, { memo, useState } from "react";
+import React, { memo, useCallback, useState } from "react";
 import { View } from "react-native";
 import { Separator, Text } from "@/components/skysolo-ui"
-import { NavigationProps, User } from "@/types";
+import { AuthorData, NavigationProps, Session, User } from "@/types";
 import ProfileInfoCount from "./ProfileInfoCount";
 import ProfileActionsButton from "./ProfileActionsButton";
 import ProfileStories from "./ProfileStories";
@@ -44,6 +44,10 @@ const ProfileHeader = memo(function HomeScreen({
         })
     }
 
+    const onPress = useCallback(() => {
+        navigation.push('story', { user })
+    }, [user])
+
     return (
         <>
             <View style={{
@@ -60,7 +64,7 @@ const ProfileHeader = memo(function HomeScreen({
                     width: '100%',
                     marginBottom: 8,
                 }}>
-                    <ProfilePicView profilePic={user?.profilePicture} />
+                    <ProfilePicView user={user} onPress={onPress} />
                     <ProfileInfoCount navigation={navigation} userData={user} />
                 </View>
                 <Text
@@ -91,8 +95,8 @@ const ProfileHeader = memo(function HomeScreen({
                     isProfile={isProfile} />
             </View>
             <ProfileStories navigation={navigation} />
-            <View style={{height: 14}} />
-            <Separator value={0.8}/>
+            <View style={{ height: 14 }} />
+            <Separator value={0.8} />
         </>
     )
 

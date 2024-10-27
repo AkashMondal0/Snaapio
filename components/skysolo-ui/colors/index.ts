@@ -1,6 +1,6 @@
 import Colors from "./skysolo.color.json";
 export type ThemeSchema = "light" | "dark"
-export type ThemeNames = "Blue" | "State" | "Stone" | "Zinc" | "Violet" | "Green" | "Red" | "Orange" | "Yellow" | "Rose"
+export type ThemeNames = "Grey"|"Blue" | "State" | "Stone" | "Zinc" | "Violet" | "Green" | "Red" | "Orange" | "Yellow" | "Rose" | "Neutral" | ""
 export type ColorsProp = {
   background: string;
   foreground: string;
