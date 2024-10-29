@@ -95,7 +95,7 @@ const StoriesComponent = memo(function StoriesComponent({
 export default StoriesComponent;
 
 
-const StoriesItem = memo(function StoriesItem({
+export const StoriesItem = memo(function StoriesItem({
     data, onPress
 }: {
     data: AuthorData,
@@ -121,7 +121,7 @@ const StoriesItem = memo(function StoriesItem({
     </TouchableOpacity>)
 }, () => true)
 
-const AddStories = ({
+export const AddStories = ({
     onPress,
     addStory
 }: {
@@ -185,7 +185,9 @@ const AddStories = ({
         <View>
             <Avatar
                 isBorder
-                url={session?.profilePicture} size={76} onPress={onClickAvatar} />
+                size={76}
+                url={session?.profilePicture}
+                onPress={onClickAvatar} />
             <View
                 style={{
                     position: 'absolute',

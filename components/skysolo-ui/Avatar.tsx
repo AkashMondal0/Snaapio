@@ -1,8 +1,7 @@
 import { memo, useRef, useState } from 'react';
-import { TouchableOpacityProps, TouchableOpacity, View } from 'react-native';
+import { TouchableOpacityProps, TouchableOpacity } from 'react-native';
 import { Image, type ImageProps } from 'expo-image';
 import { configs } from '@/configs';
-import Loader from './Loader';
 import { RootState } from '@/redux-stores/store';
 import { useSelector } from 'react-redux';
 import { loadingType } from '@/types';
@@ -20,6 +19,7 @@ export type Props = ImageProps & {
     TouchableOpacityOptions?: TouchableOpacityProps
     touchableOpacity?: boolean
     isBorder?: boolean
+    borderWidth?: number
 };
 
 
@@ -27,39 +27,22 @@ const SkysoloAvatar = memo(function SkysoloAvatar({ style,
     serverImage = true,
     touchableOpacity = true,
     isBorder = false,
-    showImageError, size = 40, url, TouchableOpacityOptions, ...otherProps }: Props) {
+    showImageError,
+    size = 40,
+    borderWidth = 2,
+    url,
+    TouchableOpacityOptions,
+    ...otherProps }: Props) {
     size = Number(size)
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
     const [state, setState] = useState<loadingType>("idle")
     const error = useRef(false)
 
-    // if (!touchableOpacity) {
-    //     return (<Image
-    //         source={!url ? require('../../assets/images/user.jpg') : serverImage ? configs.serverApi.supabaseStorageUrl + url : url}
-    //         contentFit="cover"
-    //         transition={300}
-    //         style={[
-    //             {
-    //                 resizeMode: "cover",
-    //                 width: size,
-    //                 height: size,
-    //                 borderRadius: 1000,
-    //                 aspectRatio: 1,
-    //                 justifyContent: 'center',
-    //                 alignItems: 'center',
-    //                 backgroundColor: currentTheme?.muted,
-    //                 borderWidth: isBorder ? 2 : 0,
-    //                 borderColor: currentTheme?.primary,
-    //             }, style
-    //         ]}
-    //         {...otherProps} />)
-    // }
-
     return (
         <TouchableOpacity
             {...TouchableOpacityOptions}
             style={[{
-                borderWidth: isBorder ? 4 : 0,
+                borderWidth: isBorder ? borderWidth : 0,
                 borderColor: currentTheme?.primary,
                 borderRadius: 500,
                 padding: 2.6,

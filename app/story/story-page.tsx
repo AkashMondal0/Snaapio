@@ -107,7 +107,7 @@ const StoryScreen = memo(function StoryScreen({
                         key={index}
                         style={{
                             width: `${100 / state.data.length}%`,
-                            height: 5,
+                            height: 1,
                             borderRadius: 4,
                             backgroundColor: currentImageIndex === index ? currentTheme?.primary : currentTheme?.accent,
                         }} />

@@ -94,7 +94,7 @@ const ProfileHeader = memo(function HomeScreen({
                     userData={user}
                     isProfile={isProfile} />
             </View>
-            <ProfileStories navigation={navigation} />
+            <ProfileStories navigation={navigation} isProfile={isProfile} user={user}/>
             <View style={{ height: 14 }} />
             <Separator value={0.8} />
         </>

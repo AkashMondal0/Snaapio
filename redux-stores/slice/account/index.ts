@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { AuthorData, loadingType, Post } from '@/types'
-import { fetchAccountFeedApi, fetchAccountStoryApi, uploadFilesApi, uploadStoryApi } from './api.service'
+import { AuthorData, loadingType, Post, Story } from '@/types'
+import { fetchAccountAllStroyApi, fetchAccountFeedApi, fetchAccountStoryApi, uploadFilesApi, uploadStoryApi } from './api.service'
 import * as MediaLibrary from 'expo-media-library';
 
 
@@ -23,6 +23,10 @@ export type AccountState = {
   storyAvatars: AuthorData[]
   storyAvatarsLoading: loadingType
   storyAvatarsError: string | null
+  // 
+  stories: Story[]
+  storiesLoading: loadingType
+  storiesError: string | null
 }
 
 
@@ -42,7 +46,11 @@ const initialState: AccountState = {
   // 
   storyAvatars: [],
   storyAvatarsLoading: "idle",
-  storyAvatarsError: null
+  storyAvatarsError: null,
+  //
+  stories: [],
+  storiesLoading: "idle",
+  storiesError: null
 }
 
 export const AccountSlice = createSlice({
@@ -66,6 +74,9 @@ export const AccountSlice = createSlice({
     },
     currentUploadingFile: (state, action: PayloadAction<string | null>) => {
       state.uploadFile = action.payload
+    },
+    resetStories: (state) => {
+      state.stories = []
     }
   },
   extraReducers: (builder) => {
@@ -123,6 +134,21 @@ export const AccountSlice = createSlice({
         state.storyAvatarsLoading = "normal"
         state.storyAvatarsError = action.payload?.message ?? "fetch error"
       })
+      // fetchAccountAllStroyApi
+      .addCase(fetchAccountAllStroyApi.pending, (state) => {
+        state.storiesLoading = "pending"
+        state.storiesError = null
+      })
+      .addCase(fetchAccountAllStroyApi.fulfilled, (state, action: PayloadAction<Story[]>) => {
+        if (action.payload?.length > 0) {
+          state.stories.push(...action.payload)
+        }
+        state.storiesLoading = "normal"
+      })
+      .addCase(fetchAccountAllStroyApi.rejected, (state, action: PayloadAction<any>) => {
+        state.storiesLoading = "normal"
+        state.storiesError = action.payload?.message ?? "fetch error"
+      })
   },
 })
 
@@ -130,7 +156,8 @@ export const {
   resetAccountState,
   resetFeeds,
   currentUploadingFile,
-  setDeviceAssets
+  setDeviceAssets,
+  resetStories
 } = AccountSlice.actions
 
 export default AccountSlice.reducer

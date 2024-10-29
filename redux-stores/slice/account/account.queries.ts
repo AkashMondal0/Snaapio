@@ -89,6 +89,22 @@ export const AQ = {
     lastStatusUpdate
     profilePicture
     username
-  }
-  }`,
+  }}`,
+  findAllStory: `query FindAllStory($limitAndOffset: GraphQLPageQuery!) {
+  findAllStory(limitAndOffset: $limitAndOffset) {
+    content
+      createdAt
+      fileUrl {
+        id
+        urls {
+          high
+          medium
+        }
+        type
+        caption
+      }
+      id
+      song
+  }}`,
+  
 }

@@ -24,6 +24,7 @@ import { PostReviewScreen, NewPostSelectionScreen } from '@/app/upload';
 import { ProfileEditScreen } from '@/app/profile';
 import { PostScreen } from '@/app/post';
 import { StoryScreen, StorySelectingScreen, StoryUploadScreen } from '@/app/story';
+import { HighlightPageScreen, HighlightSelectingScreen, HighlightUploadScreen } from '@/app/highlight';
 
 SplashScreen.preventAutoHideAsync();
 const Stack = createNativeStackNavigator();
@@ -55,6 +56,11 @@ function Routes(backgroundColor: any) {
           <Stack.Screen name={"post"} component={PostScreen} />
           <Stack.Screen name={"story"} component={StoryScreen} />
           <Stack.Screen name={"story/upload"} component={StoryUploadScreen} />
+          {/* highlight */}
+          <Stack.Screen name={"highlight"} component={HighlightPageScreen} />
+          <Stack.Screen name={"highlight/upload"} component={HighlightUploadScreen} />
+          <Stack.Screen name="highlight/selection" component={HighlightSelectingScreen} />
+
           {/* settings */}
           <Stack.Group>
             <Stack.Screen name={"settings"} component={SettingScreen} />
@@ -74,8 +80,8 @@ function Routes(backgroundColor: any) {
             presentation: 'modal'
           }} >
             <Stack.Screen name="message/asset/selection" component={AssetSelectScreen} />
-            <Stack.Screen name="story/selection" component={StorySelectingScreen} />
             <Stack.Screen name="upload/post/selection" component={NewPostSelectionScreen} />
+            <Stack.Screen name="story/selection" component={StorySelectingScreen} />
           </Stack.Group>
           {/* upload */}
           <Stack.Screen name="upload/post/review" component={PostReviewScreen} />

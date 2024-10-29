@@ -69,5 +69,6 @@ export const QProfile = {
        followed_by
        following
     }
-  }`
+  }`,
+  findAllHighlight:``
 }

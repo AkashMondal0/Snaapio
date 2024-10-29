@@ -15,6 +15,7 @@ export type Props = TouchableOpacityProps & {
     isButton?: boolean;
     disabled?: boolean;
     color?: string;
+    strokeWidth?: number;
     variant?: "primary" | "secondary" | "danger" | "warning" | "success" | "outline" | "normal";
     iconColorVariant?: "primary" | "secondary" | "danger" | "warning" | "success" | "outline" | "normal";
 };
@@ -26,6 +27,7 @@ const SkysoloIconButton = ({
     disabled = false,
     iconName = "Activity",
     isButton = false,
+    strokeWidth = 1.5,
     variant = "primary",
     iconColorVariant = "primary",
     color = undefined,
@@ -143,7 +145,8 @@ const SkysoloIconButton = ({
                     backgroundColor: isPress ? currentTheme.muted : buttonVariant().backgroundColor,
                 }, style]}
                 {...otherProps}>
-                <IconComponent size={size} color={color ?? isPress ? currentTheme.muted_foreground : buttonVariant().color} key={iconName} />
+                <IconComponent size={size} strokeWidth={strokeWidth}
+                    color={color ?? isPress ? currentTheme.muted_foreground : buttonVariant().color} key={iconName} />
             </TouchableOpacity>
         </View>
 
@@ -153,7 +156,7 @@ const SkysoloIconButton = ({
         activeOpacity={0.6}
         disabled={disabled}
         {...otherProps}>
-        <IconComponent size={size} color={color ?? colorVariant()} key={iconName} />
+        <IconComponent size={size} color={color ?? colorVariant()} key={iconName} strokeWidth={strokeWidth} />
     </TouchableOpacity>)
 }
 

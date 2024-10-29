@@ -136,3 +136,20 @@ export const fetchStoryApi = createAsyncThunk(
         }
     }
 );
+
+export const fetchAccountAllStroyApi = createAsyncThunk(
+    'fetchAccountAllStroyApi/get',
+    async (limitAndOffset: findDataInput, thunkApi) => {
+        try {
+            const res = await graphqlQuery({
+                query: AQ.findAllStory,
+                variables: { limitAndOffset }
+            })
+            return res
+        } catch (error: any) {
+            return thunkApi.rejectWithValue({
+                message: error?.message
+            })
+        }
+    }
+);
