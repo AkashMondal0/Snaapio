@@ -4,7 +4,7 @@ import { Image, type ImageProps } from 'expo-image';
 import { configs } from '@/configs';
 import { RootState } from '@/redux-stores/store';
 import { useSelector } from 'react-redux';
-import { loadingType } from '@/types';
+import { loadingType, variantType } from '@/types';
 
 export type Props = ImageProps & {
     lightColor?: string;
@@ -20,6 +20,7 @@ export type Props = ImageProps & {
     touchableOpacity?: boolean
     isBorder?: boolean
     borderWidth?: number
+    borderColorVariant?: variantType
 };
 
 
@@ -30,6 +31,7 @@ const SkysoloAvatar = memo(function SkysoloAvatar({ style,
     showImageError,
     size = 40,
     borderWidth = 2,
+    borderColorVariant = "primary",
     url,
     TouchableOpacityOptions,
     ...otherProps }: Props) {
@@ -38,12 +40,58 @@ const SkysoloAvatar = memo(function SkysoloAvatar({ style,
     const [state, setState] = useState<loadingType>("idle")
     const error = useRef(false)
 
+    const colorVariant = () => {
+        if (!currentTheme) return {}
+        if (borderColorVariant === "outline") {
+            return {
+                backgroundColor: currentTheme.secondary,
+                color: currentTheme.secondary_foreground,
+                borderColor: currentTheme.secondary_foreground
+            }
+        }
+        if (borderColorVariant === "secondary") {
+            return {
+                backgroundColor: currentTheme.secondary,
+                color: currentTheme.secondary_foreground,
+                borderColor: currentTheme.border
+            }
+        }
+        else if (borderColorVariant === "danger") {
+            return {
+                backgroundColor: currentTheme.destructive,
+                color: currentTheme.destructive_foreground,
+                borderColor: currentTheme.destructive
+            }
+        }
+        else if (borderColorVariant === "warning") {
+            return {
+                backgroundColor: "hsl(47.9 95.8% 53.1%)",
+                color: "hsl(26 83.3% 14.1%)",
+                borderColor: "hsl(47.9 95.8% 53.1%)"
+            }
+        }
+        else if (borderColorVariant === "success") {
+            return {
+                backgroundColor: "hsl(142.1 76.2% 36.3%)",
+                color: "hsl(355.7 100% 97.3%)",
+                borderColor: "hsl(142.1 76.2% 36.3%)"
+            }
+        }
+        else {
+            return {
+                backgroundColor: currentTheme.primary,
+                color: currentTheme.primary_foreground,
+                borderColor: currentTheme.primary
+            }
+        }
+    }
+
     return (
         <TouchableOpacity
             {...TouchableOpacityOptions}
             style={[{
                 borderWidth: isBorder ? borderWidth : 0,
-                borderColor: currentTheme?.primary,
+                borderColor: colorVariant().borderColor,
                 borderRadius: 500,
                 padding: 2.6,
             }, TouchableOpacityOptions?.style]}

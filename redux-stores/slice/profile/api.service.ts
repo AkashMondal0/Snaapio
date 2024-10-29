@@ -148,7 +148,7 @@ export const fetchUserProfileFollowerUserApi = createAsyncThunk(
 );
 
 export const fetchUserHighlightApi = createAsyncThunk(
-    'fetchAccountStoryApi/get',
+    'fetchUserHighlightApi/get',
     async (limitAndOffset: findDataInput, thunkApi) => {
         try {
             const res = await graphqlQuery({

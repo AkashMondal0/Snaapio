@@ -51,20 +51,20 @@ function Routes(backgroundColor: any) {
           {/* feeds */}
           <Stack.Screen name="Root" component={BottomTabComponent} />
           {/* profile */}
-          <Stack.Screen name={"profile/edit"} component={ProfileEditScreen} />
+          <Stack.Screen name="profile/edit" component={ProfileEditScreen} />
           {/* post */}
-          <Stack.Screen name={"post"} component={PostScreen} />
-          <Stack.Screen name={"story"} component={StoryScreen} />
-          <Stack.Screen name={"story/upload"} component={StoryUploadScreen} />
+          <Stack.Screen name="post" component={PostScreen} />
+          <Stack.Screen name="story" component={StoryScreen} />
+          <Stack.Screen name="story/upload" component={StoryUploadScreen} />
           {/* highlight */}
-          <Stack.Screen name={"highlight"} component={HighlightPageScreen} />
-          <Stack.Screen name={"highlight/upload"} component={HighlightUploadScreen} />
+          <Stack.Screen name="highlight"component={HighlightPageScreen} />
           <Stack.Screen name="highlight/selection" component={HighlightSelectingScreen} />
+          <Stack.Screen name="highlight/upload" component={HighlightUploadScreen} />
 
           {/* settings */}
           <Stack.Group>
-            <Stack.Screen name={"settings"} component={SettingScreen} />
-            <Stack.Screen name={"settings/theme"} component={ThemeSettingScreen} />
+            <Stack.Screen name="settings" component={SettingScreen} />
+            <Stack.Screen name="settings/theme" component={ThemeSettingScreen} />
           </Stack.Group>
           {/* chat */}
           <Stack.Group>
@@ -72,7 +72,7 @@ function Routes(backgroundColor: any) {
             <Stack.Screen name="message/conversation" component={ChatScreen} />
             <Stack.Screen name="message/searchNewChat" component={NewChatScreen} />
             <Stack.Screen name="message/asset/review" component={ChatAssetsReviewScreen} />
-            <Stack.Screen name={"message/assets/preview"} component={ImagePreviewScreen} />
+            <Stack.Screen name="message/assets/preview" component={ImagePreviewScreen} />
           </Stack.Group>
           {/* select assets */}
           <Stack.Group screenOptions={{

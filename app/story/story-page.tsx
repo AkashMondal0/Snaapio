@@ -86,13 +86,6 @@ const StoryScreen = memo(function StoryScreen({
             width: '100%',
             height: '100%',
         }}>
-            {/* header */}
-            <Header
-                PressBack={PressBack}
-                user={user}
-                time={timeFormat(data?.createdAt)} />
-            <View style={{ height: 60 }} />
-            {/* story */}
             <View style={{
                 width: "100%",
                 display: 'flex',
@@ -101,8 +94,9 @@ const StoryScreen = memo(function StoryScreen({
                 alignItems: "center",
                 gap: 6,
                 paddingVertical: 4,
+                zIndex: 5,
             }}>
-                {state.data.length>1?state.data.map((_, index) => (
+                {state.data.length > 1 ? state.data.map((_, index) => (
                     <View
                         key={index}
                         style={{
@@ -111,8 +105,15 @@ const StoryScreen = memo(function StoryScreen({
                             borderRadius: 4,
                             backgroundColor: currentImageIndex === index ? currentTheme?.primary : currentTheme?.accent,
                         }} />
-                )):<></>}
+                )) : <></>}
             </View>
+            {/* header */}
+            <Header
+                PressBack={PressBack}
+                user={user}
+                time={timeFormat(data?.createdAt)} />
+            <View style={{ height: 62 }} />
+            {/* story */}
             <View
                 style={{
                     flex: 1,
@@ -189,12 +190,12 @@ const Header = ({
             top: 0,
             zIndex: 2,
             height: 60,
+            marginVertical: 6
         }}>
         <View style={{
             display: 'flex',
             flexDirection: "row",
             alignItems: "center",
-            gap: 6,
         }}>
             <Icon iconName={"ArrowLeft"} size={30} onPress={PressBack} />
             <View style={{

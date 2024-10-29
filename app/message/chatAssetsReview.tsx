@@ -103,7 +103,8 @@ const ChatAssetsReviewScreen = memo(function ChatAssetsReviewScreen({
                         keyExtractor={(item, index) => index.toString()}
                         renderItem={({ item, index }) => (
                             <PreviewImage
-                                asset={item}
+                                assetUrl={item.uri}
+                                id={item.id}
                                 handleDelete={handleDelete} />)}
                         horizontal
                         snapToAlignment='center'

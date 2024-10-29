@@ -1,19 +1,24 @@
 import React, { memo } from 'react';
-import { View, Image, TouchableOpacity } from 'react-native';
-import * as MediaLibrary from 'expo-media-library';
-import {Icon} from '@/components/skysolo-ui';
+import { View, TouchableOpacity } from 'react-native';
+import { Icon, Image } from '@/components/skysolo-ui';
 import { Plus } from 'lucide-react-native';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
 
 export const PreviewImage = memo(function ImagePreview({
-    asset,
+    assetUrl,
+    id,
     handleDelete,
+    isServerImage = false
 }: {
-    asset: MediaLibrary.Asset,
+    assetUrl: string | null | undefined,
+    id: string,
+    isServerImage: boolean,
     handleDelete: (i: string) => void
 }) {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+
+    if (!assetUrl) return <></>
 
     return (<TouchableOpacity
         activeOpacity={0.8}
@@ -27,7 +32,7 @@ export const PreviewImage = memo(function ImagePreview({
         }}>
         <TouchableOpacity
             activeOpacity={0.8}
-            onPress={() => { handleDelete(asset.id) }}
+            onPress={() => { handleDelete(id) }}
             style={{
                 position: "absolute",
                 zIndex: 1,
@@ -47,11 +52,12 @@ export const PreviewImage = memo(function ImagePreview({
                 <Icon
                     iconName="Trash2"
                     color={currentTheme?.foreground} size={20}
-                    onPress={() => { handleDelete(asset.id) }} />
+                    onPress={() => { handleDelete(id) }} />
             </View>
         </TouchableOpacity>
         <Image
-            source={{ uri: asset.uri }}
+            serverImage={isServerImage}
+            url={assetUrl}
             style={{
                 width: "auto",
                 flex: 1,
@@ -64,7 +70,7 @@ export const PreviewImage = memo(function ImagePreview({
                 // aspectRatio: 1 / 1, // square
             }} />
     </TouchableOpacity>)
-}, (prev, next) => prev.asset.id === next.asset.id);
+}, (prev, next) => prev.id === next.id && prev.isServerImage === next.isServerImage);
 
 export const AddImage = memo(function AddImage({
     onPress

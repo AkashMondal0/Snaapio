@@ -6,7 +6,6 @@ import { Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import { Image, type ImageProps } from "expo-image"
 import { loadingType } from '@/types';
-import Loader from './Loader';
 
 
 export type Props = ImageProps & {
@@ -69,7 +68,7 @@ const SkysoloImage = ({
 
     return (
         <>
-            <View style={[{
+            {/* <View style={[{
                 position: "absolute",
                 width: "100%",
                 height: "100%",
@@ -79,7 +78,7 @@ const SkysoloImage = ({
                 display: state === "pending" ? "flex" : "none",
             }, style]}>
                 <Loader size={40} />
-            </View>
+            </View> */}
             <Image
                 source={{ uri: serverImage ? configs.serverApi.supabaseStorageUrl + url : url }}
                 contentFit="cover"
@@ -89,17 +88,16 @@ const SkysoloImage = ({
                     height: "100%",
                     backgroundColor: currentTheme?.background,
                 }, style]}
-                onLoadStart={() => {
-                    if (state === "pending") return;
-                    setState("pending");
-                }}
+                // onLoadStart={() => {
+                //     if (state === "pending") return;
+                // }}
                 onError={() => {
-                    error.current = true;
+                    error.current = true
+                    setState("normal")
                 }}
-                onLoadEnd={() => {
-                    if (state === "normal") return;
-                    setState("normal");
-                }}
+                // onLoadEnd={() => {
+                //     if (state === "normal") return;
+                // }}
                 {...otherProps} />
         </>
     )

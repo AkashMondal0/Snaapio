@@ -79,6 +79,10 @@ const HighlightSelectingScreen = memo(function HighlightSelectingScreen({
         }
     }, [])
 
+    const submitHandler = useCallback(() => {
+        navigation?.replace('highlight/upload', { stories: selectedAssets.current });
+    }, [])
+
     return (
         <ThemedView style={{
             flex: 1,
@@ -90,7 +94,7 @@ const HighlightSelectingScreen = memo(function HighlightSelectingScreen({
                 title={selectedCount > 0 ? `Selected ${selectedCount} ` : 'Select Photos'}
                 rightSideComponent={selectedCount > 0 ? <Icon
                     iconName='Check' isButton
-                    onPress={() => { }}
+                    onPress={submitHandler}
                     variant="primary" /> : <View />}
                 navigation={navigation} />
             <View style={{ flex: 1 }}>

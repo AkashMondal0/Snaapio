@@ -2,7 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { graphqlQuery } from "@/lib/GraphqlQuery";
 import { ImageCompressorAllQuality } from "@/lib/RN-ImageCompressor";
 import { Asset } from "expo-media-library";
-import { Assets, findDataInput } from "@/types";
+import { Assets, findDataInput, Story } from "@/types";
 import { AQ } from "./account.queries";
 
 export const fetchAccountFeedApi = createAsyncThunk(
@@ -144,6 +144,31 @@ export const fetchAccountAllStroyApi = createAsyncThunk(
             const res = await graphqlQuery({
                 query: AQ.findAllStory,
                 variables: { limitAndOffset }
+            })
+            return res
+        } catch (error: any) {
+            return thunkApi.rejectWithValue({
+                message: error?.message
+            })
+        }
+    }
+);
+
+export const uploadHighlightApi = createAsyncThunk(
+    'uploadHighlightApi/post',
+    async (createHighlightInput: {
+        stories: Story[]
+        content?: string
+        authorId: string
+        status: string
+        coverImageIndex: number
+    }, thunkApi) => {
+        try {
+            const res = await graphqlQuery({
+                query: AQ.createHighlight,
+                variables: {
+                    createHighlightInput
+                }
             })
             return res
         } catch (error: any) {

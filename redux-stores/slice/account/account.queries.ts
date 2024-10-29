@@ -93,6 +93,7 @@ export const AQ = {
   findAllStory: `query FindAllStory($limitAndOffset: GraphQLPageQuery!) {
   findAllStory(limitAndOffset: $limitAndOffset) {
     content
+    authorId
       createdAt
       fileUrl {
         id
@@ -106,5 +107,8 @@ export const AQ = {
       id
       song
   }}`,
-  
+  createHighlight: `mutation CreateHighlight($createHighlightInput: createHighlightInput!) {
+  createHighlight(createHighlightInput: $createHighlightInput) {
+    __typename
+  }}`,
 }

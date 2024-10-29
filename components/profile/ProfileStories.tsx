@@ -1,12 +1,10 @@
-import { memo, useCallback, useEffect, useRef } from "react";
-import { FlatList, TouchableOpacity, View } from "react-native";
-import { Icon, Loader, View as ThemedView, Text } from "@/components/skysolo-ui";
-import { AuthorData, disPatchResponse, NavigationProps, Session, User } from "@/types";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/redux-stores/store";
-import { StoriesItem } from "../home/story";
+import { memo, useCallback, useEffect, useState } from "react";
+import { FlatList, ToastAndroid, TouchableOpacity, View } from "react-native";
+import { Icon, Loader, View as ThemedView, Text, Avatar } from "@/components/skysolo-ui";
+import { AuthorData, disPatchResponse, loadingType, NavigationProps, User, Highlight } from "@/types";
+import { useDispatch } from "react-redux";
 import { fetchUserHighlightApi } from "@/redux-stores/slice/profile/api.service";
-let totalFetchedItemCount: number = 0;
+
 const StoriesComponent = memo(function StoriesComponent({
     navigation,
     user,
@@ -16,42 +14,59 @@ const StoriesComponent = memo(function StoriesComponent({
     user?: User | null,
     isProfile?: boolean
 }) {
-    const storyList = useSelector((state: RootState) => state.AccountState.storyAvatars)
-    const storyListLoading = useSelector((state: RootState) => state.AccountState.storyAvatarsLoading)
-    const storyError = useSelector((state: RootState) => state.AccountState.storyAvatarsError)
-    const stopRef = useRef(false)
+    const [state, setState] = useState<{
+        loading: loadingType,
+        error: boolean,
+        data: Highlight[]
+    }>({
+        data: [],
+        error: false,
+        loading: "idle",
+    })
+    let totalFetchedItemCount = 0
     const dispatch = useDispatch()
 
     const fetchApi = useCallback(async () => {
-        if (stopRef.current || totalFetchedItemCount === -1) return
-        stopRef.current = true
-        try {
-            if (!user?.id) return
-            const res = await dispatch(fetchUserHighlightApi({
-                limit: 12,
-                offset: totalFetchedItemCount,
-                id: user?.id
-            }) as any) as disPatchResponse<AuthorData[]>
-            if (res.payload.length >= 12) {
-                totalFetchedItemCount += res.payload.length
-                return
-            }
+        setState((prev) => ({ ...prev, loading: "pending" }))
+        if (totalFetchedItemCount === -1) return
+        if (!user?.id) return ToastAndroid.show("User id not found", ToastAndroid.SHORT)
+        const res = await dispatch(fetchUserHighlightApi({
+            limit: 12,
+            offset: totalFetchedItemCount,
+            id: user?.id
+        }) as any) as disPatchResponse<AuthorData[]>
+        if (res.error) {
             totalFetchedItemCount = -1
-        } finally { stopRef.current = false }
-    }, [])
+            setState((prev) => ({ ...prev, loading: "normal", error: true }))
+            return
+        }
+        setState((prev) => ({
+            ...prev,
+            loading: "normal",
+            data: [...prev.data, ...res.payload]
+        }))
+        if (res.payload.length >= 12) {
+            totalFetchedItemCount += res.payload.length
+            return
+        }
+        totalFetchedItemCount = -1
+    }, [user?.id])
 
     useEffect(() => {
-        // fetchApi()
-    }, [])
-
-    const onEndReached = useCallback(() => {
-        if (totalFetchedItemCount < 10) return
         fetchApi()
     }, [])
 
-    const navigateToHighlight = useCallback((item: AuthorData | Session) => {
-        navigation.push('highlight', { user: item })
-    }, [])
+    const onEndReached = useCallback(() => {
+        if (totalFetchedItemCount < 10 || state.loading === "pending") return
+        fetchApi()
+    }, [state.loading])
+
+    const navigateToHighlight = useCallback((item: Highlight) => {
+        navigation.push('highlight', {
+            user: user,
+            highlight: item
+        })
+    }, [user])
 
     const navigateToHighlightUpload = useCallback(() => {
         navigation.navigate('highlight/selection')
@@ -63,7 +78,7 @@ const StoriesComponent = memo(function StoriesComponent({
             paddingTop: 8,
         }}>
             <FlatList
-                data={[]}
+                data={state.data}
                 renderItem={({ item }) => <StoriesItem data={item} onPress={navigateToHighlight} />}
                 keyExtractor={(item, index) => index.toString()}
                 horizontal
@@ -90,8 +105,8 @@ const StoriesComponent = memo(function StoriesComponent({
                             <ThemedView
                                 variant="secondary"
                                 style={{
-                                    width: 90,
-                                    height: 90,
+                                    width: 86,
+                                    height: 86,
                                     borderRadius: 100,
                                     alignItems: 'center',
                                     justifyContent: 'center',
@@ -108,7 +123,7 @@ const StoriesComponent = memo(function StoriesComponent({
                 </View>}
                 ListHeaderComponent={<View style={{ width: 6 }} />}
                 ListEmptyComponent={() => {
-                    if (storyListLoading === "idle" || storyListLoading === "pending") {
+                    if (state.loading === "idle" || state.loading === "pending") {
                         return <View style={{
                             width: 100,
                             alignItems: 'center',
@@ -118,11 +133,39 @@ const StoriesComponent = memo(function StoriesComponent({
                             <Loader size={40} />
                         </View>
                     }
-                    if (storyError && storyListLoading === "normal") return <View />
+                    if (state.error && state.loading === "normal") return <View />
                     return <View />
                 }}
                 showsHorizontalScrollIndicator={false} />
         </View>)
 
-}, () => true)
+}, (pre, next) => pre.user?.id === next.user?.id)
 export default StoriesComponent;
+
+export const StoriesItem = memo(function StoriesItem({
+    data, onPress
+}: {
+    data: Highlight,
+    onPress?: (item: Highlight) => void
+}) {
+    if (!data || !data.stories || !data.stories[0]?.fileUrl) return <></>
+    return (<TouchableOpacity
+        activeOpacity={0.9}
+        onPress={() => onPress?.(data)}
+        style={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: 100,
+            height: 120,
+        }}>
+        <Avatar
+            isBorder
+            size={80}
+            borderColorVariant="secondary"
+            url={data?.stories[0]?.fileUrl[0] ? data?.stories[0].fileUrl[0].urls?.high : null}
+            onPress={() => onPress?.(data)} />
+        <Text variant="heading4" colorVariant="secondary" style={{ padding: 4 }} numberOfLines={1}>
+            {data?.content}
+        </Text>
+    </TouchableOpacity>)
+}, () => true)

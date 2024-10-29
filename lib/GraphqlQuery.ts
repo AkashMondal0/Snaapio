@@ -3,6 +3,7 @@ import { SecureStorage } from "@/lib/SecureStore";
 interface GraphqlResponse<T> {
     data: T;
     errors: GraphqlError[];
+    error: GraphqlError;
 }
 export type GraphqlQueryType = {
     name: string
@@ -56,8 +57,9 @@ export const graphqlQuery = async <T>({
 
     const responseBody: GraphqlResponse<any> = await response.json();
 
-    if (responseBody.errors) {
-        throw new Error(responseBody.errors[0].extensions.code)
+    if (responseBody?.errors || !responseBody?.data || responseBody?.error) {
+        console.error(responseBody)
+        throw new Error('Error in response');
     }
 
     return responseBody.data[Object.keys(responseBody.data)[0]];
