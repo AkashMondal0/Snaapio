@@ -127,6 +127,8 @@ export const AddStories = ({
 }) => {
     const session = useSelector((state: RootState) => state.AuthState.session.user)
     const data = useSelector((state: RootState) => state.AccountState.accountStories)
+    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+
     const dispatch = useDispatch()
     const userActiveStory = data.length > 0
 
@@ -173,7 +175,12 @@ export const AddStories = ({
                     alignItems: 'center',
                     justifyContent: 'center',
                 }}>
-                <Icon iconName="Plus" size={20} isButton variant="primary" onPress={addStory} />
+                <Icon iconName="Plus" size={20}
+                    style={{
+                        borderWidth: 2,
+                        borderColor: currentTheme?.background,
+                    }}
+                    isButton variant="primary" onPress={addStory} />
             </View>
         </View>
         <Text variant="heading4" colorVariant="secondary" style={{ padding: 4 }} numberOfLines={1}>

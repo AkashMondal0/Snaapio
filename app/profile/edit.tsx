@@ -131,6 +131,8 @@ const ProfileEditScreen = memo(function ProfileEditScreen({
                     marginHorizontal: "auto",
                     marginTop: 20,
                     borderRadius: 100,
+                    justifyContent: "center",
+                    alignItems: "center",
                 }}>
                 <TouchableOpacity
                     activeOpacity={0.8}
