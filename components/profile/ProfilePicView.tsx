@@ -38,7 +38,7 @@ const ProfilePicView = ({ user, onPress }: {
 
     useEffect(() => {
         fetchApi()
-    }, [state.data.length])
+    }, [])
 
     const toggleModal = useCallback(() => {
         if (!modalVisible) {

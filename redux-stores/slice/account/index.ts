@@ -1,13 +1,17 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { AuthorData, loadingType, Post, Story } from '@/types'
-import { fetchAccountAllStroyApi, fetchAccountFeedApi, fetchAccountStoryApi, uploadFilesApi, uploadStoryApi } from './api.service'
+import { fetchAccountAllStroyApi, fetchAccountFeedApi, fetchAccountStoryApi, fetchAccountStoryTimelineApi, uploadFilesApi, uploadStoryApi } from './api.service'
 import * as MediaLibrary from 'expo-media-library';
 
 
 export type AccountState = {
   //
   deviceAssets: MediaLibrary.Asset[]
+  //
+  accountStories: Story[]
+  accountStoriesLoading: loadingType
+  accountStoriesError: string | null
   //
   uploadFile: string | null
   uploadFilesLoading: boolean
@@ -27,6 +31,9 @@ export type AccountState = {
   stories: Story[]
   storiesLoading: loadingType
   storiesError: string | null
+  //
+  storiesFetchedItemCount: number
+  feedsFetchedItemCount: number
 }
 
 
@@ -50,7 +57,15 @@ const initialState: AccountState = {
   //
   stories: [],
   storiesLoading: "idle",
-  storiesError: null
+  storiesError: null,
+  //
+  storiesFetchedItemCount: 0,
+  feedsFetchedItemCount: 0,
+  //
+  accountStories: [],
+  accountStoriesLoading: "idle",
+  accountStoriesError: null,
+  //
 }
 
 export const AccountSlice = createSlice({
@@ -65,9 +80,10 @@ export const AccountSlice = createSlice({
       state.feedsLoading = "idle"
       state.feedsError = null
       // 
-      // state.storyAvatars = []
-      // state.storyAvatarsLoading = "idle"
-      // state.storyAvatarsError = null
+      state.storyAvatars = []
+      state.storyAvatarsLoading = "idle"
+      state.storyAvatarsError = null
+      state.storiesFetchedItemCount = 0
     },
     setDeviceAssets: (state, action: PayloadAction<MediaLibrary.Asset[]>) => {
       state.deviceAssets = [...state.deviceAssets, ...action.payload]
@@ -119,18 +135,25 @@ export const AccountSlice = createSlice({
         state.uploadStoryError = action.payload?.message ?? "upload error"
         state.uploadStoryLoading = false
       })
-      // fetchAccountStoryApi
-      .addCase(fetchAccountStoryApi.pending, (state) => {
+      // fetchAccountStoryTimelineApi
+      .addCase(fetchAccountStoryTimelineApi.pending, (state) => {
         state.storyAvatarsLoading = "pending"
         state.storyAvatarsError = null
       })
-      .addCase(fetchAccountStoryApi.fulfilled, (state, action: PayloadAction<AuthorData[]>) => {
+      .addCase(fetchAccountStoryTimelineApi.fulfilled, (state, action: PayloadAction<AuthorData[]>) => {
         if (action.payload?.length > 0) {
           state.storyAvatars.push(...action.payload)
+          if (action.payload.length >= 12) {
+            state.storiesFetchedItemCount += action.payload.length
+          } else {
+            state.storiesFetchedItemCount = -1
+          }
+        } else {
+          state.storiesFetchedItemCount = -1
         }
         state.storyAvatarsLoading = "normal"
       })
-      .addCase(fetchAccountStoryApi.rejected, (state, action: PayloadAction<any>) => {
+      .addCase(fetchAccountStoryTimelineApi.rejected, (state, action: PayloadAction<any>) => {
         state.storyAvatarsLoading = "normal"
         state.storyAvatarsError = action.payload?.message ?? "fetch error"
       })
@@ -148,6 +171,19 @@ export const AccountSlice = createSlice({
       .addCase(fetchAccountAllStroyApi.rejected, (state, action: PayloadAction<any>) => {
         state.storiesLoading = "normal"
         state.storiesError = action.payload?.message ?? "fetch error"
+      })
+      // fetchAccountStoryApi
+      .addCase(fetchAccountStoryApi.pending, (state) => {
+        state.accountStoriesLoading = "pending"
+        state.accountStoriesError = null
+      })
+      .addCase(fetchAccountStoryApi.fulfilled, (state, action: PayloadAction<Story[]>) => {
+        state.accountStories = action.payload
+        state.accountStoriesLoading = "normal"
+      })
+      .addCase(fetchAccountStoryApi.rejected, (state, action: PayloadAction<any>) => {
+        state.accountStoriesLoading = "normal"
+        state.accountStoriesError = action.payload?.message ?? "fetch error"
       })
   },
 })

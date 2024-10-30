@@ -103,8 +103,8 @@ export const uploadStoryApi = createAsyncThunk(
     }
 );
 
-export const fetchAccountStoryApi = createAsyncThunk(
-    'fetchAccountStoryApi/get',
+export const fetchAccountStoryTimelineApi = createAsyncThunk(
+    'fetchAccountStoryTimelineApi/get',
     async (limitAndOffset: findDataInput, thunkApi) => {
         try {
             const res = await graphqlQuery({
@@ -122,6 +122,23 @@ export const fetchAccountStoryApi = createAsyncThunk(
 
 export const fetchStoryApi = createAsyncThunk(
     'fetchStoryApi/get',
+    async (findStoryId: string, thunkApi) => {
+        try {
+            const res = await graphqlQuery({
+                query: AQ.findStory,
+                variables: { findStoryId }
+            })
+            return res
+        } catch (error: any) {
+            return thunkApi.rejectWithValue({
+                message: error?.message
+            })
+        }
+    }
+);
+
+export const fetchAccountStoryApi = createAsyncThunk(
+    'fetchAccountStoryApi/get',
     async (findStoryId: string, thunkApi) => {
         try {
             const res = await graphqlQuery({

@@ -1,12 +1,11 @@
-import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef } from "react";
 import { FlatList, TouchableOpacity, View } from "react-native";
 import { Avatar, Icon, Loader, Text } from "@/components/skysolo-ui";
-import { AuthorData, disPatchResponse, loadingType, NavigationProps, Session, Story } from "@/types";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
-import { fetchAccountStoryApi, fetchStoryApi } from "@/redux-stores/slice/account/api.service";
-let totalFetchedItemCount: number = 0;
-let authorStory: boolean = false;
+import { fetchAccountStoryTimelineApi, fetchAccountStoryApi } from "@/redux-stores/slice/account/api.service";
+import { AuthorData, NavigationProps, Session } from "@/types";
+
 const StoriesComponent = memo(function StoriesComponent({
     navigation
 }: {
@@ -15,6 +14,7 @@ const StoriesComponent = memo(function StoriesComponent({
     const storyList = useSelector((state: RootState) => state.AccountState.storyAvatars)
     const storyListLoading = useSelector((state: RootState) => state.AccountState.storyAvatarsLoading)
     const storyError = useSelector((state: RootState) => state.AccountState.storyAvatarsError)
+    const totalFetchedItemCount = useSelector((state: RootState) => state.AccountState.storiesFetchedItemCount)
     const stopRef = useRef(false)
     const dispatch = useDispatch()
 
@@ -22,17 +22,14 @@ const StoriesComponent = memo(function StoriesComponent({
         if (stopRef.current || totalFetchedItemCount === -1) return
         stopRef.current = true
         try {
-            const res = await dispatch(fetchAccountStoryApi({
+            await dispatch(fetchAccountStoryTimelineApi({
                 limit: 12,
                 offset: totalFetchedItemCount
-            }) as any) as disPatchResponse<AuthorData[]>
-            if (res.payload.length >= 12) {
-                totalFetchedItemCount += res.payload.length
-                return
-            }
-            totalFetchedItemCount = -1
-        } finally { stopRef.current = false }
-    }, [])
+            }) as any)
+        } finally {
+            stopRef.current = false
+        }
+    }, [totalFetchedItemCount])
 
     useEffect(() => {
         fetchApi()
@@ -41,7 +38,7 @@ const StoriesComponent = memo(function StoriesComponent({
     const onEndReached = useCallback(() => {
         if (totalFetchedItemCount < 10) return
         fetchApi()
-    }, [])
+    }, [totalFetchedItemCount])
 
     const onPress = useCallback((item: AuthorData | Session) => {
         navigation.push('story', { user: item })
@@ -129,49 +126,26 @@ export const AddStories = ({
     addStory: () => void
 }) => {
     const session = useSelector((state: RootState) => state.AuthState.session.user)
-    const [state, setState] = useState<{
-        loading: loadingType,
-        error: boolean,
-        data: Story[]
-    }>({
-        data: [],
-        error: false,
-        loading: "idle",
-    })
+    const data = useSelector((state: RootState) => state.AccountState.accountStories)
     const dispatch = useDispatch()
+    const userActiveStory = data.length > 0
 
     const fetchApi = useCallback(async () => {
         if (!session?.id) return
-        const res = await dispatch(fetchStoryApi(session?.id) as any) as disPatchResponse<any[]>
-        if (res.error) return setState({ ...state, loading: "normal", error: true })
-        if (res.payload.length > 0) {
-            setState({
-                ...state,
-                loading: "normal",
-                data: res.payload,
-            })
-            return
-        }
-        setState({ ...state, loading: "normal", error: true })
+        await dispatch(fetchAccountStoryApi(session?.id) as any)
     }, [session?.id])
 
     useEffect(() => {
-        if (!authorStory) {
-            if (state.data.length > 0) {
-                authorStory = true
-                return
-            }
-            fetchApi()
-        }
-    }, [state.data.length])
+        fetchApi()
+    }, [session?.id])
 
     const onClickAvatar = useCallback(() => {
-        if (state.data.length > 0) {
+        if (userActiveStory) {
             onPress?.(session)
             return
         }
         addStory()
-    }, [session, state.data.length])
+    }, [session, userActiveStory])
 
     return (<TouchableOpacity
         activeOpacity={0.9}
@@ -184,7 +158,7 @@ export const AddStories = ({
         }}>
         <View>
             <Avatar
-                isBorder
+                isBorder={userActiveStory}
                 size={76}
                 url={session?.profilePicture}
                 onPress={onClickAvatar} />

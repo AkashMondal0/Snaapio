@@ -1,7 +1,7 @@
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { FlatList, ToastAndroid, TouchableOpacity, View } from "react-native";
 import { Icon, Loader, View as ThemedView, Text, Avatar } from "@/components/skysolo-ui";
-import { AuthorData, disPatchResponse, loadingType, NavigationProps, User, Highlight } from "@/types";
+import { disPatchResponse, loadingType, NavigationProps, User, Highlight } from "@/types";
 import { useDispatch } from "react-redux";
 import { fetchUserHighlightApi } from "@/redux-stores/slice/profile/api.service";
 
@@ -23,20 +23,20 @@ const StoriesComponent = memo(function StoriesComponent({
         error: false,
         loading: "idle",
     })
-    let totalFetchedItemCount = 0
+    const totalFetchedItemCount = useRef(0)
     const dispatch = useDispatch()
 
     const fetchApi = useCallback(async () => {
         setState((prev) => ({ ...prev, loading: "pending" }))
-        if (totalFetchedItemCount === -1) return
+        if (totalFetchedItemCount.current === -1) return
         if (!user?.id) return ToastAndroid.show("User id not found", ToastAndroid.SHORT)
         const res = await dispatch(fetchUserHighlightApi({
             limit: 12,
-            offset: totalFetchedItemCount,
+            offset: totalFetchedItemCount.current,
             id: user?.id
-        }) as any) as disPatchResponse<AuthorData[]>
+        }) as any) as disPatchResponse<Highlight[]>
         if (res.error) {
-            totalFetchedItemCount = -1
+            totalFetchedItemCount.current = -1
             setState((prev) => ({ ...prev, loading: "normal", error: true }))
             return
         }
@@ -46,20 +46,20 @@ const StoriesComponent = memo(function StoriesComponent({
             data: [...prev.data, ...res.payload]
         }))
         if (res.payload.length >= 12) {
-            totalFetchedItemCount += res.payload.length
+            totalFetchedItemCount.current += res.payload.length
             return
         }
-        totalFetchedItemCount = -1
-    }, [user?.id])
+        totalFetchedItemCount.current = -1
+    }, [user?.id, totalFetchedItemCount.current])
 
     useEffect(() => {
         fetchApi()
     }, [])
 
     const onEndReached = useCallback(() => {
-        if (totalFetchedItemCount < 10 || state.loading === "pending") return
+        if (totalFetchedItemCount.current < 10 || state.loading === "pending") return
         fetchApi()
-    }, [state.loading])
+    }, [state.loading, totalFetchedItemCount.current])
 
     const navigateToHighlight = useCallback((item: Highlight) => {
         navigation.push('highlight', {

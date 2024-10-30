@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useState } from "react";
 import { View } from "react-native";
 import { Separator, Text } from "@/components/skysolo-ui"
-import { AuthorData, NavigationProps, Session, User } from "@/types";
+import { NavigationProps, User } from "@/types";
 import ProfileInfoCount from "./ProfileInfoCount";
 import ProfileActionsButton from "./ProfileActionsButton";
 import ProfileStories from "./ProfileStories";
