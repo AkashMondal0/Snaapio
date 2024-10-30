@@ -28,7 +28,7 @@ const SkysoloView = ({
             return {
                 backgroundColor: currentTheme.secondary,
                 color: currentTheme.secondary_foreground,
-                borderColor: currentTheme.secondary
+                borderColor: currentTheme.border
             }
         }
         else if (variant === "danger") {

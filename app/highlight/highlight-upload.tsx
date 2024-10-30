@@ -1,91 +1,54 @@
-import React, { memo, useCallback, useContext, useRef, useState } from 'react';
+import React, { memo, useCallback, useRef, useState } from 'react';
 import { View, ScrollView, ToastAndroid } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
-import * as MediaLibrary from 'expo-media-library';
-import {
-    Button,
-    Separator,
-    Input,
-    PageLoader,
-    ThemedView
-} from '@/components/skysolo-ui';
+import { Button, Separator, Input } from '@/components/skysolo-ui';
 import AppHeader from '@/components/AppHeader';
-import { Conversation, disPatchResponse, Message, PageProps } from '@/types';
+import { disPatchResponse, PageProps, Story } from '@/types';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
 import { AddImage, PreviewImage } from '@/components/upload/preview-image';
-import { SocketContext } from '@/provider/SocketConnections';
-import { configs } from '@/configs';
-import { CreateMessageApi, fetchConversationsApi } from '@/redux-stores/slice/conversation/api.service';
+import { uploadHighlightApi } from '@/redux-stores/slice/account/api.service';
 
-const ChatAssetsReviewScreen = memo(function ChatAssetsReviewScreen({
+const HighlightUploadScreen = memo(function HighlightUploadScreen({
     navigation,
     route,
-}: PageProps<{
-    conversation: Conversation
-    assets: MediaLibrary.Asset[]
-}>) {
-    const [assets, setAssets] = useState(route?.params?.assets ? [...route.params.assets] : [])
+}: PageProps<{ stories: Story[] }>) {
+    const [stories, setStories] = useState(route?.params?.stories ? [...route.params?.stories] : [])
     const session = useSelector((state: RootState) => state.AuthState.session.user)
-    const conversation = route?.params?.conversation ?? null
-    const socketState = useContext(SocketContext)
-    const members = conversation?.members ?? []
-    const ConversationList = useSelector((state: RootState) => state.ConversationState.conversationList, (prev, next) => prev.length === next.length)
     const [loading, setLoading] = useState(false)
     const inputRef = useRef("")
     const dispatch = useDispatch()
 
     const handleDelete = useCallback((id: string) => {
-        setAssets((prev) => prev.filter((item) => item.id !== id))
+        setStories((prev) => prev.filter((item) => item.id !== id))
     }, [])
 
-    const sendMessageHandle = useCallback(async () => {
-        setLoading((pre) => !pre)
+    const handledShare = useCallback(async () => {
         try {
-            if (!session?.id || !conversation?.id) return ToastAndroid.show("Something went wrong CI", ToastAndroid.SHORT)
-            const newMessage = await dispatch(CreateMessageApi({
-                conversationId: conversation?.id,
-                authorId: session?.id,
+            if (stories.length === 0) return
+            if (!session) return ToastAndroid.show("Please login", ToastAndroid.SHORT)
+            setLoading(true)
+            const res = await dispatch(uploadHighlightApi({
+                stories: stories,
                 content: inputRef.current,
-                fileUrl: assets,
-                members: members,
-            }) as any) as disPatchResponse<Message>
-            if (newMessage?.payload?.id) {
-                socketState.socket?.emit(configs.eventNames.conversation.message, {
-                    ...newMessage.payload,
-                    members: members
-                })
-            }
-            if (ConversationList.findIndex((i) => i.id === conversation?.id) === -1) {
-                await dispatch(fetchConversationsApi({
-                    limit: 12,
-                    offset: 0,
-                }) as any)
-            }
+                authorId: session?.id,
+                status: "published",
+                coverImageIndex: 0
+            }) as any) as disPatchResponse<any>
+            if (res.error) return ToastAndroid.show("Unknown error occur", ToastAndroid.SHORT)
+            // setStories([])
+            ToastAndroid.show("Highlight Created", ToastAndroid.SHORT)
             if (navigation?.canGoBack()) {
-                navigation.goBack()
+                navigation?.goBack()
             }
-        } catch (error: any) {
-            ToastAndroid.show("Something went wrong", ToastAndroid.SHORT)
         } finally {
-            setLoading((pre) => !pre)
+            setLoading(false)
         }
-    }, [
-        ConversationList.length,
-        conversation?.id,
-        members.length,
-        session?.id,
-        socketState.socket,
-        assets.length,
-    ])
+    }, [session?.id, stories.length])
 
     return (
-        <ThemedView style={{
-            flex: 1
-        }}>
-            <AppHeader
-                title={conversation?.user?.username ?? "Chat"}
-                navigation={navigation} titleCenter />
+        <>
+            <AppHeader title="New Highlight" navigation={navigation} titleCenter />
             <ScrollView
                 keyboardDismissMode='on-drag'
                 keyboardShouldPersistTaps='handled'
@@ -99,11 +62,12 @@ const ChatAssetsReviewScreen = memo(function ChatAssetsReviewScreen({
                         height: 364
                     }}>
                     <Animated.FlatList
-                        data={assets}
+                        data={stories}
                         keyExtractor={(item, index) => index.toString()}
                         renderItem={({ item, index }) => (
                             <PreviewImage
-                                assetUrl={item.uri}
+                                isServerImage={true}
+                                assetUrl={item.fileUrl ? item.fileUrl[0].urls?.high : null}
                                 id={item.id}
                                 handleDelete={handleDelete} />)}
                         horizontal
@@ -131,12 +95,12 @@ const ChatAssetsReviewScreen = memo(function ChatAssetsReviewScreen({
                 }}>
                     <Input
                         disabled={loading}
-                        multiline
-                        numberOfLines={3}
                         onChangeText={(text) => inputRef.current = text}
-                        placeholder='Write a caption...' />
+                        placeholder='Highlight Name' />
                 </View>
                 <Separator value={0.6} style={{ marginVertical: 2 }} />
+                {/* description and details */}
+                {/* <InfoComponent /> */}
             </ScrollView>
             <View style={{
                 width: "100%",
@@ -145,15 +109,15 @@ const ChatAssetsReviewScreen = memo(function ChatAssetsReviewScreen({
             }}>
                 <Separator value={0.6} />
                 <Button
-                    disabled={loading}
                     loading={loading}
+                    disabled={loading}
                     style={{ width: "95%", margin: 10 }}
-                    onPress={sendMessageHandle}>
-                    Send
+                    onPress={handledShare}>
+                    Share
                 </Button>
             </View>
-        </ThemedView>
+        </>
     );
 }, () => true);
 
-export default ChatAssetsReviewScreen;
+export default HighlightUploadScreen;

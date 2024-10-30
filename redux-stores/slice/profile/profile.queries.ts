@@ -69,5 +69,28 @@ export const QProfile = {
        followed_by
        following
     }
-  }`
+  }`,
+  findAllHighlight:`query FindAllHighlight($limitAndOffset: GraphQLPageQuery!) {
+  findAllHighlight(limitAndOffset: $limitAndOffset) {
+    authorId
+    content
+    createdAt
+    id
+    stories {
+      content
+      createdAt
+      fileUrl {
+        id
+        urls {
+          high
+          medium
+        }
+        type
+        caption
+      }
+      id
+      song
+    }
+  }
+}`
 }

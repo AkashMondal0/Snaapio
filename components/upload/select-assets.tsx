@@ -16,7 +16,9 @@ let loaded = false;
 const SelectAssets = memo(function SelectAssets({
     navigation,
     nextAction,
+    assetsLimit = 5
 }: PageProps<any> & {
+    assetsLimit?: number;
     nextAction: (selectedAssets: MediaLibrary.Asset[]) => void;
 }) {
     const [permission, requestPermission] = MediaLibrary.usePermissions();
@@ -27,7 +29,7 @@ const SelectAssets = memo(function SelectAssets({
     const dispatch = useDispatch();
 
     const alertMessage = throttle(() => {
-        ToastAndroid.show("You can select up to 5 images", ToastAndroid.LONG);
+        ToastAndroid.show(`You can select up to ${assetsLimit} images`, ToastAndroid.LONG);
     }, 5000);
 
     const getMediaPermission = useCallback(async () => {
@@ -62,7 +64,7 @@ const SelectAssets = memo(function SelectAssets({
 
     const onPressAssetHandle = useCallback((assets: MediaLibrary.Asset) => {
         const index = selectedAssets.current.findIndex(asset => asset.id === assets.id);
-        if (selectedAssets.current.length >= 5 && index === -1) {
+        if (selectedAssets.current.length >= assetsLimit && index === -1) {
             return alertMessage();
         }
         if (index === -1) {

@@ -146,3 +146,20 @@ export const fetchUserProfileFollowerUserApi = createAsyncThunk(
         }
     }
 );
+
+export const fetchUserHighlightApi = createAsyncThunk(
+    'fetchUserHighlightApi/get',
+    async (limitAndOffset: findDataInput, thunkApi) => {
+        try {
+            const res = await graphqlQuery({
+                query: QProfile.findAllHighlight,
+                variables: { limitAndOffset }
+            })
+            return res
+        } catch (error: any) {
+            return thunkApi.rejectWithValue({
+                message: error?.message
+            })
+        }
+    }
+);

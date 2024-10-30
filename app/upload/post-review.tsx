@@ -9,7 +9,6 @@ import {
     Separator,
     TouchableOpacity as SU_TouchableOpacity,
     Input,
-    PageLoader
 } from '@/components/skysolo-ui';
 import AppHeader from '@/components/AppHeader';
 import { PageProps } from '@/types';
@@ -73,7 +72,8 @@ const PostReviewScreen = memo(function PostReviewScreen({
                         keyExtractor={(item, index) => index.toString()}
                         renderItem={({ item, index }) => (
                             <PreviewImage
-                                asset={item}
+                                assetUrl={item.uri}
+                                id={item.id}
                                 handleDelete={handleDelete} />)}
                         horizontal
                         snapToAlignment='center'

@@ -1,17 +1,51 @@
-import { memo, useCallback } from "react";
+import { memo, useCallback, useEffect, useRef } from "react";
 import { FlatList, TouchableOpacity, View } from "react-native";
-import { Avatar, Text } from "@/components/skysolo-ui"
-import { NavigationProps } from "@/types";
-import { useSelector } from "react-redux";
+import { Avatar, Icon, Loader, Text } from "@/components/skysolo-ui";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
+import { fetchAccountStoryTimelineApi, fetchAccountStoryApi } from "@/redux-stores/slice/account/api.service";
+import { AuthorData, NavigationProps, Session } from "@/types";
 
 const StoriesComponent = memo(function StoriesComponent({
     navigation
 }: {
     navigation: NavigationProps,
 }) {
-    const onPress = useCallback((item: any) => {
+    const storyList = useSelector((state: RootState) => state.AccountState.storyAvatars)
+    const storyListLoading = useSelector((state: RootState) => state.AccountState.storyAvatarsLoading)
+    const storyError = useSelector((state: RootState) => state.AccountState.storyAvatarsError)
+    const totalFetchedItemCount = useSelector((state: RootState) => state.AccountState.storiesFetchedItemCount)
+    const stopRef = useRef(false)
+    const dispatch = useDispatch()
+
+    const fetchApi = useCallback(async () => {
+        if (stopRef.current || totalFetchedItemCount === -1) return
+        stopRef.current = true
+        try {
+            await dispatch(fetchAccountStoryTimelineApi({
+                limit: 12,
+                offset: totalFetchedItemCount
+            }) as any)
+        } finally {
+            stopRef.current = false
+        }
+    }, [totalFetchedItemCount])
+
+    useEffect(() => {
+        fetchApi()
+    }, [])
+
+    const onEndReached = useCallback(() => {
+        if (totalFetchedItemCount < 10) return
+        fetchApi()
+    }, [totalFetchedItemCount])
+
+    const onPress = useCallback((item: AuthorData | Session) => {
         navigation.push('story', { user: item })
+    }, [])
+
+    const navigateToStoriesUpload = useCallback(() => {
+        navigation.navigate('story/selection')
     }, [])
 
     return (
@@ -20,13 +54,37 @@ const StoriesComponent = memo(function StoriesComponent({
             paddingTop: 8,
         }}>
             <FlatList
-                data={Array(100).fill(0)}
+                data={storyList}
                 renderItem={({ item }) => <StoriesItem data={item} onPress={onPress} />}
                 keyExtractor={(item, index) => index.toString()}
                 horizontal
                 scrollEventThrottle={16}
-                ListHeaderComponent={<View style={{ width: 6 }} />}
+                onEndReached={onEndReached}
+                onEndReachedThreshold={0.5}
+                bounces={false}
+                ListHeaderComponent={<View style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}>
+                    <View style={{ width: 6 }} />
+                    <AddStories onPress={onPress} addStory={navigateToStoriesUpload} />
+                </View>}
                 ListFooterComponent={<View style={{ width: 6 }} />}
+                ListEmptyComponent={() => {
+                    if (storyListLoading === "idle" || storyListLoading === "pending") {
+                        return <View style={{
+                            width: 100,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            height: 80,
+                        }}>
+                            <Loader size={40} />
+                        </View>
+                    }
+                    if (storyError && storyListLoading === "normal") return <View />
+                    return <View />
+                }}
                 showsHorizontalScrollIndicator={false} />
         </View>)
 
@@ -34,27 +92,99 @@ const StoriesComponent = memo(function StoriesComponent({
 export default StoriesComponent;
 
 
-const StoriesItem = memo(function StoriesItem({
+export const StoriesItem = memo(function StoriesItem({
     data, onPress
 }: {
-    data: any,
-    onPress?: (item: any) => void
+    data: AuthorData,
+    onPress?: (item: AuthorData) => void
 }) {
-    const session = useSelector((state: RootState) => state.AuthState.session.user)
 
     return (<TouchableOpacity
         activeOpacity={0.9}
-        onPress={() => onPress?.(session)}
+        onPress={() => onPress?.(data)}
         style={{
             alignItems: 'center',
             justifyContent: 'center',
-            width: 94,
-            height: 110,
+            width: 100,
+            height: 120,
         }}>
-        <Avatar url={session?.profilePicture} size={80}
-            onPress={() => onPress?.(session)} />
+        <Avatar
+            isBorder
+            url={data?.profilePicture} size={76}
+            onPress={() => onPress?.(data)} />
+        <Text variant="heading4" colorVariant="secondary" style={{ padding: 4 }} numberOfLines={1}>
+            {data?.username}
+        </Text>
+    </TouchableOpacity>)
+}, () => true)
+
+export const AddStories = ({
+    onPress,
+    addStory
+}: {
+    onPress: (item: any) => void
+    addStory: () => void
+}) => {
+    const session = useSelector((state: RootState) => state.AuthState.session.user)
+    const data = useSelector((state: RootState) => state.AccountState.accountStories)
+    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+
+    const dispatch = useDispatch()
+    const userActiveStory = data.length > 0
+
+    const fetchApi = useCallback(async () => {
+        if (!session?.id) return
+        await dispatch(fetchAccountStoryApi(session?.id) as any)
+    }, [session?.id])
+
+    useEffect(() => {
+        fetchApi()
+    }, [session?.id])
+
+    const onClickAvatar = useCallback(() => {
+        if (userActiveStory) {
+            onPress?.(session)
+            return
+        }
+        addStory()
+    }, [session, userActiveStory])
+
+    return (<TouchableOpacity
+        activeOpacity={0.9}
+        onPress={onClickAvatar}
+        style={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: 100,
+            height: 120,
+        }}>
+        <View>
+            <Avatar
+                isBorder={userActiveStory}
+                size={76}
+                url={session?.profilePicture}
+                onPress={onClickAvatar} />
+            <View
+                style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    right: 0,
+                    width: 26,
+                    height: 26,
+                    borderRadius: 50,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}>
+                <Icon iconName="Plus" size={20}
+                    style={{
+                        borderWidth: 2,
+                        borderColor: currentTheme?.background,
+                    }}
+                    isButton variant="primary" onPress={addStory} />
+            </View>
+        </View>
         <Text variant="heading4" colorVariant="secondary" style={{ padding: 4 }} numberOfLines={1}>
             {session?.username}
         </Text>
     </TouchableOpacity>)
-}, () => true)
+}

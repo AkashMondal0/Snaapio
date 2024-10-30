@@ -16,7 +16,6 @@ const Tab = createBottomTabNavigator();
 
 const HomeScreen = memo(function HomeScreen() {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme, (prev, next) => prev === next)
-    const session = useSelector((state: RootState) => state.AuthState.session.user?.profilePicture, (prev, next) => prev === next)
 
     function MyTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 
@@ -36,9 +35,7 @@ const HomeScreen = memo(function HomeScreen() {
                 return <Film size={iconSize} color={iconColor} />
             }
             else if (routeName === 'account') {
-                return <Avatar size={iconSize} url={session} onPress={() => {
-                    navigation.navigate(routeName)
-                }} />
+                return <AccountIcon onPress={() => { navigation?.navigate("account") }} />
             }
         }
 
@@ -139,3 +136,15 @@ function AccountTab() {
         <Pages mainRouteName="Profile-index" ScreenComponent={ProfileScreen} />
     )
 }
+
+const AccountIcon = memo(function AccountIcon({
+    onPress,
+}: {
+    onPress: () => void
+}) {
+    const sessionAvatarUrl = useSelector((state: RootState) => state.AuthState.session.user?.profilePicture, (prev, next) => prev === next)
+
+    return (
+        <Avatar size={30} url={sessionAvatarUrl} onPress={onPress} />
+    )
+}, () => true)

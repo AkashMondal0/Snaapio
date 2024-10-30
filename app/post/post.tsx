@@ -17,7 +17,6 @@ interface ScreenProps {
         }
     }
 }
-let prevPostId = ""
 const PostScreen = memo(function PostScreen({ navigation, route }: ScreenProps) {
     const postId = route.params.post.id
     const [state, setState] = useState<{
@@ -41,10 +40,7 @@ const PostScreen = memo(function PostScreen({ navigation, route }: ScreenProps) 
     }, [postId])
 
     useEffect(() => {
-        if (prevPostId !== postId) {
-            prevPostId = postId
-            fetchApi()
-        }
+        fetchApi()
     }, [postId])
 
     const onRefresh = useCallback(() => {

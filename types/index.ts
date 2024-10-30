@@ -2,12 +2,13 @@ export type loadingType = 'idle' | 'pending' | 'normal'
 export interface PageProps<T> {
     navigation?: NavigationProps;
     route?: {
-        params?:T,
+        params?: T,
         name: string;
         key: string;
     }
 }
 export type Theme = "light" | "dark" | "system";
+export type variantType = "default" | "secondary" | "danger" | "warning" | "success" | "outline" | "primary"
 export interface NavigationProps {
     addListener: (type: string, callback: () => void) => void,
     canGoBack: () => boolean,
@@ -155,6 +156,21 @@ export interface Post {
     country?: string;
     city?: string;
 }
+
+export interface Highlight {
+    id: string;
+    content?: string | null;
+    stories?: Story[] | null;
+    createdAt?: Date | unknown;
+    updatedAt?: Date | unknown;
+    coverImageIndex: number | 0;
+    authorId?: string;
+    viewCount?: number;
+    user?: AuthorData | null | unknown;
+    comments?: Comment[] | any[];
+    likes?: AuthorData[] | any[];
+    status?: "published" | "draft" | "deleted";
+}
 export interface Comment {
     id: string;
     content: string;
@@ -174,13 +190,29 @@ export type Assets = {
     id?: string,
     urls?: {
         low?: string | null,
-        medium?: string| null,
-        high?: string| null,
-        blur?: string| null,
-        thumbnail?: string| null,
+        medium?: string | null,
+        high?: string | null,
+        blur?: string | null,
+        thumbnail?: string | null,
     }
     type?: 'photo' | 'video' | 'audio' | "text"
     caption?: string;
+}
+
+export type Story = {
+    id: string;
+    content: string | null;
+    fileUrl?: Assets[] | null;
+    song?: any[];
+    createdAt?: Date | any;
+    updatedAt?: Date | any;
+    authorId?: string;
+    viewCount?: number;
+    expiresAt?: Date;
+    user?: AuthorData | null | unknown;
+    comments?: Comment[] | any[];
+    likes?: AuthorData[] | any[];
+    status?: "published" | "draft" | "deleted";
 }
 export type findDataInput = {
     username?: string

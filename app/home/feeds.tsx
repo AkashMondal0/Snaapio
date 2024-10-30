@@ -1,5 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { fetchAccountFeedApi } from "@/redux-stores/slice/account/api.service";
+import { fetchAccountFeedApi, fetchAccountStoryTimelineApi, fetchStoryApi } from "@/redux-stores/slice/account/api.service";
 import { RootState } from "@/redux-stores/store";
 import { NavigationProps, Post, disPatchResponse } from "@/types";
 import React, { useCallback, useRef, memo, useEffect } from "react";
@@ -17,6 +16,7 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: Navi
     const feedList = useSelector((state: RootState) => state.AccountState.feeds)
     const feedListLoading = useSelector((state: RootState) => state.AccountState.feedsLoading)
     const feedsError = useSelector((state: RootState) => state.AccountState.feedsError)
+    const session = useSelector((state: RootState) => state.AuthState.session.user)
     const stopRef = useRef(false)
     const dispatch = useDispatch()
     // animation 
@@ -56,12 +56,18 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: Navi
         fetchApi()
     }, [])
 
-    const onRefresh = useCallback(() => {
+    const onRefresh = useCallback(async () => {
         totalFetchedItemCount = 0
         dispatch(resetFeeds())
         fetchApi()
-    }, [])
-    
+        await dispatch(fetchAccountStoryTimelineApi({
+            limit: 12,
+            offset: 0
+        }) as any)
+        if (session?.id) {
+            await dispatch(fetchStoryApi(session?.id) as any)
+        }
+    }, [session?.id])
 
     return (
         <ThemedView style={{
@@ -85,12 +91,12 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: Navi
                 refreshing={false}
                 onRefresh={onRefresh}
                 onScroll={handleScroll}
-                ListEmptyComponent={useCallback(() => {
+                ListEmptyComponent={() => {
                     if (feedListLoading === "idle") return <View />
                     if (feedsError) return <ErrorScreen message={feedsError} />
                     if (!feedsError && feedListLoading === "normal") return <ListEmpty text="No feeds available" />
-                }, [])}
-                ListFooterComponent={useCallback(() => feedListLoading === "pending" ? <Loader size={40} /> : <></>, [])}
+                }}
+                ListFooterComponent={() => feedListLoading === "pending" ? <Loader size={40} /> : <></>}
             />
         </ThemedView>
     )
