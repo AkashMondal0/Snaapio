@@ -20,7 +20,7 @@ const _configs = {
         },
     },
     AppDetails: {
-        version: "1.0.0",
+        version: "0.0.1",
         name: "Skylight",
         description: "SkyLight is a social media platform that allows users to share their thoughts and ideas with the world.",
         appUrl: '',

@@ -13,7 +13,7 @@ export const PreviewImage = memo(function ImagePreview({
 }: {
     assetUrl: string | null | undefined,
     id: string,
-    isServerImage: boolean,
+    isServerImage?: boolean,
     handleDelete: (i: string) => void
 }) {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
