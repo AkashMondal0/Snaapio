@@ -39,7 +39,7 @@ React Native, Redux toolkit, react-hook-form, socket io, zod
 - Real time chat using Socket io
 - Image uploading feature
 - Share Photo with your friends
-- Light/dark mode toggle
+- Light and dark modes Toggle and switch themes
 
 ## Run Locally
 
@@ -85,11 +85,15 @@ To Start The Docker Container:
 docker compose up
 ```
 
-## Mobile Screenshots
+## Screenshots
 
 ![App Screenshot](/public/2.jpg)
 
 ![App Screenshot](/public/1.jpg)
+
+## Themes
+
+![App Screenshot](/public/skylight%20theme.jpg)
 
 ## Contributing
 
