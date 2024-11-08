@@ -184,7 +184,7 @@ export const AddStories = ({
             </View>
         </View>
         <Text variant="heading4" colorVariant="secondary" style={{ padding: 4 }} numberOfLines={1}>
-            {session?.username}
+            Add Story
         </Text>
     </TouchableOpacity>)
 }

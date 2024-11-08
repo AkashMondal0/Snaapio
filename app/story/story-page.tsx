@@ -95,13 +95,14 @@ const StoryScreen = memo(function StoryScreen({
                 gap: 6,
                 paddingVertical: 4,
                 zIndex: 5,
+                paddingHorizontal: 8,
             }}>
                 {state.data.length > 1 ? state.data.map((_, index) => (
                     <View
                         key={index}
                         style={{
                             width: `${100 / state.data.length}%`,
-                            height: 1,
+                            height: 2,
                             borderRadius: 4,
                             backgroundColor: currentImageIndex === index ? currentTheme?.primary : currentTheme?.accent,
                         }} />

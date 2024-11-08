@@ -113,8 +113,11 @@ const StoriesComponent = memo(function StoriesComponent({
                                     borderWidth: 0.8,
                                     marginBottom: 4,
                                 }}>
-                                <Icon iconName="Plus" size={60}
-                                    color="white"
+                                <Icon
+                                    iconName="Plus"
+                                    size={60}
+                                    variant="secondary"
+                                    iconColorVariant="secondary"
                                     strokeWidth={1}
                                     onPress={navigateToHighlightUpload} />
                             </ThemedView>

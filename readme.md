@@ -1,47 +1,58 @@
 
-![Logo](/public/Sky%20Chat%20app.png)
+![Logo](/public/skylight%20github%20banner.jpg)
 
 
-# Sky Chat Android App
+# SkyLight Android App Overview
 
-This is a real-time chat application developed using Expo React Native and Nodejs. It has features like WhatsApp, Realtime Chat, Push messages, upload status, and share photos with your friends.
+This repository has a React Native application and a full social media application backend made with NestJS. For social networking functions like user administration, post interactions, and authentication, the backend provides a robust API. For users to interact with the social networking platform, the client-side application offers a simple and responsive interface.
+
+
+## Table of Contents
+1. [Client - React Native](#client---nextjs)
+   - [Tech Stack](#tech-stack)
+   - [Features](#features)
+   - [Run Locally](#run-locally)
+   - [Environment Variables](#environment-variables)
+   - [Running the Application](#running-the-application)
+2. [Technologies Used](#technologies-used)
+3. [Contributing](#contributing)
+4. [Feedback](#feedback)
+5. [Screenshots](#screenshots)
+
+## Client - React Native - Expo
+- `@hookform/resolvers`: Resolvers for `react-hook-form`.
+- `@reduxjs/toolkit`: Redux toolkit for state management.
+- `@supabase/supabase-js`: Supabase client library.
+- `lucide-react`: Icon library for React.
+- `react-hook-form`: Forms library for React.
+- `react-redux`: Official React bindings for Redux.
+- `socket.io-client`: Real-time bidirectional event-based communication.
+- `zod`: TypeScript-first schema declaration and validation library.
 
 ## Tech Stack
 
-**Client:** React Native Expo, Redux toolkit, react-hook-form
-
-**Server:** Node, Express, kafkajs, mongoose, socket.io, zod, ioredis, multer
-
-**Database:** Redis (pub/sub), MongoDB 
-
+React Native, Redux toolkit, react-hook-form, socket io, zod
 
 ## Features
 
-- User authentication with JWT and bcrypt
-- Real-time chat using Socket io
-- Image uploading feature with Multer
-- Share your Status with your friends
+- User authentication with JWT and NextAuth.js
+- Real time chat using Socket io
+- Image uploading feature
+- Share Photo with your friends
 - Light/dark mode toggle
-- Group chat feature
-
-## Screenshot
-
-![App Screenshot](/public/sky%20chat.png)
-<!-- ![App Screenshot](https://via.placeholder.com/468x300?text=App+Screenshot+Here) -->
-
 
 ## Run Locally
 
 Clone the project
 
 ```bash
-  git clone https://github.com/AkashMondal0/Sky-Chat-App-Expo.git
+git clone https://github.com/AkashMondal0/Skylight-Mobile.git
 ```
 
 Go to the project directory
 
 ```bash
-  cd Sky-Chat-App-Expo
+  cd Skylight-Mobile
 ```
 
 Install dependencies
@@ -50,54 +61,46 @@ Install dependencies
   npm install
 ```
 
-Start the app development mode
+## Environment Variables
+Create a `.env.local` file in the `client` directory and configure the necessary environment variables:
 
-```bash
-  npm npx expo start
+```env
+# supabase config
+EXPO_PUBLIC_SUPABASE_URL=supabaseUrl
+EXPO_PUBLIC_SUPABASE_ANON_KEY=
+# user config
+EXPO_PUBLIC_SUPABASE_STORAGE_URL=supabaseUrl + /storage/v1/object/public/
+EXPO_PUBLIC_SERVER_URL=http://192.168.31.232:5000/v1
 ```
 
-build app for start app
+### Server - Docker Image
+To run this project, you will need to add the following environment variables to your .env file
+
+
+### The Server Application
+
+To Start The Docker Container:
 
 ```bash
-  eas build -p android --profile preview
+docker compose up
 ```
 
-## Variables
+## Mobile Screenshots
 
-To run this project, you will need to add the following variables to your `keys.ts` file
+![App Screenshot](/public/2.jpg)
 
-`1. Change IP address to your local IP address (192.168.31.212)`
+![App Screenshot](/public/1.jpg)
 
-`localhost`
+## Contributing
 
-`localhostStorage`
+Contributions are welcome! Please follow these steps to contribute:
 
-
-
-## Set up backend
-
-Docker  is required to set up a local instance of MongoDB and Redis. You can download it from [here](https://www.docker.com/).
-
-1. Install all required docker images  by running `docker-compose up -d` in the root folder of this repository.
-
-```bash
-docker-compose up -d
-```
-
-## Expo Server running  on 
-`http://localhost:8081`
-## Server API running on 
-`http://localhost:4000`
-## Storage Server  running on 
-`http://localhost:4001`
-
-## Backend GitHub repository
-
-backend repository link : [https://github.com/AkashMondal0/sky-chat-backend.git](https://github.com/AkashMondal0/sky-chat-backend.git)
-
-Storage repository link : [https://github.com/AkashMondal0/skyinc-storage.git](https://github.com/AkashMondal0/skyinc-storage.git)
+1. Fork the repository.
+2. Create a new branch: `git checkout -b feature-name`.
+3. Make your changes and commit them: `git commit -m 'Add some feature'`.
+4. Push to the branch: `git push origin feature-name`.
+5. Open a pull request.
 
 ## Feedback
 
 If you have any feedback, please reach out to us at akash2003mondal@gmail.com
-
