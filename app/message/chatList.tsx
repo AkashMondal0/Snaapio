@@ -2,7 +2,7 @@
 import React, { useCallback, useMemo, useRef, memo, useState, useEffect } from 'react';
 import { View, Vibration, FlatList } from 'react-native';
 import { Conversation, disPatchResponse } from '@/types';
-import { ActionSheet, Loader, ThemedView } from '@/components/skysolo-ui';
+import { ActionSheet, Avatar, Loader, ThemedView } from '@/components/skysolo-ui';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
@@ -130,6 +130,31 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
             handleSheetChanges={handleSheetChanges}>
             <ConversationDetailsSheet data={BottomSheetData} />
         </ActionSheet>
+        <ActionButton onPress={() => { navigation?.navigate("message/askAiChat") }} />
     </ThemedView>
 })
 export default ChatListScreen;
+
+const ActionButton = memo(function ActionButton({ onPress }: { onPress: () => void }) {
+    const currentTheme = useSelector((Root: RootState) => Root.ThemeState.currentTheme)
+
+    return <View style={{
+        position: "absolute",
+        bottom: 20,
+        right: 20,
+        borderColor: currentTheme?.border,
+        borderWidth: 2,
+        borderRadius: 100,
+        elevation: 5,
+        width: 55,
+        height: 55,
+        justifyContent: "center",
+        alignItems: "center",
+    }}>
+        <Avatar
+            serverImage={false}
+            onPress={onPress}
+            url={require("../../assets/images/ai.png")}
+            size={52} />
+    </View>
+}, () => true)

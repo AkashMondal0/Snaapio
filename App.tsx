@@ -9,6 +9,7 @@ import { SettingScreen, ThemeSettingScreen } from '@/app/setting';
 import { InitialScreen, LoginScreen, RegisterScreen } from '@/app/auth';
 import BottomTabComponent from '@/app/home';
 import {
+  AskAiChatScreen,
   AssetSelectScreen,
   ChatAssetsReviewScreen,
   ChatListScreen,
@@ -73,6 +74,7 @@ function Routes(backgroundColor: any) {
             <Stack.Screen name="message/searchNewChat" component={NewChatScreen} />
             <Stack.Screen name="message/asset/review" component={ChatAssetsReviewScreen} />
             <Stack.Screen name="message/assets/preview" component={ImagePreviewScreen} />
+            <Stack.Screen name="message/askAiChat" component={AskAiChatScreen} />
           </Stack.Group>
           {/* select assets */}
           <Stack.Group screenOptions={{

@@ -6,6 +6,8 @@ const _configs = {
         supabaseStorageUrl: process.env.EXPO_PUBLIC_SUPABASE_STORAGE_URL,
         supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
         supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
+        // ai
+        aiApiUrl: process.env.EXPO_PUBLIC_AI_API_URL,
     },
     eventNames: {
         conversation: {
