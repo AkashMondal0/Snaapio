@@ -1,4 +1,3 @@
-import { uuid } from "@/lib/uuid";
 import {
     AiMessagePromptApi,
     conversationSeenAllMessage,
@@ -332,6 +331,18 @@ export const ConversationSlice = createSlice({
             (state, action) => {
             },
         );
+        // AiMessagePromptApi
+        builder.addCase(AiMessagePromptApi.pending, (state) => {
+            state.ai_messageCreateLoading = true;
+            state.ai_messageError = null;
+        });
+        builder.addCase(AiMessagePromptApi.fulfilled, (state) => {
+            state.ai_messageCreateLoading = false;
+        });
+        builder.addCase(AiMessagePromptApi.rejected, (state, action) => {
+            state.ai_messageCreateLoading = false;
+            state.ai_messageError = "error";
+        });
     },
 });
 
@@ -346,7 +357,7 @@ export const {
     resetConversationState,
     setUploadFiles,
     saveMyPrompt,
-    loadMyPrompt
+    loadMyPrompt,
 } = ConversationSlice.actions;
 
 export default ConversationSlice.reducer;

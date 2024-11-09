@@ -1,15 +1,17 @@
 import React, { memo, useCallback, useEffect, useRef } from 'react';
 import { Message, NavigationProps, disPatchResponse } from '@/types';
-import { FlatList, View,Text } from 'react-native';
+import { FlatList, View, Text, StyleSheet, Clipboard } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
-import { Loader } from '@/components/skysolo-ui';
+import { Icon, Loader } from '@/components/skysolo-ui';
 import debounce from "@/lib/debouncing";
 import { ToastAndroid } from "react-native";
 import { timeFormat } from '@/lib/timeFormat';
 import { AiMessage, loadMyPrompt } from '@/redux-stores/slice/conversation';
 import { localStorage } from '@/lib/LocalStorage';
 
+import Markdown, { MarkdownIt, stringToTokens, tokensToAST } from 'react-native-markdown-display';
+let loaded = false
 const AiMessageList = memo(function AiMessageList({
     navigation
 }: {
@@ -20,12 +22,13 @@ const AiMessageList = memo(function AiMessageList({
     const totalFetchedItemCount = useRef<number>(0)
 
     const messages = useSelector((Root: RootState) => Root.ConversationState?.ai_messages)
-    const messagesLoading = useSelector((Root: RootState) => Root.ConversationState?.ai_messageLoading)
+    const messagesLoading = useSelector((Root: RootState) => Root.ConversationState?.ai_messageCreateLoading)
 
     const loadMoreMessages = useCallback(async () => {
-        if (totalFetchedItemCount.current === -1 || stopFetch.current) return
+        if (loaded) return
         const fetchList = await localStorage("get", "myPrompt")
         dispatch(loadMyPrompt(JSON.parse(fetchList as string)))
+        loaded = true
     }, [])
 
     // const fetchMore = debounce(() => loadMoreMessages(), 1000)
@@ -35,7 +38,7 @@ const AiMessageList = memo(function AiMessageList({
     }, [])
 
     const navigateToImagePreview = useCallback((data: Message) => {
-        navigation.navigate('message/assets/preview', { data })
+        // navigation.navigate('message/assets/preview', { data })
     }, [])
 
     return (
@@ -54,8 +57,8 @@ const AiMessageList = memo(function AiMessageList({
                 data={item}
                 myself={!item.isAi}
                 key={item.id} />}
-            ListFooterComponent={<View style={{ width: "100%", height: 50 }}>
-                {messagesLoading ? <Loader size={36} /> : <></>}
+            ListHeaderComponent={<View style={{ width: "100%", height: 50 }}>
+                {messagesLoading?<Loader size={36} />:<></>}
             </View>}
         />)
 }, () => true)
@@ -73,25 +76,62 @@ const MessageItem = memo(function Item({
     const color = myself ? currentTheme?.primary_foreground : currentTheme?.foreground
     const bg = myself ? currentTheme?.primary : currentTheme?.muted
 
-    const TimeFooter = () => {
-        return (<View style={{
-            flexDirection: 'row',
-            justifyContent: 'flex-end',
-            gap: 10,
-        }}>
-            <Text
-                style={{
-                    color: color,
-                    fontSize: 14,
-                    lineHeight: 24,
-                    fontWeight: '400',
-                }}>
-                {timeFormat(data?.createdAt as string)}
-            </Text>
-        </View>)
-    }
+    const markdownItInstance = MarkdownIt({ typographer: true });
 
-    // text message
+    const ast = tokensToAST(stringToTokens(data.content, markdownItInstance))
+
+    const styles = StyleSheet.create({
+        heading1: {
+            fontSize: 32,
+            color: color,
+        },
+        heading2: {
+            fontSize: 24,
+            color: color,
+        },
+        heading3: {
+            fontSize: 18,
+            color: color,
+        },
+        heading4: {
+            fontSize: 16,
+            color: color,
+        },
+        heading5: {
+            fontSize: 13,
+            color: color,
+        },
+        heading6: {
+            fontSize: 11,
+            color: color,
+        },
+        body: {
+            fontSize: 16,
+            color: "black",
+        },
+        paragraph: {
+            fontSize: 16,
+            color: color,
+        },
+        link: {
+            color: 'blue',
+            fontSize: 16,
+        },
+        code_block: {
+            color: currentTheme?.accent_foreground,
+            borderRadius: 30,
+            borderColor: currentTheme?.border,
+            borderWidth: 1,
+        },
+        code_inline: {
+            color: currentTheme?.foreground,
+            borderRadius: 30,
+            borderColor: currentTheme?.border,
+            borderWidth: 1,
+        }
+    });
+
+
     return <View style={{
         flexDirection: 'row',
         justifyContent: myself ? 'flex-end' : 'flex-start',
@@ -104,17 +144,34 @@ const MessageItem = memo(function Item({
             borderRadius: 16,
             width: 'auto',
             maxWidth: '96%',
+            elevation: 0.4
         }}>
-            <Text
-                style={{
-                    color: color,
-                    fontSize: 16,
-                    lineHeight: 24,
-                    fontWeight: '400',
-                }}>
-                {data?.content}
-            </Text>
-            <TimeFooter />
+            <Markdown style={styles}>
+                {/* @ts-ignore */}
+                {ast}
+            </Markdown>
+
+            {/* date and time */}
+            <View style={{
+                flexDirection: 'row',
+                justifyContent: 'flex-end',
+                gap: 10,
+            }}>
+                <Text
+                    style={{
+                        color: color,
+                        fontSize: 14,
+                        lineHeight: 24,
+                        fontWeight: '400',
+                    }}>
+                    {timeFormat(data?.createdAt as string)}
+                </Text>
+            </View>
         </View>
+        {myself ? <></> : <Icon iconName='Copy'
+            size={24} onPress={() => {
+                Clipboard.setString(data.content)
+                ToastAndroid.show("Copied to clipboard", ToastAndroid.SHORT)
+            }} />}
     </View>
 }, (prev, next) => true)

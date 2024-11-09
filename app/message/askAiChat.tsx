@@ -73,10 +73,16 @@ const AskAiChatScreenNavbar = memo(function AskAiChatScreenNavbar({
                     alignItems: "center",
                     gap: 10,
                 }}>
-                    <Avatar
+                   <View style={{
+                    borderWidth: 1,
+                    borderColor: currentTheme?.border,
+                    borderRadius: 100,
+                   }}>
+                   <Avatar
                         serverImage={false}
                         url={require("../../assets/images/ai.png")}
-                        size={50}/>
+                        size={50} />
+                   </View>
                     <View>
                         <Text
                             style={{ fontWeight: "800" }}
