@@ -13,6 +13,9 @@ import { AiMessagePromptApi } from "@/redux-stores/slice/conversation/api.servic
 import { AiMessage, saveMyPrompt } from "@/redux-stores/slice/conversation";
 import { uuid } from "@/lib/uuid";
 import { localStorage } from "@/lib/LocalStorage";
+import * as ImagePicker from 'expo-image-picker';
+import { Image } from "react-native";
+
 const schema = z.object({
     message: z.string().min(1)
 })
@@ -24,6 +27,20 @@ const AiChatScreenInput = memo(function AiChatScreenInput({
     const dispatch = useDispatch()
     const session = useSelector((state: RootState) => state.AuthState.session.user)
     const [loading, setLoading] = useState(false)
+    const [image, setImage] = useState<string | null>(null);
+
+    const pickImage = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ['images'],
+            allowsEditing: true,
+            aspect: [1,1],
+            quality: 1,
+        });
+
+        if (!result.canceled) {
+            setImage(result.assets[0].uri);
+        }
+    }
 
     const { control, reset, handleSubmit } = useForm({
         resolver: zodResolver(schema),
@@ -46,12 +63,14 @@ const AiChatScreenInput = memo(function AiChatScreenInput({
             dispatch(saveMyPrompt({
                 id: uuid(),
                 content: _data.message,
+                image: image,
                 createdAt: new Date().toISOString(),
                 isAi: false,
             }))
             const response = await dispatch(AiMessagePromptApi({
                 content: _data.message,
-                authorId: session.id
+                authorId: session.id,
+                file: image
             }) as any) as disPatchResponse<string | any>
             if (response.error) {
                 return ToastAndroid.show(response.payload?.message || "Something went wrong", ToastAndroid.SHORT)
@@ -59,6 +78,7 @@ const AiChatScreenInput = memo(function AiChatScreenInput({
             dispatch(saveMyPrompt({
                 id: uuid(),
                 content: response.payload,
+                image: image,
                 createdAt: new Date().toISOString(),
                 isAi: true,
             }))
@@ -66,27 +86,29 @@ const AiChatScreenInput = memo(function AiChatScreenInput({
             {
                 id: uuid(),
                 content: _data.message,
+                image: image,
                 createdAt: new Date().toISOString(),
                 isAi: false,
             }, {
                 id: uuid(),
+                image: image,
                 content: response.payload,
                 createdAt: new Date().toISOString(),
                 isAi: true,
             }]))
             reset()
-            // setIsFile([])
+            setImage(null)
         } catch (error: any) {
             ToastAndroid.show("Something went wrong", ToastAndroid.SHORT)
         } finally {
             setLoading((pre) => !pre)
         }
-    }, [session?.id])
+    }, [session?.id, image])
 
-    const navigateToSelectFile = useCallback(() => {
-        ToastAndroid.show("Coming soon...", ToastAndroid.SHORT)
-        // navigation.navigate("message/asset/selection", {  })
-    }, [])
+    // const navigateToSelectFile = useCallback(() => {
+    //     ToastAndroid.show("Coming soon...", ToastAndroid.SHORT)
+    //     // navigation.navigate("message/asset/selection", {  })
+    // }, [])
 
     return (
         <View style={{
@@ -98,6 +120,11 @@ const AiChatScreenInput = memo(function AiChatScreenInput({
             padding: "1.6%",
             gap: 6
         }}>
+            {image ? <Image source={{ uri: image }} style={{
+                width: 50,
+                height: 50,
+                borderRadius: 10
+            }} /> : <></>}
             <Controller
                 control={control}
                 render={({ field: { onChange, onBlur, value } }) => (
@@ -125,7 +152,7 @@ const AiChatScreenInput = memo(function AiChatScreenInput({
                             iconColorVariant="secondary"
                             size={28}
                             disabled={loading}
-                            onPress={navigateToSelectFile}
+                            onPress={pickImage}
                             style={{
                                 width: "10%",
                                 height: 45,

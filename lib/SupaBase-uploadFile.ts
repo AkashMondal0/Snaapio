@@ -5,6 +5,7 @@ import { uuid } from './uuid';
 
 const uploadFileToSupabase = async (uri: any, fileType: any, id: string = ""): Promise<string | null> => {
     try {
+        if(!uri) return null;
         const fileContents = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
         const fileName = uuid() + uri.split('/').pop();
         const fileBuffer = decode(fileContents);

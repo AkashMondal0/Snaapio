@@ -17,6 +17,7 @@ export type AiMessage = {
     content: string;
     createdAt: string;
     isAi: boolean;
+    image: string | null;
 };
 // Define a type for the slice state
 interface ConversationStateType {

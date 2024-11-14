@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useEffect, useRef } from 'react';
 import { Message, NavigationProps, disPatchResponse } from '@/types';
-import { FlatList, View, Text, StyleSheet, Clipboard } from 'react-native';
+import { FlatList, View, Text, StyleSheet, Clipboard, Image } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
 import { Icon, Loader } from '@/components/skysolo-ui';
@@ -58,7 +58,7 @@ const AiMessageList = memo(function AiMessageList({
                 myself={!item.isAi}
                 key={item.id} />}
             ListHeaderComponent={<View style={{ width: "100%", height: 50 }}>
-                {messagesLoading?<Loader size={36} />:<></>}
+                {messagesLoading ? <Loader size={36} /> : <></>}
             </View>}
         />)
 }, () => true)
@@ -143,9 +143,14 @@ const MessageItem = memo(function Item({
             paddingVertical: 4,
             borderRadius: 16,
             width: 'auto',
-            maxWidth: '96%',
+            maxWidth: '94%',
             elevation: 0.4
         }}>
+            {data.image && !data.isAi ? <Image source={{ uri: data.image }} style={{
+                height: 250,
+                aspectRatio: 1,
+                borderRadius: 20,
+            }} /> : <></>}
             <Markdown style={styles}>
                 {/* @ts-ignore */}
                 {ast}

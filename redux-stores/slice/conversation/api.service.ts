@@ -3,8 +3,12 @@ import { findDataInput, Post } from "@/types";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { CQ } from "./conversation.queries";
 import { Asset } from "expo-media-library";
-import { ImageCompressorAllQuality } from "@/lib/RN-ImageCompressor";
+import {
+    ImageCompressor,
+    ImageCompressorAllQuality,
+} from "@/lib/RN-ImageCompressor";
 import { configs } from "@/configs";
+import { uploadFileToSupabase } from "@/lib/SupaBase-uploadFile";
 
 export const fetchConversationsApi = createAsyncThunk(
     "fetchConversationsApi/get",
@@ -158,18 +162,24 @@ export const AiMessagePromptApi = createAsyncThunk(
     async (data: {
         content: string;
         authorId: string;
-        fileUrl?: Asset[];
+        file?: string | null;
     }, thunkAPI) => {
-        if(!configs.serverApi.aiApiUrl) {
+        if (!configs.serverApi.aiApiUrl) {
             return thunkAPI.rejectWithValue({
                 message: "AI API URL not found",
             });
         }
+        let fileUrl = await uploadFileToSupabase(
+            data?.file,
+            "image/jpeg",
+            data.authorId,
+        );
         try {
             const myHeaders = new Headers();
             myHeaders.append("Content-Type", "application/json");
 
             const raw = JSON.stringify({
+                "image": configs.serverApi.supabaseStorageUrl + fileUrl,
                 "query": data.content,
             });
 
