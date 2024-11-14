@@ -1,13 +1,15 @@
-
 ![Logo](/public/skylight%20github%20banner.jpg)
-
 
 # SkyLight Android App Overview
 
-This repository has a React Native application and a full social media application backend made with NestJS. For social networking functions like user administration, post interactions, and authentication, the backend provides a robust API. For users to interact with the social networking platform, the client-side application offers a simple and responsive interface.
-
+This repository has a React Native application and a full social media
+application backend made with NestJS. For social networking functions like user
+administration, post interactions, and authentication, the backend provides a
+robust API. For users to interact with the social networking platform, the
+client-side application offers a simple and responsive interface.
 
 ## Table of Contents
+
 1. [Client - React Native](#client---nextjs)
    - [Tech Stack](#tech-stack)
    - [Features](#features)
@@ -20,6 +22,7 @@ This repository has a React Native application and a full social media applicati
 5. [Screenshots](#screenshots)
 
 ## Client - React Native - Expo
+
 - `@hookform/resolvers`: Resolvers for `react-hook-form`.
 - `@reduxjs/toolkit`: Redux toolkit for state management.
 - `@supabase/supabase-js`: Supabase client library.
@@ -35,11 +38,12 @@ React Native, Redux toolkit, react-hook-form, socket io, zod
 
 ## Features
 
-- User authentication with JWT and NextAuth.js
-- Real time chat using Socket io
-- Image uploading feature
-- Share Photo with your friends
-- Light and dark modes Toggle and switch themes
+- User authentication with JWT and NextAuth.js.
+- Real time chat using Socket io.
+- Image uploading feature.
+- Share Photo with your friends.
+- Light and dark modes Toggle and switch themes.
+- ChatBot: Ask Google Gemini AI anything.
 
 ## Run Locally
 
@@ -52,17 +56,19 @@ git clone https://github.com/AkashMondal0/Skylight-Mobile.git
 Go to the project directory
 
 ```bash
-  cd Skylight-Mobile
+cd Skylight-Mobile
 ```
 
 Install dependencies
 
 ```bash
-  npm install
+npm install
 ```
 
 ## Environment Variables
-Create a `.env.local` file in the `client` directory and configure the necessary environment variables:
+
+Create a `.env.local` file in the `client` directory and configure the necessary
+environment variables:
 
 ```env
 # supabase config
@@ -71,11 +77,13 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=
 # user config
 EXPO_PUBLIC_SUPABASE_STORAGE_URL=supabaseUrl + /storage/v1/object/public/
 EXPO_PUBLIC_SERVER_URL=http://192.168.31.232:5000/v1
+EXPO_PUBLIC_AI_API_URL=supabaseUrl + /functions/v1/generative
 ```
 
 ### Server - Docker Image
-To run this project, you will need to add the following environment variables to your .env file
 
+To run this project, you will need to add the following environment variables to
+your .env file
 
 ### The Server Application
 
