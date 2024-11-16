@@ -1,3 +1,4 @@
+import React from "react";
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -5,60 +6,55 @@ import { RootState } from "@/redux-stores/store";
 import { changeColorSchema, setThemeLoaded } from "@/redux-stores/slice/theme";
 import { Appearance } from 'react-native';
 import { localStorage } from '@/lib/LocalStorage';
-import { ThemeNames } from '@/components/skysolo-ui/colors';
+import { ThemeNames, ThemeSchema } from '@/components/skysolo-ui/colors';
 import { getSecureStorage } from '@/lib/SecureStore';
 import { setSession } from '@/redux-stores/slice/auth';
 import { Session } from '@/types';
 import { fetchUnreadNotificationCountApi } from '@/redux-stores/slice/notification/api.service';
 import { configs } from '@/configs';
-import { Statusbar } from '@/components/skysolo-ui';
-
-export type Theme = "light" | "dark" | "system";
+import { StatusBar } from 'expo-status-bar';
 
 
 const PreConfiguration = () => {
     const dispatch = useDispatch()
     const themeLoaded = useSelector((state: RootState) => state.ThemeState.themeLoaded, (prev, next) => prev === next)
+    const themeSchema = useSelector((state: RootState) => state.ThemeState.themeSchema, (prev, next) => prev === next)
 
-    const GetLocalStorageThemeValue = async () => {
-        const localValueSchema = await localStorage("get", "skysolo-theme") as Theme
-        const localValueTheme = await localStorage("get", "skysolo-theme-name") as ThemeNames
+    const initializeSession = async () => {
         const session = await getSecureStorage<Session["user"]>(configs.sessionName)
         if (session) {
             dispatch(setSession(session))
             dispatch(fetchUnreadNotificationCountApi() as any)
         }
+    }
+    // initialize theme value
+    const initializeTheme = async () => {
+        await initializeSession()
+        if (themeLoaded) return
+        const localValueSchema = await localStorage("get", "skysolo-theme") as ThemeSchema
+        const localValueTheme = await localStorage("get", "skysolo-theme-name") as ThemeNames
         // first time
-        if (!localValueSchema && !localValueTheme) {
-            await localStorage("set", "skysolo-theme", "light")
-            await localStorage("set", "skysolo-theme-name", "Zinc")
+        if (!localValueSchema || !localValueTheme) {
             dispatch(setThemeLoaded({
-                userThemeName: localValueTheme ?? "Zinc",
-                userColorScheme: localValueSchema ?? "light"
+                userThemeName: "Zinc",
+                userColorScheme: "light"
             }))
+            localStorage("set", "skysolo-theme", "light")
+            localStorage("set", "skysolo-theme-name", "Zinc")
             return
         }
-        // if system theme is selected
-        if (localValueSchema === "system") {
-            return
-        }
+
         dispatch(setThemeLoaded({
-            userThemeName: localValueTheme ?? "Zinc",
-            userColorScheme: localValueSchema ?? "light"
+            userThemeName: localValueTheme,
+            userColorScheme: localValueSchema
         }))
         return
     }
 
-    const onChangeTheme = async (theme: Theme) => {
+    const onChangeThemeSchema = async (theme: ThemeSchema) => {
         if (!theme) return
-        if (theme === "system") {
-            await localStorage("remove", "skysolo-theme")
-            await localStorage("remove", "skysolo-theme-name")
-            return
-        }
-        await localStorage("set", "skysolo-theme", theme)
-        await localStorage("set", "skysolo-theme-name", "Zinc")
         dispatch(changeColorSchema(theme))
+        localStorage("set", "skysolo-theme", theme)
         return
     }
 
@@ -69,9 +65,9 @@ const PreConfiguration = () => {
     }, [themeLoaded])
 
     useEffect(() => {
-        GetLocalStorageThemeValue()
+        initializeTheme()
         const unSubscribe = Appearance.addChangeListener(({ colorScheme }) => {
-            onChangeTheme(colorScheme as any)
+            onChangeThemeSchema(colorScheme as any)
         })
 
         return () => {
@@ -79,7 +75,9 @@ const PreConfiguration = () => {
         }
     }, [])
 
-    return (<Statusbar />)
+    return (<StatusBar
+        style={themeSchema === "dark" ? "light" : "dark" ?? "auto"}
+        backgroundColor={"transparent"} />)
 }
 
 
