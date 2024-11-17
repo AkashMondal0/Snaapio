@@ -169,20 +169,25 @@ export const AiMessagePromptApi = createAsyncThunk(
                 message: "AI API URL not found",
             });
         }
-        let fileUrl = await uploadFileToSupabase(
-            data?.file,
-            "image/jpeg",
-            data.authorId,
-        );
         try {
             const myHeaders = new Headers();
             myHeaders.append("Content-Type", "application/json");
-
-            const raw = JSON.stringify({
-                "image": configs.serverApi.supabaseStorageUrl + fileUrl,
-                "query": data.content,
-            });
-
+            let raw;
+            if (data.file) {
+                let fileUrl = await uploadFileToSupabase(
+                    data?.file,
+                    "image/jpeg",
+                    data.authorId,
+                );
+                raw = JSON.stringify({
+                    "image": configs.serverApi.supabaseStorageUrl + fileUrl,
+                    "query": data.content,
+                });
+            } else {
+                raw = JSON.stringify({
+                    "query": data.content,
+                });
+            }
             const res = await fetch(configs.serverApi.aiApiUrl, {
                 method: "POST",
                 headers: myHeaders,
