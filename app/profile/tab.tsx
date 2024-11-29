@@ -2,14 +2,13 @@ import AppHeader from "@/components/AppHeader";
 import { RootState } from "@/redux-stores/store";
 import { NavigationProps } from "@/types";
 import React, { memo } from "react";
-import { View } from "react-native";
 import { useSelector } from "react-redux";
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import FollowersScreen from "./followers";
-import { Text, ThemedView } from "@/components/skysolo-ui";
+import { ThemedView } from "@/components/skysolo-ui";
 import FollowingScreen from "./following";
+import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
+import { useWindowDimensions } from "react-native";
 
-const Tab = createMaterialTopTabNavigator();
 interface ScreenProps {
     navigation: NavigationProps;
     route: {
@@ -19,8 +18,15 @@ interface ScreenProps {
     }
 }
 
+const routes = [
+    { key: 'first', title: 'Followers' },
+    { key: 'second', title: 'Following' },
+];
+
 const TabFollowingAndFollowers = memo(function TabFollowingAndFollowers({ navigation, route }: ScreenProps) {
     const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+    const [index, setIndex] = React.useState(route?.params?.params?.tab ?? 0);
+    const layout = useWindowDimensions();
 
     const FollowersTab = () => {
         return <FollowersScreen navigation={navigation} username={route?.params?.params?.username} />
@@ -28,6 +34,12 @@ const TabFollowingAndFollowers = memo(function TabFollowingAndFollowers({ naviga
     const FollowingTab = () => {
         return <FollowingScreen navigation={navigation} username={route?.params?.params?.username} />
     }
+
+    const renderScene = SceneMap({
+        first: FollowersTab,
+        second: FollowingTab,
+    });
+
     return (
         <ThemedView style={{
             flex: 1,
@@ -39,38 +51,32 @@ const TabFollowingAndFollowers = memo(function TabFollowingAndFollowers({ naviga
                 containerStyle={{
                     borderBottomWidth: 0,
                 }} />
-            <Tab.Navigator
-                backBehavior="none"
+            <TabView
+                renderTabBar={(props) => (
+                    <TabBar
+                        {...props}
+                        labelStyle={{ fontSize: 16, textTransform: 'none', fontWeight: "500" }}
+                        indicatorStyle={{ backgroundColor: currentTheme?.foreground }}
+                        style={{ backgroundColor: currentTheme?.background }}
+                        activeColor={currentTheme?.foreground}
+                        inactiveColor={currentTheme?.foreground}
+                    />
+                )}
+                navigationState={{ index, routes }}
+                renderScene={renderScene}
                 sceneContainerStyle={{
                     backgroundColor: currentTheme?.background,
                 }}
-                screenOptions={{
-                    tabBarLabelStyle: {
-                        fontSize: 14,
-                        color: currentTheme?.foreground
-                    },
-                    tabBarStyle: {
-                        backgroundColor: currentTheme?.background,
-                        elevation: 0, height: 50,
-                        borderBottomWidth: 1,
-                        borderColor: currentTheme?.border
-                    },
-                    tabBarIndicatorStyle: {
-                        backgroundColor: currentTheme?.foreground,
-                        height: 1.9
-                    },
-                    tabBarPressOpacity: 0.5,
-                    tabBarPressColor: currentTheme?.muted,
-                    tabBarLabel: ({ children }: any) => <Text variant="heading4"
-                        style={{
-                            fontSize: 16,
-                        }}>
-                        {children}
-                    </Text>
-                }}>
-                <Tab.Screen name="followers" component={FollowersTab} />
-                <Tab.Screen name="following" component={FollowingTab} />
-            </Tab.Navigator>
+                style={{
+                    backgroundColor: currentTheme?.background,
+                }}
+
+                pagerStyle={{
+                    backgroundColor: currentTheme?.background,
+                }}
+                onIndexChange={setIndex}
+                initialLayout={{ width: layout.width }}
+            />
         </ThemedView>
     )
 })
