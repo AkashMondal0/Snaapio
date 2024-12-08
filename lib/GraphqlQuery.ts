@@ -39,14 +39,13 @@ export const graphqlQuery = async <T>({
         credentials: "include",
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${BearerToken}`,
+            "Authorization": BearerToken,
         },
         body: JSON.stringify({
             query,
             variables,
         }),
         cache: 'no-cache',
-        priority: 'high',
     });
 
     if (!response.ok) {

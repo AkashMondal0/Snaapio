@@ -6,6 +6,7 @@ import { RootState } from "@/redux-stores/store";
 import { setOffNotificationPopup, setOnNotificationPopup } from "@/redux-stores/slice/notification";
 import { useEffect, useRef } from "react";
 import { Heart, MessageCircle } from "lucide-react-native";
+import { configs } from "@/configs";
 let initial = false
 
 
@@ -37,7 +38,9 @@ const HomeHeader = ({ navigation, translateY }: {
                 fontWeight: "700",
                 padding: "3%",
                 paddingVertical: 14
-            }}>SkyLight</Text>
+            }}>
+                {configs.AppDetails.name}
+            </Text>
             <View style={{
                 flexDirection: "row",
                 gap: 14,

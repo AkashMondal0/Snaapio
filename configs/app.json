@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "SkyLight",
-    "slug": "skylight",
+    "name": "Snaapio",
+    "slug": "snaapio",
     "version": "1.0.0",
     "orientation": "default",
     "icon": "./assets/icon.png",
@@ -28,9 +28,14 @@
       "splash": {
         "image": "./assets/splash.png",
         "resizeMode": "contain",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#ffffff",
+        "dark": {
+          "backgroundColor": "#000000",
+          "image": "./assets/splash.png",
+          "resizeMode": "contain"
+        }
       },
-      "package": "com.akashmondal0.skylight",
+      "package": "com.akashmondal0.snaapio",
       "permissions": [
         "android.permission.RECORD_AUDIO",
         "android.permission.MODIFY_AUDIO_SETTINGS",
@@ -45,7 +50,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "85422357-b49f-4b6c-8d74-593e530cdedd"
+        "projectId": "0b900a43-57ae-4ed2-8fb9-9eb29fa77ddb"
       }
     },
     "plugins": [

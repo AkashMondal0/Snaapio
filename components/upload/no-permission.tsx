@@ -5,6 +5,7 @@ import { useEffect, useRef } from 'react';
 import { Linking, View } from 'react-native';
 import { useDispatch } from 'react-redux';
 import {Button,Text} from '@/components/skysolo-ui';
+import { configs } from '@/configs';
 
 function PhotosPermissionRequester({ permission }: {
     permission: MediaLibrary.PermissionResponse
@@ -43,7 +44,7 @@ function PhotosPermissionRequester({ permission }: {
                             marginBottom: 20,
                             width: "60%",
                         }}>
-                        Skylight needs access to your photos to upload images.
+                        {configs.AppDetails.name} needs access to your photos to upload images.
                     </Text>
                     <Button
                         variant="outline"

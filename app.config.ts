@@ -2,8 +2,8 @@ import { ExpoConfig, ConfigContext } from 'expo/config';
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: "Sky Light",
-  slug: "skylight",
+  name: "Snaapio",
+  slug: "snaapio",
   version: "1.0.0",
   orientation: "default",
   icon: "./assets/icon.png",
@@ -31,13 +31,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       image: "./assets/splash.png",
       resizeMode: "contain",
       backgroundColor: "#ffffff",
-      // dark:{
-      //   backgroundColor: "#000000",
-      //   image: "./assets/splash.png",
-      //   resizeMode: "contain"
-      // }
+      dark: {
+        backgroundColor: "#000000",
+        image: "./assets/splash.png",
+        resizeMode: "contain"
+      }
     },
-    package: "com.akashmondal0.skylight",
+    package: "com.akashmondal0.snaapio",
     permissions: [
       "android.permission.RECORD_AUDIO",
       "android.permission.MODIFY_AUDIO_SETTINGS",
@@ -52,7 +52,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   extra: {
     eas: {
-      projectId: "85422357-b49f-4b6c-8d74-593e530cdedd"
+      projectId: "0b900a43-57ae-4ed2-8fb9-9eb29fa77ddb"
     }
   },
   plugins: [
@@ -99,5 +99,5 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       }
     ]
   ],
-  owner: "skysolo"
+  owner: "akashmondal0"
 });

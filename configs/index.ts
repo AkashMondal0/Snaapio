@@ -22,9 +22,9 @@ const _configs = {
         },
     },
     AppDetails: {
-        version: "0.0.1",
-        name: "Skylight",
-        description: "SkyLight is a social media platform that allows users to share their thoughts and ideas with the world.",
+        version: "1.1.0",
+        name: "Snaapio",
+        description: "Snaapio is a social media platform that allows users to share their thoughts and ideas with the world.",
         appUrl: '',
         logoUrl: "/primary-logo.png",
         primaryLightLogo: "/primary-light-logo.jpeg",
