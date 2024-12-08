@@ -44,7 +44,7 @@ const ProfileNavbar = memo(function HomeScreen({
                     gap: 12,
                     alignItems: 'center',
                 }}>
-                    <Icon iconName="Plus" size={28} onPress={() => { navigation.navigate("Root", { screen: 'camera' }) }} />
+                    <Icon iconName="Plus" size={28} onPress={() => navigation.navigate("Root", { screen: 'create' })} />
                     <Icon iconName="Menu" size={28} onPress={() => navigation.navigate("settings")} />
                 </View>
             </View>

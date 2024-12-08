@@ -1,4 +1,5 @@
 import { Text, Button ,ThemedView} from '@/components/skysolo-ui'
+import { configs } from '@/configs'
 import React from 'react'
 import { View, Image } from 'react-native'
 export default function InitialScreen({ navigation }: any) {
@@ -20,7 +21,7 @@ export default function InitialScreen({ navigation }: any) {
                         fontSize: 40,
                         fontWeight: "bold",
                     }}>
-                    Skylight
+                    {configs.AppDetails.name}
                 </Text>
                 <Image
                     style={{
@@ -37,7 +38,7 @@ export default function InitialScreen({ navigation }: any) {
                 fontWeight: "bold",
                 marginVertical: 8,
             }}>
-                Welcome to Skylight
+                Welcome to {configs.AppDetails.name}
             </Text>
             <Text
                 style={{
@@ -46,7 +47,7 @@ export default function InitialScreen({ navigation }: any) {
                     fontSize: 14,
                     textAlign: "center",
                 }}>
-                Skylight is a social media platform for sharing your thoughts and ideas with the world.
+                {configs.AppDetails.name} is a social media platform for sharing your thoughts and ideas with the world.
             </Text>
 
             <Button onPress={() => { navigation.navigate("auth/register") }} style={{

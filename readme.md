@@ -1,6 +1,6 @@
 ![Logo](/public/skylight%20github%20banner.jpg)
 
-# SkyLight Android App Overview
+# Snaapio Android App Overview
 
 This repository has a React Native application and a full social media
 application backend made with NestJS. For social networking functions like user
@@ -50,13 +50,13 @@ React Native, Redux toolkit, react-hook-form, socket io, zod
 Clone the project
 
 ```bash
-git clone https://github.com/AkashMondal0/Skylight-Mobile.git
+git clone https://github.com/AkashMondal0/Snaapio.git
 ```
 
 Go to the project directory
 
 ```bash
-cd Skylight-Mobile
+cd Snaapio
 ```
 
 Install dependencies
@@ -102,17 +102,3 @@ docker compose up
 ## Themes
 
 ![App Screenshot](/public/skylight%20theme.jpg)
-
-## Contributing
-
-Contributions are welcome! Please follow these steps to contribute:
-
-1. Fork the repository.
-2. Create a new branch: `git checkout -b feature-name`.
-3. Make your changes and commit them: `git commit -m 'Add some feature'`.
-4. Push to the branch: `git push origin feature-name`.
-5. Open a pull request.
-
-## Feedback
-
-If you have any feedback, please reach out to us at akash2003mondal@gmail.com

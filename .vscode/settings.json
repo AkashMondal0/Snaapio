@@ -4,8 +4,9 @@
         "hookform",
         "lucide",
         "netinfo",
-        "supabase",
         "Pressable",
-        "Subviews"
+        "snaapio",
+        "Subviews",
+        "supabase"
     ]
 }

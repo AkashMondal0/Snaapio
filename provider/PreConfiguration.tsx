@@ -75,8 +75,13 @@ const PreConfiguration = () => {
         }
     }, [])
 
-    return (<StatusBar
-        style={themeSchema === "dark" ? "light" : "dark" ?? "auto"}
+    if (themeSchema && themeLoaded) {
+        return (<StatusBar
+            style={themeSchema === "dark" ? "light" : "dark" ?? "auto"}
+            backgroundColor={"transparent"} />)
+    }
+
+    return (<StatusBar style={Appearance.getColorScheme() === "dark" ? "light" : "dark" ?? "auto"}
         backgroundColor={"transparent"} />)
 }
 

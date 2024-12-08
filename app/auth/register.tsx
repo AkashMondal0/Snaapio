@@ -171,7 +171,6 @@ const RegisterScreen = ({ navigation }: any) => {
                                 onChangeText={value => onChange(value)}
                                 value={value}
                                 placeholder='Username'
-                                textContentType='username'
                                 keyboardType="default"
                                 returnKeyType="next" />
                         )}
