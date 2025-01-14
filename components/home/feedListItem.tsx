@@ -2,7 +2,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { memo, useCallback, useContext, useRef, useState } from 'react';
 import { ToastAndroid, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
-import { Avatar, Text, Image, Icon } from '@/components/skysolo-ui';
 import { SocketContext } from '@/provider/SocketConnections';
 import { createNotificationApi, destroyNotificationApi } from '@/redux-stores/slice/notification/api.service';
 import { createPostLikeApi, destroyPostLikeApi } from '@/redux-stores/slice/post/api.service';
@@ -12,6 +11,8 @@ import { Heart } from 'lucide-react-native';
 import PagerView from 'react-native-pager-view';
 import { useDispatch, useSelector } from 'react-redux';
 import useDebounce from '@/lib/debouncing';
+import { useTheme, Text } from 'hyper-native-ui';
+import { Avatar, Image, Icon } from '@/components/skysolo-ui';
 
 const FeedItem = memo(function FeedItem({
     data,
@@ -20,7 +21,7 @@ const FeedItem = memo(function FeedItem({
     data: Post,
     navigation: NavigationProps
 }) {
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+    const { currentTheme } = useTheme();
     const [tabIndex, setTabIndex] = useState(0)
     const imageLength = data.fileUrl.length
     const navigateToProfile = useCallback(() => {
@@ -53,14 +54,14 @@ const FeedItem = memo(function FeedItem({
                     onPress={navigateToProfile} >
                     <Text
                         style={{ fontWeight: "600" }}
-                        variant="heading3">
+                        variant="H6">
                         {data?.user?.name}
                     </Text>
                 </TouchableOpacity>
                 <Text
                     style={{ fontWeight: "400" }}
-                    colorVariant="secondary"
-                    variant="heading4">
+                    variantColor="secondary"
+                    variant="body1">
                     {`los angeles, CA`}
                 </Text>
             </View>
@@ -83,7 +84,7 @@ const FeedItem = memo(function FeedItem({
                 margin: 10,
                 paddingHorizontal: 4,
             }}>
-                <Text variant="heading4" style={{
+                <Text variant="H6" style={{
                     fontWeight: "400",
                     color: "white",
                     padding: 5,
@@ -131,7 +132,6 @@ const FeedItem = memo(function FeedItem({
             <View>
                 <TouchableOpacity activeOpacity={0.5} onPress={() => navigateToPost("post/comment", data)}>
                     <Text
-                        variant="heading4"
                         style={{
                             marginHorizontal: "2%",
                             fontWeight: "400",

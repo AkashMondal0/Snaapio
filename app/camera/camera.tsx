@@ -1,12 +1,11 @@
 import React, { memo, useCallback } from 'react'
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useState } from 'react';
-import { Button, FlatList, Text, TouchableOpacity, View, Image, StatusBar, Vibration } from 'react-native';
-import { useSelector } from 'react-redux'
+import { Button, FlatList, Text, TouchableOpacity, View, Image, StatusBar } from 'react-native';
 import * as MediaLibrary from 'expo-media-library';
-import { RootState } from '@/redux-stores/store';
 import debounce from '@/lib/debouncing';
 import { Icon } from '@/components/skysolo-ui';
+import { useTheme } from 'hyper-native-ui';
 
 interface SendImagesScreenProps {
     navigation?: any
@@ -18,7 +17,7 @@ interface SendImagesScreenProps {
 }
 const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
     // const session = useSelector((state: RootState) => state.AuthState.session.user)
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+    const { currentTheme } = useTheme();
     const [facing, setFacing] = useState<"front" | "back">('back');
     const cameraRef = React.useRef<CameraView>(null);
     const [permission, requestPermission] = useCameraPermissions();
@@ -264,7 +263,7 @@ const Footer = ({
     imagePicker?: () => void,
     disable?: boolean,
 }) => {
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+    const { currentTheme } = useTheme();
 
     return (
         <>

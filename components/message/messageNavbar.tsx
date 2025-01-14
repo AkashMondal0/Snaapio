@@ -4,6 +4,7 @@ import { Conversation } from "@/types";
 import { View } from "react-native";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
+import { useTheme } from 'hyper-native-ui';    
 
 
 
@@ -14,8 +15,8 @@ const ChatScreenNavbar = memo(function ChatScreenNavbar({
     conversation: Conversation,
     pressBack: () => void
 }) {
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
-    const currentTyping = useSelector((Root: RootState) => Root.ConversationState.currentTyping)
+    const { currentTheme } = useTheme();
+    const currentTyping = useSelector((Root: RootState) => Root.ConversationState.currentTyping);
 
 
     return (

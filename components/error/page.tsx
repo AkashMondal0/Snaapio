@@ -1,11 +1,11 @@
-import { RootState } from '@/redux-stores/store';
 import React, { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { Button, Text } from '@/components/skysolo-ui';
 import LottieView from 'lottie-react-native';
 import { logoutApi } from '@/redux-stores/slice/auth/api.service';
 import LogOutDialog from '@/components/dialogs/logout';
+import { useTheme } from 'hyper-native-ui';    
 
 
 const ErrorScreen = ({
@@ -15,7 +15,7 @@ const ErrorScreen = ({
 }) => {
     const animation = useRef<LottieView>(null);
     const [modalVisible, setModalVisible] = useState(false)
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+    const { currentTheme } = useTheme();
     const dispatch = useDispatch();
     useEffect(() => {
         animation.current?.play();

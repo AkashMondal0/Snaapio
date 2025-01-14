@@ -1,4 +1,4 @@
-import { Text, Button ,ThemedView} from '@/components/skysolo-ui'
+import { Text, Button ,ThemedView} from 'hyper-native-ui'
 import { configs } from '@/configs'
 import React from 'react'
 import { View, Image } from 'react-native'
@@ -16,7 +16,6 @@ export default function InitialScreen({ navigation }: any) {
                 alignItems: "center",
             }}>
                 <Text
-                    fontFamily="Satisfy"
                     style={{
                         fontSize: 40,
                         fontWeight: "bold",

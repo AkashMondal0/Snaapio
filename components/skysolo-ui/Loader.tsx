@@ -1,8 +1,7 @@
-import { RootState } from '@/redux-stores/store';
-import { ActivityIndicator, Modal, StatusBar, View, type ActivityIndicatorProps } from 'react-native';
-import { useSelector } from "react-redux"
+import { ActivityIndicator, Modal, View, type ActivityIndicatorProps } from 'react-native';
 import React from 'react';
 import { Text } from 'react-native';
+import { useTheme } from 'hyper-native-ui';
 
 export type Props = ActivityIndicatorProps & {
     variant?: any
@@ -12,11 +11,12 @@ export type Props = ActivityIndicatorProps & {
 
 
 const SkysoloLoader = (Props: Props) => {
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme?.primary)
+    const { currentTheme } = useTheme();
 
     if (!currentTheme) return <></>
+
     return (
-        <ActivityIndicator {...Props} color={currentTheme} />
+        <ActivityIndicator {...Props} color={currentTheme.primary} />
     )
 }
 

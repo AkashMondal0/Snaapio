@@ -1,6 +1,7 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { disPatchResponse, PageProps, Story } from '@/types';
-import { Icon, ThemedView, Image, Text } from '@/components/skysolo-ui';
+import { Icon, Image } from '@/components/skysolo-ui';
+import { Text,ThemedView } from 'hyper-native-ui'
 import AppHeader from '@/components/AppHeader';
 import { FlatList, ToastAndroid, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';

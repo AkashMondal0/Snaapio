@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { NavigationProps, User } from "@/types";
 import { TouchableOpacity, View } from "react-native";
-import { Text } from "@/components/skysolo-ui"
+import { Text } from "hyper-native-ui"
 
 
 const ProfileInfoCount = memo(function ProfileInfoCount({
@@ -41,8 +41,8 @@ const ProfileInfoCount = memo(function ProfileInfoCount({
             <TouchableOpacity key={index} style={{ alignItems: 'center' }}
                 onPress={item.onPress}
                 activeOpacity={0.8}>
-                <Text style={{ fontSize: 20, fontWeight: 'bold' }}>{item.count}</Text>
-                <Text variant="heading4" colorVariant="secondary">{item.title}</Text>
+                <Text bold={"bold"} size={20}>{item.count}</Text>
+                <Text colorVariant="secondary">{item.title}</Text>
             </TouchableOpacity>
         ))}
     </View>)

@@ -1,11 +1,10 @@
-import { Avatar, Icon, Text, ThemedView } from "@/components/skysolo-ui";
 import { memo, useCallback, } from "react";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux-stores/store";
-import { View } from "react-native";
 import { NavigationProps } from "@/types";
+import { View } from "react-native";
+import { Avatar, Icon, Text, ThemedView } from "@/components/skysolo-ui";
 import AiChatScreenInput from "@/components/message/AiChatInput";
 import AiMessageList from "@/components/message/AiMessageList";
+import { useTheme } from 'hyper-native-ui';    
 
 interface AskAiChatScreenProps {
     navigation: NavigationProps
@@ -46,7 +45,7 @@ const AskAiChatScreenNavbar = memo(function AskAiChatScreenNavbar({
     pressBack: () => void
     typing?: boolean
 }) {
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+    const { currentTheme } = useTheme();
 
     return (
         <View style={{

@@ -1,6 +1,5 @@
-import { RootState } from '@/redux-stores/store';
 import { View, type ViewProps, Animated } from 'react-native';
-import { useSelector } from "react-redux"
+import { useTheme } from 'hyper-native-ui';    
 
 export type Props = ViewProps & {
     variant?: any
@@ -10,7 +9,7 @@ export type Props = ViewProps & {
 
 
 const SkysoloAnimatedView = ({ style, ...otherProps }: Props) => {
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+    const { currentTheme } = useTheme();
     if (!currentTheme) return <View />
     return (
         <Animated.View style={[{

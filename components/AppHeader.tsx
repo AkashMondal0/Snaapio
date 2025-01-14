@@ -1,8 +1,8 @@
 import { memo } from "react";
 import { View, ViewProps } from "react-native";
-import { Icon, Text } from "@/components/skysolo-ui"
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux-stores/store";
+import { Icon } from "@/components/skysolo-ui";
+import { useTheme } from 'hyper-native-ui';
+import { Text } from "hyper-native-ui";
 
 
 const AppHeader = memo(function HomeScreen({
@@ -20,7 +20,7 @@ const AppHeader = memo(function HomeScreen({
     containerStyle?: ViewProps["style"]
     backCallback?: () => void
 }) {
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+    const { currentTheme } = useTheme();
 
     if (titleCenter) {
         return (
@@ -40,7 +40,7 @@ const AppHeader = memo(function HomeScreen({
                         backCallback && backCallback()
                         navigation.goBack()
                     }} />
-                <Text variant="heading3" style={{
+                <Text variant="H5" style={{
                     fontSize: 22,
                     fontWeight: "600"
                 }}>
@@ -77,7 +77,7 @@ const AppHeader = memo(function HomeScreen({
                     onPress={() => {
                         navigation.goBack()
                     }} />
-                <Text variant="heading3" style={{
+                <Text variant="H5" style={{
                     fontSize: 22,
                     fontWeight: "600"
                 }}>

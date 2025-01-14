@@ -1,11 +1,10 @@
 import { memo, useCallback, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { Avatar, Icon, View as Themed, Text, Image } from "@/components/skysolo-ui";
-import { useSelector } from "react-redux";
 import { AuthorData, NavigationProps, Highlight } from "@/types";
 import ErrorScreen from "@/components/error/page";
-import { dateFormat, timeFormat } from "@/lib/timeFormat";
-import { RootState } from "@/redux-stores/store";
+import { dateFormat } from "@/lib/timeFormat";
+import { useTheme } from 'hyper-native-ui';
 
 interface ScreenProps {
     navigation: NavigationProps;
@@ -22,7 +21,7 @@ const HighlightPageScreen = memo(function HighlightPageScreen({
     navigation,
     route
 }: ScreenProps) {
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+    const { currentTheme } = useTheme();
     const [currentImageIndex, setCurrentImageIndex] = useState(0)
     const { user, highlight } = route.params;
     const actualLength = highlight.stories?.length ?? 0

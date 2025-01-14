@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { FlatList, View, ToastAndroid } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import { Avatar, Button, Loader, Text, TouchableOpacity } from "@/components/skysolo-ui";
+import { Avatar, Loader, TouchableOpacity } from "@/components/skysolo-ui";
 import { fetchUserProfileFollowerUserApi } from "@/redux-stores/slice/profile/api.service";
 import { RootState } from "@/redux-stores/store";
 import { AuthorData, Conversation, disPatchResponse, loadingType, NavigationProps } from "@/types";
@@ -11,6 +11,8 @@ import ErrorScreen from "@/components/error/page";
 import ListEmpty from "@/components/ListEmpty";
 import { setConversation } from "@/redux-stores/slice/conversation";
 import { CreateConversationApi } from "@/redux-stores/slice/conversation/api.service";
+import { Button, Text } from "hyper-native-ui";
+
 interface ScreenProps {
     navigation: NavigationProps;
     username: string
@@ -157,11 +159,11 @@ const FollowingItem = memo(function FollowingItem({
                     alignItems: 'center',
                     gap: 10,
                 }}>
-                    <Text variant="heading3">
+                    <Text variant="H6">
                         {data.username}
                     </Text>
                 </View>
-                <Text variant="heading4" colorVariant="secondary">
+                <Text colorVariant="secondary">
                     {data.name}
                 </Text>
             </View>

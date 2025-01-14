@@ -1,10 +1,10 @@
 import React, { memo, useCallback, useEffect, useRef } from 'react';
-import { Message, NavigationProps, disPatchResponse } from '@/types';
+import { Message, NavigationProps } from '@/types';
 import { FlatList, View, Text, StyleSheet, Clipboard, Image } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
 import { Icon, Loader } from '@/components/skysolo-ui';
-import debounce from "@/lib/debouncing";
+import { useTheme } from 'hyper-native-ui';    
 import { ToastAndroid } from "react-native";
 import { timeFormat } from '@/lib/timeFormat';
 import { AiMessage, loadMyPrompt } from '@/redux-stores/slice/conversation';
@@ -72,7 +72,7 @@ const MessageItem = memo(function Item({
     data: AiMessage, myself: boolean,
     navigateToImagePreview: (data: Message) => void
 }) {
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+    const { currentTheme } = useTheme();
     const color = myself ? currentTheme?.primary_foreground : currentTheme?.foreground
     const bg = myself ? currentTheme?.primary : currentTheme?.muted
 

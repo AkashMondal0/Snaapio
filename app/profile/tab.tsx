@@ -1,13 +1,11 @@
 import AppHeader from "@/components/AppHeader";
-import { RootState } from "@/redux-stores/store";
 import { NavigationProps } from "@/types";
 import React, { memo } from "react";
-import { useSelector } from "react-redux";
 import FollowersScreen from "./followers";
-import { ThemedView } from "@/components/skysolo-ui";
 import FollowingScreen from "./following";
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import { useWindowDimensions } from "react-native";
+import { ThemedView, useTheme } from 'hyper-native-ui';
 
 interface ScreenProps {
     navigation: NavigationProps;
@@ -24,7 +22,7 @@ const routes = [
 ];
 
 const TabFollowingAndFollowers = memo(function TabFollowingAndFollowers({ navigation, route }: ScreenProps) {
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+    const { currentTheme } = useTheme();
     const [index, setIndex] = React.useState(route?.params?.params?.tab ?? 0);
     const layout = useWindowDimensions();
 

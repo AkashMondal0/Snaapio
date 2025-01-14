@@ -1,10 +1,9 @@
 /* eslint-disable import/namespace */
-import { RootState } from '@/redux-stores/store';
 import { TouchableOpacity, View, type TouchableOpacityProps } from 'react-native';
-import { useSelector } from "react-redux"
 import * as Icons from "lucide-react-native";
 import { useState } from 'react';
 export type IconName = keyof typeof Icons;
+import { useTheme } from 'hyper-native-ui';
 
 
 export type Props = TouchableOpacityProps & {
@@ -32,7 +31,7 @@ const SkysoloIconButton = ({
     iconColorVariant = "primary",
     color = undefined,
     ...otherProps }: Props) => {
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+    const { currentTheme } = useTheme();
     const IconComponent = (Icons[iconName as IconName] || <></>) as React.ComponentType<any>;
     const [isPress, setIsPress] = useState(false)
 

@@ -1,9 +1,10 @@
 import ErrorScreen from "@/components/error/page";
 import { ProfileEmptyPosts, ProfileGridItem, ProfileHeader, ProfileNavbar } from "@/components/profile";
-import { Loader, ThemedView } from "@/components/skysolo-ui";
+import { Loader } from "@/components/skysolo-ui";
 import { fetchUserProfileDetailApi, fetchUserProfilePostsApi } from "@/redux-stores/slice/profile/api.service";
 import { RootState } from "@/redux-stores/store";
 import { disPatchResponse, loadingType, NavigationProps, Post, User } from "@/types";
+import { ThemedView } from "hyper-native-ui";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { View, FlatList, ToastAndroid } from "react-native";
 import { useDispatch, useSelector } from "react-redux";

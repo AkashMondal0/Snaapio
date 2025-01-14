@@ -26,6 +26,7 @@ import { ProfileEditScreen } from '@/app/profile';
 import { PostScreen } from '@/app/post';
 import { StoryScreen, StorySelectingScreen, StoryUploadScreen } from '@/app/story';
 import { HighlightPageScreen, HighlightSelectingScreen, HighlightUploadScreen } from '@/app/highlight';
+import { ThemeProvider, useTheme } from 'hyper-native-ui';
 
 SplashScreen.preventAutoHideAsync();
 const Stack = createNativeStackNavigator();
@@ -58,7 +59,7 @@ function Routes(backgroundColor: any) {
           <Stack.Screen name="story" component={StoryScreen} />
           <Stack.Screen name="story/upload" component={StoryUploadScreen} />
           {/* highlight */}
-          <Stack.Screen name="highlight"component={HighlightPageScreen} />
+          <Stack.Screen name="highlight" component={HighlightPageScreen} />
           <Stack.Screen name="highlight/selection" component={HighlightSelectingScreen} />
           <Stack.Screen name="highlight/upload" component={HighlightUploadScreen} />
 
@@ -100,16 +101,16 @@ function Routes(backgroundColor: any) {
 }
 
 function Root() {
-  const background = useSelector((state: RootState) => state.ThemeState.currentTheme?.background, (prev, next) => prev === next)
+  const { currentTheme } = useTheme()
 
   return (<>
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: background }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: currentTheme.background }}>
       <SafeAreaProvider>
         <NavigationContainer>
           <SocketConnections >
             <PreConfiguration />
             <BottomSheetProvider>
-              <Routes backgroundColor={background} />
+              <Routes backgroundColor={currentTheme.background} />
             </BottomSheetProvider>
           </SocketConnections>
         </NavigationContainer>
@@ -122,8 +123,10 @@ function Root() {
 export default function App() {
 
   return (
-    <Provider store={store}>
-      <Root />
-    </Provider>
+    <ThemeProvider>
+      <Provider store={store}>
+        <Root />
+      </Provider>
+    </ThemeProvider>
   );
 };

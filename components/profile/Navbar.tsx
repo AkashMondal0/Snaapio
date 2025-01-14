@@ -1,9 +1,8 @@
 import { memo } from "react";
 import { View } from "react-native";
-import { Icon, Text } from "@/components/skysolo-ui"
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux-stores/store";
+import { Icon } from "@/components/skysolo-ui";
 import { NavigationProps } from "@/types";
+import { useTheme, Text } from 'hyper-native-ui';
 
 
 const ProfileNavbar = memo(function HomeScreen({
@@ -15,7 +14,7 @@ const ProfileNavbar = memo(function HomeScreen({
     username: string
     isProfile: boolean
 }) {
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+    const { currentTheme } = useTheme();
 
     if (isProfile) {
         return (
@@ -35,7 +34,7 @@ const ProfileNavbar = memo(function HomeScreen({
                     gap: 6
                 }}>
                     <Icon iconName="Lock" size={24} />
-                    <Text variant="heading3" style={{ fontSize: 24, fontWeight: 'semibold' }}>
+                    <Text variant="body1" bold={"semibold"} style={{ fontSize: 24, fontWeight: 'semibold' }}>
                         {username}
                     </Text>
                 </View>

@@ -5,6 +5,7 @@ import { configs } from '@/configs';
 import { RootState } from '@/redux-stores/store';
 import { useSelector } from 'react-redux';
 import { loadingType, variantType } from '@/types';
+import { useTheme } from 'hyper-native-ui';    
 
 export type Props = ImageProps & {
     lightColor?: string;
@@ -36,7 +37,7 @@ const SkysoloAvatar = memo(function SkysoloAvatar({ style,
     TouchableOpacityOptions,
     ...otherProps }: Props) {
     size = Number(size)
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+    const { currentTheme } = useTheme();
     const [state, setState] = useState<loadingType>("idle")
     const error = useRef(false)
 

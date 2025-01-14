@@ -12,10 +12,12 @@ import ReelsScreen from "./reels";
 import SearchScreen from "./search";
 import Pages from './pages';
 import { NewPostSelectionScreen } from '@/app/upload';
+import { useTheme } from 'hyper-native-ui';
+
 const Tab = createBottomTabNavigator();
 
 const HomeScreen = memo(function HomeScreen() {
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme, (prev, next) => prev === next)
+    const { currentTheme } = useTheme();
 
     function MyTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 

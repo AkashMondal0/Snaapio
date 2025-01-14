@@ -4,6 +4,7 @@ import { Icon, Image } from '@/components/skysolo-ui';
 import { Plus } from 'lucide-react-native';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
+import { useTheme } from 'hyper-native-ui';
 
 export const PreviewImage = memo(function ImagePreview({
     assetUrl,
@@ -16,7 +17,7 @@ export const PreviewImage = memo(function ImagePreview({
     isServerImage?: boolean,
     handleDelete: (i: string) => void
 }) {
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+    const { currentTheme } = useTheme();
 
     if (!assetUrl) return <></>
 
@@ -77,7 +78,7 @@ export const AddImage = memo(function AddImage({
 }: {
     onPress: () => void
 }) {
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+    const { currentTheme } = useTheme();
 
     return (<>
         <TouchableOpacity

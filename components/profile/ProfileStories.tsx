@@ -1,9 +1,10 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { FlatList, ToastAndroid, TouchableOpacity, View } from "react-native";
-import { Icon, Loader, View as ThemedView, Text, Avatar } from "@/components/skysolo-ui";
+import { Icon, Loader, Avatar } from "@/components/skysolo-ui";
 import { disPatchResponse, loadingType, NavigationProps, User, Highlight } from "@/types";
 import { useDispatch } from "react-redux";
 import { fetchUserHighlightApi } from "@/redux-stores/slice/profile/api.service";
+import { ThemedView, Text } from "hyper-native-ui"
 
 const StoriesComponent = memo(function StoriesComponent({
     navigation,
@@ -167,7 +168,7 @@ export const StoriesItem = memo(function StoriesItem({
             borderColorVariant="secondary"
             url={data?.stories[0]?.fileUrl[0] ? data?.stories[0].fileUrl[0].urls?.high : null}
             onPress={() => onPress?.(data)} />
-        <Text variant="heading4" colorVariant="secondary" style={{ padding: 4 }} numberOfLines={1}>
+        <Text colorVariant="secondary" style={{ padding: 4 }} numberOfLines={1}>
             {data?.content}
         </Text>
     </TouchableOpacity>)

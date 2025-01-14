@@ -1,12 +1,12 @@
 import { memo, useCallback, useEffect, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { Avatar, Icon, View as Themed, Text, Image, Loader } from "@/components/skysolo-ui";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { fetchStoryApi } from "@/redux-stores/slice/account/api.service";
 import { AuthorData, disPatchResponse, loadingType, NavigationProps, Story } from "@/types";
 import ErrorScreen from "@/components/error/page";
 import { timeFormat } from "@/lib/timeFormat";
-import { RootState } from "@/redux-stores/store";
+import { useTheme } from 'hyper-native-ui';    
 
 interface ScreenProps {
     navigation: NavigationProps;
@@ -20,7 +20,7 @@ const StoryScreen = memo(function StoryScreen({
     route
 }: ScreenProps) {
     const { user } = route.params;
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+    const { currentTheme } = useTheme();
     const [state, setState] = useState<{
         loading: loadingType,
         error: boolean,

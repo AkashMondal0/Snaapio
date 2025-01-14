@@ -12,14 +12,12 @@ import { setSession } from '@/redux-stores/slice/auth';
 import { Session } from '@/types';
 import { fetchUnreadNotificationCountApi } from '@/redux-stores/slice/notification/api.service';
 import { configs } from '@/configs';
-import { StatusBar } from 'expo-status-bar';
+import { StatusBar } from "hyper-native-ui";
 
 
 const PreConfiguration = () => {
     const dispatch = useDispatch()
-    const themeLoaded = useSelector((state: RootState) => state.ThemeState.themeLoaded, (prev, next) => prev === next)
-    const themeSchema = useSelector((state: RootState) => state.ThemeState.themeSchema, (prev, next) => prev === next)
-
+    const themeLoaded = useSelector((state: RootState) => state.ThemeState.themeLoaded, (prev, next) => prev === next);
     const initializeSession = async () => {
         const session = await getSecureStorage<Session["user"]>(configs.sessionName)
         if (session) {
@@ -75,15 +73,7 @@ const PreConfiguration = () => {
         }
     }, [])
 
-    if (themeSchema && themeLoaded) {
-        return (<StatusBar
-            style={themeSchema === "dark" ? "light" : "dark" ?? "auto"}
-            backgroundColor={"transparent"} />)
-    }
-
-    return (<StatusBar style={Appearance.getColorScheme() === "dark" ? "light" : "dark" ?? "auto"}
-        backgroundColor={"transparent"} />)
+    return (<StatusBar />)
 }
-
 
 export default PreConfiguration;

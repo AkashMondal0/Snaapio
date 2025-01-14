@@ -1,7 +1,6 @@
-import { RootState } from '@/redux-stores/store';
+import { useTheme } from 'hyper-native-ui';
 import { useState } from 'react';
 import { TouchableOpacity, type TouchableOpacityProps } from 'react-native';
-import { useSelector } from "react-redux"
 
 export type Props = TouchableOpacityProps & {
     variant?: any
@@ -11,8 +10,9 @@ export type Props = TouchableOpacityProps & {
 
 
 const SkysoloTouchableOpacity = ({ style, ...otherProps }: Props) => {
-    const [isPress, setIsPress] = useState(false)
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+    const [isPress, setIsPress] = useState(false);
+    const { currentTheme } = useTheme();
+
     if (!currentTheme) return <></>
     return (
         <TouchableOpacity

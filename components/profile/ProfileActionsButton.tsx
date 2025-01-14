@@ -1,12 +1,12 @@
 import { memo, useState } from "react";
 import { User, Conversation, disPatchResponse, NavigationProps } from "@/types";
 import { ToastAndroid, View } from "react-native";
-import { Button } from "@/components/skysolo-ui"
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { createFriendshipApi, destroyFriendshipApi } from "@/redux-stores/slice/profile/api.service";
 import { CreateConversationApi } from "@/redux-stores/slice/conversation/api.service";
 import { setConversation } from "@/redux-stores/slice/conversation";
+import { Button } from "hyper-native-ui";
 
 
 const ProfileActionsButton = memo(function ProfileActionsButton({
@@ -101,21 +101,16 @@ const ProfileActionsButton = memo(function ProfileActionsButton({
             gap: 10,
         }}>
             <Button
-                onPress={() => navigation?.navigate('profile/edit')}
-                size="auto"
-                variant="secondary" style={{
+                onPress={() => navigation?.navigate('profile/edit')} style={{
                     flex: 1,
                     height: 40
                 }}>
                 Edit Profile
             </Button>
-            <Button
-                // onPress={() => navigation?.navigate('profile/share')}
-                size="auto"
-                variant="secondary" style={{
-                    flex: 1,
-                    height: 40
-                }}>
+            <Button style={{
+                flex: 1,
+                height: 40
+            }}>
                 Share Profile
             </Button>
         </View>)
@@ -129,7 +124,6 @@ const ProfileActionsButton = memo(function ProfileActionsButton({
         <Button
             disabled={loading}
             onPress={isFollowing ? handleUnFollowApi : handleFollowApi}
-            size="auto"
             variant={isFollowing ? "secondary" : "default"}
             style={{
                 flex: 1,
@@ -140,7 +134,6 @@ const ProfileActionsButton = memo(function ProfileActionsButton({
         <Button
             disabled={loading}
             onPress={messagePageNavigate}
-            size="auto"
             variant="secondary" style={{
                 flex: 1,
                 height: 40
