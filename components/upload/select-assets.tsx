@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
-import { FlatList, ToastAndroid } from 'react-native';
+import { FlatList, ToastAndroid, View } from 'react-native';
 import * as MediaLibrary from 'expo-media-library';
-import { Icon, View } from '@/components/skysolo-ui';
+import { Icon } from '@/components/skysolo-ui';
 import AppHeader from '@/components/AppHeader';
 import AppPermissionDialog from '@/components/dialogs/app-permission';
 import PhotosPermissionRequester from '@/components/upload/no-permission';
@@ -11,6 +11,7 @@ import { PageProps } from '@/types';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
 import { setDeviceAssets } from '@/redux-stores/slice/account';
+import { ThemedView } from 'hyper-native-ui';
 
 let loaded = false;
 const SelectAssets = memo(function SelectAssets({
@@ -118,9 +119,9 @@ const SelectAssets = memo(function SelectAssets({
                 rightSideComponent={selectedCount > 0 ? <Icon
                     iconName='Check' isButton
                     onPress={navigateToPostReview}
-                    variant="primary" /> : <View />}
+                    variant="primary" /> : <></>}
                 navigation={navigation} />
-            <View style={{ flex: 1 }}>
+            <ThemedView style={{ flex: 1 }}>
                 <FlatList
                     nestedScrollEnabled
                     data={media}
@@ -136,7 +137,7 @@ const SelectAssets = memo(function SelectAssets({
                             selectAssetIndex={selectedAssets.current.findIndex(asset => asset.id === item.id)}
                             onPressAssetHandle={onPressAssetHandle} />
                     }} />
-            </View>
+            </ThemedView>
         </>
     );
 }, () => true);

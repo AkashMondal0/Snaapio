@@ -6,7 +6,7 @@ import { Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import { Image, type ImageProps } from "expo-image"
 import { loadingType } from '@/types';
-import Loader from './Loader';
+import { Loader } from 'hyper-native-ui';
 
 
 export type Props = ImageProps & {
@@ -77,7 +77,7 @@ const SkysoloImage = ({
                 alignItems: "center",
                 zIndex: 1,
                 display: state === "pending" ? "flex" : "none",
-            }, style]}>
+            }, style as any]}>
                 <Loader size={40} />
             </View>
             <Image

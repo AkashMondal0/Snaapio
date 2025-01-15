@@ -1,6 +1,6 @@
 import { View, Text as RNText, TouchableOpacity, Animated } from "react-native"
-import { Icon, Separator, AnimatedView } from '@/components/skysolo-ui';
-import { Text } from 'hyper-native-ui'
+import { Icon } from '@/components/skysolo-ui';
+import { AnimatedView, Separator, Text } from 'hyper-native-ui'
 import { NavigationProps } from "@/types";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";

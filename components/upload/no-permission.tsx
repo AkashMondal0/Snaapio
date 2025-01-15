@@ -2,9 +2,9 @@ import { setAppPermissionDialog } from '@/redux-stores/slice/dialog';
 import * as MediaLibrary from 'expo-media-library';
 import LottieView from 'lottie-react-native';
 import { useEffect, useRef } from 'react';
-import { Linking, View } from 'react-native';
+import { Linking } from 'react-native';
 import { useDispatch } from 'react-redux';
-import {Button,Text} from '@/components/skysolo-ui';
+import { Button, Text, ThemedView } from 'hyper-native-ui';
 import { configs } from '@/configs';
 
 function PhotosPermissionRequester({ permission }: {
@@ -15,16 +15,18 @@ function PhotosPermissionRequester({ permission }: {
     useEffect(() => {
         animation.current?.play();
     }, []);
-    if (permission.granted) return <view />;
-    return (
-        <View style={{
-            flex: 1,
-            height: "100%",
-            width: "100%",
-            justifyContent: "center",
-            alignItems: "center",
 
-        }}>
+    if (permission.granted) return <view />;
+
+    return (
+        <ThemedView
+            style={{
+                flex: 1,
+                height: "100%",
+                width: "100%",
+                justifyContent: "center",
+                alignItems: "center"
+            }}>
             <LottieView
                 autoPlay
                 ref={animation}
@@ -37,8 +39,8 @@ function PhotosPermissionRequester({ permission }: {
             />
             {permission.canAskAgain ?
                 <>
-                    <Text variant="heading4"
-                        colorVariant="secondary"
+                    <Text
+                        variantColor="secondary"
                         style={{
                             textAlign: "center",
                             marginBottom: 20,
@@ -56,7 +58,7 @@ function PhotosPermissionRequester({ permission }: {
                 </> :
                 <>
                     <Text
-                        colorVariant="secondary"
+                        variantColor="secondary"
                         style={{
                             textAlign: "center",
                             marginBottom: 20,
@@ -73,7 +75,7 @@ function PhotosPermissionRequester({ permission }: {
                         Open Settings
                     </Button>
                 </>}
-        </View>
+        </ThemedView>
     );
 }
 

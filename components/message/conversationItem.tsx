@@ -1,7 +1,8 @@
 import React, { memo } from 'react';
 import { View } from 'react-native';
 import { Conversation } from '@/types';
-import { Avatar, Text, TouchableOpacity } from '@/components/skysolo-ui';
+import { Avatar } from '@/components/skysolo-ui';
+import { Text, TouchableOpacity } from "hyper-native-ui";
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
 import { timeFormat } from '@/lib/timeFormat';
@@ -17,7 +18,7 @@ const ConversationItem = memo(function ConversationItem({
 }) {
     const currentTyping = useSelector((Root: RootState) => Root.ConversationState.currentTyping)
     const currentTheme = useSelector((Root: RootState) => Root.ThemeState.currentTheme)
-
+    const messageCount = data?.totalUnreadMessagesCount > 0
 
     return (<View style={{ paddingHorizontal: 4 }}>
         <TouchableOpacity
@@ -41,15 +42,15 @@ const ConversationItem = memo(function ConversationItem({
                     numberOfLines={1}
                     ellipsizeMode='tail'
                     style={{ fontWeight: "600", width: "70%" }}
-                    variant="heading3">
+                    variant="H6">
                     {data?.user?.name}
                 </Text>
                 <Text
-                    colorVariant='secondary'
+                    variantColor='secondary'
                     numberOfLines={1}
                     ellipsizeMode='tail'
-                    style={{ fontWeight: "400", width: "70%" }}
-                    variant="heading4">
+                    variant="body1"
+                    style={{ fontWeight: "400", width: "70%" }}>
                     {currentTyping?.conversationId === data.id && currentTyping.typing ? "typing..." : data?.lastMessageContent ?? "No message yet"}
                 </Text>
             </View>
@@ -60,11 +61,11 @@ const ConversationItem = memo(function ConversationItem({
                 gap: 5,
                 justifyContent: "center",
             }}>
-                {data?.totalUnreadMessagesCount > 0 ? <View style={{
+                <View style={{
                     width: 30,
                     height: 30,
                     borderRadius: 50,
-                    backgroundColor: currentTheme?.primary,
+                    backgroundColor: messageCount ? currentTheme?.primary : "transparent",
                     justifyContent: "center",
                     alignItems: "center",
                 }}>
@@ -76,14 +77,10 @@ const ConversationItem = memo(function ConversationItem({
                             textAlign: "center",
                             color: currentTheme?.primary_foreground,
                             fontWeight: "600"
-                        }}
-                        variant="heading4">
-                        {data?.totalUnreadMessagesCount}
+                        }}>
+                        {messageCount ? data?.totalUnreadMessagesCount : ""}
                     </Text>
-                </View> : <View style={{
-                    width: 30,
-                    height: 30,
-                }} />}
+                </View>
                 <Text
                     numberOfLines={1}
                     ellipsizeMode='tail'
@@ -91,8 +88,7 @@ const ConversationItem = memo(function ConversationItem({
                         fontSize: 14,
                         textAlign: "center",
                         fontWeight: "400"
-                    }}
-                    variant="heading4">
+                    }}>
                     {timeFormat(data?.lastMessageCreatedAt as string)}
                 </Text>
             </View>

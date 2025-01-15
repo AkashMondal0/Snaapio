@@ -355,7 +355,7 @@ const FeedItemContent = memo(function FeedItemContent({ data,
             onPress={() => {
                 navigation.push("profile", { username: data.user.username })
             }}>
-            <Text variant="heading4"
+            <Text
                 style={{
                     fontWeight: "500",
                     fontSize: 16
@@ -365,8 +365,8 @@ const FeedItemContent = memo(function FeedItemContent({ data,
             </Text>
         </TouchableWithoutFeedback>
         <TouchableWithoutFeedback onPress={() => setReadMore(!readMore)}>
-            <Text variant="heading4"
-                colorVariant="secondary"
+            <Text
+                variantColor='secondary'
                 style={{
                     marginHorizontal: "2%",
                     fontWeight: "400",

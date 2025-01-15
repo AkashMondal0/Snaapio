@@ -2,8 +2,8 @@ import { fetchUserProfileFollowingUserApi } from "@/redux-stores/slice/profile/a
 import React, { useState } from "react";
 import { FlatList, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import { Avatar, Loader, TouchableOpacity } from "@/components/skysolo-ui";
-import { Button, Text } from "hyper-native-ui"
+import { Avatar } from "@/components/skysolo-ui";
+import { Button, Loader, Text , TouchableOpacity} from "hyper-native-ui"
 import { RootState } from "@/redux-stores/store";
 import { AuthorData, disPatchResponse, loadingType, NavigationProps } from "@/types";
 import { memo, useCallback, useEffect, useRef } from "react";
@@ -139,7 +139,7 @@ const FollowingItem = memo(function FollowingItem({
                         {data.username}
                     </Text>
                 </View>
-                <Text colorVariant="secondary">
+                <Text variantColor="secondary">
                     {data.name}
                 </Text>
             </View>

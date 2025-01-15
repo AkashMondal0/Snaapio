@@ -1,6 +1,7 @@
 import { View } from "react-native";
-import { Icon, Text } from "../skysolo-ui";
+import { Icon } from "../skysolo-ui";
 import { loadingType } from "@/types";
+import { Text } from "hyper-native-ui"
 
 const ProfileEmptyPosts = ({
     loading
@@ -15,7 +16,7 @@ const ProfileEmptyPosts = ({
             <View style={{ height: 50 }} />
             <Icon iconName="Image" size={70} />
             <View style={{ height: 10 }} />
-            <Text variant="heading2">No Posts yet</Text>
+            <Text variant="H4">No Posts yet</Text>
         </View>
     } else {
         return <></>

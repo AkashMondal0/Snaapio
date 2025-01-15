@@ -26,7 +26,6 @@ const CameraScreen = ({ navigation, route }: SendImagesScreenProps) => {
     const [selectedAssets, setSelectedAssets] = useState<MediaLibrary.Asset[]>([]);
     const [disable, setDisable] = useState<boolean>(false);
 
-
     const toggleCameraType = useCallback(() => {
         setFacing(current => (current === 'back' ? 'front' : 'back'));
     }, [])

@@ -1,10 +1,13 @@
 import { memo, useCallback, } from "react";
 import { NavigationProps } from "@/types";
 import { View } from "react-native";
-import { Avatar, Icon, Text, ThemedView } from "@/components/skysolo-ui";
+import { Avatar, Icon } from "@/components/skysolo-ui";
+import {
+    Text, ThemedView
+} from 'hyper-native-ui';
 import AiChatScreenInput from "@/components/message/AiChatInput";
 import AiMessageList from "@/components/message/AiMessageList";
-import { useTheme } from 'hyper-native-ui';    
+import { useTheme } from 'hyper-native-ui';
 
 interface AskAiChatScreenProps {
     navigation: NavigationProps
@@ -72,26 +75,26 @@ const AskAiChatScreenNavbar = memo(function AskAiChatScreenNavbar({
                     alignItems: "center",
                     gap: 10,
                 }}>
-                   <View style={{
-                    borderWidth: 1,
-                    borderColor: currentTheme?.border,
-                    borderRadius: 100,
-                   }}>
-                   <Avatar
-                        serverImage={false}
-                        url={require("../../assets/images/ai.png")}
-                        size={50} />
-                   </View>
+                    <View style={{
+                        borderWidth: 1,
+                        borderColor: currentTheme?.border,
+                        borderRadius: 100,
+                    }}>
+                        <Avatar
+                            serverImage={false}
+                            url={require("../../assets/images/ai.png")}
+                            size={46} />
+                    </View>
                     <View>
                         <Text
                             style={{ fontWeight: "800" }}
-                            variant="heading3">
+                            variant="body1">
                             Gemini
                         </Text>
                         <Text
-                            colorVariant="secondary"
+                            variantColor="secondary"
                             style={{ fontWeight: "400" }}
-                            variant="heading4">
+                            variant="body2">
                             {currentTyping ? "Typing..." : "Google AI"}
                         </Text>
                     </View>

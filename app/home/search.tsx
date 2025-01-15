@@ -1,10 +1,10 @@
 import { ListEmptyComponent } from "@/components/home";
-import { Avatar, Icon, Loader, TouchableOpacity, } from "@/components/skysolo-ui";
+import { Avatar, Icon, } from "@/components/skysolo-ui";
 import debounce from "@/lib/debouncing";
 import { searchUsersProfileApi } from "@/redux-stores/slice/users/api.service";
 import { RootState } from "@/redux-stores/store";
 import { AuthorData, NavigationProps } from "@/types";
-import { Input, Text } from "hyper-native-ui";
+import { Input, Text, Loader, TouchableOpacity } from "hyper-native-ui";
 import { memo, useCallback, useRef } from "react";
 import { FlatList, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";

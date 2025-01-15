@@ -1,7 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback, useEffect, useRef } from "react";
 import AppHeader from "@/components/AppHeader";
-import { Avatar, Loader, Text, ThemedView, TouchableOpacity } from "@/components/skysolo-ui";
+import { Avatar } from "@/components/skysolo-ui";
+import { ThemedView, Text, TouchableOpacity, Loader } from "hyper-native-ui";
+
 import { resetLike } from "@/redux-stores/slice/post";
 import { fetchPostLikesApi } from "@/redux-stores/slice/post/api.service";
 import { RootState } from "@/redux-stores/store";
@@ -143,11 +145,11 @@ const LikeItem = memo(function CommentItem({
                         alignItems: 'center',
                         gap: 10,
                     }}>
-                    <Text variant="heading3">
+                    <Text variant="H5">
                         {data.username}
                     </Text>
                 </TouchableOpacity>
-                <Text variant="heading4" colorVariant="secondary">
+                <Text variantColor="secondary">
                     {data.name}
                 </Text>
             </View>

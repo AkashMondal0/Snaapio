@@ -1,12 +1,11 @@
 import React, { memo, useCallback, useState } from "react";
 import { View } from "react-native";
-import { Separator } from "@/components/skysolo-ui";
 import { NavigationProps, User } from "@/types";
 import ProfileInfoCount from "./ProfileInfoCount";
 import ProfileActionsButton from "./ProfileActionsButton";
 import ProfileStories from "./ProfileStories";
 import ProfilePicView from "./ProfilePicView";
-import { Text } from "hyper-native-ui";
+import { Separator, Text } from "hyper-native-ui";
 
 const ProfileHeader = memo(function HomeScreen({
     navigation,
@@ -81,7 +80,7 @@ const ProfileHeader = memo(function HomeScreen({
                 <Text
                     numberOfLines={6}
                     ellipsizeMode="tail"
-                    colorVariant='secondary'
+                    variantColor='secondary'
                     lineBreakMode="tail"
                     style={{ fontWeight: "400" }}>
                     {user?.bio}

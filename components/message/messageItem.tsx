@@ -2,8 +2,8 @@ import { timeFormat } from '@/lib/timeFormat';
 import { Message } from '@/types';
 import { memo } from 'react';
 import { View, Text } from 'react-native';
-import { Icon, TouchableOpacity, Image } from '@/components/skysolo-ui';
-import { useTheme } from 'hyper-native-ui';   
+import { Icon, Image } from '@/components/skysolo-ui';
+import { TouchableOpacity, useTheme } from 'hyper-native-ui';   
 const MessageItem = memo(function Item({
     data, myself, seenMessage,
     navigateToImagePreview

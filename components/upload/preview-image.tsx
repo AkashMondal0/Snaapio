@@ -2,8 +2,6 @@ import React, { memo } from 'react';
 import { View, TouchableOpacity } from 'react-native';
 import { Icon, Image } from '@/components/skysolo-ui';
 import { Plus } from 'lucide-react-native';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/redux-stores/store';
 import { useTheme } from 'hyper-native-ui';
 
 export const PreviewImage = memo(function ImagePreview({

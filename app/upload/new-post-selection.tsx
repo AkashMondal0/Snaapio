@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import SelectAssets from '@/components/upload/select-assets';
 import * as MediaLibrary from 'expo-media-library';
 import { PageProps } from '@/types';
-import { ThemedView } from '@/components/skysolo-ui';
+import { ThemedView } from "hyper-native-ui";
 
 const NewPostSelectionScreen = memo(function NewPostSelectionScreen({
     navigation,

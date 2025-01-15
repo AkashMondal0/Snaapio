@@ -1,7 +1,8 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Conversation } from '@/types';
-import {  Avatar, Text } from '@/components/skysolo-ui';
+import { Avatar } from '@/components/skysolo-ui';
+import { Text } from "hyper-native-ui";
 
 const ConversationDetailsSheet = ({
     data
@@ -26,13 +27,13 @@ const ConversationDetailsSheet = ({
             url={data.user?.profilePicture} />
         <Text
             style={{ fontWeight: "600" }}
-            variant="heading2">
+            variant="H4">
             {data?.user?.name}
         </Text>
         <Text
-            colorVariant='secondary'
+            variantColor='secondary'
             style={{ fontWeight: "400" }}
-            variant="heading4">
+            variant="H4">
             {data?.user?.email}
         </Text>
     </View>

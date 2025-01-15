@@ -6,9 +6,8 @@ import {
     Button,
     Separator,
     Input,
-    PageLoader,
     ThemedView
-} from '@/components/skysolo-ui';
+} from 'hyper-native-ui';
 import AppHeader from '@/components/AppHeader';
 import { Conversation, disPatchResponse, Message, PageProps } from '@/types';
 import { useDispatch, useSelector } from 'react-redux';

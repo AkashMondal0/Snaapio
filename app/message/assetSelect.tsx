@@ -1,10 +1,8 @@
 import React, { memo } from 'react';
 import * as MediaLibrary from 'expo-media-library';
 import SelectAssets from '@/components/upload/select-assets';
-import {
-    PageProps
-} from '@/types';
-import { View as ThemedView } from '@/components/skysolo-ui';
+import { PageProps } from '@/types';
+import { ThemedView } from 'hyper-native-ui';
 
 const AssetSelectScreen = memo(function AssetSelectScreen({
     navigation,

@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback, useEffect, useRef, useState } from "react";
-import { Avatar, Loader, Text, TouchableOpacity, Image, ThemedView } from "@/components/skysolo-ui";
+import { Avatar, Image } from "@/components/skysolo-ui";
 import { FlatList, ToastAndroid, TouchableWithoutFeedback, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import AppHeader from "@/components/AppHeader";
@@ -11,7 +11,8 @@ import { resetNotificationState } from "@/redux-stores/slice/notification";
 import { timeAgoFormat } from "@/lib/timeFormat";
 import ErrorScreen from "@/components/error/page";
 import ListEmpty from "@/components/ListEmpty";
-let totalFetchedItemCount = 0
+import { ThemedView, Loader, Text, TouchableOpacity, } from "hyper-native-ui";
+let totalFetchedItemCount = 0;
 
 const NotificationScreen = memo(function NotificationScreen({ navigation }: { navigation: NavigationProps }) {
     const notifications = useSelector((state: RootState) => state.NotificationState.notifications)
@@ -127,19 +128,19 @@ const NotificationItem = memo(function NotificationItem({
                             onPress={() => {
                                 navigation.push("profile", { username: data.author?.username })
                             }}>
-                            <Text variant="heading3" lineBreakMode="clip" numberOfLines={2}>
+                            <Text variant="H5" lineBreakMode="clip" numberOfLines={2}>
                                 {data.author?.username} {' '}
                             </Text>
                         </TouchableWithoutFeedback>
-                        <Text variant="heading4" colorVariant="secondary" lineBreakMode="tail" numberOfLines={2}>
+                        <Text variantColor="secondary" lineBreakMode="tail" numberOfLines={2}>
                             {data.type === NotificationType.Like ? 'liked your post' : data.type === NotificationType.Comment ? 'commented on your post: ' : 'followed you'}
                         </Text>
-                        <Text variant="heading4" colorVariant="secondary" numberOfLines={2} ellipsizeMode="tail">
+                        <Text variantColor="secondary" numberOfLines={2} ellipsizeMode="tail">
                             {data?.comment?.content}
                         </Text>
                     </Text>
                 </View>
-                <Text variant="heading4" colorVariant="secondary">
+                <Text variantColor="secondary">
                     {timeAgoFormat(data?.createdAt)}
                 </Text>
             </View>

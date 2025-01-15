@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Icon, Input } from "@/components/skysolo-ui";
+import { Icon } from "@/components/skysolo-ui";
+
 import { memo, useCallback, useContext, useMemo, useRef, useState } from "react";
 import { Conversation, disPatchResponse, Message, NavigationProps } from "@/types";
 import { ToastAndroid, View } from "react-native";
@@ -13,6 +14,7 @@ import { Controller, useForm } from "react-hook-form";
 import debounce from "@/lib/debouncing";
 import { CreateMessageApi, fetchConversationsApi } from "@/redux-stores/slice/conversation/api.service";
 import { configs } from "@/configs";
+import { Input } from "hyper-native-ui";
 const schema = z.object({
     message: z.string().min(1)
 })
@@ -120,7 +122,6 @@ const ChatScreenInput = memo(function ChatScreenInput({
                         keyboardType="default"
                         returnKeyType="done"
                         placeholder="Type a message"
-                        secondaryColor
                         multiline
                         disabled={loading}
                         onBlur={onBlur}
@@ -137,6 +138,7 @@ const ChatScreenInput = memo(function ChatScreenInput({
                             borderWidth: 0,
                             maxHeight: 100,
                         }}
+                        containerStyle={{ width: "85%" }}
                         rightSideComponent={<Icon
                             iconName="ImagePlus"
                             variant="secondary"

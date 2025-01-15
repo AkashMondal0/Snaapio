@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import { View } from 'react-native';
-import { Icon, Input, Text } from '@/components/skysolo-ui';
+import { Icon } from '@/components/skysolo-ui';
+import { Input, Text } from 'hyper-native-ui';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
 
@@ -47,7 +48,7 @@ const ListHeader = memo(function ListHeader({
             </View>
             <Input
                 onChangeText={InputOnChange}
-                secondaryColor
+                variant="secondary"
                 style={{ borderWidth: 0 }}
                 placeholder='Search' />
             <Text
@@ -57,8 +58,7 @@ const ListHeader = memo(function ListHeader({
                     lineHeight: 20,
                     paddingTop: 16,
                     paddingHorizontal: 10,
-                }}
-                variant="heading4">
+                }}>
                 Messages
             </Text>
         </View>

@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useState } from "react";
-import { Loader, ThemedView } from "@/components/skysolo-ui";
+import { Loader, ThemedView } from "hyper-native-ui";
 import { disPatchResponse, loadingType, NavigationProps, Post } from "@/types";
 import AppHeader from "@/components/AppHeader";
 import { FeedItem } from "@/components/home";

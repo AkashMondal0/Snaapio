@@ -1,11 +1,11 @@
 import { memo, useCallback, useEffect, useRef } from "react";
 import { FlatList, TouchableOpacity, View } from "react-native";
-import { Avatar, Icon, Loader } from "@/components/skysolo-ui";
+import { Avatar, Icon } from "@/components/skysolo-ui";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { fetchAccountStoryTimelineApi, fetchAccountStoryApi } from "@/redux-stores/slice/account/api.service";
 import { AuthorData, NavigationProps, Session } from "@/types";
-import { useTheme, Text } from 'hyper-native-ui';
+import { useTheme, Text, Loader } from 'hyper-native-ui';
 
 const StoriesComponent = memo(function StoriesComponent({
     navigation
@@ -113,7 +113,7 @@ export const StoriesItem = memo(function StoriesItem({
             isBorder
             url={data?.profilePicture} size={76}
             onPress={() => onPress?.(data)} />
-        <Text colorVariant="secondary" style={{ padding: 4 }} numberOfLines={1}>
+        <Text variantColor="secondary" style={{ padding: 4 }} numberOfLines={1}>
             {data?.username}
         </Text>
     </TouchableOpacity>)
@@ -184,7 +184,7 @@ export const AddStories = ({
                     isButton variant="primary" onPress={addStory} />
             </View>
         </View>
-        <Text colorVariant="secondary" style={{ padding: 4 }} numberOfLines={1}>
+        <Text variantColor="secondary" style={{ padding: 4 }} numberOfLines={1}>
             Add Story
         </Text>
     </TouchableOpacity>)

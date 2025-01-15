@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { useDispatch } from 'react-redux';
-import { Button, Text } from '@/components/skysolo-ui';
+import { Button, Text } from 'hyper-native-ui';
 import LottieView from 'lottie-react-native';
 import { logoutApi } from '@/redux-stores/slice/auth/api.service';
 import LogOutDialog from '@/components/dialogs/logout';

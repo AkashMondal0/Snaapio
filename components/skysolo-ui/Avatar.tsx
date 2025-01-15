@@ -2,10 +2,8 @@ import { memo, useRef, useState } from 'react';
 import { TouchableOpacityProps, TouchableOpacity } from 'react-native';
 import { Image, type ImageProps } from 'expo-image';
 import { configs } from '@/configs';
-import { RootState } from '@/redux-stores/store';
-import { useSelector } from 'react-redux';
 import { loadingType, variantType } from '@/types';
-import { useTheme } from 'hyper-native-ui';    
+import { useTheme } from 'hyper-native-ui';
 
 export type Props = ImageProps & {
     lightColor?: string;

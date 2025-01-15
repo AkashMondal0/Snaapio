@@ -4,10 +4,9 @@ import { FlatList, ToastAndroid, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { ProfileEmptyPosts, ProfileGridItem, ProfileHeader, ProfileNavbar } from "@/components/profile";
 import { fetchUserProfileDetailApi, fetchUserProfilePostsApi } from "@/redux-stores/slice/profile/api.service";
-import { Loader } from "@/components/skysolo-ui";
 import { RootState } from "@/redux-stores/store";
 import ErrorScreen from "@/components/error/page";
-import { ThemedView } from "hyper-native-ui";
+import { Loader, ThemedView } from "hyper-native-ui";
 
 interface ScreenProps {
     navigation: NavigationProps;

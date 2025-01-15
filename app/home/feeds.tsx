@@ -8,8 +8,7 @@ import { resetFeeds } from '@/redux-stores/slice/account';
 import { FeedItem, HomeHeader } from '@/components/home';
 import ErrorScreen from '@/components/error/page';
 import ListEmpty from '@/components/ListEmpty';
-import { Loader } from '@/components/skysolo-ui';
-import { ThemedView } from 'hyper-native-ui'
+import { Loader, ThemedView } from 'hyper-native-ui';
 import StoriesComponent from "@/components/home/story";
 let totalFetchedItemCount: number = 0;
 

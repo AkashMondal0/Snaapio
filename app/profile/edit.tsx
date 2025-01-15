@@ -118,14 +118,14 @@ const ProfileEditScreen = memo(function ProfileEditScreen({
     }
 
     return <ThemedView style={{
-        flex: 1
+        flex: 1,
+        width: "100%"
     }}>
         <AppHeader title="Edit Profile" navigation={navigation} />
         <ScrollView
             keyboardDismissMode='on-drag'
             keyboardShouldPersistTaps='handled'>
-            <ThemedView
-                variant="secondary"
+            <View
                 style={{
                     width: 120,
                     aspectRatio: 1 / 1,
@@ -161,7 +161,7 @@ const ProfileEditScreen = memo(function ProfileEditScreen({
                     <Avatar
                         size={120}
                         url={session?.profilePicture} />}
-            </ThemedView>
+            </View>
             <View style={{
                 padding: 20,
                 paddingTop: 10,

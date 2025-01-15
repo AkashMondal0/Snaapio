@@ -3,12 +3,12 @@ import { Conversation, Message, NavigationProps, disPatchResponse } from '@/type
 import { FlatList, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
-import { Loader } from '@/components/skysolo-ui';
 import debounce from "@/lib/debouncing";
 import { ToastAndroid } from "react-native";
 import { fetchConversationAllMessagesApi } from "@/redux-stores/slice/conversation/api.service";
 import MessageItem from './messageItem';
 import { SocketContext } from '@/provider/SocketConnections';
+import { Loader } from 'hyper-native-ui';
 
 const MessageList = memo(function MessageList({
     conversation,

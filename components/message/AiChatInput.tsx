@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Icon, Input } from "@/components/skysolo-ui";
+import { Icon } from "@/components/skysolo-ui";
 import { memo, useCallback, useState } from "react";
 import { disPatchResponse, NavigationProps } from "@/types";
 import { ToastAndroid, View } from "react-native";
@@ -15,6 +15,7 @@ import { uuid } from "@/lib/uuid";
 import { localStorage } from "@/lib/LocalStorage";
 import * as ImagePicker from 'expo-image-picker';
 import { Image } from "react-native";
+import { Input } from "hyper-native-ui";
 
 const schema = z.object({
     message: z.string().min(1)
@@ -33,7 +34,7 @@ const AiChatScreenInput = memo(function AiChatScreenInput({
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
-            aspect: [1,1],
+            aspect: [1, 1],
             quality: 1,
         });
 
@@ -132,7 +133,7 @@ const AiChatScreenInput = memo(function AiChatScreenInput({
                         keyboardType="default"
                         returnKeyType="done"
                         placeholder="Type a message"
-                        secondaryColor
+                        // variant="secondary"
                         multiline
                         disabled={loading}
                         onBlur={onBlur}
@@ -146,6 +147,7 @@ const AiChatScreenInput = memo(function AiChatScreenInput({
                             borderWidth: 0,
                             maxHeight: 100,
                         }}
+                        containerStyle={{ width: "85%" }}
                         rightSideComponent={<Icon
                             iconName="ImagePlus"
                             variant="secondary"

@@ -1,5 +1,5 @@
 import { Dimensions, View } from "react-native";
-import { Loader, Text } from "@/components/skysolo-ui";
+import { Loader } from "hyper-native-ui"
 
 
 const ListLoader = () => {

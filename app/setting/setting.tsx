@@ -1,6 +1,7 @@
 import AppHeader from "@/components/AppHeader";
 import LogOutDialog from "@/components/dialogs/logout";
-import { Icon, TouchableOpacity, Text, type IconName, ThemedView } from "@/components/skysolo-ui";
+import { Icon, type IconName } from "@/components/skysolo-ui";
+import { Text, ThemedView, TouchableOpacity } from "hyper-native-ui";
 import { configs } from "@/configs";
 import { logoutApi } from "@/redux-stores/slice/auth/api.service";
 import { memo, useCallback, useState } from "react";
@@ -90,8 +91,8 @@ const SettingScreen = memo(function HomeScreen({ navigation }: any) {
                 alignItems: "center",
                 justifyContent: "center",
             }}>
-                <Text variant="heading4"
-                    colorVariant="secondary"
+                <Text
+                    variantColor="secondary"
                     style={{
                         textAlign: "center",
                         paddingRight: 4
@@ -99,8 +100,8 @@ const SettingScreen = memo(function HomeScreen({ navigation }: any) {
                     akashmondal0
                 </Text>
                 <Icon iconName="ExternalLink" size={20} iconColorVariant="secondary" />
-                <Text variant="heading4"
-                    colorVariant="secondary"
+                <Text
+                    variantColor="secondary"
                     style={{
                         textAlign: "center",
                         padding: 4
@@ -142,11 +143,11 @@ const Item = memo(function Item({
             <View>
                 <Text
                     style={{ fontWeight: "500" }}
-                    variant="heading3">
+                    variant="H6">
                     {data?.name}
                 </Text>
                 <Text
-                    colorVariant="secondary"
+                    variantColor="secondary"
                     style={{ fontWeight: "400" }} >
                     {data?.description}
                 </Text>

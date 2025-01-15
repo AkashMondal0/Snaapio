@@ -3,7 +3,7 @@ import { useSelector } from "react-redux"
 import React, { useCallback } from 'react';
 import { Modal, View, type ModalProps, TouchableOpacity } from 'react-native';
 import { X } from 'lucide-react-native';
-import SkysoloText from './Text';
+import { Text } from "hyper-native-ui"
 
 export type Props = ModalProps & {
     variant?: any
@@ -91,7 +91,7 @@ const SkysoloModal = ({
                                 alignItems: "center",
                                 margin: 5
                             }} />
-                            <SkysoloText variant="heading2" style={{ fontWeight: "bold" }}>Container</SkysoloText>
+                            <Text variant="H4" style={{ fontWeight: "bold" }}>Container</Text>
                             <TouchableOpacity
                                 style={{
                                     backgroundColor: currentTheme.accent_foreground,

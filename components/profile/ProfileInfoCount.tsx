@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { NavigationProps, User } from "@/types";
 import { TouchableOpacity, View } from "react-native";
-import { Text } from "hyper-native-ui"
+import { Text } from "hyper-native-ui";
 
 
 const ProfileInfoCount = memo(function ProfileInfoCount({
@@ -42,7 +42,7 @@ const ProfileInfoCount = memo(function ProfileInfoCount({
                 onPress={item.onPress}
                 activeOpacity={0.8}>
                 <Text bold={"bold"} size={20}>{item.count}</Text>
-                <Text colorVariant="secondary">{item.title}</Text>
+                <Text variantColor="secondary">{item.title}</Text>
             </TouchableOpacity>
         ))}
     </View>)
