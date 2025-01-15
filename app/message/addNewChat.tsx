@@ -123,7 +123,7 @@ const UserItem = memo(function UserItem({
                     display: 'flex',
                     flexDirection: 'column',
                 }}>
-                    <Text variant="H5">{data.name}</Text>
+                    <Text variant="H6">{data.name}</Text>
                     <Text>{data.username}</Text>
                 </View>
             </View>

@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { View } from 'react-native';
 import { Conversation } from '@/types';
 import { Avatar } from '@/components/skysolo-ui';
-import { Text, TouchableOpacity } from "hyper-native-ui";
+import { Text, TouchableOpacity, useTheme } from "hyper-native-ui";
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
 import { timeFormat } from '@/lib/timeFormat';
@@ -17,7 +17,7 @@ const ConversationItem = memo(function ConversationItem({
     onLongPress: (data: Conversation) => void
 }) {
     const currentTyping = useSelector((Root: RootState) => Root.ConversationState.currentTyping)
-    const currentTheme = useSelector((Root: RootState) => Root.ThemeState.currentTheme)
+    const { currentTheme } = useTheme();
     const messageCount = data?.totalUnreadMessagesCount > 0
 
     return (<View style={{ paddingHorizontal: 4 }}>

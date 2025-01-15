@@ -1,4 +1,4 @@
-import { Loader, ThemedView, Text } from "hyper-native-ui";
+import { ThemedView, Text } from "hyper-native-ui";
 import { memo, useCallback, } from "react";
 import { Navbar, Input, MessageList } from "@/components/message";
 import { useSelector } from "react-redux";

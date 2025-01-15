@@ -6,8 +6,9 @@ import { useDispatch } from "react-redux";
 import { fetchStoryApi } from "@/redux-stores/slice/account/api.service";
 import { AuthorData, disPatchResponse, loadingType, NavigationProps, Story } from "@/types";
 import ErrorScreen from "@/components/error/page";
-import { timeFormat } from "@/lib/timeFormat";
+import { timeAgoFormat } from "@/lib/timeFormat";
 import { useTheme } from 'hyper-native-ui';
+import React from "react";
 
 interface ScreenProps {
     navigation: NavigationProps;
@@ -113,7 +114,7 @@ const StoryScreen = memo(function StoryScreen({
             <Header
                 PressBack={PressBack}
                 user={user}
-                time={timeFormat(data?.createdAt)} />
+                time={timeAgoFormat(data?.createdAt)} />
             <View style={{ height: 62 }} />
             {/* story */}
             <View
@@ -207,12 +208,13 @@ const Header = ({
                 gap: 10,
             }}>
                 <Avatar
+                    isBorder
                     size={50}
                     url={user?.profilePicture} />
                 <View>
                     <Text
                         style={{ fontWeight: "600" }}>
-                        {user?.name}
+                        {user?.name ?? user?.username}
                     </Text>
                     <Text
                         variantColor="secondary"

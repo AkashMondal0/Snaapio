@@ -1,10 +1,11 @@
+import React from "react";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { FlatList, ToastAndroid, TouchableOpacity, View } from "react-native";
 import { Icon, Avatar } from "@/components/skysolo-ui";
 import { disPatchResponse, loadingType, NavigationProps, User, Highlight } from "@/types";
 import { useDispatch } from "react-redux";
 import { fetchUserHighlightApi } from "@/redux-stores/slice/profile/api.service";
-import { ThemedView, Text, Loader } from "hyper-native-ui"
+import { Text, Loader } from "hyper-native-ui"
 
 const StoriesComponent = memo(function StoriesComponent({
     navigation,
@@ -103,8 +104,7 @@ const StoriesComponent = memo(function StoriesComponent({
                                 width: 100,
                                 height: 120,
                             }}>
-                            <ThemedView
-                                variant="secondary"
+                            <View
                                 style={{
                                     width: 86,
                                     height: 86,
@@ -121,7 +121,7 @@ const StoriesComponent = memo(function StoriesComponent({
                                     iconColorVariant="secondary"
                                     strokeWidth={1}
                                     onPress={navigateToHighlightUpload} />
-                            </ThemedView>
+                            </View>
                             <Text>Highlight</Text>
                         </TouchableOpacity> : <></>}
                 </View>}

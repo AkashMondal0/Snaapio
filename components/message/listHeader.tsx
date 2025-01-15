@@ -48,7 +48,7 @@ const ListHeader = memo(function ListHeader({
             </View>
             <Input
                 onChangeText={InputOnChange}
-                variant="secondary"
+                // variant="secondary"
                 style={{ borderWidth: 0 }}
                 placeholder='Search' />
             <Text

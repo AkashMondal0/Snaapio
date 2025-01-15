@@ -139,7 +139,7 @@ const Item = memo(function Item({
                 alignItems: "center",
                 gap: 20,
             }}>
-            <Icon iconName={data.icon} size={28} />
+            <Icon iconName={data.icon} size={34} />
             <View>
                 <Text
                     style={{ fontWeight: "500" }}

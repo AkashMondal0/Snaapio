@@ -1,6 +1,6 @@
 import { View } from "react-native";
-import { Icon, Modal } from "@/components/skysolo-ui";
-import { Button, Text } from "hyper-native-ui";
+import { Icon } from "@/components/skysolo-ui";
+import { Button, Modal, Text } from "hyper-native-ui";
 
 
 
@@ -16,7 +16,9 @@ const LogOutDialog = ({
 
 
     return (
-        <Modal setModalVisible={setModalVisible} modalVisible={modalVisible}>
+        <Modal
+            containerStyle={{ minHeight: "40%" }}
+            setModalVisible={setModalVisible} modalVisible={modalVisible}>
             <View style={{
                 flex: 1,
                 width: "100%",
@@ -31,7 +33,7 @@ const LogOutDialog = ({
                     alignItems: 'center',
                     gap: 6,
                 }}>
-                    <Text variant="H4">
+                    <Text variant="H4" bold={"semibold"}>
                         Log Out
                     </Text>
                     <Text variantColor="secondary">

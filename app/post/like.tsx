@@ -2,8 +2,7 @@
 import React, { memo, useCallback, useEffect, useRef } from "react";
 import AppHeader from "@/components/AppHeader";
 import { Avatar } from "@/components/skysolo-ui";
-import { ThemedView, Text, TouchableOpacity, Loader } from "hyper-native-ui";
-
+import { ThemedView, Text, Loader, TouchableOpacity } from "hyper-native-ui";
 import { resetLike } from "@/redux-stores/slice/post";
 import { fetchPostLikesApi } from "@/redux-stores/slice/post/api.service";
 import { RootState } from "@/redux-stores/store";
@@ -134,21 +133,17 @@ const LikeItem = memo(function CommentItem({
                 onPress(data.username)
             }} />
             <View>
-                <TouchableOpacity
-                    activeOpacity={0.8}
-                    onPress={() => {
-                        onPress(data.username)
-                    }}
+                <View
                     style={{
                         display: 'flex',
                         flexDirection: 'row',
                         alignItems: 'center',
                         gap: 10,
                     }}>
-                    <Text variant="H5">
+                    <Text variant="H6">
                         {data.username}
                     </Text>
-                </TouchableOpacity>
+                </View>
                 <Text variantColor="secondary">
                     {data.name}
                 </Text>

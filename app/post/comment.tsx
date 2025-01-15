@@ -144,7 +144,7 @@ const CommentItem = memo(function CommentItem({
                         onPress={() => {
                             navigation.push("profile", { username: data.user.username })
                         }}>
-                        <Text variant="H5" lineBreakMode="clip" numberOfLines={2}>
+                        <Text lineBreakMode="clip" numberOfLines={2}>
                             {data.user.name}{" "}
                         </Text>
                     </TouchableWithoutFeedback>
@@ -161,7 +161,7 @@ const CommentItem = memo(function CommentItem({
                     alignItems: 'center',
                     width: '100%',
                 }}>
-                    <Text variantColor="secondary">
+                    <Text variantColor="secondary" variant="body2">
                         {timeAgoFormat(data.createdAt)}
                     </Text>
                     <Text variantColor="default">
@@ -262,12 +262,13 @@ const CommentInput = memo(function CommentInput({
                     alignItems: "center",
                     justifyContent: "space-between",
                     padding: "1.6%",
+                    gap: "1.2%"
                 }}>
                 <Controller
                     control={control}
                     render={({ field: { onChange, onBlur, value } }) => (
                         <Input placeholder="Type a message"
-                            variant="secondary"
+                            // variant="secondary"
                             multiline
                             disabled={loading}
                             onBlur={onBlur}

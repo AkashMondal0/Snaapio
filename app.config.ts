@@ -9,7 +9,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   icon: "./assets/icon.png",
   userInterfaceStyle: "automatic",
   splash: {
-    image: "./assets/splash.png",
+    image: "./assets/adaptive-icon.png",
     resizeMode: "contain",
     backgroundColor: "#ffffff"
   },
@@ -28,12 +28,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       backgroundColor: "#ffffff"
     },
     splash: {
-      image: "./assets/splash.png",
+      image: "./assets/adaptive-icon.png",
       resizeMode: "contain",
       backgroundColor: "#ffffff",
       dark: {
         backgroundColor: "#000000",
-        image: "./assets/splash.png",
+        image: "./assets/adaptive-icon.png",
         resizeMode: "contain"
       }
     },
@@ -56,6 +56,18 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     }
   },
   plugins: [
+    [
+      "expo-splash-screen",
+      {
+        "backgroundColor": "#ffffff",
+        "image": "./assets/adaptive-icon.png",
+        "dark": {
+          "image": "./assets/adaptive-icon.png",
+          "backgroundColor": "#000000",
+        },
+        "imageWidth": 200
+      }
+    ],
     [
       "expo-build-properties",
       {

@@ -1,1 +1,0 @@
-import { GraphqlQueryType } from "@/lib/GraphqlQuery"

@@ -108,7 +108,7 @@ const NotificationItem = memo(function NotificationItem({
         <View style={{
             display: 'flex',
             flexDirection: 'row',
-            gap: 10,
+            gap: 8,
             alignItems: 'center',
             width: '65%',
         }}>
@@ -116,7 +116,7 @@ const NotificationItem = memo(function NotificationItem({
                 if (!data.author?.username) return ToastAndroid.show('User not found', ToastAndroid.SHORT)
                 navigation.navigate('profile', { username: data.author?.username })
             }} />
-            <View style={{}}>
+            <View style={{ paddingHorizontal: 2 }}>
                 <View style={{
                     display: 'flex',
                     flexDirection: 'row',
@@ -128,8 +128,8 @@ const NotificationItem = memo(function NotificationItem({
                             onPress={() => {
                                 navigation.push("profile", { username: data.author?.username })
                             }}>
-                            <Text variant="H5" lineBreakMode="clip" numberOfLines={2}>
-                                {data.author?.username} {' '}
+                            <Text variant="H6" lineBreakMode="clip" numberOfLines={2}>
+                                {data.author?.username} {''}
                             </Text>
                         </TouchableWithoutFeedback>
                         <Text variantColor="secondary" lineBreakMode="tail" numberOfLines={2}>
@@ -151,7 +151,7 @@ const NotificationItem = memo(function NotificationItem({
                 width: 60,
                 borderRadius: 10,
                 aspectRatio: 1 / 1,
-                flex: 0,
+                flex: 0
             }} />
     </TouchableOpacity>)
 }, (prevProps, nextProps) => {

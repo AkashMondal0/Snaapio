@@ -13,7 +13,7 @@ import searchText from '@/lib/TextSearch';
 import ErrorScreen from '@/components/error/page';
 import { ConversationDetailsSheet, ConversationItem, ListHeader } from '@/components/message';
 import ListEmpty from '@/components/ListEmpty';
-import { Loader, ThemedView } from "hyper-native-ui";
+import { Loader, ThemedView, useTheme } from "hyper-native-ui";
 
 let totalFetchedItemCount: number = 0;
 let pageLoaded = false;
@@ -139,8 +139,7 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
 export default ChatListScreen;
 
 const ActionButton = memo(function ActionButton({ onPress }: { onPress: () => void }) {
-    const currentTheme = useSelector((Root: RootState) => Root.ThemeState.currentTheme)
-
+    const { currentTheme } = useTheme();
     return <View style={{
         position: "absolute",
         bottom: 20,

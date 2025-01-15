@@ -1,9 +1,9 @@
 import { View } from "react-native";
-import { Icon, Modal } from "@/components/skysolo-ui"
+import { Icon } from "@/components/skysolo-ui"
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { setAppPermissionDialog } from "@/redux-stores/slice/dialog";
-import { Button, Text } from "hyper-native-ui";
+import { Button, Modal, Text } from "hyper-native-ui";
 
 
 const AppPermissionDialog = ({
@@ -15,6 +15,7 @@ const AppPermissionDialog = ({
     const dispatch = useDispatch()
     return (
         <Modal
+            animationType="fade"
             setModalVisible={() => {
                 dispatch(setAppPermissionDialog({ visible: false, data: null }))
             }}
@@ -33,11 +34,11 @@ const AppPermissionDialog = ({
                     alignItems: 'center',
                     gap: 6,
                 }}>
-                    <Text variant="H4">
+                    <Text variant="H4" bold={"semibold"}>
                         Permissions
                     </Text>
                     <Text variantColor="secondary">
-                        To send media, allow SkySolo to access your photos, media and files on your device.
+                        To send media, allow Snaapio to access your photos, media and files on your device.
                     </Text>
                 </View>
 

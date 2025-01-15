@@ -4,6 +4,7 @@ import * as Icons from "lucide-react-native";
 import { useState } from 'react';
 export type IconName = keyof typeof Icons;
 import { useTheme } from 'hyper-native-ui';
+import React from 'react';
 
 
 export type Props = TouchableOpacityProps & {

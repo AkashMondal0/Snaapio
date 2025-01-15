@@ -13,7 +13,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import useDebounce from '@/lib/debouncing';
 import { useTheme, Text } from 'hyper-native-ui';
 import { Avatar, Image, Icon } from '@/components/skysolo-ui';
-
+import React from 'react';
 const FeedItem = memo(function FeedItem({
     data,
     navigation
@@ -45,23 +45,21 @@ const FeedItem = memo(function FeedItem({
             display: 'flex',
             flexDirection: "row",
             alignItems: "center",
-            gap: 10
+            gap: 6
         }}>
-            <Avatar size={45} url={data.user?.profilePicture} onPress={navigateToProfile} />
+            <Avatar size={52} url={data.user?.profilePicture} onPress={navigateToProfile} />
             <View>
                 <TouchableOpacity
                     activeOpacity={0.8}
                     onPress={navigateToProfile} >
-                    <Text
-                        style={{ fontWeight: "600" }}
-                        variant="H6">
+                    <Text style={{ fontWeight: "600" }}>
                         {data?.user?.name}
                     </Text>
                 </TouchableOpacity>
                 <Text
                     style={{ fontWeight: "400" }}
                     variantColor="secondary"
-                    variant="body1">
+                    variant="body2">
                     {`los angeles, CA`}
                 </Text>
             </View>
