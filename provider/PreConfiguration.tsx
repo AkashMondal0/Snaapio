@@ -3,78 +3,63 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
-// import { Appearance } from 'react-native';
-// import { localStorage } from '@/lib/LocalStorage';
+import { Appearance } from 'react-native';
+import { localStorage } from '@/lib/LocalStorage';
 import { getSecureStorage } from '@/lib/SecureStore';
 import { setSession } from '@/redux-stores/slice/auth';
 import { Session } from '@/types';
 import { fetchUnreadNotificationCountApi } from '@/redux-stores/slice/notification/api.service';
 import { configs } from '@/configs';
-import { StatusBar } from "hyper-native-ui";
+import { useTheme, StatusBar, ThemeSchemaType } from "hyper-native-ui";
 
 
 const PreConfiguration = () => {
-    const dispatch = useDispatch()
-    const session = useSelector((state: RootState) => state.AuthState.session.user)
-    const initializeSession = async () => {
-        const session = await getSecureStorage<Session["user"]>(configs.sessionName)
-        if (session) {
-            dispatch(setSession(session))
-            dispatch(fetchUnreadNotificationCountApi() as any)
-        }
-    }
-    // initialize theme value
-    // const initializeTheme = async () => {
-    // await initializeSession()
-    // if (themeLoaded) return
-    // const localValueSchema = await localStorage("get", "skysolo-theme") as ThemeSchema
-    // const localValueTheme = await localStorage("get", "skysolo-theme-name") as ThemeNames
-    // // first time
-    // if (!localValueSchema || !localValueTheme) {
-    //     dispatch(setThemeLoaded({
-    //         userThemeName: "Zinc",
-    //         userColorScheme: "light"
-    //     }))
-    //     localStorage("set", "skysolo-theme", "light")
-    //     localStorage("set", "skysolo-theme-name", "Zinc")
-    // return
-    // }
+    const dispatch = useDispatch();
+    const { setInitialTheme, toggleTheme, themeScheme } = useTheme();
+    const loaded = useSelector((state: RootState) => state.AuthState.loaded, (pre, next) => pre === next);
 
-    // dispatch(setThemeLoaded({
-    //     userThemeName: localValueTheme,
-    //     userColorScheme: localValueSchema
-    // }))
-    // return
-    // }
-
-    // useEffect(() => {
-    //     if (themeLoaded) {
-    //         SplashScreen.hideAsync()
-    //     }
-    // }, [themeLoaded])
-
-    // useEffect(() => {
-    //     initializeTheme()
-    //     const unSubscribe = Appearance.addChangeListener(({ colorScheme }) => {
-    //         // onChangeThemeSchema(colorScheme as any)
-    //     })
-
-    //     return () => {
-    //         unSubscribe.remove()
-    //     }
-    // }, [])
-
-    const delayFunc = useCallback(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 500))
-        SplashScreen.hideAsync()
+    const delayFunction = useCallback(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        SplashScreen.hideAsync();
     }, [])
 
-    useEffect(() => {
-        initializeSession()
-        if (session?.id) {
-            delayFunc()
+    // initialize theme value
+    const initialize = useCallback(async () => {
+        if (loaded) return
+        const p1 = localStorage("get", configs.themeSchema) as any;
+        const p2 = localStorage("get", configs.themeName) as any;
+        const p3 = getSecureStorage<Session["user"]>(configs.sessionName);
+        const data = await Promise.all([p1, p2, p3])
+        
+        if (data[0] && data[1]) {
+            setInitialTheme({ themeSchema: data[0], themeName: data[1] });
         }
-    }, [session?.id])
+        delayFunction();
+        if (data[2]) {
+            dispatch(setSession(data[2]));
+            dispatch(fetchUnreadNotificationCountApi() as any);
+        }
+        return;
+    }, [loaded])
+
+    const onValueChange = useCallback(async (value: ThemeSchemaType) => {
+        try {
+            if (themeScheme === value) return;
+            await localStorage("set", configs.themeSchema, value);
+            toggleTheme();
+        } catch (error) {
+            console.error("Error in setting theme", error);
+        }
+    }, [themeScheme])
+
+    useEffect(() => {
+        initialize();
+        const unSubscribe = Appearance.addChangeListener(({ colorScheme }) => {
+            onValueChange(colorScheme as ThemeSchemaType)
+        })
+
+        return () => { unSubscribe.remove(); }
+    }, [themeScheme])
 
     return (<StatusBar />)
 }

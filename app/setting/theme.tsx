@@ -5,6 +5,7 @@ import AppHeader from "@/components/AppHeader";
 import { ThemedView, useTheme, themeColors, Switch } from "hyper-native-ui";
 import { Icon } from "@/components/skysolo-ui";
 import { Text } from "hyper-native-ui";
+import { configs } from "@/configs";
 
 
 const ThemeSettingScreen = memo(function HomeScreen({ navigation }: any) {
@@ -13,17 +14,25 @@ const ThemeSettingScreen = memo(function HomeScreen({ navigation }: any) {
 
     const handleChange = useCallback(async (themeName: any) => {
         try {
-            await localStorage("set", "skysolo-theme-name", themeName)
-            changeTheme(themeName)
+            await localStorage("set", configs.themeName, themeName);
+            changeTheme(themeName);
         } catch (error) {
-            console.error("Error in setting theme", error)
+            console.error("Error in setting theme", error);
         }
     }, [])
 
     const onValueChange = useCallback(async (value: boolean) => {
+        try {
+            const condition = value ? "dark" : "light"
+            if (themeScheme === condition) return;
+            await localStorage("set", configs.themeSchema, condition);
+            toggleTheme();
+        } catch (error) {
+            console.error("Error in setting theme", error);
+        }
         setState(value)
         toggleTheme()
-    }, [])
+    }, [themeScheme])
 
     return (
         <ThemedView style={{

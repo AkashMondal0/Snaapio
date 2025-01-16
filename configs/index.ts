@@ -1,6 +1,7 @@
 const _configs = {
-    sessionName: "Snaapio-session",
-    themeName: "Snaapio-theme",
+    sessionName: "Snaapio-sessionName",
+    themeName: "Snaapio-themeName",
+    themeSchema: "Snaapio-themeSchema",
     serverApi: {
         baseUrl: process.env.EXPO_PUBLIC_SERVER_URL,
         supabaseStorageUrl: process.env.EXPO_PUBLIC_SUPABASE_STORAGE_URL,

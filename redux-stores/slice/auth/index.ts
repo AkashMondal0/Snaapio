@@ -6,6 +6,7 @@ import { logoutApi, profileUpdateApi } from './api.service'
 
 export type AuthState = {
   session: Session
+  loaded: boolean
   loading: boolean
   error: string | null
 }
@@ -15,6 +16,7 @@ const initialState: AuthState = {
   session: {
     user: null,
   },
+  loaded: false,
   loading: false,
   error: null
 }
@@ -25,6 +27,7 @@ export const AuthSlice = createSlice({
   reducers: {
     setSession: (state, action: PayloadAction<Session['user']>) => {
       state.session.user = action.payload
+      state.loaded = true
     },
     updateSession: (state, action: PayloadAction<Partial<Session['user']>>) => {
       if (!state.session.user) return
