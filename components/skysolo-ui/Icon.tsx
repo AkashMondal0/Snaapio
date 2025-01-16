@@ -137,7 +137,7 @@ const SkysoloIconButton = ({
                     elevation: 1,
                     width: size + 8,
                     height: size + 8,
-                    opacity: disabled ? 0.4 : 1,
+                    opacity: disabled ? 0.5 : 1,
                     padding: 4,
                     borderRadius: 100,
                     borderWidth: variant === "normal" ? 0 : 0.6,
@@ -154,6 +154,9 @@ const SkysoloIconButton = ({
 
     return (<TouchableOpacity
         activeOpacity={0.6}
+        style={{
+            opacity: disabled ? 0.5 : 1,
+        }}
         disabled={disabled}
         {...otherProps}>
         <IconComponent size={size} color={color ?? colorVariant()} key={iconName} strokeWidth={strokeWidth} />

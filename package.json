@@ -38,7 +38,7 @@
     "expo-sharing": "~13.0.1",
     "expo-splash-screen": "~0.29.20",
     "expo-status-bar": "~2.0.1",
-    "hyper-native-ui": "^0.2.3",
+    "hyper-native-ui": "^0.2.6",
     "lottie-react-native": "7.1.0",
     "lucide-react-native": "^0.312.0",
     "react": "18.3.1",
