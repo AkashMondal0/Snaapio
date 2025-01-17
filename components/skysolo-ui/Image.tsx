@@ -22,7 +22,7 @@ export type Props = ImageProps & {
 };
 
 
-const SkysoloImage = ({
+const ImageComponent = ({
     style,
     url,
     isLocalImage,
@@ -106,4 +106,4 @@ const SkysoloImage = ({
     )
 }
 
-export default SkysoloImage
+export default ImageComponent;

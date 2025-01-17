@@ -16,6 +16,7 @@ import { localStorage } from "@/lib/LocalStorage";
 import * as ImagePicker from 'expo-image-picker';
 import { Image } from "react-native";
 import { Input } from "hyper-native-ui";
+import React from "react";
 
 const schema = z.object({
     message: z.string().min(1)
@@ -147,7 +148,7 @@ const AiChatScreenInput = memo(function AiChatScreenInput({
                             borderWidth: 0,
                             maxHeight: 100,
                         }}
-                        containerStyle={{ width: "85%" }}
+                        containerStyle={{ flexShrink: 1 }}
                         rightSideComponent={<Icon
                             iconName="ImagePlus"
                             variant="secondary"

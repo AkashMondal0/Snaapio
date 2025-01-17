@@ -27,6 +27,7 @@ import { PostScreen } from '@/app/post';
 import { StoryScreen, StorySelectingScreen, StoryUploadScreen } from '@/app/story';
 import { HighlightPageScreen, HighlightSelectingScreen, HighlightUploadScreen } from '@/app/highlight';
 import { ThemeProvider, useTheme } from 'hyper-native-ui';
+import { StatusBar } from 'react-native';
 
 SplashScreen.preventAutoHideAsync();
 const Stack = createNativeStackNavigator();
@@ -101,9 +102,11 @@ function Routes(backgroundColor: any) {
 }
 
 function Root() {
-  const { currentTheme } = useTheme()
+  const { currentTheme, themeScheme } = useTheme();
 
   return (<>
+    <StatusBar barStyle={themeScheme === "dark" ? "light-content" : "dark-content"}
+      backgroundColor={currentTheme.background} />
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: currentTheme.background }}>
       <SafeAreaProvider>
         <NavigationContainer>

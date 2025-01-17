@@ -27,13 +27,13 @@ const ConversationDetailsSheet = ({
             url={data.user?.profilePicture} />
         <Text
             style={{ fontWeight: "600" }}
-            variant="H4">
+            variant="H5">
             {data?.user?.name}
         </Text>
         <Text
             variantColor='secondary'
             style={{ fontWeight: "400" }}
-            variant="H4">
+            variant="H6">
             {data?.user?.email}
         </Text>
     </View>

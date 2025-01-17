@@ -23,7 +23,7 @@ export type Props = ImageProps & {
 };
 
 
-const SkysoloAvatar = memo(function SkysoloAvatar({ style,
+const Avatar = memo(function SkysoloAvatar({ style,
     serverImage = true,
     touchableOpacity = true,
     isBorder = false,
@@ -138,4 +138,4 @@ const SkysoloAvatar = memo(function SkysoloAvatar({ style,
     )
 })
 
-export default SkysoloAvatar
+export default Avatar

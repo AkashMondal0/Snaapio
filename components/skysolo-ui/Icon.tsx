@@ -21,7 +21,7 @@ export type Props = TouchableOpacityProps & {
 };
 
 
-const SkysoloIconButton = ({
+const IconButton = ({
     style,
     size = 30,
     disabled = false,
@@ -163,4 +163,4 @@ const SkysoloIconButton = ({
     </TouchableOpacity>)
 }
 
-export default SkysoloIconButton
+export default IconButton;

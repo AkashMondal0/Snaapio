@@ -6,7 +6,7 @@ import {
 } from '@gorhom/bottom-sheet';
 import { useTheme } from 'hyper-native-ui';    
 
-const SkysoloActionSheet = ({
+const ActionSheet = ({
     bottomSheetModalRef,
     snapPoints,
     children,
@@ -48,4 +48,4 @@ const SkysoloActionSheet = ({
     );
 };
 
-export default SkysoloActionSheet;
+export default ActionSheet;

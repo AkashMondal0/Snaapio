@@ -7,7 +7,7 @@ import { localStorage } from '@/lib/LocalStorage';
 import { getSecureStorage } from '@/lib/SecureStore';
 import * as SplashScreen from 'expo-splash-screen';
 import { setSession } from '@/redux-stores/slice/auth';
-import { useTheme, StatusBar } from "hyper-native-ui";
+import { useTheme } from "hyper-native-ui";
 import { fetchUnreadNotificationCountApi } from '@/redux-stores/slice/notification/api.service';
 let loaded = false;
 
@@ -44,7 +44,7 @@ const PreConfiguration = () => {
         initialize();
     }, [])
 
-    return (<StatusBar />)
+    return <></>
 }
 
 export default PreConfiguration;
