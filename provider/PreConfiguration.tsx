@@ -3,11 +3,11 @@ import { Session } from '@/types';
 import { configs } from '@/configs';
 import { useDispatch } from "react-redux";
 import React, { useCallback } from "react";
+import { useTheme } from "hyper-native-ui";
 import { localStorage } from '@/lib/LocalStorage';
 import { getSecureStorage } from '@/lib/SecureStore';
 import * as SplashScreen from 'expo-splash-screen';
 import { setSession } from '@/redux-stores/slice/auth';
-import { useTheme } from "hyper-native-ui";
 import { fetchUnreadNotificationCountApi } from '@/redux-stores/slice/notification/api.service';
 let loaded = false;
 
@@ -31,6 +31,8 @@ const PreConfiguration = () => {
 
         if (data[0] && data[1]) {
             setInitialTheme({ themeSchema: data[0], themeName: data[1] });
+        } else {
+            setInitialTheme({ themeSchema: "system", themeName: "Zinc" });
         }
         delayFunction();
         if (data[2]) {

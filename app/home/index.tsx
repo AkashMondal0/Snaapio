@@ -21,7 +21,7 @@ const HomeScreen = memo(function HomeScreen() {
 
     function MyTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 
-        const getIcon = (routeName: string, isFocused: boolean) => {
+        const getIcon = (routeName: string, isFocused: boolean, onPress: any) => {
             let iconSize = isFocused ? 32 : 28;
             let iconColor = isFocused ? currentTheme?.primary : currentTheme?.foreground;
             if (routeName === 'home') {
@@ -37,7 +37,7 @@ const HomeScreen = memo(function HomeScreen() {
                 return <Film size={iconSize} color={iconColor} />
             }
             else if (routeName === 'account') {
-                return <AccountIcon onPress={() => { navigation?.navigate("account") }} />
+                return <AccountIcon onPress={onPress} />
             }
         }
 
@@ -83,7 +83,7 @@ const HomeScreen = memo(function HomeScreen() {
                             onPress={onPress}
                             onLongPress={onLongPress}
                             style={{ flex: 1, alignItems: 'center' }}>
-                            {getIcon(route.name, isFocused)}
+                            {getIcon(route.name, isFocused, onPress)}
                         </TouchableOpacity>
                     );
                 })}

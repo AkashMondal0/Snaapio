@@ -63,10 +63,10 @@ const AppPermissionDialog = ({
                 }}>
                     <Button onPress={() => {
                         dispatch(setAppPermissionDialog({ visible: false, data: null }))
-                    }} variant="outline">
+                    }} variant="danger">
                         Not Now
                     </Button>
-                    <Button variant="default" onPress={() => {
+                    <Button variant="outline" onPress={() => {
                         dispatch(setAppPermissionDialog({ visible: false, data: null }))
                         confirm && confirm()
                     }}>

@@ -82,14 +82,14 @@ export const AddImage = memo(function AddImage({
         <TouchableOpacity
             activeOpacity={0.8}
             style={{
+                width: "auto",
                 flex: 1,
-                width: "100%",
                 borderRadius: 16,
                 aspectRatio: 4 / 5,
-                backgroundColor: currentTheme?.muted,
                 justifyContent: "center",
                 alignItems: "center",
                 borderWidth: 2,
+                backgroundColor: currentTheme?.muted,
                 borderColor: currentTheme?.border,
                 elevation: 0.5,
                 marginHorizontal: 10
@@ -100,12 +100,14 @@ export const AddImage = memo(function AddImage({
                     width: 80,
                     height: 80,
                     borderRadius: 60,
-                    borderColor: currentTheme?.border,
+                    borderColor: currentTheme?.muted_foreground,
                     borderWidth: 2,
                     justifyContent: "center",
                     alignItems: "center"
                 }}>
-                <Plus color={currentTheme?.muted_foreground} size={70} strokeWidth={0.8} />
+                <Plus
+                    color={currentTheme?.muted_foreground}
+                    size={70} strokeWidth={0.8} />
             </TouchableOpacity>
         </TouchableOpacity>
     </>)

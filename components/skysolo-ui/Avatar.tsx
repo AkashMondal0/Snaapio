@@ -89,8 +89,8 @@ const Avatar = memo(function SkysoloAvatar({ style,
         <TouchableOpacity
             {...TouchableOpacityOptions}
             style={[{
-                borderWidth: isBorder ? borderWidth : 0,
-                borderColor: colorVariant().borderColor,
+                borderWidth: borderWidth,
+                borderColor: isBorder ? colorVariant().borderColor : "transparent",
                 borderRadius: 500,
                 padding: 2.6,
             }, TouchableOpacityOptions?.style]}
