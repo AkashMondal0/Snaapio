@@ -4,10 +4,9 @@ import {
     BottomSheetScrollView,
     BottomSheetView,
 } from '@gorhom/bottom-sheet';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/redux-stores/store';
+import { useTheme } from 'hyper-native-ui';    
 
-const SkysoloActionSheet = ({
+const ActionSheet = ({
     bottomSheetModalRef,
     snapPoints,
     children,
@@ -19,7 +18,7 @@ const SkysoloActionSheet = ({
     snapPoints: string[]
     handleSheetChanges: (index: number) => void
 }) => {
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+    const { currentTheme } = useTheme();
 
     return (
         <>
@@ -49,4 +48,4 @@ const SkysoloActionSheet = ({
     );
 };
 
-export default SkysoloActionSheet;
+export default ActionSheet;

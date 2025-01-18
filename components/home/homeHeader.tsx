@@ -1,5 +1,6 @@
 import { View, Text as RNText, TouchableOpacity, Animated } from "react-native"
-import { Icon, Separator, Text, AnimatedView } from '@/components/skysolo-ui';
+import { Icon } from '@/components/skysolo-ui';
+import { AnimatedView, Separator, Text } from 'hyper-native-ui'
 import { NavigationProps } from "@/types";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
@@ -34,11 +35,13 @@ const HomeHeader = ({ navigation, translateY }: {
             flexDirection: "row",
             alignItems: "center",
         }}>
-            <Text variant="heading2" style={{
-                fontWeight: "700",
-                padding: "3%",
-                paddingVertical: 14
-            }}>
+            <Text
+                variant="H5"
+                style={{
+                    fontWeight: "700",
+                    paddingHorizontal: "3.6%",
+                    paddingVertical: 14
+                }}>
                 {configs.AppDetails.name}
             </Text>
             <View style={{
@@ -118,8 +121,8 @@ export default HomeHeader
 
 const NotificationPopup = () => {
     const scaleValue = useRef(new Animated.Value(0)).current;
-    const notifications = useSelector((state: RootState) => state.NotificationState)
-    const dispatch = useDispatch()
+    const notifications = useSelector((state: RootState) => state.NotificationState);
+    const dispatch = useDispatch();
 
     const scaleAnimation = (value: 0 | 1) => {
         Animated.timing(scaleValue, {
@@ -197,7 +200,7 @@ const NotificationPopup = () => {
                 gap: 2,
             }}>
                 <Heart fill={"hsl(0 0% 98%)"} size={24} color={"hsl(0 0% 98%)"} />
-                <Text variant="heading3" style={{
+                <Text variant="body1" style={{
                     color: "hsl(0 0% 98%)",
                 }}>
                     {notifications.unreadPostLikeCount}
@@ -210,7 +213,7 @@ const NotificationPopup = () => {
                 gap: 2,
             }}>
                 <MessageCircle fill={"hsl(0 0% 98%)"} size={24} color={"hsl(0 0% 98%)"} />
-                <Text variant="heading3" style={{
+                <Text variant="body1" style={{
                     color: "hsl(0 0% 98%)",
                 }}>
                     {notifications.unreadCommentCount}

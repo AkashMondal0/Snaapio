@@ -83,7 +83,7 @@ function timeAgoFormat(time: any) {
       if (typeof format[2] == 'string')
         return format[list_choice];
       else
-        return Math.floor(seconds / format[2]) + ' ' + format[1] + ' ' + token;
+        return Math.floor(seconds / format[2]) + '' + format[1] + ' ' + token;
     }
   return time;
 }

@@ -1,9 +1,8 @@
-import { RootState } from "@/redux-stores/store";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { useSelector } from "react-redux";
 import { ProfileScreen, TabFollowingAndFollowers } from '../profile';
-import { NotificationScreen } from "../screens";
 import { CommentScreen, LikeScreen, PostScreen } from "../post";
+import { NotificationScreen } from "../screens";
+import { useTheme } from 'hyper-native-ui';
 
 const Stack = createNativeStackNavigator();
 
@@ -14,7 +13,7 @@ function Pages({
     mainRouteName: string,
     ScreenComponent: React.ReactNode | any
 }) {
-    const background = useSelector((state: RootState) => state.ThemeState.currentTheme?.background, (prev, next) => prev === next)
+    const { currentTheme: { background } } = useTheme();
     return (
         <Stack.Navigator
             screenOptions={{

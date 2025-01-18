@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Icon, Input } from "@/components/skysolo-ui";
+import { Icon } from "@/components/skysolo-ui";
 import { memo, useCallback, useContext, useMemo, useRef, useState } from "react";
 import { Conversation, disPatchResponse, Message, NavigationProps } from "@/types";
 import { ToastAndroid, View } from "react-native";
@@ -13,6 +13,7 @@ import { Controller, useForm } from "react-hook-form";
 import debounce from "@/lib/debouncing";
 import { CreateMessageApi, fetchConversationsApi } from "@/redux-stores/slice/conversation/api.service";
 import { configs } from "@/configs";
+import { Input } from "hyper-native-ui";
 const schema = z.object({
     message: z.string().min(1)
 })
@@ -111,7 +112,7 @@ const ChatScreenInput = memo(function ChatScreenInput({
             alignItems: "center",
             justifyContent: "space-between",
             padding: "1.6%",
-            gap: 6
+            gap: 6,
         }}>
             <Controller
                 control={control}
@@ -120,7 +121,6 @@ const ChatScreenInput = memo(function ChatScreenInput({
                         keyboardType="default"
                         returnKeyType="done"
                         placeholder="Type a message"
-                        secondaryColor
                         multiline
                         disabled={loading}
                         onBlur={onBlur}
@@ -135,7 +135,10 @@ const ChatScreenInput = memo(function ChatScreenInput({
                             height: "100%",
                             borderRadius: 20,
                             borderWidth: 0,
-                            maxHeight: 100,
+                            maxHeight: 100
+                        }}
+                        containerStyle={{
+                            flexShrink: 1
                         }}
                         rightSideComponent={<Icon
                             iconName="ImagePlus"
@@ -145,25 +148,25 @@ const ChatScreenInput = memo(function ChatScreenInput({
                             disabled={loading}
                             onPress={navigateToSelectFile}
                             style={{
-                                width: "10%",
+                                padding: "4%",
                                 height: 45,
-                                marginHorizontal: 5,
                                 aspectRatio: 1 / 1,
                             }} />} />
                 )}
                 name="message"
                 rules={{ required: true }} />
-            <Icon
-                iconName="Send"
-                isButton
-                size={26}
-                disabled={loading}
-                onPress={handleSubmit(sendMessageHandle)}
-                style={{
-                    width: "10%",
-                    height: 45,
-                    aspectRatio: 1 / 1,
-                }} />
+            <View style={{ height: 45 }}>
+                <Icon
+                    iconName="Send"
+                    isButton
+                    size={26}
+                    disabled={loading}
+                    onPress={handleSubmit(sendMessageHandle)}
+                    style={{
+                        height: 45,
+                        aspectRatio: 1 / 1,
+                    }} />
+            </View>
         </View>
     )
 })

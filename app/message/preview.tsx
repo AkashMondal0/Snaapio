@@ -1,11 +1,10 @@
-import { memo, useCallback, useState } from "react";
-import { Image, ThemedView, View } from "@/components/skysolo-ui";
+import { memo, useState } from "react";
+import { Image } from "@/components/skysolo-ui";
+import { ThemedView } from 'hyper-native-ui';
 import { Message, NavigationProps, Post } from "@/types";
 import AppHeader from "@/components/AppHeader";
-import { useSelector } from "react-redux";
-import { ScrollView, ToastAndroid } from "react-native";
 import PagerView from "react-native-pager-view";
-import { RootState } from "@/redux-stores/store";
+import { View } from "react-native";
 
 interface ScreenProps {
     navigation: NavigationProps;

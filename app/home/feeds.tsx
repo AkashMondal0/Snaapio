@@ -8,17 +8,17 @@ import { resetFeeds } from '@/redux-stores/slice/account';
 import { FeedItem, HomeHeader } from '@/components/home';
 import ErrorScreen from '@/components/error/page';
 import ListEmpty from '@/components/ListEmpty';
-import { Loader, ThemedView } from '@/components/skysolo-ui';
+import { Loader, ThemedView } from 'hyper-native-ui';
 import StoriesComponent from "@/components/home/story";
-let totalFetchedItemCount: number = 0
+let totalFetchedItemCount: number = 0;
 
 const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: NavigationProps }) {
-    const feedList = useSelector((state: RootState) => state.AccountState.feeds)
-    const feedListLoading = useSelector((state: RootState) => state.AccountState.feedsLoading)
-    const feedsError = useSelector((state: RootState) => state.AccountState.feedsError)
-    const session = useSelector((state: RootState) => state.AuthState.session.user)
-    const stopRef = useRef(false)
-    const dispatch = useDispatch()
+    const feedList = useSelector((state: RootState) => state.AccountState.feeds);
+    const feedListLoading = useSelector((state: RootState) => state.AccountState.feedsLoading);
+    const feedsError = useSelector((state: RootState) => state.AccountState.feedsError);
+    const session = useSelector((state: RootState) => state.AuthState.session.user);
+    const stopRef = useRef(false);
+    const dispatch = useDispatch();
     // animation 
     const scrollY = useRef(new Animated.Value(0));
     const handleScroll = Animated.event([{ nativeEvent: { contentOffset: { y: scrollY.current } } }], { useNativeDriver: true });
@@ -32,8 +32,8 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: Navi
     });
 
     const fetchApi = useCallback(async () => {
-        if (stopRef.current || totalFetchedItemCount === -1) return
-        stopRef.current = true
+        if (stopRef.current || totalFetchedItemCount === -1) return;
+        stopRef.current = true;
         try {
             const res = await dispatch(fetchAccountFeedApi({
                 limit: 12,

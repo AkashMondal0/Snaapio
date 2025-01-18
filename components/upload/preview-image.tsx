@@ -2,8 +2,7 @@ import React, { memo } from 'react';
 import { View, TouchableOpacity } from 'react-native';
 import { Icon, Image } from '@/components/skysolo-ui';
 import { Plus } from 'lucide-react-native';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/redux-stores/store';
+import { useTheme } from 'hyper-native-ui';
 
 export const PreviewImage = memo(function ImagePreview({
     assetUrl,
@@ -16,7 +15,7 @@ export const PreviewImage = memo(function ImagePreview({
     isServerImage?: boolean,
     handleDelete: (i: string) => void
 }) {
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+    const { currentTheme } = useTheme();
 
     if (!assetUrl) return <></>
 
@@ -77,20 +76,20 @@ export const AddImage = memo(function AddImage({
 }: {
     onPress: () => void
 }) {
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+    const { currentTheme } = useTheme();
 
     return (<>
         <TouchableOpacity
             activeOpacity={0.8}
             style={{
+                width: "auto",
                 flex: 1,
-                width: "100%",
                 borderRadius: 16,
                 aspectRatio: 4 / 5,
-                backgroundColor: currentTheme?.muted,
                 justifyContent: "center",
                 alignItems: "center",
                 borderWidth: 2,
+                backgroundColor: currentTheme?.muted,
                 borderColor: currentTheme?.border,
                 elevation: 0.5,
                 marginHorizontal: 10
@@ -101,12 +100,14 @@ export const AddImage = memo(function AddImage({
                     width: 80,
                     height: 80,
                     borderRadius: 60,
-                    borderColor: currentTheme?.border,
+                    borderColor: currentTheme?.muted_foreground,
                     borderWidth: 2,
                     justifyContent: "center",
                     alignItems: "center"
                 }}>
-                <Plus color={currentTheme?.muted_foreground} size={70} strokeWidth={0.8} />
+                <Plus
+                    color={currentTheme?.muted_foreground}
+                    size={70} strokeWidth={0.8} />
             </TouchableOpacity>
         </TouchableOpacity>
     </>)

@@ -1,9 +1,11 @@
+import React from "react";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { FlatList, ToastAndroid, TouchableOpacity, View } from "react-native";
-import { Icon, Loader, View as ThemedView, Text, Avatar } from "@/components/skysolo-ui";
+import { Icon, Avatar } from "@/components/skysolo-ui";
 import { disPatchResponse, loadingType, NavigationProps, User, Highlight } from "@/types";
 import { useDispatch } from "react-redux";
 import { fetchUserHighlightApi } from "@/redux-stores/slice/profile/api.service";
+import { Text, Loader, ThemedView } from "hyper-native-ui"
 
 const StoriesComponent = memo(function StoriesComponent({
     navigation,
@@ -103,14 +105,13 @@ const StoriesComponent = memo(function StoriesComponent({
                                 height: 120,
                             }}>
                             <ThemedView
-                                variant="secondary"
                                 style={{
-                                    width: 86,
-                                    height: 86,
+                                    width: 84,
+                                    aspectRatio: 1 / 1,
                                     borderRadius: 100,
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    borderWidth: 0.8,
+                                    borderWidth: 2,
                                     marginBottom: 4,
                                 }}>
                                 <Icon
@@ -121,7 +122,7 @@ const StoriesComponent = memo(function StoriesComponent({
                                     strokeWidth={1}
                                     onPress={navigateToHighlightUpload} />
                             </ThemedView>
-                            <Text>Highlight</Text>
+                            <Text variantColor="secondary">Highlight</Text>
                         </TouchableOpacity> : <></>}
                 </View>}
                 ListHeaderComponent={<View style={{ width: 6 }} />}
@@ -167,7 +168,7 @@ export const StoriesItem = memo(function StoriesItem({
             borderColorVariant="secondary"
             url={data?.stories[0]?.fileUrl[0] ? data?.stories[0].fileUrl[0].urls?.high : null}
             onPress={() => onPress?.(data)} />
-        <Text variant="heading4" colorVariant="secondary" style={{ padding: 4 }} numberOfLines={1}>
+        <Text variantColor="secondary" style={{ padding: 4 }} numberOfLines={1}>
             {data?.content}
         </Text>
     </TouchableOpacity>)

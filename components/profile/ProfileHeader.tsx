@@ -1,12 +1,11 @@
 import React, { memo, useCallback, useState } from "react";
 import { View } from "react-native";
-import { Separator, Text } from "@/components/skysolo-ui"
 import { NavigationProps, User } from "@/types";
 import ProfileInfoCount from "./ProfileInfoCount";
 import ProfileActionsButton from "./ProfileActionsButton";
 import ProfileStories from "./ProfileStories";
 import ProfilePicView from "./ProfilePicView";
-
+import { Separator, Text } from "hyper-native-ui";
 
 const ProfileHeader = memo(function HomeScreen({
     navigation,
@@ -68,23 +67,22 @@ const ProfileHeader = memo(function HomeScreen({
                     <ProfileInfoCount navigation={navigation} userData={user} />
                 </View>
                 <Text
+                    variant="H6"
                     numberOfLines={1}
                     ellipsizeMode="tail"
                     style={{
                         fontWeight: "600",
                         marginVertical: 4,
                         width: '80%'
-                    }}
-                    variant="heading3">
+                    }}>
                     {user?.name}
                 </Text>
                 <Text
                     numberOfLines={6}
                     ellipsizeMode="tail"
-                    colorVariant='secondary'
+                    variantColor='secondary'
                     lineBreakMode="tail"
-                    style={{ fontWeight: "400" }}
-                    variant="heading4">
+                    style={{ fontWeight: "400" }}>
                     {user?.bio}
                 </Text>
                 <ProfileActionsButton
@@ -94,7 +92,7 @@ const ProfileHeader = memo(function HomeScreen({
                     userData={user}
                     isProfile={isProfile} />
             </View>
-            <ProfileStories navigation={navigation} isProfile={isProfile} user={user}/>
+            <ProfileStories navigation={navigation} isProfile={isProfile} user={user} />
             <View style={{ height: 14 }} />
             <Separator value={0.8} />
         </>

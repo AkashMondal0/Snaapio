@@ -1,13 +1,12 @@
-import ErrorScreen from "@/components/error/page";
-import { ProfileEmptyPosts, ProfileGridItem, ProfileHeader, ProfileNavbar } from "@/components/profile";
-import { Loader } from "@/components/skysolo-ui";
-import { fetchUserProfileDetailApi, fetchUserProfilePostsApi } from "@/redux-stores/slice/profile/api.service";
-import { RootState } from "@/redux-stores/store";
 import { disPatchResponse, loadingType, NavigationProps, Post, User } from "@/types";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { View, FlatList, ToastAndroid } from "react-native";
+import { FlatList, ToastAndroid, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import { Image } from '@/components/skysolo-ui'
+import { ProfileEmptyPosts, ProfileGridItem, ProfileHeader, ProfileNavbar } from "@/components/profile";
+import { fetchUserProfileDetailApi, fetchUserProfilePostsApi } from "@/redux-stores/slice/profile/api.service";
+import { RootState } from "@/redux-stores/store";
+import ErrorScreen from "@/components/error/page";
+import { Loader, ThemedView } from "hyper-native-ui";
 
 interface ScreenProps {
     navigation: NavigationProps;
@@ -87,9 +86,10 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
     if (error) return <ErrorScreen />
 
     return (
-        <View style={{
-            width: '100%',
-            height: '100%',
+        <ThemedView style={{
+            flex: 1,
+            width: "100%",
+            height: "100%"
         }}>
             <ProfileNavbar navigation={navigation}
                 isProfile={isProfile} username={username || "No User"} />
@@ -129,7 +129,7 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
                 </View> : <View style={{ height: totalFetchedItemCount.current === -1 ? 0 : 50 }} />}
                 ListEmptyComponent={<ProfileEmptyPosts loading={loading} />}
             />
-        </View>
+        </ThemedView>
     )
 }
 

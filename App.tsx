@@ -19,32 +19,35 @@ import {
 } from '@/app/message';
 import PreConfiguration from '@/provider/PreConfiguration';
 import BottomSheetProvider from '@/provider/BottomSheetProvider';
-import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import SocketConnections from '@/provider/SocketConnections';
 import { PostReviewScreen, NewPostSelectionScreen } from '@/app/upload';
 import { ProfileEditScreen } from '@/app/profile';
 import { PostScreen } from '@/app/post';
 import { StoryScreen, StorySelectingScreen, StoryUploadScreen } from '@/app/story';
 import { HighlightPageScreen, HighlightSelectingScreen, HighlightUploadScreen } from '@/app/highlight';
+import { ThemeProvider, useTheme } from 'hyper-native-ui';
+import { Appearance, StatusBar } from 'react-native';
 
 SplashScreen.preventAutoHideAsync();
 const Stack = createNativeStackNavigator();
 
 function Routes(backgroundColor: any) {
   const session = useSelector((state: RootState) => state.AuthState.session)
-  const insets = useSafeAreaInsets();
+  // const insets = useSafeAreaInsets();
   return (
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
         contentStyle: {
           backgroundColor: backgroundColor,
-          width: '100%',
-          height: '100%',
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom,
-          paddingLeft: insets.left,
-          paddingRight: insets.right,
+          paddingTop: StatusBar.currentHeight,
+          flex: 1,
+          // width: '100%',
+          // height: '100%',
+          // paddingBottom: insets.bottom,
+          // paddingLeft: insets.left,
+          // paddingRight: insets.right,
         }
       }}>
       {session.user ?
@@ -58,7 +61,7 @@ function Routes(backgroundColor: any) {
           <Stack.Screen name="story" component={StoryScreen} />
           <Stack.Screen name="story/upload" component={StoryUploadScreen} />
           {/* highlight */}
-          <Stack.Screen name="highlight"component={HighlightPageScreen} />
+          <Stack.Screen name="highlight" component={HighlightPageScreen} />
           <Stack.Screen name="highlight/selection" component={HighlightSelectingScreen} />
           <Stack.Screen name="highlight/upload" component={HighlightUploadScreen} />
 
@@ -100,16 +103,19 @@ function Routes(backgroundColor: any) {
 }
 
 function Root() {
-  const background = useSelector((state: RootState) => state.ThemeState.currentTheme?.background, (prev, next) => prev === next)
+  const { currentTheme } = useTheme();
 
   return (<>
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: background }}>
+    <StatusBar translucent
+      backgroundColor={"transparent"}
+      barStyle={Appearance.getColorScheme() === "dark" ? "light-content" : "dark-content"} />
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: currentTheme.background }}>
       <SafeAreaProvider>
         <NavigationContainer>
           <SocketConnections >
             <PreConfiguration />
             <BottomSheetProvider>
-              <Routes backgroundColor={background} />
+              <Routes backgroundColor={currentTheme.background} />
             </BottomSheetProvider>
           </SocketConnections>
         </NavigationContainer>
@@ -122,8 +128,10 @@ function Root() {
 export default function App() {
 
   return (
-    <Provider store={store}>
-      <Root />
-    </Provider>
+    <ThemeProvider>
+      <Provider store={store}>
+        <Root />
+      </Provider>
+    </ThemeProvider>
   );
 };

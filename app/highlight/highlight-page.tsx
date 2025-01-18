@@ -1,11 +1,10 @@
 import { memo, useCallback, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
-import { Avatar, Icon, View as Themed, Text, Image } from "@/components/skysolo-ui";
-import { useSelector } from "react-redux";
+import { Avatar, Icon, Image } from "@/components/skysolo-ui";
 import { AuthorData, NavigationProps, Highlight } from "@/types";
 import ErrorScreen from "@/components/error/page";
-import { dateFormat, timeFormat } from "@/lib/timeFormat";
-import { RootState } from "@/redux-stores/store";
+import { dateFormat } from "@/lib/timeFormat";
+import { ThemedView, useTheme, Text } from 'hyper-native-ui';
 
 interface ScreenProps {
     navigation: NavigationProps;
@@ -22,7 +21,7 @@ const HighlightPageScreen = memo(function HighlightPageScreen({
     navigation,
     route
 }: ScreenProps) {
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+    const { currentTheme } = useTheme();
     const [currentImageIndex, setCurrentImageIndex] = useState(0)
     const { user, highlight } = route.params;
     const actualLength = highlight.stories?.length ?? 0
@@ -49,7 +48,7 @@ const HighlightPageScreen = memo(function HighlightPageScreen({
     if (!highlight?.stories || !story) return <ErrorScreen />
 
     return (
-        <Themed style={{
+        <ThemedView style={{
             flex: 1,
             width: '100%',
             height: '100%',
@@ -127,11 +126,11 @@ const HighlightPageScreen = memo(function HighlightPageScreen({
                 paddingVertical: 10,
                 paddingBottom: 20,
             }}>
-                <Text variant="heading4">
+                <Text>
                     {story?.content}
                 </Text>
             </View>
-        </Themed>
+        </ThemedView>
     )
 })
 export default HighlightPageScreen;
@@ -145,7 +144,7 @@ const Header = ({
     user: AuthorData;
     time: string;
 }) => {
-    return <Themed
+    return <ThemedView
         style={{
             width: "100%",
             display: 'flex',
@@ -177,14 +176,12 @@ const Header = ({
                     url={user?.profilePicture} />
                 <View>
                     <Text
-                        style={{ fontWeight: "600" }}
-                        variant="heading4">
+                        style={{ fontWeight: "600" }}>
                         {user?.name}
                     </Text>
                     <Text
-                        colorVariant="secondary"
-                        style={{ fontWeight: "400" }}
-                        variant="heading4">
+                        variantColor="secondary"
+                        style={{ fontWeight: "400" }}>
                         {time ?? ""}
                     </Text>
                 </View>
@@ -193,5 +190,5 @@ const Header = ({
         <View style={{ paddingRight: 10 }}>
             <Icon iconName={"Info"} isButton variant="secondary" size={26} style={{ elevation: 2 }} />
         </View>
-    </Themed>;
+    </ThemedView>;
 }

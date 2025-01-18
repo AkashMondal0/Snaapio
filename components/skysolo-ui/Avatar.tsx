@@ -2,9 +2,8 @@ import { memo, useRef, useState } from 'react';
 import { TouchableOpacityProps, TouchableOpacity } from 'react-native';
 import { Image, type ImageProps } from 'expo-image';
 import { configs } from '@/configs';
-import { RootState } from '@/redux-stores/store';
-import { useSelector } from 'react-redux';
 import { loadingType, variantType } from '@/types';
+import { useTheme } from 'hyper-native-ui';
 
 export type Props = ImageProps & {
     lightColor?: string;
@@ -24,7 +23,7 @@ export type Props = ImageProps & {
 };
 
 
-const SkysoloAvatar = memo(function SkysoloAvatar({ style,
+const Avatar = memo(function SkysoloAvatar({ style,
     serverImage = true,
     touchableOpacity = true,
     isBorder = false,
@@ -36,7 +35,7 @@ const SkysoloAvatar = memo(function SkysoloAvatar({ style,
     TouchableOpacityOptions,
     ...otherProps }: Props) {
     size = Number(size)
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+    const { currentTheme } = useTheme();
     const [state, setState] = useState<loadingType>("idle")
     const error = useRef(false)
 
@@ -90,8 +89,8 @@ const SkysoloAvatar = memo(function SkysoloAvatar({ style,
         <TouchableOpacity
             {...TouchableOpacityOptions}
             style={[{
-                borderWidth: isBorder ? borderWidth : 0,
-                borderColor: colorVariant().borderColor,
+                borderWidth: borderWidth,
+                borderColor: isBorder ? colorVariant().borderColor : "transparent",
                 borderRadius: 500,
                 padding: 2.6,
             }, TouchableOpacityOptions?.style]}
@@ -139,4 +138,4 @@ const SkysoloAvatar = memo(function SkysoloAvatar({ style,
     )
 })
 
-export default SkysoloAvatar
+export default Avatar

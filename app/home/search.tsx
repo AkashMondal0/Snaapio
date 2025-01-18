@@ -1,9 +1,10 @@
 import { ListEmptyComponent } from "@/components/home";
-import { Avatar, Icon, Input, Loader, TouchableOpacity, Text } from "@/components/skysolo-ui";
+import { Avatar, Icon, } from "@/components/skysolo-ui";
 import debounce from "@/lib/debouncing";
 import { searchUsersProfileApi } from "@/redux-stores/slice/users/api.service";
 import { RootState } from "@/redux-stores/store";
 import { AuthorData, NavigationProps } from "@/types";
+import { Input, Text, Loader, TouchableOpacity } from "hyper-native-ui";
 import { memo, useCallback, useRef } from "react";
 import { FlatList, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
@@ -60,7 +61,7 @@ const SearchScreen = memo(function SearchScreen({
                         navigation.goBack()
                     }} />
                 <Input placeholder="Search people"
-                    secondaryColor
+                    variant="secondary"
                     onChangeText={delayFetchUsers}
                     style={{
                         width: "90%",
@@ -120,8 +121,8 @@ const UserItem = memo(function UserItem({
                     display: 'flex',
                     flexDirection: 'column',
                 }}>
-                    <Text variant="heading3">{data.name}</Text>
-                    <Text variant="heading4">{data.username}</Text>
+                    <Text variant="H6">{data.name}</Text>
+                    <Text>{data.username}</Text>
                 </View>
             </View>
         </View>

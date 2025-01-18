@@ -2,7 +2,7 @@
 import React, { useCallback, useMemo, useRef, memo, useState, useEffect } from 'react';
 import { View, Vibration, FlatList } from 'react-native';
 import { Conversation, disPatchResponse } from '@/types';
-import { ActionSheet, Avatar, Loader, ThemedView } from '@/components/skysolo-ui';
+import { ActionSheet, Avatar } from '@/components/skysolo-ui';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
@@ -13,8 +13,11 @@ import searchText from '@/lib/TextSearch';
 import ErrorScreen from '@/components/error/page';
 import { ConversationDetailsSheet, ConversationItem, ListHeader } from '@/components/message';
 import ListEmpty from '@/components/ListEmpty';
-let totalFetchedItemCount: number = 0
-let pageLoaded = false
+import { Loader, ThemedView, useTheme } from "hyper-native-ui";
+
+let totalFetchedItemCount: number = 0;
+let pageLoaded = false;
+
 const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
     const stopRef = useRef(false)
     const list = useSelector((Root: RootState) => Root.ConversationState.conversationList)
@@ -136,8 +139,7 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
 export default ChatListScreen;
 
 const ActionButton = memo(function ActionButton({ onPress }: { onPress: () => void }) {
-    const currentTheme = useSelector((Root: RootState) => Root.ThemeState.currentTheme)
-
+    const { currentTheme } = useTheme();
     return <View style={{
         position: "absolute",
         bottom: 20,

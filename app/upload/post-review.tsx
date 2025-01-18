@@ -3,13 +3,15 @@ import { View, ScrollView, ToastAndroid } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import * as MediaLibrary from 'expo-media-library';
 import {
+    Icon
+} from '@/components/skysolo-ui';
+import {
     Button,
-    Icon,
     Text,
     Separator,
     TouchableOpacity as SU_TouchableOpacity,
     Input,
-} from '@/components/skysolo-ui';
+} from 'hyper-native-ui';
 import AppHeader from '@/components/AppHeader';
 import { PageProps } from '@/types';
 import { useDispatch, useSelector } from 'react-redux';

@@ -1,11 +1,9 @@
 import { timeFormat } from '@/lib/timeFormat';
-import { RootState } from '@/redux-stores/store';
 import { Message } from '@/types';
 import { memo } from 'react';
 import { View, Text } from 'react-native';
-import { useSelector } from 'react-redux';
-import { Icon, TouchableOpacity, Image } from '@/components/skysolo-ui';
-
+import { Icon, Image } from '@/components/skysolo-ui';
+import { TouchableOpacity, useTheme } from 'hyper-native-ui';   
 const MessageItem = memo(function Item({
     data, myself, seenMessage,
     navigateToImagePreview
@@ -13,7 +11,7 @@ const MessageItem = memo(function Item({
     data: Message, myself: boolean, seenMessage: boolean,
     navigateToImagePreview: (data: Message) => void
 }) {
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+    const { currentTheme } = useTheme();
     const color = myself ? currentTheme?.primary_foreground : currentTheme?.foreground
     const bg = myself ? currentTheme?.primary : currentTheme?.muted
 

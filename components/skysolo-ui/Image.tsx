@@ -1,12 +1,12 @@
 import { configs } from '@/configs';
-import { RootState } from '@/redux-stores/store';
 import { RotateCcw } from 'lucide-react-native';
 import { useRef, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { useSelector } from 'react-redux';
 import { Image, type ImageProps } from "expo-image"
 import { loadingType } from '@/types';
-import Loader from './Loader';
+import { Loader } from 'hyper-native-ui';
+import { useTheme } from 'hyper-native-ui';
+import React from 'react';
 
 
 export type Props = ImageProps & {
@@ -22,7 +22,7 @@ export type Props = ImageProps & {
 };
 
 
-const SkysoloImage = ({
+const ImageComponent = ({
     style,
     url,
     isLocalImage,
@@ -31,9 +31,9 @@ const SkysoloImage = ({
     showImageError = false,
     blurUrl,
     ...otherProps }: Props) => {
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
-    const error = useRef(false)
-    const [state, setState] = useState<loadingType>("idle")
+    const error = useRef(false);
+    const [state, setState] = useState<loadingType>("idle");
+    const { currentTheme } = useTheme();
 
     if (error.current && showImageError || !url) {
         return (
@@ -77,7 +77,7 @@ const SkysoloImage = ({
                 alignItems: "center",
                 zIndex: 1,
                 display: state === "pending" ? "flex" : "none",
-            }, style]}>
+            }, style as any]}>
                 <Loader size={40} />
             </View>
             <Image
@@ -106,4 +106,4 @@ const SkysoloImage = ({
     )
 }
 
-export default SkysoloImage
+export default ImageComponent;

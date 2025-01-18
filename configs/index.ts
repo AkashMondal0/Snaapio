@@ -1,6 +1,7 @@
 const _configs = {
-    sessionName: "skylight-session",
-    themeName: "skysolo-theme",
+    sessionName: "Snaapio-sessionName",
+    themeName: "Snaapio-themeName",
+    themeSchema: "Snaapio-themeSchema",
     serverApi: {
         baseUrl: process.env.EXPO_PUBLIC_SERVER_URL,
         supabaseStorageUrl: process.env.EXPO_PUBLIC_SUPABASE_STORAGE_URL,
@@ -22,7 +23,7 @@ const _configs = {
         },
     },
     AppDetails: {
-        version: "1.1.0",
+        version: "0.1.0",
         name: "Snaapio",
         description: "Snaapio is a social media platform that allows users to share their thoughts and ideas with the world.",
         appUrl: '',

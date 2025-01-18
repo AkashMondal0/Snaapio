@@ -2,7 +2,8 @@ import { fetchUserProfileFollowingUserApi } from "@/redux-stores/slice/profile/a
 import React, { useState } from "react";
 import { FlatList, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import { Avatar, Button, Loader, Text, TouchableOpacity } from "@/components/skysolo-ui";
+import { Avatar } from "@/components/skysolo-ui";
+import { Button, Loader, Text , TouchableOpacity} from "hyper-native-ui"
 import { RootState } from "@/redux-stores/store";
 import { AuthorData, disPatchResponse, loadingType, NavigationProps } from "@/types";
 import { memo, useCallback, useEffect, useRef } from "react";
@@ -109,17 +110,17 @@ const FollowingItem = memo(function FollowingItem({
     isFollowing: boolean,
     onPress: (uname: string) => void
 }) {
-    return (<TouchableOpacity 
+    return (<TouchableOpacity
         onPress={() => onPress(data.username)}
         style={{
-        flexDirection: 'row',
-        padding: 12,
-        alignItems: 'center',
-        width: '100%',
-        gap: 10,
-        marginVertical: 2,
-        justifyContent: 'space-between',
-    }}>
+            flexDirection: 'row',
+            padding: 12,
+            alignItems: 'center',
+            width: '100%',
+            gap: 10,
+            marginVertical: 2,
+            justifyContent: 'space-between',
+        }}>
         <View style={{
             display: 'flex',
             flexDirection: 'row',
@@ -134,11 +135,11 @@ const FollowingItem = memo(function FollowingItem({
                     alignItems: 'center',
                     gap: 10,
                 }}>
-                    <Text variant="heading3">
+                    <Text variant="H6">
                         {data.username}
                     </Text>
                 </View>
-                <Text variant="heading4" colorVariant="secondary">
+                <Text variantColor="secondary">
                     {data.name}
                 </Text>
             </View>

@@ -2,7 +2,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { memo, useCallback, useContext, useRef, useState } from 'react';
 import { ToastAndroid, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
-import { Avatar, Text, Image, Icon } from '@/components/skysolo-ui';
 import { SocketContext } from '@/provider/SocketConnections';
 import { createNotificationApi, destroyNotificationApi } from '@/redux-stores/slice/notification/api.service';
 import { createPostLikeApi, destroyPostLikeApi } from '@/redux-stores/slice/post/api.service';
@@ -12,7 +11,9 @@ import { Heart } from 'lucide-react-native';
 import PagerView from 'react-native-pager-view';
 import { useDispatch, useSelector } from 'react-redux';
 import useDebounce from '@/lib/debouncing';
-
+import { useTheme, Text } from 'hyper-native-ui';
+import { Avatar, Image, Icon } from '@/components/skysolo-ui';
+import React from 'react';
 const FeedItem = memo(function FeedItem({
     data,
     navigation
@@ -20,7 +21,7 @@ const FeedItem = memo(function FeedItem({
     data: Post,
     navigation: NavigationProps
 }) {
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+    const { currentTheme } = useTheme();
     const [tabIndex, setTabIndex] = useState(0)
     const imageLength = data.fileUrl.length
     const navigateToProfile = useCallback(() => {
@@ -44,23 +45,21 @@ const FeedItem = memo(function FeedItem({
             display: 'flex',
             flexDirection: "row",
             alignItems: "center",
-            gap: 10
+            gap: 6
         }}>
-            <Avatar size={45} url={data.user?.profilePicture} onPress={navigateToProfile} />
+            <Avatar size={52} url={data.user?.profilePicture} onPress={navigateToProfile} />
             <View>
                 <TouchableOpacity
                     activeOpacity={0.8}
                     onPress={navigateToProfile} >
-                    <Text
-                        style={{ fontWeight: "600" }}
-                        variant="heading3">
+                    <Text style={{ fontWeight: "600" }}>
                         {data?.user?.name}
                     </Text>
                 </TouchableOpacity>
                 <Text
                     style={{ fontWeight: "400" }}
-                    colorVariant="secondary"
-                    variant="heading4">
+                    variantColor="secondary"
+                    variant="body2">
                     {`los angeles, CA`}
                 </Text>
             </View>
@@ -83,7 +82,7 @@ const FeedItem = memo(function FeedItem({
                 margin: 10,
                 paddingHorizontal: 4,
             }}>
-                <Text variant="heading4" style={{
+                <Text variant="H6" style={{
                     fontWeight: "400",
                     color: "white",
                     padding: 5,
@@ -131,7 +130,6 @@ const FeedItem = memo(function FeedItem({
             <View>
                 <TouchableOpacity activeOpacity={0.5} onPress={() => navigateToPost("post/comment", data)}>
                     <Text
-                        variant="heading4"
                         style={{
                             marginHorizontal: "2%",
                             fontWeight: "400",
@@ -355,7 +353,7 @@ const FeedItemContent = memo(function FeedItemContent({ data,
             onPress={() => {
                 navigation.push("profile", { username: data.user.username })
             }}>
-            <Text variant="heading4"
+            <Text
                 style={{
                     fontWeight: "500",
                     fontSize: 16
@@ -365,8 +363,8 @@ const FeedItemContent = memo(function FeedItemContent({ data,
             </Text>
         </TouchableWithoutFeedback>
         <TouchableWithoutFeedback onPress={() => setReadMore(!readMore)}>
-            <Text variant="heading4"
-                colorVariant="secondary"
+            <Text
+                variantColor='secondary'
                 style={{
                     marginHorizontal: "2%",
                     fontWeight: "400",

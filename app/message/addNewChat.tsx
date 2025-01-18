@@ -1,7 +1,8 @@
 import React from "react";
 import AppHeader from "@/components/AppHeader";
 import { ListEmptyComponent } from "@/components/home";
-import { Avatar, Input, Loader, TouchableOpacity, Text, ThemedView } from "@/components/skysolo-ui";
+import { Avatar } from "@/components/skysolo-ui";
+import { Input, Loader, TouchableOpacity, Text, ThemedView } from 'hyper-native-ui';
 import debounce from "@/lib/debouncing";
 import { setConversation } from "@/redux-stores/slice/conversation";
 import { CreateConversationApi } from "@/redux-stores/slice/conversation/api.service";
@@ -50,9 +51,7 @@ const NewChatScreen = memo(function NewChatScreen({
 
     return (
         <ThemedView style={{
-            flex: 1,
-            width: '100%',
-            height: '100%',
+            flex: 1
         }}>
             <AppHeader navigation={navigation} title='New Message' />
             <View style={{
@@ -62,13 +61,15 @@ const NewChatScreen = memo(function NewChatScreen({
                 justifyContent: 'space-between',
             }}>
                 <Input placeholder="Search"
-                    leftSideComponent={<Text variant="heading3" colorVariant="secondary" style={{
-                        paddingHorizontal: 5,
-                        marginRight: 4
-                    }}>To :</Text>}
+                    leftSideComponent={<View>
+                        <Text variantColor="secondary" style={{
+                            paddingHorizontal: 5,
+                            marginRight: 4
+                        }}>To :</Text>
+                    </View>}
                     onChangeText={delayFetchUsers}
+                    containerStyle={{ width: "100%" }}
                     style={{
-                        width: "90%",
                         borderRadius: 30,
                         borderWidth: 0,
                     }} />
@@ -122,8 +123,8 @@ const UserItem = memo(function UserItem({
                     display: 'flex',
                     flexDirection: 'column',
                 }}>
-                    <Text variant="heading3">{data.name}</Text>
-                    <Text variant="heading4">{data.username}</Text>
+                    <Text variant="H6">{data.name}</Text>
+                    <Text>{data.username}</Text>
                 </View>
             </View>
         </View>

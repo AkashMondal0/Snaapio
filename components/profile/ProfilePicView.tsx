@@ -1,8 +1,9 @@
+import React from "react";
 import { Avatar } from "@/components/skysolo-ui";
 import { fetchStoryApi } from "@/redux-stores/slice/account/api.service";
 import { disPatchResponse, loadingType, Story, User } from "@/types";
 import { useCallback, useEffect, useState } from "react";
-import { Modal, StatusBar, TouchableOpacity, Vibration } from "react-native";
+import { Modal, TouchableOpacity, Vibration } from "react-native";
 import { useDispatch } from "react-redux";
 
 const ProfilePicView = ({ user, onPress }: {
@@ -54,14 +55,10 @@ const ProfilePicView = ({ user, onPress }: {
             <Modal
                 style={{ flex: 1 }}
                 animationType="fade"
+                statusBarTranslucent
                 transparent={true}
                 visible={modalVisible}
                 onRequestClose={toggleModal}>
-                {modalVisible ? <StatusBar
-                    animated={true}
-                    barStyle={"light-content"}
-                    backgroundColor={"rgba(0,0,0,0.9)"}
-                    translucent={true} /> : <></>}
                 <TouchableOpacity
                     activeOpacity={1}
                     onPress={toggleModal}

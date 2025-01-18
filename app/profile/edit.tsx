@@ -1,6 +1,7 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import { ScrollView, ToastAndroid, TouchableOpacity, View } from 'react-native';
-import { Avatar, Button, Icon, Input, Text, View as ThemedView } from '@/components/skysolo-ui';
+import { Avatar, Icon } from '@/components/skysolo-ui';
+import { Button, Input, Text, ThemedView } from "hyper-native-ui"
 import AppHeader from '@/components/AppHeader';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
@@ -105,7 +106,7 @@ const ProfileEditScreen = memo(function ProfileEditScreen({
 
     const ErrorMessage = ({ text }: any) => {
         return <Text
-            colorVariant="danger"
+            variantColor="Red"
             style={{
                 fontSize: 14,
                 textAlign: "left",
@@ -117,14 +118,14 @@ const ProfileEditScreen = memo(function ProfileEditScreen({
     }
 
     return <ThemedView style={{
-        flex: 1
+        flex: 1,
+        width: "100%"
     }}>
         <AppHeader title="Edit Profile" navigation={navigation} />
         <ScrollView
             keyboardDismissMode='on-drag'
             keyboardShouldPersistTaps='handled'>
-            <ThemedView
-                variant="secondary"
+            <View
                 style={{
                     width: 120,
                     aspectRatio: 1 / 1,
@@ -160,7 +161,7 @@ const ProfileEditScreen = memo(function ProfileEditScreen({
                     <Avatar
                         size={120}
                         url={session?.profilePicture} />}
-            </ThemedView>
+            </View>
             <View style={{
                 padding: 20,
                 paddingTop: 10,
@@ -168,7 +169,7 @@ const ProfileEditScreen = memo(function ProfileEditScreen({
                 flexDirection: "column",
                 gap: 8
             }}>
-                <Text variant="heading4">Name</Text>
+                <Text>Name</Text>
                 <Controller
                     control={control}
                     render={({ field: { onChange, onBlur, value } }) => (
@@ -186,7 +187,7 @@ const ProfileEditScreen = memo(function ProfileEditScreen({
                     name="name"
                     rules={{ required: false }} />
                 <ErrorMessage text={errors.name?.message} />
-                <Text variant="heading4">Email</Text>
+                <Text>Email</Text>
                 <Controller
                     control={control}
                     render={({ field: { onChange, onBlur, value } }) => (
@@ -204,7 +205,7 @@ const ProfileEditScreen = memo(function ProfileEditScreen({
                     name="email"
                     rules={{ required: false }} />
                 <ErrorMessage text={errors.email?.message} />
-                <Text variant="heading4">Username</Text>
+                <Text>Username</Text>
                 <Controller
                     control={control}
                     render={({ field: { onChange, onBlur, value } }) => (
@@ -222,7 +223,7 @@ const ProfileEditScreen = memo(function ProfileEditScreen({
                     name="username"
                     rules={{ required: false }} />
                 <ErrorMessage text={errors.username?.message} />
-                <Text variant="heading4">Bio</Text>
+                <Text>Bio</Text>
                 <Controller
                     control={control}
                     render={({ field: { onChange, onBlur, value } }) => (

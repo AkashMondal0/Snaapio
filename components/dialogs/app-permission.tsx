@@ -1,8 +1,9 @@
 import { View } from "react-native";
-import { Button, Icon, Modal, Text } from "@/components/skysolo-ui"
+import { Icon } from "@/components/skysolo-ui"
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { setAppPermissionDialog } from "@/redux-stores/slice/dialog";
+import { Button, Modal, Text } from "hyper-native-ui";
 
 
 const AppPermissionDialog = ({
@@ -14,6 +15,7 @@ const AppPermissionDialog = ({
     const dispatch = useDispatch()
     return (
         <Modal
+            animationType="fade"
             setModalVisible={() => {
                 dispatch(setAppPermissionDialog({ visible: false, data: null }))
             }}
@@ -32,11 +34,11 @@ const AppPermissionDialog = ({
                     alignItems: 'center',
                     gap: 6,
                 }}>
-                    <Text variant="heading2">
+                    <Text variant="H4" bold={"semibold"}>
                         Permissions
                     </Text>
-                    <Text variant="heading4" colorVariant="secondary">
-                        To send media, allow SkySolo to access your photos, media and files on your device.
+                    <Text variantColor="secondary">
+                        To send media, allow Snaapio to access your photos, media and files on your device.
                     </Text>
                 </View>
 
@@ -48,9 +50,9 @@ const AppPermissionDialog = ({
                     flexDirection: 'row',
                     gap: 10,
                 }}>
-                    <Icon iconName="Folder" size={50} /> 
-                    <Icon iconName="Plus" size={30} /> 
-                    <Icon iconName="Image" size={50} /> 
+                    <Icon iconName="Folder" size={50} />
+                    <Icon iconName="Plus" size={30} />
+                    <Icon iconName="Image" size={50} />
                 </View>
 
                 <View style={{
@@ -61,10 +63,10 @@ const AppPermissionDialog = ({
                 }}>
                     <Button onPress={() => {
                         dispatch(setAppPermissionDialog({ visible: false, data: null }))
-                    }} variant="outline">
+                    }} variant="danger">
                         Not Now
                     </Button>
-                    <Button variant="default" onPress={() => {
+                    <Button variant="outline" onPress={() => {
                         dispatch(setAppPermissionDialog({ visible: false, data: null }))
                         confirm && confirm()
                     }}>

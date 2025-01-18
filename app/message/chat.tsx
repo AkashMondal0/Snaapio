@@ -1,4 +1,4 @@
-import { Text, ThemedView } from "@/components/skysolo-ui";
+import { ThemedView, Text } from "hyper-native-ui";
 import { memo, useCallback, } from "react";
 import { Navbar, Input, MessageList } from "@/components/message";
 import { useSelector } from "react-redux";
@@ -21,7 +21,7 @@ const ChatScreen = memo(function ChatScreen({ navigation, route }: ChatScreenPro
     const PressBack = useCallback(() => { navigation?.goBack() }, [])
 
     if (!ConversationData) return <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text variant="heading3">No conversation found</Text>
+        <Text variant="H4">No conversation found</Text>
     </View>
 
     return (

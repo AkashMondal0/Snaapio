@@ -1,12 +1,14 @@
 import { memo, useCallback, useEffect, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
-import { Avatar, Icon, View as Themed, Text, Image, Loader } from "@/components/skysolo-ui";
-import { useDispatch, useSelector } from "react-redux";
+import { Avatar, Icon, Image } from "@/components/skysolo-ui";
+import { ThemedView, Text, Loader } from "hyper-native-ui";
+import { useDispatch } from "react-redux";
 import { fetchStoryApi } from "@/redux-stores/slice/account/api.service";
 import { AuthorData, disPatchResponse, loadingType, NavigationProps, Story } from "@/types";
 import ErrorScreen from "@/components/error/page";
-import { timeFormat } from "@/lib/timeFormat";
-import { RootState } from "@/redux-stores/store";
+import { timeAgoFormat } from "@/lib/timeFormat";
+import { useTheme } from 'hyper-native-ui';
+import React from "react";
 
 interface ScreenProps {
     navigation: NavigationProps;
@@ -20,7 +22,7 @@ const StoryScreen = memo(function StoryScreen({
     route
 }: ScreenProps) {
     const { user } = route.params;
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
+    const { currentTheme } = useTheme();
     const [state, setState] = useState<{
         loading: loadingType,
         error: boolean,
@@ -72,16 +74,16 @@ const StoryScreen = memo(function StoryScreen({
     }, [currentImageIndex])
 
     if (state.loading === "idle" || state.loading === "pending") {
-        return <Themed style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        return <ThemedView style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
             <Loader size={50} />
-        </Themed>
+        </ThemedView>
     }
     if (state.loading === "normal" && state.error) {
         return <ErrorScreen />
     }
 
     return (
-        <Themed style={{
+        <ThemedView style={{
             flex: 1,
             width: '100%',
             height: '100%',
@@ -112,7 +114,7 @@ const StoryScreen = memo(function StoryScreen({
             <Header
                 PressBack={PressBack}
                 user={user}
-                time={timeFormat(data?.createdAt)} />
+                time={timeAgoFormat(data?.createdAt)} />
             <View style={{ height: 62 }} />
             {/* story */}
             <View
@@ -160,11 +162,11 @@ const StoryScreen = memo(function StoryScreen({
                 paddingVertical: 10,
                 paddingBottom: 20,
             }}>
-                <Text variant="heading4">
+                <Text>
                     {data?.content}
                 </Text>
             </View>
-        </Themed>
+        </ThemedView>
     )
 })
 export default StoryScreen;
@@ -178,7 +180,7 @@ const Header = ({
     user: AuthorData;
     time: string;
 }) => {
-    return <Themed
+    return <ThemedView
         style={{
             width: "100%",
             display: 'flex',
@@ -206,18 +208,17 @@ const Header = ({
                 gap: 10,
             }}>
                 <Avatar
+                    isBorder
                     size={50}
                     url={user?.profilePicture} />
                 <View>
                     <Text
-                        style={{ fontWeight: "600" }}
-                        variant="heading4">
-                        {user?.name}
+                        style={{ fontWeight: "600" }}>
+                        {user?.name ?? user?.username}
                     </Text>
                     <Text
-                        colorVariant="secondary"
-                        style={{ fontWeight: "400" }}
-                        variant="heading4">
+                        variantColor="secondary"
+                        style={{ fontWeight: "400" }}>
                         {time ?? ""}
                     </Text>
                 </View>
@@ -226,5 +227,5 @@ const Header = ({
         <View style={{ paddingRight: 10 }}>
             <Icon iconName={"Info"} isButton variant="secondary" size={26} style={{ elevation: 2 }} />
         </View>
-    </Themed>;
+    </ThemedView>;
 }

@@ -1,9 +1,11 @@
-import { Avatar, Icon, Text } from "@/components/skysolo-ui";
+import { Avatar, Icon } from "@/components/skysolo-ui";
+import { Text } from "hyper-native-ui";
 import { memo } from "react";
 import { Conversation } from "@/types";
 import { View } from "react-native";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
+import { useTheme } from 'hyper-native-ui';
 
 
 
@@ -14,8 +16,8 @@ const ChatScreenNavbar = memo(function ChatScreenNavbar({
     conversation: Conversation,
     pressBack: () => void
 }) {
-    const currentTheme = useSelector((state: RootState) => state.ThemeState.currentTheme)
-    const currentTyping = useSelector((Root: RootState) => Root.ConversationState.currentTyping)
+    const { currentTheme } = useTheme();
+    const currentTyping = useSelector((Root: RootState) => Root.ConversationState.currentTyping);
 
 
     return (
@@ -44,18 +46,18 @@ const ChatScreenNavbar = memo(function ChatScreenNavbar({
                     gap: 10,
                 }}>
                     <Avatar
-                        size={40}
+                        size={46}
                         url={conversation.user?.profilePicture} />
                     <View>
                         <Text
                             style={{ fontWeight: "600" }}
-                            variant="heading4">
+                            variant="body1">
                             {conversation?.user?.name}
                         </Text>
                         <Text
-                            colorVariant="secondary"
+                            variantColor="secondary"
                             style={{ fontWeight: "400" }}
-                            variant="heading4">
+                            variant="body2">
                             {currentTyping?.conversationId === conversation.id && currentTyping.typing ? "typing..." : "status"}
                         </Text>
                     </View>

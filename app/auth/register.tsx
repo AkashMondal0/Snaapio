@@ -4,7 +4,8 @@ import { useDispatch } from 'react-redux';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from "zod"
-import { Button, Icon, Input, Text, ThemedView } from '@/components/skysolo-ui';
+import { Icon } from '@/components/skysolo-ui';
+import { Text, Button, ThemedView, Input } from 'hyper-native-ui'
 import { registerApi } from '@/redux-stores/slice/auth/api.service';
 import { ApiResponse, Session } from '@/types';
 import { setSession } from '@/redux-stores/slice/auth';
@@ -118,7 +119,8 @@ const RegisterScreen = ({ navigation }: any) => {
                         Create an account to get all features
                     </Text>
                     <Text
-                        colorVariant="danger"
+                        variant="body1"
+                        variantColor="Red"
                         style={{
                             fontSize: 18,
                             textAlign: "left",
@@ -148,7 +150,8 @@ const RegisterScreen = ({ navigation }: any) => {
                         name="name"
                         rules={{ required: true }} />
                     <Text
-                        colorVariant="danger"
+                        variant="body1"
+                        variantColor="Red"
                         style={{
                             fontSize: 12,
                             textAlign: "left",
@@ -177,7 +180,8 @@ const RegisterScreen = ({ navigation }: any) => {
                         name="username"
                         rules={{ required: true }} />
                     <Text
-                        colorVariant="danger"
+                        variant="body1"
+                        variantColor="Red"
                         style={{
                             fontSize: 12,
                             textAlign: "left",
@@ -207,7 +211,8 @@ const RegisterScreen = ({ navigation }: any) => {
                         name="email"
                         rules={{ required: true }} />
                     <Text
-                        colorVariant="danger"
+                        variant="body1"
+                        variantColor="Red"
                         style={{
                             fontSize: 12,
                             textAlign: "left",
@@ -222,7 +227,7 @@ const RegisterScreen = ({ navigation }: any) => {
                         render={({ field: { onChange, onBlur, value } }) => (
                             <Input
                                 disabled={state.loading}
-                                style={{ width: "90%" }}
+                                style={{ width: "82%" }}
                                 secureTextEntry={!state.showPassword}
                                 isErrorBorder={errors.password}
                                 placeholder='Password'
@@ -231,13 +236,18 @@ const RegisterScreen = ({ navigation }: any) => {
                                 onBlur={onBlur}
                                 onChangeText={value => onChange(value)}
                                 value={value}
-                                rightSideComponent={state.showPassword ? <Icon iconName="Eye" size={26} onPress={() => setStats({ ...state, showPassword: false })} /> :
-                                    <Icon iconName="EyeOff" size={26} onPress={() => setStats({ ...state, showPassword: true })} />} />
+                                rightSideComponent={<View style={{
+                                    width: "8%"
+                                }}>
+                                    {state.showPassword ? <Icon iconName="Eye" size={26} onPress={() => setStats({ ...state, showPassword: false })} /> :
+                                        <Icon iconName="EyeOff" size={26} onPress={() => setStats({ ...state, showPassword: true })} />}
+                                </View>} />
                         )}
                         name="password"
                         rules={{ required: true }} />
                     <Text
-                        colorVariant="danger"
+                        variant="body1"
+                        variantColor="Red"
                         style={{
                             fontSize: 12,
                             textAlign: "left",

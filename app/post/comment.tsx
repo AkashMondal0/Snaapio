@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { memo, useCallback, useContext, useEffect, useRef, useState } from "react";
-import { Avatar, Icon, Input, Text, TouchableOpacity, Separator, Loader, ThemedView } from "@/components/skysolo-ui";
+import { Avatar, Icon } from "@/components/skysolo-ui";
 import { FlatList, ToastAndroid, TouchableWithoutFeedback, View } from "react-native";
 import { timeAgoFormat } from "@/lib/timeFormat";
 import { createPostCommentApi, fetchPostCommentsApi } from "@/redux-stores/slice/post/api.service";
@@ -17,6 +17,7 @@ import { Controller, useForm } from "react-hook-form";
 import ErrorScreen from "@/components/error/page";
 import ListEmpty from "@/components/ListEmpty";
 import React from "react";
+import { ThemedView, Input, Text, TouchableOpacity, Separator, Loader } from "hyper-native-ui";
 
 const schema = z.object({
     text: z.string().min(1)
@@ -143,12 +144,12 @@ const CommentItem = memo(function CommentItem({
                         onPress={() => {
                             navigation.push("profile", { username: data.user.username })
                         }}>
-                        <Text variant="heading3" lineBreakMode="clip" numberOfLines={2}>
+                        <Text lineBreakMode="clip" numberOfLines={2}>
                             {data.user.name}{" "}
                         </Text>
                     </TouchableWithoutFeedback>
-                    <Text variant="heading4"
-                        colorVariant="secondary"
+                    <Text
+                        variantColor="secondary"
                         numberOfLines={2}>
                         {data.content}
                     </Text>
@@ -160,13 +161,13 @@ const CommentItem = memo(function CommentItem({
                     alignItems: 'center',
                     width: '100%',
                 }}>
-                    <Text variant="heading4" colorVariant="secondary">
+                    <Text variantColor="secondary" variant="body2">
                         {timeAgoFormat(data.createdAt)}
                     </Text>
-                    <Text variant="heading4" colorVariant="default">
+                    <Text variantColor="default">
                         reply
                     </Text>
-                    <Text variant="heading4" colorVariant="danger">
+                    <Text variantColor="Red">
                         report
                     </Text>
                 </View>
@@ -261,12 +262,13 @@ const CommentInput = memo(function CommentInput({
                     alignItems: "center",
                     justifyContent: "space-between",
                     padding: "1.6%",
+                    gap: "1.2%"
                 }}>
                 <Controller
                     control={control}
                     render={({ field: { onChange, onBlur, value } }) => (
                         <Input placeholder="Type a message"
-                            secondaryColor
+                            // variant="secondary"
                             multiline
                             disabled={loading}
                             onBlur={onBlur}

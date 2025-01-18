@@ -1,5 +1,5 @@
 import { Dimensions, View } from "react-native";
-import { Text } from "@/components/skysolo-ui";
+import { Text } from "hyper-native-ui";
 
 
 const ListEmptyComponent = ({
@@ -16,7 +16,7 @@ const ListEmptyComponent = ({
             width: '100%',
             flex: 1,
         }}>
-            <Text variant="heading2" >{text}</Text>
+            <Text variant="H4" >{text}</Text>
         </View>
     )
 }

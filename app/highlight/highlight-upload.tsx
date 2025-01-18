@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useRef, useState } from 'react';
 import { View, ScrollView, ToastAndroid } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
-import { Button, Separator, Input } from '@/components/skysolo-ui';
+import { Button, Separator, Input } from 'hyper-native-ui';
 import AppHeader from '@/components/AppHeader';
 import { disPatchResponse, PageProps, Story } from '@/types';
 import { useDispatch, useSelector } from 'react-redux';
