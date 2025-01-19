@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { ScrollView, ToastAndroid, View } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { Controller, useForm } from 'react-hook-form';
@@ -38,7 +38,10 @@ const RegisterScreen = ({ navigation }: any) => {
         loading: false,
         errorMessage: null
     });
-    const dispatch = useDispatch()
+    const dispatch = useDispatch();
+    const input1Ref = useRef<any>(null);
+    const input2Ref = useRef<any>(null);
+    const input3Ref = useRef<any>(null);
 
     const { control, handleSubmit, formState: { errors } } = useForm({
         defaultValues: {
@@ -145,7 +148,10 @@ const RegisterScreen = ({ navigation }: any) => {
                                 placeholder='Name'
                                 textContentType="name"
                                 keyboardType="default"
-                                returnKeyType="next" />
+                                returnKeyType="next"
+                                onSubmitEditing={() => input1Ref.current?.focus()}
+                                blurOnSubmit={false}
+                            />
                         )}
                         name="name"
                         rules={{ required: true }} />
@@ -175,7 +181,10 @@ const RegisterScreen = ({ navigation }: any) => {
                                 value={value}
                                 placeholder='Username'
                                 keyboardType="default"
-                                returnKeyType="next" />
+                                returnKeyType="next"
+                                ref={input1Ref}
+                                onSubmitEditing={() => input2Ref.current?.focus()}
+                                blurOnSubmit={false} />
                         )}
                         name="username"
                         rules={{ required: true }} />
@@ -206,7 +215,10 @@ const RegisterScreen = ({ navigation }: any) => {
                                 placeholder='Email'
                                 textContentType='emailAddress'
                                 keyboardType="email-address"
-                                returnKeyType="next" />
+                                returnKeyType="next"
+                                ref={input2Ref}
+                                onSubmitEditing={() => input3Ref.current?.focus()}
+                                blurOnSubmit={false} />
                         )}
                         name="email"
                         rules={{ required: true }} />
@@ -233,6 +245,9 @@ const RegisterScreen = ({ navigation }: any) => {
                                 placeholder='Password'
                                 textContentType='password'
                                 returnKeyType="done"
+                                ref={input3Ref}
+                                onSubmitEditing={handleSubmit(handleLogin)}
+                                blurOnSubmit={false}
                                 onBlur={onBlur}
                                 onChangeText={value => onChange(value)}
                                 value={value}

@@ -19,7 +19,7 @@ import {
 } from '@/app/message';
 import PreConfiguration from '@/provider/PreConfiguration';
 import BottomSheetProvider from '@/provider/BottomSheetProvider';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import SocketConnections from '@/provider/SocketConnections';
 import { PostReviewScreen, NewPostSelectionScreen } from '@/app/upload';
 import { ProfileEditScreen } from '@/app/profile';
@@ -27,27 +27,27 @@ import { PostScreen } from '@/app/post';
 import { StoryScreen, StorySelectingScreen, StoryUploadScreen } from '@/app/story';
 import { HighlightPageScreen, HighlightSelectingScreen, HighlightUploadScreen } from '@/app/highlight';
 import { ThemeProvider, useTheme } from 'hyper-native-ui';
-import { Appearance, StatusBar } from 'react-native';
+import { Appearance, StatusBar, View } from 'react-native';
 
 SplashScreen.preventAutoHideAsync();
 const Stack = createNativeStackNavigator();
 
 function Routes(backgroundColor: any) {
-  const session = useSelector((state: RootState) => state.AuthState.session)
-  // const insets = useSafeAreaInsets();
+  const session = useSelector((state: RootState) => state.AuthState.session);
+  const insets = useSafeAreaInsets();
   return (
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
         contentStyle: {
           backgroundColor: backgroundColor,
-          paddingTop: StatusBar.currentHeight,
           flex: 1,
           // width: '100%',
           // height: '100%',
-          // paddingBottom: insets.bottom,
-          // paddingLeft: insets.left,
-          // paddingRight: insets.right,
+          // paddingTop: StatusBar.currentHeight,
+          paddingBottom: insets.bottom,
+          paddingLeft: insets.left,
+          paddingRight: insets.right,
         }
       }}>
       {session.user ?
@@ -103,13 +103,19 @@ function Routes(backgroundColor: any) {
 }
 
 function Root() {
+  const themeColorSchema = Appearance.getColorScheme() === "dark";
   const { currentTheme } = useTheme();
-
+  const background = currentTheme.background ? currentTheme.background : themeColorSchema ? "#000" : "#fff";
   return (<>
+    <View style={{
+      height: StatusBar.currentHeight,
+      width: "100%",
+      backgroundColor: background
+    }} />
     <StatusBar translucent
-      backgroundColor={"transparent"}
-      barStyle={Appearance.getColorScheme() === "dark" ? "light-content" : "dark-content"} />
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: currentTheme.background }}>
+      backgroundColor={background}
+      barStyle={themeColorSchema ? "light-content" : "dark-content"} />
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: background }}>
       <SafeAreaProvider>
         <NavigationContainer>
           <SocketConnections >

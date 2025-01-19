@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { ScrollView, ToastAndroid, View } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { Controller, useForm } from 'react-hook-form';
@@ -27,7 +27,8 @@ const LoginScreen = ({ navigation }: any) => {
         loading: false,
         errorMessage: null
     });
-    const dispatch = useDispatch()
+    const dispatch = useDispatch();
+    const inputRef = useRef<any>(null);
 
     const { control, handleSubmit, formState: { errors } } = useForm({
         defaultValues: {
@@ -125,7 +126,9 @@ const LoginScreen = ({ navigation }: any) => {
                                 placeholder='Email'
                                 textContentType='emailAddress'
                                 keyboardType="email-address"
-                                returnKeyType="next" />
+                                returnKeyType="next"
+                                onSubmitEditing={() => inputRef.current?.focus()}
+                                blurOnSubmit={false} />
                         )}
                         name="email"
                         rules={{ required: true }} />
@@ -145,6 +148,9 @@ const LoginScreen = ({ navigation }: any) => {
                         control={control}
                         render={({ field: { onChange, onBlur, value } }) => (
                             <Input
+                                ref={inputRef}
+                                onSubmitEditing={handleSubmit(handleLogin)}
+                                blurOnSubmit={false}
                                 disabled={state.loading}
                                 style={{ width: "82%" }}
                                 secureTextEntry={!state.showPassword}
