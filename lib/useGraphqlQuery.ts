@@ -1,7 +1,7 @@
-import { useCallback, useReducer, useRef } from 'react';
+import { useCallback, useReducer } from 'react';
 import { configs } from "@/configs";
-import { SecureStorage } from "@/lib/SecureStore";
-import { loadingType } from '@/types';
+import { loadingType, Session } from '@/types';
+import { getSecureStorage } from './SecureStore';
 
 interface GraphqlResponse<T> {
     data: T;
@@ -82,10 +82,12 @@ export const useGraphqlQuery = <T>({
 
     const getBearerToken = useCallback(async () => {
         try {
-            const token = await SecureStorage("get", configs.sessionName);
+            const token = await getSecureStorage<Session["user"]>(configs.sessionName);
+            if (!token) return null
+            console.error("Error retrieving token from SecureStorage 1");
             return token?.accessToken;
         } catch (err) {
-            console.error("Error retrieving token from SecureStorage", err);
+            console.error("Error retrieving token from SecureStorage 2", err);
             return null;
         }
     }, []);

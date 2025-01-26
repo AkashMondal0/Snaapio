@@ -8,9 +8,9 @@ import { Loader, useTheme } from 'hyper-native-ui';
 import { ToastAndroid } from "react-native";
 import { timeFormat } from '@/lib/timeFormat';
 import { AiMessage, loadMyPrompt } from '@/redux-stores/slice/conversation';
-import { localStorage } from '@/lib/LocalStorage';
 
 import Markdown, { MarkdownIt, stringToTokens, tokensToAST } from 'react-native-markdown-display';
+import { getSecureStorage } from '@/lib/SecureStore';
 let loaded = false
 const AiMessageList = memo(function AiMessageList({
     navigation
@@ -26,7 +26,7 @@ const AiMessageList = memo(function AiMessageList({
 
     const loadMoreMessages = useCallback(async () => {
         if (loaded) return
-        const fetchList = await localStorage("get", "myPrompt")
+        const fetchList = await getSecureStorage("myPrompt")
         dispatch(loadMyPrompt(JSON.parse(fetchList as string)))
         loaded = true
     }, [])

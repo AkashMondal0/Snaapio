@@ -1,5 +1,5 @@
 import { configs } from "@/configs";
-import { getSecureStorage, SecureStorage } from "@/lib/SecureStore";
+import { deleteSecureStorage, getSecureStorage, setSecureStorage } from "@/lib/SecureStore";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { resetAccountState } from "../account";
 import { resetConversationState } from "../conversation";
@@ -40,7 +40,7 @@ export const loginApi = async ({
                     code: 0
                 }
             }
-            SecureStorage("set", configs.sessionName, JSON.stringify(_data))
+            setSecureStorage(configs.sessionName, JSON.stringify(_data))
             return {
                 data: _data,
                 message: "Login Successful",
@@ -91,7 +91,7 @@ export const registerApi = async ({
                     code: 0
                 }
             }
-            SecureStorage("set", configs.sessionName, JSON.stringify(_data))
+            setSecureStorage(configs.sessionName, JSON.stringify(_data))
             return {
                 data: _data,
                 message: "Register Successful",
@@ -111,13 +111,13 @@ export const logoutApi = createAsyncThunk(
     'fetchConversationApi/get',
     async (_, thunkAPI) => {
         try {
-            await SecureStorage("remove", configs.sessionName)
-            thunkAPI.dispatch(resetAccountState())
-            thunkAPI.dispatch(resetConversationState())
-            thunkAPI.dispatch(resetPostState())
-            thunkAPI.dispatch(resetProfileState())
-            thunkAPI.dispatch(resetUserState())
-            thunkAPI.dispatch(resetNotificationState())
+            await deleteSecureStorage(configs.sessionName);
+            thunkAPI.dispatch(resetAccountState());
+            thunkAPI.dispatch(resetConversationState());
+            thunkAPI.dispatch(resetPostState());
+            thunkAPI.dispatch(resetProfileState());
+            thunkAPI.dispatch(resetUserState());
+            thunkAPI.dispatch(resetNotificationState());
             await fetch(`${configs.serverApi.baseUrl}/auth/logout`, {
                 headers: {
                     "Content-Type": "application/json",
@@ -126,11 +126,11 @@ export const logoutApi = createAsyncThunk(
                 redirect: "follow",
                 credentials: "include",
                 body: JSON.stringify({}),
-            })
-            return true
+            });
+            return true;
         } catch (error) {
-            console.error("Error in logging out", error)
-            return false
+            console.error("Error in logging out", error);
+            return false;
         }
     }
 );
@@ -183,13 +183,12 @@ export const profileUpdateApi = createAsyncThunk(
                 data = res;
             }
             // Update the session with the new details
-            const { id, ...updatedDetails } = data;
             const session = await getSecureStorage<Session["user"]>(configs.sessionName);
-            await SecureStorage("set", configs.sessionName, JSON.stringify({
+            await setSecureStorage(configs.sessionName, JSON.stringify({
                 ...session,
-                ...updatedDetails
+                ...updateUsersInput
             }));
-            return updatedDetails;
+            return updateUsersInput;
         } catch (error: any) {
             return thunkApi.rejectWithValue({
                 ...error?.response?.data,

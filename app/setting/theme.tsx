@@ -1,18 +1,18 @@
 import React from "react";
-import { memo, useCallback, useEffect, useState } from "react";
-import { ThemedView, useTheme, themeColors, Switch, Text } from "hyper-native-ui";
+import { memo, useCallback, useState } from "react";
+import { ThemedView, useTheme, themeColors, Switch, Text, Dropdown } from "hyper-native-ui";
 import { TouchableOpacity, View } from "react-native";
-import { localStorage } from "@/lib/LocalStorage";
 import AppHeader from "@/components/AppHeader";
 import { Icon } from "@/components/skysolo-ui";
 import { configs } from "@/configs";
+import { setSecureStorage } from "@/lib/SecureStore";
 
 const ThemeSettingScreen = memo(function HomeScreen({ navigation }: any) {
     const { changeTheme } = useTheme();
 
     const handleChange = useCallback(async (themeName: any) => {
         try {
-            await localStorage("set", configs.themeName, themeName);
+            await setSecureStorage(configs.themeName, themeName);
             changeTheme(themeName);
         } catch (error) {
             console.error("Error in setting theme", error);
@@ -52,6 +52,7 @@ const ThemeSettingScreen = memo(function HomeScreen({ navigation }: any) {
                     </TouchableOpacity>
                 })}
             </View>
+            <Dropdown data={[]} />
             <SwitchDarkComponent />
         </ThemedView>
     )
@@ -67,7 +68,7 @@ const SwitchDarkComponent = () => {
     const onValueChange = useCallback(async (value: boolean) => {
         try {
             const condition = value ? "dark" : "light";
-            await localStorage("set", configs.themeSchema, condition);
+            await setSecureStorage(configs.themeSchema, condition);
             toggleTheme(condition);
         } catch (error) {
             console.error("Error in setting theme", error);
@@ -79,11 +80,11 @@ const SwitchDarkComponent = () => {
     const onSTChange = useCallback(async (value: boolean) => {
         try {
             if (value) {
-                await localStorage("set", configs.themeSchema, "system");
-                toggleTheme("system")
+                await setSecureStorage(configs.themeSchema, "system");
+                toggleTheme("system");
             } else {
-                await localStorage("set", configs.themeSchema, themeScheme);
-                toggleTheme(themeScheme)
+                await setSecureStorage(configs.themeSchema, themeScheme);
+                toggleTheme(themeScheme);
             }
         } catch (error) {
             console.error("Error in setting theme", error);
@@ -91,10 +92,6 @@ const SwitchDarkComponent = () => {
             setState2(value);
         }
     }, [themeScheme]);
-
-    useEffect(() => {
-        setState(themeScheme === "dark")
-    }, [themeScheme])
 
     return (<>
         <Text center variant="H4" disabled={state2}>
@@ -148,5 +145,5 @@ const SwitchDarkComponent = () => {
             </View>
             <Switch onValueChange={onSTChange} isChecked={state2} size="medium" />
         </View>
-    </>)
+    </>);
 }

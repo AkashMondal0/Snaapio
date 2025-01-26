@@ -1,37 +1,45 @@
 import * as SecureStore from 'expo-secure-store';
 
-const SecureStorage = async (method: "get" | "set" | "remove", key: string, setItemValue?: string) => {
-    try {
-        if (method === "get") {
-            const value = await SecureStore.getItemAsync(key);
-            if (!value) return null
-            return JSON.parse(value)
-        }
-        if (method === "set") {
-            if (!setItemValue) throw new Error("setItemValue is required")
-            return await SecureStore.setItemAsync(key, setItemValue);
-        }
-        if (method === "remove") {
-            return await SecureStore.deleteItemAsync(key);
-        }
-        else {
-            throw new Error("Invalid method")
-        }
-    } catch (err) {
-        console.error("Error in saving theme from redux async storage", err)
-        // throw new Error("Error in saving theme from redux async storage")
+const getSecureStorage = async <T>(key: string, dataType?: "string" | "json"): Promise<T | null> => {
+    if (!key) {
+        console.error('key not found');
+        return null
     }
-}
-
-const getSecureStorage = async <T>(key: string): Promise<T | null> => {
     try {
         const value = await SecureStore.getItemAsync(key);
-        if (!value) return null
-        return JSON.parse(value)
+        if (!value) return null;
+        if (dataType === "string") {
+            return value as any
+        }
+        return JSON.parse(value);
     } catch (err) {
-        console.error("Error in getting theme from redux async storage", err)
+        console.error("Error in get secure function", err)
         return null
     }
 }
 
-export { SecureStorage, getSecureStorage }
+const setSecureStorage = async (key: string, value: string): Promise<boolean> => {
+    if (!key || !value) {
+        console.error('key or value not found');
+        return false
+    }
+    try {
+        await SecureStore.setItemAsync(key, value);
+        return true
+    } catch (err) {
+        console.error("Error in set secure function", err)
+        return false
+    }
+}
+
+const deleteSecureStorage = async (key: string): Promise<boolean> => {
+    try {
+        await SecureStore.deleteItemAsync(key);
+        return true
+    } catch (err) {
+        console.error("Error in delete secure function", err)
+        return false
+    }
+}
+
+export { getSecureStorage, setSecureStorage, deleteSecureStorage }

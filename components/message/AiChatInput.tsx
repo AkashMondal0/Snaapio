@@ -12,11 +12,11 @@ import { Controller, useForm } from "react-hook-form";
 import { AiMessagePromptApi } from "@/redux-stores/slice/conversation/api.service";
 import { AiMessage, saveMyPrompt } from "@/redux-stores/slice/conversation";
 import { uuid } from "@/lib/uuid";
-import { localStorage } from "@/lib/LocalStorage";
 import * as ImagePicker from 'expo-image-picker';
 import { Image } from "react-native";
 import { Input } from "hyper-native-ui";
 import React from "react";
+import { getSecureStorage, setSecureStorage } from "@/lib/SecureStore";
 
 const schema = z.object({
     message: z.string().min(1)
@@ -52,28 +52,28 @@ const AiChatScreenInput = memo(function AiChatScreenInput({
     });
 
     const sendMessageHandle = useCallback(async (_data: { message: string }) => {
-        setLoading((pre) => !pre)
+        setLoading((pre) => !pre);
         try {
-            if (!session?.id) return ToastAndroid.show("Something went wrong CI", ToastAndroid.SHORT)
+            if (!session?.id) return ToastAndroid.show("Something went wrong CI", ToastAndroid.SHORT);
             let allPrompts = [] as AiMessage[];
-            const getPreviousPrompt = await localStorage("get", "myPrompt")
+            const getPreviousPrompt = await getSecureStorage<string>("myPrompt");
             if (getPreviousPrompt) {
-                allPrompts = JSON.parse(getPreviousPrompt) as AiMessage[]
+                allPrompts = JSON.parse(getPreviousPrompt);
             } else {
-                await localStorage("set", "myPrompt", JSON.stringify([]))
-            }
+                await setSecureStorage("myPrompt", JSON.stringify([]));
+            };
             dispatch(saveMyPrompt({
                 id: uuid(),
                 content: _data.message,
                 image: image,
                 createdAt: new Date().toISOString(),
                 isAi: false,
-            }))
+            }));
             const response = await dispatch(AiMessagePromptApi({
                 content: _data.message,
                 authorId: session.id,
                 file: image
-            }) as any) as disPatchResponse<string | any>
+            }) as any) as disPatchResponse<string | any>;
             if (response.error) {
                 return ToastAndroid.show(response.payload?.message || "Something went wrong", ToastAndroid.SHORT)
             }
@@ -83,8 +83,8 @@ const AiChatScreenInput = memo(function AiChatScreenInput({
                 image: image,
                 createdAt: new Date().toISOString(),
                 isAi: true,
-            }))
-            await localStorage("set", "myPrompt", JSON.stringify([...allPrompts,
+            }));
+            await setSecureStorage("myPrompt", JSON.stringify([...allPrompts,
             {
                 id: uuid(),
                 content: _data.message,

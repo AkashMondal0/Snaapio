@@ -1,5 +1,6 @@
 import { configs } from "@/configs"
-import { SecureStorage } from "@/lib/SecureStore";
+import { getSecureStorage } from "./SecureStore";
+import { Session } from "@/types";
 interface GraphqlResponse<T> {
     data: T;
     errors: GraphqlError[];
@@ -27,39 +28,43 @@ export const graphqlQuery = async <T>({
     url?: string;
     withCredentials?: boolean;
     errorCallBack?: (error: GraphqlError[]) => void;
-}): Promise<T | any> => {
-    const BearerToken = await SecureStorage("get", configs.sessionName)
-        .then((res) => res?.accessToken)
-        .catch((err) => {
-            console.error("Error in getting token from secure storage", err)
-            return
-        })
-    const response = await fetch(url, {
-        method: 'POST',
-        credentials: "include",
-        headers: {
-            'Content-Type': 'application/json',
-            "Authorization": BearerToken,
-        },
-        body: JSON.stringify({
-            query,
-            variables,
-        }),
-        cache: 'no-cache',
-    });
+}): Promise<T | Error> => {
+    try {
+        const BearerToken = await getSecureStorage<Session["user"]>(configs.sessionName);
+        if (!BearerToken?.accessToken) {
+            throw new Error('Error retrieving token from SecureStorage');
+        };
 
-    if (!response.ok) {
+        const response = await fetch(url, {
+            method: 'POST',
+            credentials: "include",
+            headers: {
+                'Content-Type': 'application/json',
+                "Authorization": BearerToken.accessToken,
+            },
+            body: JSON.stringify({
+                query,
+                variables,
+            }),
+            cache: 'no-cache',
+        });
+
+        if (!response.ok) {
+            const responseBody: GraphqlResponse<any> = await response.json();
+            console.error(responseBody)
+            throw new Error('Network response was not ok');
+        }
+
         const responseBody: GraphqlResponse<any> = await response.json();
-        console.error(responseBody)
-        throw new Error('Network response was not ok');
+
+        if (responseBody?.errors || !responseBody?.data || responseBody?.error) {
+            console.error(responseBody)
+            throw new Error('Error in response');
+        }
+
+        return responseBody.data[Object.keys(responseBody.data)[0]];
+    } catch (e) {
+        console.error("Internal Error", e)
+        throw new Error('Internal Error');
     }
-
-    const responseBody: GraphqlResponse<any> = await response.json();
-
-    if (responseBody?.errors || !responseBody?.data || responseBody?.error) {
-        console.error(responseBody)
-        throw new Error('Error in response');
-    }
-
-    return responseBody.data[Object.keys(responseBody.data)[0]];
 }

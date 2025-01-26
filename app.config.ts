@@ -83,12 +83,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       }
     ],
     [
-      "expo-av",
-      {
-        microphonePermission: "Allow $(PRODUCT_NAME) to access your microphone."
-      }
-    ],
-    [
       "expo-camera",
       {
         cameraPermission: "Allow $(PRODUCT_NAME) to access your camera",
@@ -108,6 +102,19 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       "expo-secure-store",
       {
         faceIDPermission: "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
+      }
+    ],
+    [
+      "expo-audio",
+      {
+        microphonePermission: "Allow $(PRODUCT_NAME) to access your microphone."
+      }
+    ],
+    [
+      "expo-video",
+      {
+        supportsBackgroundPlayback: true,
+        supportsPictureInPicture: true
       }
     ]
   ],
