@@ -27,7 +27,7 @@ import { PostScreen } from '@/app/post';
 import { StoryScreen, StorySelectingScreen, StoryUploadScreen } from '@/app/story';
 import { HighlightPageScreen, HighlightSelectingScreen, HighlightUploadScreen } from '@/app/highlight';
 import { ThemeProvider, useTheme } from 'hyper-native-ui';
-import { Appearance } from 'react-native';
+import { Appearance, StatusBar } from 'react-native';
 
 SplashScreen.preventAutoHideAsync();
 const Stack = createNativeStackNavigator();
@@ -44,7 +44,7 @@ function Routes(backgroundColor: any) {
           flex: 1,
           // width: '100%',
           // height: '100%',
-          paddingTop: insets.top,
+          // paddingTop: insets.top,
           paddingBottom: insets.bottom,
           paddingLeft: insets.left,
           paddingRight: insets.right,
@@ -107,16 +107,12 @@ function Root() {
   const { currentTheme } = useTheme();
   const background = currentTheme.background ? currentTheme.background : themeColorSchema ? "#000" : "#fff";
   return (<>
-    {/* <View style={{
-      height: StatusBar.currentHeight,
-      width: "100%",
-      backgroundColor: background
-    }} />
-    <StatusBar translucent
-      backgroundColor={background}
-      barStyle={themeColorSchema ? "light-content" : "dark-content"} /> */}
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: background }}>
-      <SafeAreaProvider>
+      <SafeAreaProvider style={{
+        flex: 1,
+        paddingTop: StatusBar.currentHeight,
+        backgroundColor: background
+      }}>
         <NavigationContainer>
           <SocketConnections >
             <PreConfiguration />
@@ -134,10 +130,14 @@ function Root() {
 export default function App() {
 
   return (
-    <ThemeProvider enableThemedStatusBar>
-      <Provider store={store}>
-        <Root />
-      </Provider>
-    </ThemeProvider>
+    <>
+      <StatusBar translucent backgroundColor={"transparent"}
+        barStyle={Appearance.getColorScheme() === "dark" ? "light-content" : "dark-content"} />
+      <ThemeProvider>
+        <Provider store={store}>
+          <Root />
+        </Provider>
+      </ThemeProvider>
+    </>
   );
 };
