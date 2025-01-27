@@ -29,7 +29,7 @@ const Avatar = memo(function SkysoloAvatar({ style,
     isBorder = false,
     showImageError,
     size = 40,
-    borderWidth = 2,
+    borderWidth = 1.6,
     borderColorVariant = "primary",
     url,
     TouchableOpacityOptions,
@@ -92,7 +92,7 @@ const Avatar = memo(function SkysoloAvatar({ style,
                 borderWidth: borderWidth,
                 borderColor: isBorder ? colorVariant().borderColor : "transparent",
                 borderRadius: 500,
-                padding: 2.6,
+                padding: 0.5,
             }, TouchableOpacityOptions?.style]}
             activeOpacity={touchableOpacity ? 0.6 : 1}
             onLongPress={otherProps.onLongPress}

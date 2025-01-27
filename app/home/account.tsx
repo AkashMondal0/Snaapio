@@ -14,7 +14,7 @@ interface ScreenProps {
         params: { username: string }
     }
 }
-const ProfileScreen = ({ navigation, route }: ScreenProps) => {
+const AccountScreen = ({ navigation, route }: ScreenProps) => {
     const session = useSelector((state: RootState) => state.AuthState.session.user)
     const username = session?.username
     const isProfile = session?.username === username
@@ -91,7 +91,7 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
             width: "100%",
             height: "100%"
         }}>
-            <ProfileNavbar navigation={navigation}
+            <ProfileNavbar
                 isProfile={isProfile} username={username || "No User"} />
             <FlatList
                 data={Posts.current}
@@ -133,4 +133,4 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
     )
 }
 
-export default ProfileScreen;
+export default AccountScreen;

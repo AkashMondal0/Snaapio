@@ -1,21 +1,21 @@
 import React, { memo, useCallback, useState } from "react";
 import { View } from "react-native";
-import { NavigationProps, User } from "@/types";
+import { User } from "@/types";
 import ProfileInfoCount from "./ProfileInfoCount";
 import ProfileActionsButton from "./ProfileActionsButton";
 import ProfileStories from "./ProfileStories";
 import ProfilePicView from "./ProfilePicView";
 import { Separator, Text } from "hyper-native-ui";
+import { useNavigation } from "@react-navigation/native";
 
 const ProfileHeader = memo(function HomeScreen({
-    navigation,
     userData,
     isProfile
 }: {
-    navigation: NavigationProps,
     userData: User | null,
     isProfile: boolean
 }) {
+    const navigation = useNavigation();
     const [user, setUser] = useState<User | null>(userData)
     const handleFollow = () => {
         if (!user) return
@@ -44,7 +44,7 @@ const ProfileHeader = memo(function HomeScreen({
     }
 
     const onPress = useCallback(() => {
-        navigation.push('story', { user })
+        navigation.navigate("Story", {  })
     }, [user])
 
     return (
@@ -64,7 +64,7 @@ const ProfileHeader = memo(function HomeScreen({
                     marginBottom: 8,
                 }}>
                     <ProfilePicView user={user} onPress={onPress} />
-                    <ProfileInfoCount navigation={navigation} userData={user} />
+                    <ProfileInfoCount userData={user} />
                 </View>
                 <Text
                     variant="H6"
@@ -86,13 +86,12 @@ const ProfileHeader = memo(function HomeScreen({
                     {user?.bio}
                 </Text>
                 <ProfileActionsButton
-                    navigation={navigation}
                     handleFollow={handleFollow}
                     handleUnFollow={handleUnFollow}
                     userData={user}
                     isProfile={isProfile} />
             </View>
-            <ProfileStories navigation={navigation} isProfile={isProfile} user={user} />
+            <ProfileStories isProfile={isProfile} user={user} />
             <View style={{ height: 14 }} />
             <Separator value={0.8} />
         </>

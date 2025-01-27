@@ -4,14 +4,12 @@ import { Avatar, Icon } from "@/components/skysolo-ui";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { fetchAccountStoryTimelineApi, fetchAccountStoryApi } from "@/redux-stores/slice/account/api.service";
-import { AuthorData, NavigationProps, Session } from "@/types";
+import { AuthorData, Session } from "@/types";
 import { useTheme, Text, Loader } from 'hyper-native-ui';
+import { useNavigation } from "@react-navigation/native";
 
-const StoriesComponent = memo(function StoriesComponent({
-    navigation
-}: {
-    navigation: NavigationProps,
-}) {
+const StoriesComponent = memo(function StoriesComponent() {
+    const navigation = useNavigation();
     const storyList = useSelector((state: RootState) => state.AccountState.storyAvatars)
     const storyListLoading = useSelector((state: RootState) => state.AccountState.storyAvatarsLoading)
     const storyError = useSelector((state: RootState) => state.AccountState.storyAvatarsError)
@@ -42,11 +40,11 @@ const StoriesComponent = memo(function StoriesComponent({
     }, [totalFetchedItemCount])
 
     const onPress = useCallback((item: AuthorData | Session) => {
-        navigation.push('story', { user: item })
+        navigation.push('story', { user: item }) 
     }, [])
 
     const navigateToStoriesUpload = useCallback(() => {
-        navigation.navigate('story/selection')
+        navigation.navigate("SelectStory")
     }, [])
 
     return (

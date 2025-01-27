@@ -8,13 +8,15 @@ import { setOffNotificationPopup, setOnNotificationPopup } from "@/redux-stores/
 import { useEffect, useRef } from "react";
 import { Heart, MessageCircle } from "lucide-react-native";
 import { configs } from "@/configs";
+import { useNavigation } from "@react-navigation/native";
+import React from "react";
 let initial = false
 
 
-const HomeHeader = ({ navigation, translateY }: {
-    navigation: NavigationProps,
+const HomeHeader = ({ translateY }: {
     translateY: any
 }) => {
+    const navigation = useNavigation();
     const unreadChatCount = useSelector((state: RootState) => state.NotificationState.unreadChatCount)
     const unreadCommentCount = useSelector((state: RootState) => state.NotificationState.unreadCommentCount)
     const unreadPostLikeCount = useSelector((state: RootState) => state.NotificationState.unreadPostLikeCount)
@@ -59,7 +61,7 @@ const HomeHeader = ({ navigation, translateY }: {
                     }}
                     activeOpacity={0.8}
                     onPress={() => {
-                        navigation.navigate("notification")
+                        navigation.navigate("Notification")
                     }} >
                     <View style={{
                         position: "absolute",
@@ -75,13 +77,13 @@ const HomeHeader = ({ navigation, translateY }: {
                     }}>
                     </View>
                     <Icon iconName="Heart" size={30} onPress={() => {
-                        navigation.navigate("notification")
+                        navigation.navigate("Notification")
                     }} />
                 </TouchableOpacity>
                 <TouchableOpacity
                     activeOpacity={0.8}
                     onPress={() => {
-                        navigation.navigate("message")
+                        navigation.navigate("MessageList")
                     }}
                     style={{
                         width: 35,
@@ -108,7 +110,7 @@ const HomeHeader = ({ navigation, translateY }: {
                         </RNText> : <></>}
                     </View>
                     <Icon iconName="MessageCircleCode" size={32} onPress={() => {
-                        navigation.navigate("message")
+                        navigation.navigate("MessageList")
                     }} />
                 </TouchableOpacity>
             </View>

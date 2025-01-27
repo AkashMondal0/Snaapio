@@ -14,25 +14,21 @@ import useDebounce from '@/lib/debouncing';
 import { useTheme, Text } from 'hyper-native-ui';
 import { Avatar, Image, Icon } from '@/components/skysolo-ui';
 import React from 'react';
+import { useNavigation } from '@react-navigation/native';
+
 const FeedItem = memo(function FeedItem({
-    data,
-    navigation
+    data
 }: {
-    data: Post,
-    navigation: NavigationProps
+    data: Post
 }) {
+    const navigation = useNavigation();
     const { currentTheme } = useTheme();
     const [tabIndex, setTabIndex] = useState(0)
     const imageLength = data.fileUrl.length
     const navigateToProfile = useCallback(() => {
         if (!data.user) return ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
-        navigation.push("profile", { username: data.user.username })
+        navigation.navigate("Profile", { userId: data.user.username })
     }, [data.user])
-
-    const navigateToPost = useCallback((path: "post/like" | "post/comment", post: Post) => {
-        if (!post) return ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
-        navigation.push(path, { post, index: 0 })
-    }, [])
 
     return <View style={{
         width: "100%",
@@ -124,11 +120,13 @@ const FeedItem = memo(function FeedItem({
         </View> : <View />}
         {/* action */}
         <View>
-            <FeedItemActionsButtons post={data} onPress={navigateToPost} />
+            <FeedItemActionsButtons post={data} />
             {/* text */}
-            <FeedItemContent data={data} navigation={navigation} />
+            <FeedItemContent data={data} />
             <View>
-                <TouchableOpacity activeOpacity={0.5} onPress={() => navigateToPost("post/comment", data)}>
+                <TouchableOpacity activeOpacity={0.5} onPress={() => {
+                    navigation.navigate("PostComment" as any, { postId: data.id })
+                }}>
                     <Text
                         style={{
                             marginHorizontal: "2%",
@@ -148,14 +146,13 @@ export default FeedItem;
 const FeedItemActionsButtons = (
     {
         post,
-        onPress
     }: {
-        onPress: (path: "post/like" | "post/comment", post: Post) => void,
         post: Post
     }
 ) => {
     const SocketState = useContext(SocketContext)
     const dispatch = useDispatch()
+    const navigation = useNavigation();
     const session = useSelector((state: RootState) => state.AuthState.session.user)
     const [like, setLike] = useState({
         isLike: post.is_Liked,
@@ -251,7 +248,7 @@ const FeedItemActionsButtons = (
             iconName: "MessageCircle",
             count: post.commentCount,
             size: 30,
-            onPress: () => onPress("post/comment", post),
+            onPress: () => navigation.navigate("PostComment", { postId: post.id }),
         },
         {
             iconName: "Send",
@@ -282,7 +279,7 @@ const FeedItemActionsButtons = (
                 }} key={"like"}>
                     {!like.isLike ? <Icon iconName={"Heart"} size={30} onPress={onLike} /> :
                         <Heart size={30} fill={like.isLike ? "red" : ""} onPress={onLike} />}
-                    <TouchableOpacity onPress={() => onPress("post/like", post)} >
+                    <TouchableOpacity onPress={() => navigation.navigate("PostLike", { postId: post.id })} >
                         <Text style={{
                             fontSize: 16,
                             fontWeight: "600"
@@ -328,12 +325,11 @@ const ImageItem = memo(function ImageItem({ item, index }: { item: any, index: n
 }, (prev, next) => {
     return prev.item.id === next.item.id
 })
-const FeedItemContent = memo(function FeedItemContent({ data,
-    navigation
+const FeedItemContent = memo(function FeedItemContent({ data
 }: {
     data: Post,
-    navigation: NavigationProps
 }) {
+    const navigation = useNavigation();
     const [readMore, setReadMore] = useState(false)
 
     if (data.content.length <= 0) {
@@ -351,7 +347,7 @@ const FeedItemContent = memo(function FeedItemContent({ data,
                 borderColor: "red",
             }}
             onPress={() => {
-                navigation.push("profile", { username: data.user.username })
+                navigation.navigate("Profile", { userId: data.user.username })
             }}>
             <Text
                 style={{

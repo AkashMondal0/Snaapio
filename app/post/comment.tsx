@@ -18,23 +18,19 @@ import ErrorScreen from "@/components/error/page";
 import ListEmpty from "@/components/ListEmpty";
 import React from "react";
 import { ThemedView, Input, Text, TouchableOpacity, Separator, Loader } from "hyper-native-ui";
+import { StaticScreenProps } from "@react-navigation/native";
 
 const schema = z.object({
     text: z.string().min(1)
 })
-interface CommentScreenProps {
-    navigation: NavigationProps;
-    route: {
-        params: {
-            post: Post
-        }
-    }
-}
+type Props = StaticScreenProps<{
+    postId: string;
+}>;
 let totalFetchedItemCount = 0
 let postId = "NO_ID"
 
-const CommentScreen = memo(function CommentScreen({ navigation, route }: CommentScreenProps) {
-    const post = route?.params?.post
+const CommentScreen = memo(function CommentScreen({ route }: Props) {
+    const post = route?.params?.postId;
     const Comments = useSelector((Root: RootState) => Root.PostState.comments)
     const commentsLoading = useSelector((Root: RootState) => Root.PostState.commentsLoading)
     const commentsError = useSelector((Root: RootState) => Root.PostState.commentsError)

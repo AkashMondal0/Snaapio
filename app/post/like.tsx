@@ -6,25 +6,21 @@ import { ThemedView, Text, Loader, TouchableOpacity } from "hyper-native-ui";
 import { resetLike } from "@/redux-stores/slice/post";
 import { fetchPostLikesApi } from "@/redux-stores/slice/post/api.service";
 import { RootState } from "@/redux-stores/store";
-import { AuthorData, Comment, disPatchResponse, NavigationProps, Post } from "@/types";
+import { AuthorData, Comment, disPatchResponse } from "@/types";
 import { FlatList, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import ErrorScreen from "@/components/error/page";
 import ListEmpty from "@/components/ListEmpty";
-interface ScreenProps {
-    navigation: NavigationProps;
-    route: {
-        params: {
-            post: Post
-        }
-    }
-}
+import { StaticScreenProps } from "@react-navigation/native";
+type Props = StaticScreenProps<{
+    postId: string;
+}>;
 
 let totalFetchedItemCount = 0
 let postId = "NO_ID"
 
-const LikeScreen = memo(function LikeScreen({ navigation, route }: ScreenProps) {
-    const post = route?.params?.post
+const LikeScreen = memo(function LikeScreen({ route }: Props) {
+    const post = route?.params?.postId
     const likes = useSelector((Root: RootState) => Root.PostState.likesUserList)
     const likeLoading = useSelector((Root: RootState) => Root.PostState.likesLoading)
     const likesError = useSelector((Root: RootState) => Root.PostState.likesError)

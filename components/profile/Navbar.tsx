@@ -1,21 +1,19 @@
 import { memo } from "react";
 import { View } from "react-native";
 import { Icon } from "@/components/skysolo-ui";
-import { NavigationProps } from "@/types";
 import { useTheme, Text } from 'hyper-native-ui';
+import { useNavigation } from "@react-navigation/native";
 
 
 const ProfileNavbar = memo(function HomeScreen({
-    navigation,
     username,
     isProfile
 }: {
-    navigation: NavigationProps,
     username: string
     isProfile: boolean
 }) {
     const { currentTheme } = useTheme();
-
+    const navigation = useNavigation();
     if (isProfile) {
         return (
             <View style={{
@@ -43,8 +41,8 @@ const ProfileNavbar = memo(function HomeScreen({
                     gap: 12,
                     alignItems: 'center',
                 }}>
-                    <Icon iconName="Plus" size={28} onPress={() => navigation.navigate("Root", { screen: 'create' })} />
-                    <Icon iconName="Menu" size={28} onPress={() => navigation.navigate("settings")} />
+                    {/* <Icon iconName="Plus" size={28} onPress={() => navigation.navigate("")} /> */}
+                    <Icon iconName="Menu" size={28} onPress={() => navigation.navigate("Settings")} />
                 </View>
             </View>
         )

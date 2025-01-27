@@ -9,6 +9,7 @@ import { Text, Button, ThemedView, Input } from 'hyper-native-ui'
 import { loginApi } from '@/redux-stores/slice/auth/api.service';
 import { ApiResponse, Session } from '@/types';
 import { setSession } from '@/redux-stores/slice/auth';
+import { useNavigation } from '@react-navigation/native';
 
 const schema = z.object({
     email: z.string().email({ message: "Invalid email" })
@@ -17,7 +18,8 @@ const schema = z.object({
         .nonempty({ message: "Password is required" })
 })
 
-const LoginScreen = ({ navigation }: any) => {
+const LoginScreen = () => {
+    const navigation = useNavigation();
     const [state, setStats] = React.useState<{
         showPassword: boolean,
         loading: boolean,
@@ -78,7 +80,11 @@ const LoginScreen = ({ navigation }: any) => {
                     disabled={state.loading}
                     iconName="ArrowLeft"
                     size={30}
-                    onPress={() => navigation.goBack()}
+                    onPress={() => {
+                        if (navigation.canGoBack()) {
+                            navigation.goBack()
+                        }
+                    }}
                     isButton />
 
                 <View style={{

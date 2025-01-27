@@ -1,16 +1,16 @@
 import { memo } from "react";
-import { NavigationProps, User } from "@/types";
+import { User } from "@/types";
 import { TouchableOpacity, View } from "react-native";
 import { Text } from "hyper-native-ui";
+import { useNavigation } from "@react-navigation/native";
 
 
 const ProfileInfoCount = memo(function ProfileInfoCount({
-    navigation,
     userData,
 }: {
-    navigation: NavigationProps,
     userData: User | null,
 }) {
+    const navigation = useNavigation();
     const counts = [
         { title: "Posts", count: userData?.postCount, onPress: () => { } },
         {

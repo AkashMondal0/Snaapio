@@ -9,6 +9,7 @@ import { Text, Button, ThemedView, Input } from 'hyper-native-ui'
 import { registerApi } from '@/redux-stores/slice/auth/api.service';
 import { ApiResponse, Session } from '@/types';
 import { setSession } from '@/redux-stores/slice/auth';
+import { useNavigation } from '@react-navigation/native';
 
 const schema = z.object({
     username: z.string().min(2, {
@@ -28,7 +29,8 @@ const schema = z.object({
 });
 
 
-const RegisterScreen = ({ navigation }: any) => {
+const RegisterScreen = () => {
+    const navigation = useNavigation();
     const [state, setStats] = React.useState<{
         showPassword: boolean,
         loading: boolean,
@@ -97,7 +99,11 @@ const RegisterScreen = ({ navigation }: any) => {
                     disabled={state.loading}
                     iconName="ArrowLeft"
                     size={30}
-                    onPress={() => navigation.goBack()}
+                    onPress={() => {
+                        if (navigation.canGoBack()) {
+                            navigation.goBack()
+                        }
+                    }}
                     isButton />
                 <View style={{
                     flex: 1,

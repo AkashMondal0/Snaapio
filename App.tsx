@@ -1,126 +1,55 @@
 import * as React from 'react';
 import * as SplashScreen from 'expo-splash-screen';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { DefaultTheme } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Provider, useSelector } from 'react-redux';
 import { RootState, store } from '@/redux-stores/store';
-import { SettingScreen, ThemeSettingScreen } from '@/app/setting';
-import { InitialScreen, LoginScreen, RegisterScreen } from '@/app/auth';
-import BottomTabComponent from '@/app/home';
-import {
-  AskAiChatScreen,
-  AssetSelectScreen,
-  ChatAssetsReviewScreen,
-  ChatListScreen,
-  ChatScreen,
-  ImagePreviewScreen,
-  NewChatScreen
-} from '@/app/message';
 import PreConfiguration from '@/provider/PreConfiguration';
 import BottomSheetProvider from '@/provider/BottomSheetProvider';
-import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import SocketConnections from '@/provider/SocketConnections';
-import { PostReviewScreen, NewPostSelectionScreen } from '@/app/upload';
-import { ProfileEditScreen } from '@/app/profile';
-import { PostScreen } from '@/app/post';
-import { StoryScreen, StorySelectingScreen, StoryUploadScreen } from '@/app/story';
-import { HighlightPageScreen, HighlightSelectingScreen, HighlightUploadScreen } from '@/app/highlight';
 import { ThemeProvider, useTheme } from 'hyper-native-ui';
 import { Appearance, StatusBar } from 'react-native';
+import { AuthNavigation, Navigation } from '@/app/navigation';
+import * as Linking from 'expo-linking';
 
 SplashScreen.preventAutoHideAsync();
-const Stack = createNativeStackNavigator();
-
-function Routes(backgroundColor: any) {
-  const session = useSelector((state: RootState) => state.AuthState.session);
-  const insets = useSafeAreaInsets();
-  return (
-    <Stack.Navigator
-      screenOptions={{
-        headerShown: false,
-        contentStyle: {
-          backgroundColor: backgroundColor,
-          flex: 1,
-          // width: '100%',
-          // height: '100%',
-          // paddingTop: insets.top,
-          paddingBottom: insets.bottom,
-          paddingLeft: insets.left,
-          paddingRight: insets.right,
-        }
-      }}>
-      {session.user ?
-        <>
-          {/* feeds */}
-          <Stack.Screen name="Root" component={BottomTabComponent} />
-          {/* profile */}
-          <Stack.Screen name="profile/edit" component={ProfileEditScreen} />
-          {/* post */}
-          <Stack.Screen name="post" component={PostScreen} />
-          <Stack.Screen name="story" component={StoryScreen} />
-          <Stack.Screen name="story/upload" component={StoryUploadScreen} />
-          {/* highlight */}
-          <Stack.Screen name="highlight" component={HighlightPageScreen} />
-          <Stack.Screen name="highlight/selection" component={HighlightSelectingScreen} />
-          <Stack.Screen name="highlight/upload" component={HighlightUploadScreen} />
-
-          {/* settings */}
-          <Stack.Group>
-            <Stack.Screen name="settings" component={SettingScreen} />
-            <Stack.Screen name="settings/theme" component={ThemeSettingScreen} />
-          </Stack.Group>
-          {/* chat */}
-          <Stack.Group>
-            <Stack.Screen name="message" component={ChatListScreen} />
-            <Stack.Screen name="message/conversation" component={ChatScreen} />
-            <Stack.Screen name="message/searchNewChat" component={NewChatScreen} />
-            <Stack.Screen name="message/asset/review" component={ChatAssetsReviewScreen} />
-            <Stack.Screen name="message/assets/preview" component={ImagePreviewScreen} />
-            <Stack.Screen name="message/askAiChat" component={AskAiChatScreen} />
-          </Stack.Group>
-          {/* select assets */}
-          <Stack.Group screenOptions={{
-            animation: 'slide_from_bottom',
-            presentation: 'modal'
-          }} >
-            <Stack.Screen name="message/asset/selection" component={AssetSelectScreen} />
-            <Stack.Screen name="upload/post/selection" component={NewPostSelectionScreen} />
-            <Stack.Screen name="story/selection" component={StorySelectingScreen} />
-          </Stack.Group>
-          {/* upload */}
-          <Stack.Screen name="upload/post/review" component={PostReviewScreen} />
-        </> :
-        <>
-          <Stack.Group>
-            <Stack.Screen name="auth" component={InitialScreen} />
-            <Stack.Screen name="auth/login" component={LoginScreen} />
-            <Stack.Screen name="auth/register" component={RegisterScreen} />
-          </Stack.Group>
-        </>}
-    </Stack.Navigator >
-  );
-}
+const prefix = Linking.createURL('/');
 
 function Root() {
   const themeColorSchema = Appearance.getColorScheme() === "dark";
-  const { currentTheme } = useTheme();
+  const { currentTheme, themeScheme } = useTheme();
+  const session = useSelector((state: RootState) => state.AuthState.session);
   const background = currentTheme.background ? currentTheme.background : themeColorSchema ? "#000" : "#fff";
+  const barStyle = currentTheme.background ? themeScheme === "dark" ? "light-content" : "dark-content" : themeColorSchema ? "light-content" : "dark-content";
+  const theme: any = {
+    ...DefaultTheme,
+    colors: {
+      background: background,
+      border: currentTheme.border,
+      card: currentTheme.card,
+      notification: currentTheme.destructive,
+      primary: currentTheme.primary,
+      text: currentTheme.foreground
+    }
+  }
   return (<>
+    <StatusBar translucent backgroundColor={"transparent"}
+      barStyle={barStyle} />
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: background }}>
       <SafeAreaProvider style={{
         flex: 1,
         paddingTop: StatusBar.currentHeight,
-        backgroundColor: background
+        backgroundColor: background,
       }}>
-        <NavigationContainer>
-          <SocketConnections >
-            <PreConfiguration />
-            <BottomSheetProvider>
-              <Routes backgroundColor={currentTheme.background} />
-            </BottomSheetProvider>
-          </SocketConnections>
-        </NavigationContainer>
+        <SocketConnections >
+          <PreConfiguration />
+          <BottomSheetProvider>
+            {session.user ? <Navigation theme={theme} linking={{
+              prefixes: [prefix],
+            }} /> : <AuthNavigation theme={theme} />}
+          </BottomSheetProvider>
+        </SocketConnections>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   </>)
@@ -131,9 +60,7 @@ export default function App() {
 
   return (
     <>
-      <StatusBar translucent backgroundColor={"transparent"}
-        barStyle={Appearance.getColorScheme() === "dark" ? "light-content" : "dark-content"} />
-      <ThemeProvider>
+      <ThemeProvider enableThemedStatusBar>
         <Provider store={store}>
           <Root />
         </Provider>

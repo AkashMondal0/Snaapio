@@ -72,7 +72,7 @@ const SettingScreen = memo(function HomeScreen({ navigation }: any) {
                 height: '100%',
                 flex: 1,
             }}>
-                <AppHeader title="Settings" navigation={navigation}
+                <AppHeader title="Settings"
                     rightSideComponent={<Icon iconName="Search" size={24} isButton variant="normal" />}
                     key={"setting-page-1"} />
                 <ScrollView keyboardDismissMode='on-drag'

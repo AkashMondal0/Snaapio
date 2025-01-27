@@ -1,24 +1,19 @@
 import { memo, useCallback, useEffect, useState } from "react";
 import { Loader, ThemedView } from "hyper-native-ui";
-import { disPatchResponse, loadingType, NavigationProps, Post } from "@/types";
+import { disPatchResponse, loadingType, Post } from "@/types";
 import AppHeader from "@/components/AppHeader";
 import { FeedItem } from "@/components/home";
 import { useDispatch } from "react-redux";
 import { fetchOnePostApi } from "@/redux-stores/slice/post/api.service";
 import ErrorScreen from "@/components/error/page";
 import { ScrollView, View } from "react-native";
+import { StaticScreenProps } from "@react-navigation/native";
 
-interface ScreenProps {
-    navigation: NavigationProps;
-    route: {
-        params: {
-            post: Post,
-            index: number
-        }
-    }
-}
-const PostScreen = memo(function PostScreen({ navigation, route }: ScreenProps) {
-    const postId = route.params.post.id
+type Props = StaticScreenProps<{
+    postId: string;
+}>;
+const PostScreen = memo(function PostScreen({  route }: Props) {
+    const postId = route.params.postId;
     const [state, setState] = useState<{
         loading: loadingType,
         error: boolean,
@@ -53,11 +48,11 @@ const PostScreen = memo(function PostScreen({ navigation, route }: ScreenProps) 
             width: '100%',
             height: '100%',
         }}>
-            <AppHeader title="Post" navigation={navigation} titleCenter />
+            <AppHeader title="Post" titleCenter />
             <ScrollView>
                 {state.loading !== 'normal' ? <Loader size={50} />
                     : state.error ? <ErrorScreen message="Not Found" /> :
-                        state.data?.id ? <FeedItem data={state.data} navigation={navigation} /> : <View />}
+                        state.data?.id ? <FeedItem data={state.data} /> : <View />}
             </ScrollView>
         </ThemedView>
     )

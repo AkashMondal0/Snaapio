@@ -1,8 +1,11 @@
-import { Text, Button ,ThemedView} from 'hyper-native-ui'
+import { Text, Button, ThemedView } from 'hyper-native-ui'
 import { configs } from '@/configs'
 import React from 'react'
 import { View, Image } from 'react-native'
-export default function InitialScreen({ navigation }: any) {
+import { useNavigation } from '@react-navigation/native';
+export default function InitialScreen() {
+    const navigation = useNavigation();
+
     return (
         <ThemedView style={{
             flex: 1,
@@ -49,13 +52,13 @@ export default function InitialScreen({ navigation }: any) {
                 {configs.AppDetails.name} is a social media platform for sharing your thoughts and ideas with the world.
             </Text>
 
-            <Button onPress={() => { navigation.navigate("auth/register") }} style={{
+            <Button onPress={() => { navigation.navigate("Register" as any) }} style={{
                 width: "80%",
                 marginVertical: 10,
             }}>
                 Register
             </Button>
-            <Button variant="secondary" onPress={() => { navigation.navigate("auth/login") }} style={{
+            <Button variant="secondary" onPress={() => { navigation.navigate("Login" as any) }} style={{
                 width: "80%",
                 marginVertical: 4,
                 elevation: 0,

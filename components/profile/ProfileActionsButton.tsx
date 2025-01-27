@@ -7,21 +7,21 @@ import { createFriendshipApi, destroyFriendshipApi } from "@/redux-stores/slice/
 import { CreateConversationApi } from "@/redux-stores/slice/conversation/api.service";
 import { setConversation } from "@/redux-stores/slice/conversation";
 import { Button } from "hyper-native-ui";
+import { useNavigation } from "@react-navigation/native";
 
 
 const ProfileActionsButton = memo(function ProfileActionsButton({
-    navigation,
     userData,
     isProfile,
     handleUnFollow,
     handleFollow,
 }: {
-    navigation: NavigationProps,
     userData: User | null,
     isProfile: boolean
     handleUnFollow: () => void
     handleFollow: () => void
 }) {
+    const navigation = useNavigation();
     const session = useSelector((Root: RootState) => Root.AuthState.session.user)
     const isFollowing = userData?.friendship?.following
     const [loading, setLoading] = useState(false)
@@ -85,7 +85,7 @@ const ProfileActionsButton = memo(function ProfileActionsButton({
                 isGroup: false,
                 user: userData,
             } as Conversation))
-            navigation?.navigate("message/conversation", { id: res.payload.id })
+            navigation?.navigate("MessageRoom", { id: res.payload.id })
         } catch (error) {
             ToastAndroid.show("Something's went Wrong", ToastAndroid.SHORT)
         } finally {
@@ -101,7 +101,7 @@ const ProfileActionsButton = memo(function ProfileActionsButton({
             gap: 10,
         }}>
             <Button
-                onPress={() => navigation?.navigate('profile/edit')} style={{
+                onPress={() => navigation?.navigate("AccountEdit")} style={{
                     flex: 1,
                     height: 40
                 }}>

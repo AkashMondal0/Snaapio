@@ -61,7 +61,6 @@ const SearchScreen = memo(function SearchScreen({
                         navigation.goBack()
                     }} />
                 <Input placeholder="Search people"
-                    variant="secondary"
                     onChangeText={delayFetchUsers}
                     style={{
                         width: "90%",

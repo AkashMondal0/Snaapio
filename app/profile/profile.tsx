@@ -2,21 +2,19 @@ import ErrorScreen from "@/components/error/page";
 import { ProfileEmptyPosts, ProfileGridItem, ProfileHeader, ProfileNavbar } from "@/components/profile";
 import { fetchUserProfileDetailApi, fetchUserProfilePostsApi } from "@/redux-stores/slice/profile/api.service";
 import { RootState } from "@/redux-stores/store";
-import { disPatchResponse, loadingType, NavigationProps, Post, User } from "@/types";
+import { disPatchResponse, loadingType, Post, User } from "@/types";
+import { StaticScreenProps, useNavigation } from "@react-navigation/native";
 import { Loader, ThemedView } from "hyper-native-ui";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { View, FlatList, ToastAndroid } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 
-interface ScreenProps {
-    navigation: NavigationProps;
-    route: {
-        params: { username: string }
-    }
-}
-const ProfileScreen = ({ navigation, route }: ScreenProps) => {
+type Props = StaticScreenProps<{
+    userId: string;
+}>;
+const ProfileScreen = ({ route }: Props) => {
     const session = useSelector((state: RootState) => state.AuthState.session.user)
-    const username = route.params?.username
+    const username = route.params.userId
     const isProfile = session?.username === username
     const [loading, setLoading] = useState<loadingType>('idle')
     const [error, setError] = useState<string | null>(null)
@@ -24,6 +22,8 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
     const UserData = useRef<User | null>(null)
     const totalFetchedItemCount = useRef<number>(0)
     const dispatch = useDispatch()
+    const navigation = useNavigation();
+
 
     const fetchPosts = useCallback(async () => {
         if (loading === "pending" || totalFetchedItemCount.current === -1) return
@@ -76,7 +76,7 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
     }, [loading])
 
     const navigateToPostDetail = useCallback((item: Post, index: number) => {
-        navigation.navigate('post', { post: item, index })
+        navigation.navigate("Post", { postId: item.id })
     }, [])
 
     useEffect(() => {
@@ -91,7 +91,7 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
             width: '100%',
             height: '100%',
         }}>
-            <ProfileNavbar navigation={navigation}
+            <ProfileNavbar
                 isProfile={isProfile} username={username} />
             <FlatList
                 data={Posts.current}
@@ -114,7 +114,6 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
                 )}
                 ListHeaderComponent={UserData.current ? <>
                     <ProfileHeader
-                        navigation={navigation}
                         userData={UserData.current}
                         isProfile={isProfile} />
                 </> : <></>}

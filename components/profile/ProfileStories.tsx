@@ -2,20 +2,21 @@ import React from "react";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { FlatList, ToastAndroid, TouchableOpacity, View } from "react-native";
 import { Icon, Avatar } from "@/components/skysolo-ui";
-import { disPatchResponse, loadingType, NavigationProps, User, Highlight } from "@/types";
+import { disPatchResponse, loadingType, User, Highlight } from "@/types";
 import { useDispatch } from "react-redux";
 import { fetchUserHighlightApi } from "@/redux-stores/slice/profile/api.service";
 import { Text, Loader, ThemedView } from "hyper-native-ui"
+import { useNavigation } from "@react-navigation/native";
 
 const StoriesComponent = memo(function StoriesComponent({
-    navigation,
     user,
     isProfile
 }: {
-    navigation: NavigationProps,
     user?: User | null,
     isProfile?: boolean
 }) {
+    const navigation = useNavigation();
+
     const [state, setState] = useState<{
         loading: loadingType,
         error: boolean,
@@ -64,7 +65,7 @@ const StoriesComponent = memo(function StoriesComponent({
     }, [state.loading, totalFetchedItemCount.current])
 
     const navigateToHighlight = useCallback((item: Highlight) => {
-        navigation.push('highlight', {
+        navigation.navigate("Highlight", {
             user: user,
             highlight: item
         })
