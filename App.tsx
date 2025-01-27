@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as SplashScreen from 'expo-splash-screen';
-import { NavigationContainer } from '@react-navigation/native';
+import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Provider, useSelector } from 'react-redux';
@@ -104,16 +104,30 @@ function Routes(backgroundColor: any) {
 
 function Root() {
   const themeColorSchema = Appearance.getColorScheme() === "dark";
-  const { currentTheme } = useTheme();
+  const { currentTheme, themeScheme } = useTheme();
   const background = currentTheme.background ? currentTheme.background : themeColorSchema ? "#000" : "#fff";
+  const barStyle = currentTheme.background ? themeScheme === "dark" ? "light-content" : "dark-content" : themeColorSchema ? "light-content" : "dark-content";
+  const theme: any = {
+    ...DefaultTheme,
+    colors: {
+      background: background,
+      border: currentTheme.border,
+      card: currentTheme.card,
+      notification: currentTheme.destructive,
+      primary: currentTheme.primary,
+      text: currentTheme.foreground
+    }
+  }
   return (<>
+    <StatusBar translucent backgroundColor={"transparent"}
+      barStyle={barStyle} />
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: background }}>
       <SafeAreaProvider style={{
         flex: 1,
         paddingTop: StatusBar.currentHeight,
         backgroundColor: background
       }}>
-        <NavigationContainer>
+        <NavigationContainer theme={theme}>
           <SocketConnections >
             <PreConfiguration />
             <BottomSheetProvider>
@@ -131,8 +145,6 @@ export default function App() {
 
   return (
     <>
-      <StatusBar translucent backgroundColor={"transparent"}
-        barStyle={Appearance.getColorScheme() === "dark" ? "light-content" : "dark-content"} />
       <ThemeProvider>
         <Provider store={store}>
           <Root />
