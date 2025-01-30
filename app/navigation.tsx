@@ -122,12 +122,12 @@ const RootStack = createNativeStackNavigator({
                 Profile: {
                     screen: ProfileScreen,
                     linking: {
-                        path: ':userId(@[a-zA-Z0-9-_]+)',
+                        path: 'user/:id',
                         parse: {
-                            userId: (value) => value.replace(/^@/, ''),
+                            id: (id) => id.replace(/^@/, ''),
                         },
                         stringify: {
-                            userId: (value) => `@${value}`,
+                            id: (id) => `@${id}`,
                         },
                     },
                 },
@@ -139,36 +139,36 @@ const RootStack = createNativeStackNavigator({
                 Post: {
                     screen: PostScreen,
                     linking: {
-                        path: ':postId(@[a-zA-Z0-9-_]+)',
+                        path: 'post/:id',
                         parse: {
-                            postId: (value) => value.replace(/^@/, ''),
+                            id: (id) => id.replace(/^@/, ''),
                         },
                         stringify: {
-                            postId: (value) => `@${value}`,
+                            id: (id) => `@${id}`,
                         },
                     },
                 },
                 PostLike: {
                     screen: LikeScreen,
                     linking: {
-                        path: ':postId(@[a-zA-Z0-9-_]+)',
+                        path: 'post/:id/:like',
                         parse: {
-                            postId: (value) => value.replace(/^@/, ''),
+                            id: (id) => id.replace(/^@/, ''),
                         },
                         stringify: {
-                            postId: (value) => `@${value}`,
+                            id: (id) => `@${id}`,
                         },
                     },
                 },
                 PostComment: {
                     screen: CommentScreen,
                     linking: {
-                        path: ':postId(@[a-zA-Z0-9-_]+)',
+                        path: 'post/:id/:comment',
                         parse: {
-                            postId: (value) => value.replace(/^@/, ''),
+                            id: (id) => id.replace(/^@/, ''),
                         },
                         stringify: {
-                            postId: (value) => `@${value}`,
+                            id: (id) => `@${id}`,
                         },
                     },
                 },
@@ -185,7 +185,18 @@ const RootStack = createNativeStackNavigator({
         },
         Highlight: {
             screens: {
-                Highlight: HighlightPageScreen,
+                Highlight: {
+                    screen: HighlightPageScreen,
+                    linking: {
+                        path: 'hightlight/:id',
+                        parse: {
+                            id: (id) => id.replace(/^@/, ''),
+                        },
+                        stringify: {
+                            id: (id) => `@${id}`,
+                        },
+                    },
+                },
                 HighlightSelect: HighlightSelectingScreen,
                 HighlightUpload: HighlightUploadScreen,
             }
@@ -193,7 +204,18 @@ const RootStack = createNativeStackNavigator({
         Message: {
             screens: {
                 MessageList: ChatListScreen,
-                MessageRoom: ChatScreen,
+                MessageRoom: {
+                    screen: ChatScreen,
+                    linking: {
+                        path: 'chat/:id',
+                        parse: {
+                            id: (id) => id.replace(/^@/, ''),
+                        },
+                        stringify: {
+                            id: (id) => `@${id}`,
+                        },
+                    },
+                },
                 FindMessage: NewChatScreen,
                 MessageAssetSelect: AssetSelectScreen,
                 SendAssetPreview: ChatAssetsReviewScreen,
