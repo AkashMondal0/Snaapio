@@ -6,7 +6,7 @@ import { RootState } from "@/redux-stores/store";
 import { fetchAccountStoryTimelineApi, fetchAccountStoryApi } from "@/redux-stores/slice/account/api.service";
 import { AuthorData, Session } from "@/types";
 import { useTheme, Text, Loader } from 'hyper-native-ui';
-import { useNavigation } from "@react-navigation/native";
+import { StackActions, useNavigation } from "@react-navigation/native";
 
 const StoriesComponent = memo(function StoriesComponent() {
     const navigation = useNavigation();
@@ -40,7 +40,8 @@ const StoriesComponent = memo(function StoriesComponent() {
     }, [totalFetchedItemCount])
 
     const onPress = useCallback((item: AuthorData | Session) => {
-        navigation.push('story', { user: item }) 
+        // navigation.navigate("Story", { user: item }) 
+        navigation.dispatch(StackActions.push("Story", { user: item }));
     }, [])
 
     const navigateToStoriesUpload = useCallback(() => {

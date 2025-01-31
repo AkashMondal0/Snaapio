@@ -8,9 +8,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
 import { AddImage, PreviewImage } from '@/components/upload/preview-image';
 import { uploadHighlightApi } from '@/redux-stores/slice/account/api.service';
+import { useNavigation } from '@react-navigation/native';
 
 const HighlightUploadScreen = memo(function HighlightUploadScreen({
-    navigation,
     route,
 }: PageProps<{ stories: Story[] }>) {
     const [stories, setStories] = useState(route?.params?.stories ? [...route.params?.stories] : [])
@@ -18,7 +18,7 @@ const HighlightUploadScreen = memo(function HighlightUploadScreen({
     const [loading, setLoading] = useState(false)
     const inputRef = useRef("")
     const dispatch = useDispatch()
-
+    const navigation = useNavigation()
     const handleDelete = useCallback((id: string) => {
         setStories((prev) => prev.filter((item) => item.id !== id))
     }, [])

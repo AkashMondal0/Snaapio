@@ -12,7 +12,7 @@ import ListEmpty from "@/components/ListEmpty";
 import { setConversation } from "@/redux-stores/slice/conversation";
 import { CreateConversationApi } from "@/redux-stores/slice/conversation/api.service";
 import { Button, Loader, Text, TouchableOpacity } from "hyper-native-ui";
-import { useNavigation } from "@react-navigation/native";
+import { StackActions, useNavigation } from "@react-navigation/native";
 
 interface ScreenProps {
     username: string
@@ -65,7 +65,7 @@ const FollowersScreen = memo(function FollowersScreen({ username }: ScreenProps)
     }, [loading])
 
     const navigationHandler = useCallback((uname: string) => {
-        navigation.navigate("Profile", { id: uname })
+        navigation.dispatch(StackActions.push("Profile", { id: uname }));
     }, [])
 
     useEffect(() => {

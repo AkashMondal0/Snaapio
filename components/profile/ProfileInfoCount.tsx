@@ -2,7 +2,7 @@ import { memo } from "react";
 import { User } from "@/types";
 import { TouchableOpacity, View } from "react-native";
 import { Text } from "hyper-native-ui";
-import { useNavigation } from "@react-navigation/native";
+import { StackActions, useNavigation } from "@react-navigation/native";
 
 
 const ProfileInfoCount = memo(function ProfileInfoCount({
@@ -16,20 +16,20 @@ const ProfileInfoCount = memo(function ProfileInfoCount({
         {
             title: "Followers", count: userData?.followerCount, onPress: () => {
                 if (userData?.username) {
-                    navigation.navigate("ProfileFollowingFollowers", {
+                    navigation.dispatch(StackActions.push("ProfileFollowingFollowers", {
                         id: userData.username,
                         section: "Followers"
-                    });
+                    }));
                 }
             }
         },
         {
             title: "Following", count: userData?.followingCount, onPress: () => {
                 if (userData?.username) {
-                    navigation.navigate("ProfileFollowingFollowers", {
+                    navigation.dispatch(StackActions.push("ProfileFollowingFollowers", {
                         id: userData.username,
                         section: "Following"
-                    });
+                    }));
                 }
             }
         }

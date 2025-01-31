@@ -11,7 +11,7 @@ import { FlatList, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import ErrorScreen from "@/components/error/page";
 import ListEmpty from "@/components/ListEmpty";
-import { StaticScreenProps, useNavigation } from "@react-navigation/native";
+import { StackActions, StaticScreenProps, useNavigation } from "@react-navigation/native";
 type Props = StaticScreenProps<{
     id: string;
 }>;
@@ -66,7 +66,8 @@ const LikeScreen = memo(function LikeScreen({ route }: Props) {
     }, [])
 
     const onPress = useCallback((username: string) => {
-        navigation.navigate("Profile", { id: username })
+        // navigation.navigate("Profile", { id: username })
+        navigation.dispatch(StackActions.replace("Profile", { id:  username}))
     }, [])
 
     return (

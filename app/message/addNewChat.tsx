@@ -8,22 +8,20 @@ import { setConversation } from "@/redux-stores/slice/conversation";
 import { CreateConversationApi } from "@/redux-stores/slice/conversation/api.service";
 import { searchUsersProfileApi } from "@/redux-stores/slice/users/api.service";
 import { RootState } from "@/redux-stores/store";
-import { AuthorData, Conversation, disPatchResponse, NavigationProps } from "@/types";
+import { AuthorData, Conversation, disPatchResponse } from "@/types";
 import { memo, useCallback, useRef } from "react";
 import { FlatList, ToastAndroid, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigation } from "@react-navigation/native";
 
-const NewChatScreen = memo(function NewChatScreen({
-    navigation
-}: {
-    navigation: NavigationProps
-}) {
+const NewChatScreen = memo(function NewChatScreen() {
     const users = useSelector((Root: RootState) => Root.UsersState.searchUsers)
     const loading = useSelector((Root: RootState) => Root.UsersState.searchUsersLoading)
     const session = useSelector((Root: RootState) => Root.AuthState.session.user)
     const stopRef = useRef(false)
     const dispatch = useDispatch()
     const inputText = useRef<string>('')
+    const navigation = useNavigation();
 
     const fetchUsers = useCallback(async (text: string) => {
         try {
@@ -46,14 +44,15 @@ const NewChatScreen = memo(function NewChatScreen({
             isGroup: false,
             user: userData,
         } as Conversation))
-        navigation?.navigate("message/conversation", { id: res.payload.id })
+        navigation?.navigate("MessageRoom", { id: res.payload.id })
+
     }, [])
 
     return (
         <ThemedView style={{
             flex: 1
         }}>
-            <AppHeader navigation={navigation} title='New Message' />
+            <AppHeader title='New Message' />
             <View style={{
                 flexDirection: 'row',
                 alignItems: 'center',

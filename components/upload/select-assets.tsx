@@ -15,7 +15,6 @@ import { ThemedView } from 'hyper-native-ui';
 
 let loaded = false;
 const SelectAssets = memo(function SelectAssets({
-    navigation,
     nextAction,
     assetsLimit = 5
 }: PageProps<any> & {
@@ -119,8 +118,7 @@ const SelectAssets = memo(function SelectAssets({
                 rightSideComponent={selectedCount > 0 ? <Icon
                     iconName='Check' isButton
                     onPress={navigateToPostReview}
-                    variant="primary" /> : <></>}
-                navigation={navigation} />
+                    variant="primary" /> : <></>} />
             <ThemedView style={{ flex: 1 }}>
                 <FlatList
                     nestedScrollEnabled
@@ -142,4 +140,4 @@ const SelectAssets = memo(function SelectAssets({
     );
 }, () => true);
 
-export default SelectAssets
+export default SelectAssets;

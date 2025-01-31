@@ -4,16 +4,12 @@ import {
     StaticParamList,
 } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import FeedsScreen from './home/feeds';
-import SearchScreen from './home/search';
 import { Film, HomeIcon, PlusCircle, Search } from "lucide-react-native"
-import { ProfileScreen, TabFollowingAndFollowers } from './profile';
 import { Avatar } from '@/components/skysolo-ui';
-import { useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
-import ReelsScreen from './home/reels';
-import { NotFound } from './NotFound';
-import AccountScreen from './home/account';
+import { useSelector } from 'react-redux';
+
+// import all pages
 import { SettingScreen, ThemeSettingScreen } from '@/app/setting';
 import { InitialScreen, LoginScreen, RegisterScreen } from '@/app/auth';
 import {
@@ -25,12 +21,13 @@ import {
     ImagePreviewScreen,
     NewChatScreen
 } from '@/app/message';
-import { PostReviewScreen, NewPostSelectionScreen } from '@/app/upload';
-import { ProfileEditScreen } from '@/app/profile';
-import { CommentScreen, LikeScreen, PostScreen } from '@/app/post';
+import { ProfileEditScreen, ProfileScreen, TabFollowingAndFollowers } from '@/app/profile';
+import { CommentScreen, LikeScreen, PostScreen, PostUploadScreen, PostSelectScreen } from '@/app/post';
 import { StoryScreen, StorySelectingScreen, StoryUploadScreen } from '@/app/story';
 import { HighlightPageScreen, HighlightSelectingScreen, HighlightUploadScreen } from '@/app/highlight';
-import { NotificationScreen } from './screens';
+import { FeedsScreen, AccountScreen, ReelsScreen, SearchScreen } from '@/app/HomeTab';
+import { NotificationScreen } from '@/app/notification';
+import { NotFound } from './NotFound';
 
 const HomeTabs = createBottomTabNavigator({
     screenOptions: {
@@ -54,7 +51,7 @@ const HomeTabs = createBottomTabNavigator({
             },
         },
         Create: {
-            screen: NewPostSelectionScreen,
+            screen: PostSelectScreen,
             options: {
                 tabBarIcon: ({ color, size, focused }) => (
                     <PlusCircle size={size} color={color} />
@@ -210,14 +207,14 @@ const RootStack = createNativeStackNavigator({
                         },
                     },
                 },
-                SelectPosts: {
-                    screen: NewPostSelectionScreen,
+                PostsSelect: {
+                    screen: PostSelectScreen,
                     linking: {
-                        path: 'post/select'
+                        path: 'post/select',
                     }
                 },
                 PostUpload: {
-                    screen: PostReviewScreen,
+                    screen: PostUploadScreen,
                     linking: {
                         path: 'post/upload'
                     }
@@ -306,16 +303,16 @@ const RootStack = createNativeStackNavigator({
                         path: 'chat/new'
                     }
                 },
-                MessageAssetSelect: {
+                MessageSelectFile: {
                     screen: AssetSelectScreen,
                     linking: {
                         path: 'chat/asset/select'
                     }
                 },
-                SendAssetPreview: {
+                MessageUploadFile: {
                     screen: ChatAssetsReviewScreen,
                     linking: {
-                        path: 'chat/asset/preview'
+                        path: 'chat/asset/upload'
                     }
                 },
                 MessageImagePreview: {

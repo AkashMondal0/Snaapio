@@ -4,21 +4,20 @@ import { Avatar, Icon, Image } from "@/components/skysolo-ui";
 import { ThemedView, Text, Loader } from "hyper-native-ui";
 import { useDispatch } from "react-redux";
 import { fetchStoryApi } from "@/redux-stores/slice/account/api.service";
-import { AuthorData, disPatchResponse, loadingType, NavigationProps, Story } from "@/types";
+import { AuthorData, disPatchResponse, loadingType, Story } from "@/types";
 import ErrorScreen from "@/components/error/page";
 import { timeAgoFormat } from "@/lib/timeFormat";
 import { useTheme } from 'hyper-native-ui';
 import React from "react";
+import { useNavigation } from "@react-navigation/native";
 
 interface ScreenProps {
-    navigation: NavigationProps;
     route: {
         params: { user: AuthorData }
     }
 }
 
 const StoryScreen = memo(function StoryScreen({
-    navigation,
     route
 }: ScreenProps) {
     const { user } = route.params;
@@ -35,6 +34,7 @@ const StoryScreen = memo(function StoryScreen({
     const totalImages = state.data.length - 1
     const [currentImageIndex, setCurrentImageIndex] = useState(0)
     const dispatch = useDispatch()
+    const navigation = useNavigation()
     const data = state.data[currentImageIndex]
 
     const fetchApi = useCallback(async () => {

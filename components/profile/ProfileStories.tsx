@@ -6,7 +6,7 @@ import { disPatchResponse, loadingType, User, Highlight } from "@/types";
 import { useDispatch } from "react-redux";
 import { fetchUserHighlightApi } from "@/redux-stores/slice/profile/api.service";
 import { Text, Loader, ThemedView } from "hyper-native-ui"
-import { useNavigation } from "@react-navigation/native";
+import { StackActions, useNavigation } from "@react-navigation/native";
 
 const StoriesComponent = memo(function StoriesComponent({
     user,
@@ -65,14 +65,14 @@ const StoriesComponent = memo(function StoriesComponent({
     }, [state.loading, totalFetchedItemCount.current])
 
     const navigateToHighlight = useCallback((item: Highlight) => {
-        navigation.navigate("Highlight", {
+        navigation.dispatch(StackActions.push("Highlight" as any, {
             user: user,
             highlight: item
-        })
+        }));
     }, [user])
 
     const navigateToHighlightUpload = useCallback(() => {
-        navigation.navigate('highlight/selection')
+        navigation.navigate("HighlightSelect")
     }, [])
 
     return (

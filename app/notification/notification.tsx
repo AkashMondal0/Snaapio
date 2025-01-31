@@ -5,16 +5,17 @@ import { FlatList, ToastAndroid, TouchableWithoutFeedback, View } from "react-na
 import { useDispatch, useSelector } from "react-redux";
 import AppHeader from "@/components/AppHeader";
 import { RootState } from "@/redux-stores/store";
-import { Notification, disPatchResponse, NavigationProps, NotificationType } from "@/types";
+import { Notification, disPatchResponse, NotificationType } from "@/types";
 import { fetchAccountNotificationApi } from "@/redux-stores/slice/notification/api.service";
 import { resetNotificationState } from "@/redux-stores/slice/notification";
 import { timeAgoFormat } from "@/lib/timeFormat";
 import ErrorScreen from "@/components/error/page";
 import ListEmpty from "@/components/ListEmpty";
 import { ThemedView, Loader, Text, TouchableOpacity, } from "hyper-native-ui";
+import { useNavigation } from "@react-navigation/native";
 let totalFetchedItemCount = 0;
 
-const NotificationScreen = memo(function NotificationScreen({ navigation }: { navigation: NavigationProps }) {
+const NotificationScreen = memo(function NotificationScreen() {
     const notifications = useSelector((state: RootState) => state.NotificationState.notifications)
     const notificationsLoading = useSelector((state: RootState) => state.NotificationState.loading)
     const notificationsError = useSelector((state: RootState) => state.NotificationState.error)
@@ -58,12 +59,10 @@ const NotificationScreen = memo(function NotificationScreen({ navigation }: { na
             width: '100%',
             height: '100%',
         }}>
-            <AppHeader title="Notifications" navigation={navigation} />
+            <AppHeader title="Notifications" />
             <FlatList
                 data={notifications}
-                renderItem={({ item }) => (<NotificationItem data={item}
-                    navigation={navigation}
-                />)}
+                renderItem={({ item }) => (<NotificationItem data={item} />)}
                 keyExtractor={(item, index) => index.toString()}
                 removeClippedSubviews={true}
                 scrollEventThrottle={16}
@@ -87,13 +86,11 @@ export default NotificationScreen;
 
 const NotificationItem = memo(function NotificationItem({
     data,
-    navigation
 }: {
     data: Notification,
-    navigation: NavigationProps
 }) {
     const [readMore, setReadMore] = useState(false)
-
+    const navigation = useNavigation();
     return (<TouchableOpacity
         onPress={() => setReadMore(!readMore)}
         style={{
@@ -114,7 +111,7 @@ const NotificationItem = memo(function NotificationItem({
         }}>
             <Avatar url={data.author?.profilePicture} size={55} onPress={() => {
                 if (!data.author?.username) return ToastAndroid.show('User not found', ToastAndroid.SHORT)
-                navigation.navigate('profile', { username: data.author?.username })
+                navigation.navigate("Profile", { id: data.author.username })
             }} />
             <View style={{ paddingHorizontal: 2 }}>
                 <View style={{
@@ -126,7 +123,8 @@ const NotificationItem = memo(function NotificationItem({
                     <Text numberOfLines={readMore ? 20 : 3} ellipsizeMode="tail">
                         <TouchableWithoutFeedback
                             onPress={() => {
-                                navigation.push("profile", { username: data.author?.username })
+                                if (!data.author?.username) return
+                                navigation.navigate("Profile", { id: data?.author?.username })
                             }}>
                             <Text variant="H6" lineBreakMode="clip" numberOfLines={2}>
                                 {data.author?.username} {''}

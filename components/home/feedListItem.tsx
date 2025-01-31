@@ -6,7 +6,7 @@ import { SocketContext } from '@/provider/SocketConnections';
 import { createNotificationApi, destroyNotificationApi } from '@/redux-stores/slice/notification/api.service';
 import { createPostLikeApi, destroyPostLikeApi } from '@/redux-stores/slice/post/api.service';
 import { RootState } from '@/redux-stores/store';
-import { disPatchResponse, NavigationProps, NotificationType, Post } from '@/types';
+import { disPatchResponse, NotificationType, Post } from '@/types';
 import { Heart } from 'lucide-react-native';
 import PagerView from 'react-native-pager-view';
 import { useDispatch, useSelector } from 'react-redux';
@@ -14,7 +14,7 @@ import useDebounce from '@/lib/debouncing';
 import { useTheme, Text } from 'hyper-native-ui';
 import { Avatar, Image, Icon } from '@/components/skysolo-ui';
 import React from 'react';
-import { useNavigation } from '@react-navigation/native';
+import { StackActions, useNavigation } from '@react-navigation/native';
 
 const FeedItem = memo(function FeedItem({
     data
@@ -27,7 +27,8 @@ const FeedItem = memo(function FeedItem({
     const imageLength = data.fileUrl.length
     const navigateToProfile = useCallback(() => {
         if (!data.user) return ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
-        navigation.navigate("Profile", { id: data.user.username })
+        // navigation.navigate("Profile", { id: data.user.username })
+        navigation.dispatch(StackActions.push("Profile", { id: data.user.username  }))
     }, [data.user])
 
     return <View style={{
@@ -125,7 +126,7 @@ const FeedItem = memo(function FeedItem({
             <FeedItemContent data={data} />
             <View>
                 <TouchableOpacity activeOpacity={0.5} onPress={() => {
-                    navigation.navigate("PostComment", { id: data.id })
+                    navigation.dispatch(StackActions.push("PostComment", { id: data.id }))
                 }}>
                     <Text
                         style={{
@@ -248,7 +249,7 @@ const FeedItemActionsButtons = (
             iconName: "MessageCircle",
             count: post.commentCount,
             size: 30,
-            onPress: () => navigation.navigate("PostComment", { id: post.id }),
+            onPress: () => navigation.dispatch(StackActions.push("PostComment", { id: post.id })),
         },
         {
             iconName: "Send",

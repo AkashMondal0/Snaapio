@@ -18,9 +18,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
 import { AddImage, PreviewImage } from '@/components/upload/preview-image';
 import { uploadStoryApi } from '@/redux-stores/slice/account/api.service';
+import { StackActions, useNavigation } from '@react-navigation/native';
 
 const StoryUploadScreen = memo(function StoryUploadScreen({
-    navigation,
     route
 }: PageProps<{
     assets: MediaLibrary.Asset[]
@@ -30,6 +30,7 @@ const StoryUploadScreen = memo(function StoryUploadScreen({
     const loading = useSelector((state: RootState) => state.AccountState.uploadStoryLoading, (prev, next) => prev === next)
     const inputRef = useRef("")
     const dispatch = useDispatch()
+    const navigation = useNavigation()
 
     const handleDelete = useCallback((id: string) => {
         setAssets((prev) => prev.filter((item) => item.id !== id))
@@ -48,12 +49,12 @@ const StoryUploadScreen = memo(function StoryUploadScreen({
         }) as any)
         setAssets([])
         ToastAndroid.show("Story uploaded", ToastAndroid.SHORT)
-        navigation?.navigate("Root", { screen: "home" })
+        navigation.dispatch(StackActions.replace("HomeTabs"));
     }, [assets.length, session?.id])
 
     return (
         <>
-            <AppHeader title="New Story" navigation={navigation} titleCenter />
+            <AppHeader title="New Story" titleCenter />
             <ScrollView
                 keyboardDismissMode='on-drag'
                 keyboardShouldPersistTaps='handled'

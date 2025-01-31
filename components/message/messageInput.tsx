@@ -101,7 +101,7 @@ const ChatScreenInput = memo(function ChatScreenInput({
     }, [conversation.id, members, session?.id, socketState.socket])
 
     const navigateToSelectFile = useCallback(() => {
-        navigation.navigate("MessageAssetSelect", { conversation })
+        navigation.navigate("MessageSelectFile" as any, { conversation })
     }, [])
 
     return (

@@ -5,7 +5,7 @@ import { disPatchResponse, loadingType, Story, User } from "@/types";
 import { useCallback, useEffect, useState } from "react";
 import { Modal, TouchableOpacity, Vibration } from "react-native";
 import { useDispatch } from "react-redux";
-import { useNavigation } from "@react-navigation/native";
+import { StackActions, useNavigation } from "@react-navigation/native";
 
 const ProfilePicView = ({ user }: {
     user: User | null
@@ -46,7 +46,7 @@ const ProfilePicView = ({ user }: {
         setModalVisible(!modalVisible);
     }, [modalVisible]);
     const onPress = useCallback(() => {
-        navigation.navigate("SelectStory")
+        navigation.dispatch(StackActions.push("Story", { user }));
     }, [])
     useEffect(() => {
         fetchApi()

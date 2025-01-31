@@ -4,7 +4,7 @@ import debounce from "@/lib/debouncing";
 import { searchUsersProfileApi } from "@/redux-stores/slice/users/api.service";
 import { RootState } from "@/redux-stores/store";
 import { AuthorData } from "@/types";
-import { useNavigation } from "@react-navigation/native";
+import { StackActions, useNavigation } from "@react-navigation/native";
 import { Input, Text, Loader, TouchableOpacity } from "hyper-native-ui";
 import { memo, useCallback, useRef } from "react";
 import { FlatList, View } from "react-native";
@@ -91,7 +91,7 @@ const UserItem = memo(function UserItem({
 }) {
     const navigation = useNavigation();
     return (<TouchableOpacity
-        onPress={() => navigation.navigate("Profile", { id: data.username })}
+        onPress={() => navigation.dispatch(StackActions.replace("Profile", { id: data.username }))}
         style={{
             flexDirection: 'row',
             padding: 12,

@@ -3,18 +3,18 @@ import React, { useState } from "react";
 import { FlatList, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { Avatar } from "@/components/skysolo-ui";
-import { Button, Loader, Text , TouchableOpacity} from "hyper-native-ui"
+import { Button, Loader, Text, TouchableOpacity } from "hyper-native-ui"
 import { RootState } from "@/redux-stores/store";
 import { AuthorData, disPatchResponse, loadingType } from "@/types";
 import { memo, useCallback, useEffect, useRef } from "react";
 import ErrorScreen from "@/components/error/page";
 import ListEmpty from "@/components/ListEmpty";
-import { useNavigation } from "@react-navigation/native";
+import { StackActions, useNavigation } from "@react-navigation/native";
 interface ScreenProps {
     username: string
 }
 
-const FollowingScreen = memo(function FollowingScreen({username }: ScreenProps) {
+const FollowingScreen = memo(function FollowingScreen({ username }: ScreenProps) {
     const session = useSelector((state: RootState) => state.AuthState.session.user)
     const [loading, setLoading] = useState<loadingType>('idle')
     const [error, setError] = useState<string | null>(null)
@@ -61,7 +61,8 @@ const FollowingScreen = memo(function FollowingScreen({username }: ScreenProps) 
     }, [loading])
 
     const navigationHandler = useCallback((uname: string) => {
-        navigation.navigate("Profile", { id: uname })
+        // navigation.navigate("Profile", { id: uname })
+        navigation.dispatch(StackActions.push("Profile", { id: uname }));
     }, [])
 
     useEffect(() => {

@@ -16,9 +16,9 @@ import { AddImage, PreviewImage } from '@/components/upload/preview-image';
 import { SocketContext } from '@/provider/SocketConnections';
 import { configs } from '@/configs';
 import { CreateMessageApi, fetchConversationsApi } from '@/redux-stores/slice/conversation/api.service';
+import { useNavigation } from '@react-navigation/native';
 
 const ChatAssetsReviewScreen = memo(function ChatAssetsReviewScreen({
-    navigation,
     route,
 }: PageProps<{
     conversation: Conversation
@@ -33,6 +33,7 @@ const ChatAssetsReviewScreen = memo(function ChatAssetsReviewScreen({
     const [loading, setLoading] = useState(false)
     const inputRef = useRef("")
     const dispatch = useDispatch()
+    const navigation = useNavigation()
 
     const handleDelete = useCallback((id: string) => {
         setAssets((prev) => prev.filter((item) => item.id !== id))
@@ -82,9 +83,7 @@ const ChatAssetsReviewScreen = memo(function ChatAssetsReviewScreen({
         <ThemedView style={{
             flex: 1
         }}>
-            <AppHeader
-                title={conversation?.user?.username ?? "Chat"}
-                navigation={navigation} titleCenter />
+            <AppHeader title={conversation?.user?.username ?? "Chat"} titleCenter />
             <ScrollView
                 keyboardDismissMode='on-drag'
                 keyboardShouldPersistTaps='handled'

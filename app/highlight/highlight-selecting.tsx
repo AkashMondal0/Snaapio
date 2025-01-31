@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
-import { disPatchResponse, PageProps, Story } from '@/types';
+import { disPatchResponse, Story } from '@/types';
 import { Icon, Image } from '@/components/skysolo-ui';
-import { Text,ThemedView } from 'hyper-native-ui'
+import { Text, ThemedView } from 'hyper-native-ui'
 import AppHeader from '@/components/AppHeader';
 import { FlatList, ToastAndroid, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -11,21 +11,21 @@ import { fetchAccountAllStroyApi } from '@/redux-stores/slice/account/api.servic
 import throttle from '@/lib/throttling';
 import ErrorScreen from '@/components/error/page';
 import ListEmpty from '@/components/ListEmpty';
+import { StackActions, useNavigation } from '@react-navigation/native';
 let totalFetchedItemCount = 0
 let pageLoaded = true
 
-const HighlightSelectingScreen = memo(function HighlightSelectingScreen({
-    navigation,
-}: PageProps<any>) {
-    const stories = useSelector((state: RootState) => state.AccountState.stories)
-    const loading = useSelector((state: RootState) => state.AccountState.storiesLoading)
-    const error = useSelector((state: RootState) => state.AccountState.storiesError)
+const HighlightSelectingScreen = memo(function HighlightSelectingScreen() {
+    const stories = useSelector((state: RootState) => state.AccountState.stories);
+    const loading = useSelector((state: RootState) => state.AccountState.storiesLoading);
+    const error = useSelector((state: RootState) => state.AccountState.storiesError);
 
-    const session = useSelector((state: RootState) => state.AuthState.session.user)
-    const selectedAssets = useRef<Story[]>([])
-    const stopRef = useRef(false)
-    const [selectedCount, setSelectedCount] = useState(0)
-    const dispatch = useDispatch()
+    const session = useSelector((state: RootState) => state.AuthState.session.user);
+    const selectedAssets = useRef<Story[]>([]);
+    const stopRef = useRef(false);
+    const [selectedCount, setSelectedCount] = useState(0);
+    const dispatch = useDispatch();
+    const navigation = useNavigation();
 
     const alertMessage = throttle(() => {
         ToastAndroid.show(`You can select up to ${5} images`, ToastAndroid.LONG);
@@ -81,7 +81,10 @@ const HighlightSelectingScreen = memo(function HighlightSelectingScreen({
     }, [])
 
     const submitHandler = useCallback(() => {
-        navigation?.replace('highlight/upload', { stories: selectedAssets.current });
+        navigation.dispatch(
+            StackActions.replace("HighlightUpload", {
+                stories: selectedAssets.current
+            }));
     }, [])
 
     return (
@@ -96,7 +99,7 @@ const HighlightSelectingScreen = memo(function HighlightSelectingScreen({
                 rightSideComponent={selectedCount > 0 ? <Icon
                     iconName='Check' isButton
                     onPress={submitHandler}
-                    variant="primary" /> : <View />}/>
+                    variant="primary" /> : <View />} />
             <View style={{ flex: 1 }}>
                 <FlatList
                     nestedScrollEnabled

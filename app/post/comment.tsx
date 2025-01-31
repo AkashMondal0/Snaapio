@@ -17,7 +17,7 @@ import ErrorScreen from "@/components/error/page";
 import ListEmpty from "@/components/ListEmpty";
 import React from "react";
 import { ThemedView, Input, Text, TouchableOpacity, Separator, Loader } from "hyper-native-ui";
-import { StaticScreenProps, useNavigation } from "@react-navigation/native";
+import { StackActions, StaticScreenProps, useNavigation } from "@react-navigation/native";
 
 const schema = z.object({
     text: z.string().min(1)
@@ -149,13 +149,15 @@ const CommentItem = memo(function CommentItem({
         }}>
             <Avatar url={data.user.profilePicture} size={50}
                 onPress={() => {
-                    navigation.navigate("Profile", { id: data.user.username })
+                    // navigation.navigate("Profile", { id: data.user.username })
+                    navigation.dispatch(StackActions.replace("Profile", { id: data.user.username }))
                 }} />
             <View>
                 <Text numberOfLines={readMore ? 100 : 3} ellipsizeMode="tail">
                     <TouchableWithoutFeedback
                         onPress={() => {
-                            navigation.navigate("Profile", { id: data.user.username })
+                            // navigation.navigate("Profile", { id: data.user.username })
+                            navigation.dispatch(StackActions.replace("Profile", { id: data.user.username }))
                         }}>
                         <Text lineBreakMode="clip" numberOfLines={2}>
                             {data.user.name}{" "}

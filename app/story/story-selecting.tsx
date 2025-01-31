@@ -1,14 +1,13 @@
 import React, { memo } from 'react';
 import SelectAssets from '@/components/upload/select-assets';
 import * as MediaLibrary from 'expo-media-library';
-import { PageProps } from '@/types';
 import { ThemedView } from 'hyper-native-ui';
+import { useNavigation } from '@react-navigation/native';
 
-const StorySelectingScreen = memo(function StorySelectingScreen({
-    navigation,
-}: PageProps<any>) {
+const StorySelectingScreen = memo(function StorySelectingScreen() {
+    const navigation = useNavigation();
     const nextAction = (selectedAssets: MediaLibrary.Asset[]) => {
-        navigation?.navigate('story/upload', { assets: selectedAssets });
+        navigation?.navigate("StoryUpload" as any, { assets: selectedAssets });
     };
     return (
         <ThemedView style={{
@@ -16,7 +15,7 @@ const StorySelectingScreen = memo(function StorySelectingScreen({
             width: '100%',
             height: '100%',
         }}>
-            <SelectAssets navigation={navigation} nextAction={nextAction} assetsLimit={1}/>
+            <SelectAssets nextAction={nextAction} assetsLimit={1} />
         </ThemedView>
     )
 })
