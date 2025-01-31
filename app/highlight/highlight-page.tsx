@@ -1,13 +1,14 @@
 import { memo, useCallback, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { Avatar, Icon, Image } from "@/components/skysolo-ui";
-import { AuthorData, NavigationProps, Highlight } from "@/types";
+import { AuthorData, Highlight } from "@/types";
 import ErrorScreen from "@/components/error/page";
 import { dateFormat } from "@/lib/timeFormat";
 import { ThemedView, useTheme, Text } from 'hyper-native-ui';
+import { useNavigation } from "@react-navigation/native";
+import React from "react";
 
 interface ScreenProps {
-    navigation: NavigationProps;
     route: {
         params: {
             highlight: Highlight,
@@ -18,16 +19,20 @@ interface ScreenProps {
 }
 
 const HighlightPageScreen = memo(function HighlightPageScreen({
-    navigation,
     route
 }: ScreenProps) {
     const { currentTheme } = useTheme();
+    const navigation = useNavigation();
     const [currentImageIndex, setCurrentImageIndex] = useState(0)
     const { user, highlight } = route.params;
     const actualLength = highlight.stories?.length ?? 0
     const totalImages = highlight.stories ? highlight?.stories?.length - 1 : 0
     const story = highlight.stories ? highlight?.stories[currentImageIndex] : null
-    const PressBack = useCallback(() => { navigation?.goBack() }, [])
+    const PressBack = useCallback(() => {
+        if (navigation?.canGoBack()) {
+            navigation?.goBack()
+        }
+    }, [])
 
     const handleNextImage = useCallback(() => {
         if (currentImageIndex === totalImages) {

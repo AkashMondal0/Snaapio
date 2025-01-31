@@ -1,36 +1,32 @@
 import AppHeader from "@/components/AppHeader";
-import { NavigationProps } from "@/types";
 import React, { memo } from "react";
 import FollowersScreen from "./followers";
 import FollowingScreen from "./following";
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import { useWindowDimensions } from "react-native";
 import { ThemedView, useTheme } from 'hyper-native-ui';
+import { StaticScreenProps } from "@react-navigation/native";
 
-interface ScreenProps {
-    navigation: NavigationProps;
-    route: {
-        params: {
-            params: { username: string, tab: number }
-        }
-    }
-}
+type Props = StaticScreenProps<{
+    id: string;
+    section: string
+}>;
 
 const routes = [
     { key: 'first', title: 'Followers' },
     { key: 'second', title: 'Following' },
 ];
 
-const TabFollowingAndFollowers = memo(function TabFollowingAndFollowers({ navigation, route }: ScreenProps) {
+const TabFollowingAndFollowers = memo(function TabFollowingAndFollowers({ route }: Props) {
     const { currentTheme } = useTheme();
-    const [index, setIndex] = React.useState(route?.params?.params?.tab ?? 0);
+    const [index, setIndex] = React.useState(route?.params?.section === "Following" ? 1 : 0 || 0);
     const layout = useWindowDimensions();
 
     const FollowersTab = () => {
-        return <FollowersScreen navigation={navigation} username={route?.params?.params?.username} />
+        return <FollowersScreen username={route?.params?.id} />
     }
     const FollowingTab = () => {
-        return <FollowingScreen navigation={navigation} username={route?.params?.params?.username} />
+        return <FollowingScreen username={route?.params?.id} />
     }
 
     const renderScene = SceneMap({
@@ -44,8 +40,8 @@ const TabFollowingAndFollowers = memo(function TabFollowingAndFollowers({ naviga
             width: '100%',
             height: '100%',
         }}>
-            <AppHeader title={route?.params?.params?.username}
-                navigation={navigation}
+            <AppHeader title={route?.params?.id ?? ""}
+                // navigation={navigation}
                 containerStyle={{
                     borderBottomWidth: 0,
                 }} />

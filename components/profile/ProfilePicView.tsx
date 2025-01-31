@@ -5,11 +5,12 @@ import { disPatchResponse, loadingType, Story, User } from "@/types";
 import { useCallback, useEffect, useState } from "react";
 import { Modal, TouchableOpacity, Vibration } from "react-native";
 import { useDispatch } from "react-redux";
+import { useNavigation } from "@react-navigation/native";
 
-const ProfilePicView = ({ user, onPress }: {
-    user: User | null,
-    onPress: () => void
+const ProfilePicView = ({ user }: {
+    user: User | null
 }) => {
+    const navigation = useNavigation();
     const [modalVisible, setModalVisible] = useState(false);
     const [state, setState] = useState<{
         loading: loadingType,
@@ -37,9 +38,6 @@ const ProfilePicView = ({ user, onPress }: {
         setState({ ...state, loading: "normal", error: true })
     }, [user?.id])
 
-    useEffect(() => {
-        fetchApi()
-    }, [])
 
     const toggleModal = useCallback(() => {
         if (!modalVisible) {
@@ -47,6 +45,12 @@ const ProfilePicView = ({ user, onPress }: {
         }
         setModalVisible(!modalVisible);
     }, [modalVisible]);
+    const onPress = useCallback(() => {
+        navigation.navigate("SelectStory")
+    }, [])
+    useEffect(() => {
+        fetchApi()
+    }, [])
 
     if (!user) return <></>
 

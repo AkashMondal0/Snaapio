@@ -11,28 +11,29 @@ import { FlatList, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import ErrorScreen from "@/components/error/page";
 import ListEmpty from "@/components/ListEmpty";
-import { StaticScreenProps } from "@react-navigation/native";
+import { StaticScreenProps, useNavigation } from "@react-navigation/native";
 type Props = StaticScreenProps<{
-    postId: string;
+    id: string;
 }>;
 
 let totalFetchedItemCount = 0
 let postId = "NO_ID"
 
 const LikeScreen = memo(function LikeScreen({ route }: Props) {
-    const post = route?.params?.postId
+    const _postId = route?.params?.id
     const likes = useSelector((Root: RootState) => Root.PostState.likesUserList)
     const likeLoading = useSelector((Root: RootState) => Root.PostState.likesLoading)
     const likesError = useSelector((Root: RootState) => Root.PostState.likesError)
     const stopRef = useRef(false)
     const dispatch = useDispatch()
+    const navigation = useNavigation()
 
     const fetchApi = useCallback(async () => {
         if (stopRef.current || totalFetchedItemCount === -1) return
         stopRef.current = true
         try {
             const res = await dispatch(fetchPostLikesApi({
-                id: route?.params?.post?.id,
+                id: _postId,
                 offset: totalFetchedItemCount,
                 limit: 12
             }) as any) as disPatchResponse<Comment[]>
@@ -42,16 +43,16 @@ const LikeScreen = memo(function LikeScreen({ route }: Props) {
             }
             totalFetchedItemCount = -1
         } finally { stopRef.current = false }
-    }, [post.id])
+    }, [_postId])
 
     useEffect(() => {
-        if (postId !== post.id) {
-            postId = post.id
+        if (postId !== _postId) {
+            postId = _postId
             totalFetchedItemCount = 0
             dispatch(resetLike())
             fetchApi()
         }
-    }, [post.id])
+    }, [_postId])
 
     const onEndReached = useCallback(() => {
         if (stopRef.current || totalFetchedItemCount < 10) return
@@ -65,7 +66,7 @@ const LikeScreen = memo(function LikeScreen({ route }: Props) {
     }, [])
 
     const onPress = useCallback((username: string) => {
-        navigation.push("profile", { username })
+        navigation.navigate("Profile", { id: username })
     }, [])
 
     return (
@@ -74,7 +75,7 @@ const LikeScreen = memo(function LikeScreen({ route }: Props) {
             width: '100%',
             height: '100%',
         }}>
-            <AppHeader title="Likes" navigation={navigation} />
+            <AppHeader title="Likes" />
             <FlatList
                 removeClippedSubviews={true}
                 scrollEventThrottle={16}

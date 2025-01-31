@@ -7,7 +7,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import FeedsScreen from './home/feeds';
 import SearchScreen from './home/search';
 import { Film, HomeIcon, PlusCircle, Search } from "lucide-react-native"
-import { ProfileScreen } from './profile';
+import { ProfileScreen, TabFollowingAndFollowers } from './profile';
 import { Avatar } from '@/components/skysolo-ui';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
@@ -104,17 +104,44 @@ const RootStack = createNativeStackNavigator({
     groups: {
         Home: {
             screens: {
-                HomeTabs: HomeTabs,
-                Notification: NotificationScreen,
+                HomeTabs: {
+                    screen: HomeTabs,
+                    linking: {
+                        path: "/"
+                    }
+                },
+                Notification: {
+                    screen: NotificationScreen,
+                    linking: {
+                        path: "/notification"
+                    }
+                },
             }
         },
         Account: {
-            screens: { AccountEdit: ProfileEditScreen, }
+            screens: {
+                AccountEdit: {
+                    screen: ProfileEditScreen,
+                    linking: {
+                        path: "/account/edit"
+                    }
+                }
+            }
         },
         Settings: {
             screens: {
-                Settings: SettingScreen,
-                ThemeSettings: ThemeSettingScreen,
+                Settings: {
+                    screen: SettingScreen,
+                    linking: {
+                        path: "/settings"
+                    }
+                },
+                ThemeSettings: {
+                    screen: ThemeSettingScreen,
+                    linking: {
+                        path: "/settings/theme"
+                    }
+                },
             }
         },
         Profile: {
@@ -122,7 +149,7 @@ const RootStack = createNativeStackNavigator({
                 Profile: {
                     screen: ProfileScreen,
                     linking: {
-                        path: 'user/:id',
+                        path: '/:id',
                         parse: {
                             id: (id) => id.replace(/^@/, ''),
                         },
@@ -131,7 +158,18 @@ const RootStack = createNativeStackNavigator({
                         },
                     },
                 },
-                // ProfileFollowersAndFollowing:TabFollowingAndFollowers
+                ProfileFollowingFollowers: {
+                    screen: TabFollowingAndFollowers,
+                    linking: {
+                        path: '/:id/:section',
+                        parse: {
+                            id: (id) => id.replace(/^@/, ''),
+                        },
+                        stringify: {
+                            id: (id) => `@${id}`,
+                        },
+                    },
+                },
             }
         },
         Post: {
@@ -151,7 +189,7 @@ const RootStack = createNativeStackNavigator({
                 PostLike: {
                     screen: LikeScreen,
                     linking: {
-                        path: 'post/:id/:like',
+                        path: 'post/:id/likes',
                         parse: {
                             id: (id) => id.replace(/^@/, ''),
                         },
@@ -163,7 +201,7 @@ const RootStack = createNativeStackNavigator({
                 PostComment: {
                     screen: CommentScreen,
                     linking: {
-                        path: 'post/:id/:comment',
+                        path: 'post/:id/comments',
                         parse: {
                             id: (id) => id.replace(/^@/, ''),
                         },
@@ -172,15 +210,46 @@ const RootStack = createNativeStackNavigator({
                         },
                     },
                 },
-                SelectPosts: NewPostSelectionScreen,
-                PostUpload: PostReviewScreen,
+                SelectPosts: {
+                    screen: NewPostSelectionScreen,
+                    linking: {
+                        path: 'post/select'
+                    }
+                },
+                PostUpload: {
+                    screen: PostReviewScreen,
+                    linking: {
+                        path: 'post/upload'
+                    }
+                },
             },
         },
         Story: {
             screens: {
-                Story: StoryScreen,
-                SelectStory: StorySelectingScreen,
-                StoryUpload: StoryUploadScreen,
+                Story: {
+                    screen: StoryScreen,
+                    linking: {
+                        path: 'story/:id',
+                        parse: {
+                            id: (id) => id.replace(/^@/, ''),
+                        },
+                        stringify: {
+                            id: (id) => `@${id}`,
+                        },
+                    },
+                },
+                SelectStory: {
+                    screen: StorySelectingScreen,
+                    linking: {
+                        path: 'story/select'
+                    }
+                },
+                StoryUpload: {
+                    screen: StoryUploadScreen,
+                    linking: {
+                        path: 'story/upload'
+                    }
+                },
             }
         },
         Highlight: {
@@ -188,7 +257,7 @@ const RootStack = createNativeStackNavigator({
                 Highlight: {
                     screen: HighlightPageScreen,
                     linking: {
-                        path: 'hightlight/:id',
+                        path: 'highlight/:id',
                         parse: {
                             id: (id) => id.replace(/^@/, ''),
                         },
@@ -197,13 +266,28 @@ const RootStack = createNativeStackNavigator({
                         },
                     },
                 },
-                HighlightSelect: HighlightSelectingScreen,
-                HighlightUpload: HighlightUploadScreen,
+                HighlightSelect: {
+                    screen: HighlightSelectingScreen,
+                    linking: {
+                        path: 'highlight/select'
+                    }
+                },
+                HighlightUpload: {
+                    screen: HighlightUploadScreen,
+                    linking: {
+                        path: 'highlight/upload'
+                    }
+                },
             }
         },
         Message: {
             screens: {
-                MessageList: ChatListScreen,
+                MessageList: {
+                    screen: ChatListScreen,
+                    linking: {
+                        path: 'chat/list'
+                    }
+                },
                 MessageRoom: {
                     screen: ChatScreen,
                     linking: {
@@ -216,15 +300,40 @@ const RootStack = createNativeStackNavigator({
                         },
                     },
                 },
-                FindMessage: NewChatScreen,
-                MessageAssetSelect: AssetSelectScreen,
-                SendAssetPreview: ChatAssetsReviewScreen,
-                MessageImagePreview: ImagePreviewScreen
+                FindMessage: {
+                    screen: NewChatScreen,
+                    linking: {
+                        path: 'chat/new'
+                    }
+                },
+                MessageAssetSelect: {
+                    screen: AssetSelectScreen,
+                    linking: {
+                        path: 'chat/asset/select'
+                    }
+                },
+                SendAssetPreview: {
+                    screen: ChatAssetsReviewScreen,
+                    linking: {
+                        path: 'chat/asset/preview'
+                    }
+                },
+                MessageImagePreview: {
+                    screen: ImagePreviewScreen,
+                    linking: {
+                        path: 'chat/image/preview'
+                    }
+                }
             }
         },
         AiMessage: {
             screens: {
-                AiMessage: AskAiChatScreen,
+                AiMessage: {
+                    screen: AskAiChatScreen,
+                    linking: {
+                        path: 'ai/message'
+                    }
+                },
             }
         },
         NotFound: {

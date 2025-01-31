@@ -5,22 +5,23 @@ import { useDispatch, useSelector } from "react-redux";
 import { Avatar } from "@/components/skysolo-ui";
 import { Button, Loader, Text , TouchableOpacity} from "hyper-native-ui"
 import { RootState } from "@/redux-stores/store";
-import { AuthorData, disPatchResponse, loadingType, NavigationProps } from "@/types";
+import { AuthorData, disPatchResponse, loadingType } from "@/types";
 import { memo, useCallback, useEffect, useRef } from "react";
 import ErrorScreen from "@/components/error/page";
 import ListEmpty from "@/components/ListEmpty";
+import { useNavigation } from "@react-navigation/native";
 interface ScreenProps {
-    navigation: NavigationProps;
     username: string
 }
 
-const FollowingScreen = memo(function FollowingScreen({ navigation, username }: ScreenProps) {
+const FollowingScreen = memo(function FollowingScreen({username }: ScreenProps) {
     const session = useSelector((state: RootState) => state.AuthState.session.user)
     const [loading, setLoading] = useState<loadingType>('idle')
     const [error, setError] = useState<string | null>(null)
     const users = useRef<AuthorData[]>([])
     const totalFetchedItemCount = useRef(0)
     const dispatch = useDispatch()
+    const navigation = useNavigation()
 
     const fetchData = useCallback(async () => {
         if (loading === "pending" || totalFetchedItemCount.current === -1) return
@@ -60,7 +61,7 @@ const FollowingScreen = memo(function FollowingScreen({ navigation, username }: 
     }, [loading])
 
     const navigationHandler = useCallback((uname: string) => {
-        navigation.navigate('profile', { username: uname })
+        navigation.navigate("Profile", { id: uname })
     }, [])
 
     useEffect(() => {

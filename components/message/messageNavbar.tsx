@@ -1,24 +1,25 @@
 import { Avatar, Icon } from "@/components/skysolo-ui";
 import { Text } from "hyper-native-ui";
-import { memo } from "react";
+import { memo, useCallback } from "react";
 import { Conversation } from "@/types";
 import { View } from "react-native";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { useTheme } from 'hyper-native-ui';
+import { useNavigation } from "@react-navigation/native";
 
 
 
 const ChatScreenNavbar = memo(function ChatScreenNavbar({
     conversation,
-    pressBack
 }: {
     conversation: Conversation,
-    pressBack: () => void
 }) {
+    const navigation = useNavigation();
     const { currentTheme } = useTheme();
     const currentTyping = useSelector((Root: RootState) => Root.ConversationState.currentTyping);
-
+    
+    const PressBack = useCallback(() => { navigation?.goBack() }, [])
 
     return (
         <View style={{
@@ -38,7 +39,7 @@ const ChatScreenNavbar = memo(function ChatScreenNavbar({
                 alignItems: "center",
                 gap: 6,
             }}>
-                <Icon iconName={"ArrowLeft"} size={30} onPress={pressBack} />
+                <Icon iconName={"ArrowLeft"} size={30} onPress={PressBack} />
                 <View style={{
                     display: 'flex',
                     flexDirection: "row",

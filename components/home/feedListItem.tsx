@@ -27,7 +27,7 @@ const FeedItem = memo(function FeedItem({
     const imageLength = data.fileUrl.length
     const navigateToProfile = useCallback(() => {
         if (!data.user) return ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
-        navigation.navigate("Profile", { userId: data.user.username })
+        navigation.navigate("Profile", { id: data.user.username })
     }, [data.user])
 
     return <View style={{
@@ -125,7 +125,7 @@ const FeedItem = memo(function FeedItem({
             <FeedItemContent data={data} />
             <View>
                 <TouchableOpacity activeOpacity={0.5} onPress={() => {
-                    navigation.navigate("PostComment" as any, { postId: data.id })
+                    navigation.navigate("PostComment", { id: data.id })
                 }}>
                     <Text
                         style={{
@@ -248,7 +248,7 @@ const FeedItemActionsButtons = (
             iconName: "MessageCircle",
             count: post.commentCount,
             size: 30,
-            onPress: () => navigation.navigate("PostComment", { postId: post.id }),
+            onPress: () => navigation.navigate("PostComment", { id: post.id }),
         },
         {
             iconName: "Send",
@@ -279,7 +279,7 @@ const FeedItemActionsButtons = (
                 }} key={"like"}>
                     {!like.isLike ? <Icon iconName={"Heart"} size={30} onPress={onLike} /> :
                         <Heart size={30} fill={like.isLike ? "red" : ""} onPress={onLike} />}
-                    <TouchableOpacity onPress={() => navigation.navigate("PostLike", { postId: post.id })} >
+                    <TouchableOpacity onPress={() => navigation.navigate("PostLike", { id: post.id })} >
                         <Text style={{
                             fontSize: 16,
                             fontWeight: "600"
@@ -347,7 +347,7 @@ const FeedItemContent = memo(function FeedItemContent({ data
                 borderColor: "red",
             }}
             onPress={() => {
-                navigation.navigate("Profile", { userId: data.user.username })
+                navigation.navigate("Profile", { id: data.user.username })
             }}>
             <Text
                 style={{

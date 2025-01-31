@@ -12,13 +12,14 @@ import ListEmpty from "@/components/ListEmpty";
 import { setConversation } from "@/redux-stores/slice/conversation";
 import { CreateConversationApi } from "@/redux-stores/slice/conversation/api.service";
 import { Button, Loader, Text, TouchableOpacity } from "hyper-native-ui";
+import { useNavigation } from "@react-navigation/native";
 
 interface ScreenProps {
-    navigation: NavigationProps;
     username: string
 }
 
-const FollowersScreen = memo(function FollowersScreen({ navigation, username }: ScreenProps) {
+const FollowersScreen = memo(function FollowersScreen({ username }: ScreenProps) {
+    const navigation = useNavigation()
     const session = useSelector((state: RootState) => state.AuthState.session.user)
     const [loading, setLoading] = useState<loadingType>('idle')
     const [error, setError] = useState<string | null>(null)
@@ -64,7 +65,7 @@ const FollowersScreen = memo(function FollowersScreen({ navigation, username }: 
     }, [loading])
 
     const navigationHandler = useCallback((uname: string) => {
-        navigation.navigate('profile', { username: uname })
+        navigation.navigate("Profile", { id: uname })
     }, [])
 
     useEffect(() => {
@@ -84,7 +85,7 @@ const FollowersScreen = memo(function FollowersScreen({ navigation, username }: 
                 isGroup: false,
                 user: userData,
             } as Conversation))
-            navigation?.navigate("message/conversation", { id: res.payload.id })
+            navigation?.navigate("MessageRoom", { id: res.payload.id })
         } catch (error) {
             ToastAndroid.show("Something's went Wrong", ToastAndroid.SHORT)
         }

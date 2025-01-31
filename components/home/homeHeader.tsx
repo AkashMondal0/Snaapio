@@ -1,7 +1,6 @@
 import { View, Text as RNText, TouchableOpacity, Animated } from "react-native"
 import { Icon } from '@/components/skysolo-ui';
 import { AnimatedView, Separator, Text } from 'hyper-native-ui'
-import { NavigationProps } from "@/types";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { setOffNotificationPopup, setOnNotificationPopup } from "@/redux-stores/slice/notification";

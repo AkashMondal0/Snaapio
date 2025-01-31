@@ -3,18 +3,19 @@ import { ProfileEmptyPosts, ProfileGridItem, ProfileHeader, ProfileNavbar } from
 import { fetchUserProfileDetailApi, fetchUserProfilePostsApi } from "@/redux-stores/slice/profile/api.service";
 import { RootState } from "@/redux-stores/store";
 import { disPatchResponse, loadingType, Post, User } from "@/types";
-import { StaticScreenProps, useNavigation } from "@react-navigation/native";
+import { StaticScreenProps } from "@react-navigation/native";
 import { Loader, ThemedView } from "hyper-native-ui";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { View, FlatList, ToastAndroid } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-
+let _Pid = "NO_ID"
 type Props = StaticScreenProps<{
-    userId: string;
+    id: string;
 }>;
 const ProfileScreen = ({ route }: Props) => {
+    // console.log(route.params.id)
     const session = useSelector((state: RootState) => state.AuthState.session.user)
-    const username = route.params.userId
+    const username = route.params.id
     const isProfile = session?.username === username
     const [loading, setLoading] = useState<loadingType>('idle')
     const [error, setError] = useState<string | null>(null)
@@ -22,8 +23,6 @@ const ProfileScreen = ({ route }: Props) => {
     const UserData = useRef<User | null>(null)
     const totalFetchedItemCount = useRef<number>(0)
     const dispatch = useDispatch()
-    const navigation = useNavigation();
-
 
     const fetchPosts = useCallback(async () => {
         if (loading === "pending" || totalFetchedItemCount.current === -1) return
@@ -50,7 +49,7 @@ const ProfileScreen = ({ route }: Props) => {
     }, [loading])
 
     const fetchUserData = useCallback(async () => {
-        if (UserData.current) return
+        // if (UserData.current) return
         const res = await dispatch(fetchUserProfileDetailApi(username) as any) as disPatchResponse<User>
         if (res.error) {
             setError(res?.error?.message || "An error occurred")
@@ -67,7 +66,7 @@ const ProfileScreen = ({ route }: Props) => {
     }, [loading])
 
     const onRefresh = useCallback(() => {
-        if (loading === "pending" || loading === "idle") return
+        if (loading === "pending") return
         setLoading("pending")
         UserData.current = null
         Posts.current = []
@@ -75,13 +74,16 @@ const ProfileScreen = ({ route }: Props) => {
         fetchUserData()
     }, [loading])
 
-    const navigateToPostDetail = useCallback((item: Post, index: number) => {
-        navigation.navigate("Post", { postId: item.id })
-    }, [])
-
     useEffect(() => {
+        if (route.params.id !== _Pid) {
+            _Pid = route.params.id
+            setLoading("pending")
+            UserData.current = null
+            Posts.current = []
+            totalFetchedItemCount.current = 0
+        }
         fetchUserData()
-    }, [])
+    }, [route.params.id])
 
     if (error) return <ErrorScreen />
 
@@ -110,7 +112,7 @@ const ProfileScreen = ({ route }: Props) => {
                     paddingVertical: 1,
                 }}
                 renderItem={({ item, index }) => (
-                    <ProfileGridItem item={item} index={index} onPress={navigateToPostDetail} />
+                    <ProfileGridItem item={item} index={index} />
                 )}
                 ListHeaderComponent={UserData.current ? <>
                     <ProfileHeader

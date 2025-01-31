@@ -15,18 +15,22 @@ const ProfileInfoCount = memo(function ProfileInfoCount({
         { title: "Posts", count: userData?.postCount, onPress: () => { } },
         {
             title: "Followers", count: userData?.followerCount, onPress: () => {
-                navigation.push('profile/followersAndFollowing', {
-                    screen: 'followers',
-                    params: { username: userData?.username, tab: 0 }
-                })
+                if (userData?.username) {
+                    navigation.navigate("ProfileFollowingFollowers", {
+                        id: userData.username,
+                        section: "Followers"
+                    });
+                }
             }
         },
         {
             title: "Following", count: userData?.followingCount, onPress: () => {
-                navigation.push('profile/followersAndFollowing', {
-                    screen: 'following',
-                    params: { username: userData?.username, tab: 1 }
-                })
+                if (userData?.username) {
+                    navigation.navigate("ProfileFollowingFollowers", {
+                        id: userData.username,
+                        section: "Following"
+                    });
+                }
             }
         }
     ]

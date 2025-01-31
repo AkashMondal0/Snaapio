@@ -14,11 +14,13 @@ import ErrorScreen from '@/components/error/page';
 import { ConversationDetailsSheet, ConversationItem, ListHeader } from '@/components/message';
 import ListEmpty from '@/components/ListEmpty';
 import { Loader, ThemedView, useTheme } from "hyper-native-ui";
+import { useNavigation } from '@react-navigation/native';
 
 let totalFetchedItemCount: number = 0;
 let pageLoaded = false;
 
-const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
+const ChatListScreen = memo(function ChatListScreen() {
+    const navigation = useNavigation();
     const stopRef = useRef(false)
     const list = useSelector((Root: RootState) => Root.ConversationState.conversationList)
     const listLoading = useSelector((Root: RootState) => Root.ConversationState.listLoading)
@@ -57,7 +59,7 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
     const pushToPage = useCallback((data: Conversation) => {
         dispatch(resetConversation())
         dispatch(setConversation(data))
-        navigation?.navigate("message/conversation", { id: data.id })
+        navigation?.navigate("MessageRoom", { id: data.id })
     }, [])
 
     // fetch -------------------------------------------------------------------------------------
@@ -117,7 +119,7 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
             onRefresh={onRefresh}
             onEndReached={onEndReached}
             ListHeaderComponent={<ListHeader
-                pageToNewChat={() => { navigation?.navigate("message/searchNewChat") }}
+                pageToNewChat={() => { navigation?.navigate("FindMessage") }}
                 pressBack={() => { navigation?.goBack() }}
                 InputOnChange={onChangeInput} />}
             data={conversationList}
@@ -133,7 +135,7 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
             handleSheetChanges={handleSheetChanges}>
             <ConversationDetailsSheet data={BottomSheetData} />
         </ActionSheet>
-        <ActionButton onPress={() => { navigation?.navigate("message/askAiChat") }} />
+        <ActionButton onPress={() => { navigation?.navigate("AiMessage") }} />
     </ThemedView>
 })
 export default ChatListScreen;

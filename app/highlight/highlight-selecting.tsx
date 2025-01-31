@@ -96,8 +96,7 @@ const HighlightSelectingScreen = memo(function HighlightSelectingScreen({
                 rightSideComponent={selectedCount > 0 ? <Icon
                     iconName='Check' isButton
                     onPress={submitHandler}
-                    variant="primary" /> : <View />}
-                navigation={navigation} />
+                    variant="primary" /> : <View />}/>
             <View style={{ flex: 1 }}>
                 <FlatList
                     nestedScrollEnabled

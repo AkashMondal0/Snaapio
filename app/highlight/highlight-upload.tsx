@@ -48,7 +48,7 @@ const HighlightUploadScreen = memo(function HighlightUploadScreen({
 
     return (
         <>
-            <AppHeader title="New Highlight" navigation={navigation} titleCenter />
+            <AppHeader title="New Highlight" titleCenter />
             <ScrollView
                 keyboardDismissMode='on-drag'
                 keyboardShouldPersistTaps='handled'

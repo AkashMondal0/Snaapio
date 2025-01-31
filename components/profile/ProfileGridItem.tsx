@@ -1,20 +1,21 @@
 import React, { memo } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 import { Icon, Image } from "@/components/skysolo-ui"
+import { useNavigation } from "@react-navigation/native";
 import { Post } from '@/types'
 
 const ProfileGridItem = memo(function ProfileGridItem({ item, index,
-    onPress
 }: {
     item: Post, index: number,
-    onPress: (item: Post, index: number) => void
 }) {
-
+    const navigation = useNavigation();
     if (!item.fileUrl[0].urls?.high) return <></>
     return (
         <TouchableOpacity
             activeOpacity={0.8}
-            onPress={() => onPress(item, index)}
+            onPress={() => {
+                navigation.navigate("Post", { id: item.id })
+            }}
             style={{
                 width: "33%",
                 height: "100%",

@@ -1,4 +1,4 @@
-import { disPatchResponse, loadingType, NavigationProps, Post, User } from "@/types";
+import { disPatchResponse, loadingType, Post, User } from "@/types";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { FlatList, ToastAndroid, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
@@ -8,13 +8,7 @@ import { RootState } from "@/redux-stores/store";
 import ErrorScreen from "@/components/error/page";
 import { Loader, ThemedView } from "hyper-native-ui";
 
-interface ScreenProps {
-    navigation: NavigationProps;
-    route: {
-        params: { username: string }
-    }
-}
-const AccountScreen = ({ navigation, route }: ScreenProps) => {
+const AccountScreen = () => {
     const session = useSelector((state: RootState) => state.AuthState.session.user)
     const username = session?.username
     const isProfile = session?.username === username
@@ -75,10 +69,6 @@ const AccountScreen = ({ navigation, route }: ScreenProps) => {
         fetchUserData()
     }, [loading])
 
-    const navigateToPostDetail = useCallback((item: Post, index: number) => {
-        navigation.navigate('post', { post: item, index })
-    }, [])
-
     useEffect(() => {
         fetchUserData()
     }, [])
@@ -112,10 +102,9 @@ const AccountScreen = ({ navigation, route }: ScreenProps) => {
                     paddingVertical: 1,
                 }}
                 renderItem={({ item, index }) => (<ProfileGridItem
-                    item={item} index={index} onPress={navigateToPostDetail} />)}
+                    item={item} index={index} />)}
                 ListHeaderComponent={UserData.current ? <>
                     <ProfileHeader
-                        navigation={navigation}
                         userData={UserData.current}
                         isProfile={isProfile} />
                 </> : <></>}

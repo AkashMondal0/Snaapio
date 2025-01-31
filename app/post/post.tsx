@@ -10,10 +10,10 @@ import { ScrollView, View } from "react-native";
 import { StaticScreenProps } from "@react-navigation/native";
 
 type Props = StaticScreenProps<{
-    postId: string;
+    id: string;
 }>;
 const PostScreen = memo(function PostScreen({  route }: Props) {
-    const postId = route.params.postId;
+    const postId = route.params.id;
     const [state, setState] = useState<{
         loading: loadingType,
         error: boolean,

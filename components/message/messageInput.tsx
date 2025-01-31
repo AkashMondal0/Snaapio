@@ -14,17 +14,17 @@ import debounce from "@/lib/debouncing";
 import { CreateMessageApi, fetchConversationsApi } from "@/redux-stores/slice/conversation/api.service";
 import { configs } from "@/configs";
 import { Input } from "hyper-native-ui";
+import { useNavigation } from "@react-navigation/native";
 const schema = z.object({
     message: z.string().min(1)
 })
 const ChatScreenInput = memo(function ChatScreenInput({
     conversation,
-    navigation,
 }: {
     conversation: Conversation
-    navigation: NavigationProps
 }) {
     const dispatch = useDispatch()
+    const navigation = useNavigation()
     const ConversationList = useSelector((state: RootState) => state.ConversationState.conversationList, (prev, next) => prev.length === next.length)
     const session = useSelector((state: RootState) => state.AuthState.session.user)
     const [loading, setLoading] = useState(false)
@@ -101,7 +101,7 @@ const ChatScreenInput = memo(function ChatScreenInput({
     }, [conversation.id, members, session?.id, socketState.socket])
 
     const navigateToSelectFile = useCallback(() => {
-        navigation.navigate("message/asset/selection", { conversation })
+        navigation.navigate("MessageAssetSelect", { conversation })
     }, [])
 
     return (

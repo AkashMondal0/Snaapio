@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from "react";
+import React, { memo, useState } from "react";
 import { View } from "react-native";
 import { User } from "@/types";
 import ProfileInfoCount from "./ProfileInfoCount";
@@ -6,7 +6,6 @@ import ProfileActionsButton from "./ProfileActionsButton";
 import ProfileStories from "./ProfileStories";
 import ProfilePicView from "./ProfilePicView";
 import { Separator, Text } from "hyper-native-ui";
-import { useNavigation } from "@react-navigation/native";
 
 const ProfileHeader = memo(function HomeScreen({
     userData,
@@ -15,7 +14,6 @@ const ProfileHeader = memo(function HomeScreen({
     userData: User | null,
     isProfile: boolean
 }) {
-    const navigation = useNavigation();
     const [user, setUser] = useState<User | null>(userData)
     const handleFollow = () => {
         if (!user) return
@@ -43,10 +41,6 @@ const ProfileHeader = memo(function HomeScreen({
         })
     }
 
-    const onPress = useCallback(() => {
-        navigation.navigate("Story", {  })
-    }, [user])
-
     return (
         <>
             <View style={{
@@ -63,7 +57,7 @@ const ProfileHeader = memo(function HomeScreen({
                     width: '100%',
                     marginBottom: 8,
                 }}>
-                    <ProfilePicView user={user} onPress={onPress} />
+                    <ProfilePicView user={user} />
                     <ProfileInfoCount userData={user} />
                 </View>
                 <Text

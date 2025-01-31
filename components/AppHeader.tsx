@@ -37,8 +37,10 @@ const AppHeader = memo(function HomeScreen({
                 <Icon iconName="ArrowLeft"
                     size={28}
                     onPress={() => {
-                        backCallback && backCallback()
-                        navigation.goBack()
+                        if (navigation.canGoBack()) {
+                            navigation.goBack()
+                            backCallback && backCallback()
+                        }
                     }} />
                 <Text variant="H5" style={{
                     fontSize: 22,
