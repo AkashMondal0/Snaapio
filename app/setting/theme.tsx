@@ -1,13 +1,13 @@
 import React from "react";
 import { memo, useCallback, useState } from "react";
-import { ThemedView, useTheme, themeColors, Switch, Text, Dropdown } from "hyper-native-ui";
+import { ThemedView, useTheme, themeColors, Switch, Text } from "hyper-native-ui";
 import { TouchableOpacity, View } from "react-native";
 import AppHeader from "@/components/AppHeader";
 import { Icon } from "@/components/skysolo-ui";
 import { configs } from "@/configs";
 import { setSecureStorage } from "@/lib/SecureStore";
 
-const ThemeSettingScreen = memo(function HomeScreen({ navigation }: any) {
+const ThemeSettingScreen = memo(function HomeScreen() {
     const { changeTheme } = useTheme();
 
     const handleChange = useCallback(async (themeName: any) => {
@@ -28,7 +28,6 @@ const ThemeSettingScreen = memo(function HomeScreen({ navigation }: any) {
             <AppHeader
                 title="Appearance"
                 titleCenter
-                navigation={navigation}
                 key={"setting-page-2"} />
             <View style={{
                 flexDirection: 'row',
@@ -52,7 +51,6 @@ const ThemeSettingScreen = memo(function HomeScreen({ navigation }: any) {
                     </TouchableOpacity>
                 })}
             </View>
-            <Dropdown data={[]} />
             <SwitchDarkComponent />
         </ThemedView>
     )

@@ -1,10 +1,10 @@
 import React, { memo, useCallback, useEffect, useRef } from 'react';
-import { Message, NavigationProps } from '@/types';
+import { Message } from '@/types';
 import { FlatList, View, Text, StyleSheet, Clipboard, Image } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
 import { Icon } from '@/components/skysolo-ui';
-import { Loader, useTheme } from 'hyper-native-ui';    
+import { Loader, useTheme } from 'hyper-native-ui';
 import { ToastAndroid } from "react-native";
 import { timeFormat } from '@/lib/timeFormat';
 import { AiMessage, loadMyPrompt } from '@/redux-stores/slice/conversation';
@@ -12,11 +12,7 @@ import { AiMessage, loadMyPrompt } from '@/redux-stores/slice/conversation';
 import Markdown, { MarkdownIt, stringToTokens, tokensToAST } from 'react-native-markdown-display';
 import { getSecureStorage } from '@/lib/SecureStore';
 let loaded = false
-const AiMessageList = memo(function AiMessageList({
-    navigation
-}: {
-    navigation: NavigationProps
-}) {
+const AiMessageList = memo(function AiMessageList() {
     const stopFetch = useRef(false)
     const dispatch = useDispatch()
     const totalFetchedItemCount = useRef<number>(0)
@@ -26,9 +22,15 @@ const AiMessageList = memo(function AiMessageList({
 
     const loadMoreMessages = useCallback(async () => {
         if (loaded) return
-        const fetchList = await getSecureStorage("myPrompt")
-        dispatch(loadMyPrompt(JSON.parse(fetchList as string)))
-        loaded = true
+        try {
+            const fetchList = await getSecureStorage<AiMessage[]>("myPrompt", "json")
+            if (!fetchList) return
+            dispatch(loadMyPrompt(fetchList))
+        } catch (error) {
+            return ToastAndroid.show("Something went wrong", ToastAndroid.SHORT);
+        } finally {
+            loaded = true
+        }
     }, [])
 
     // const fetchMore = debounce(() => loadMoreMessages(), 1000)

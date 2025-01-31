@@ -91,7 +91,7 @@ const UserItem = memo(function UserItem({
 }) {
     const navigation = useNavigation();
     return (<TouchableOpacity
-        onPress={() => navigation.dispatch(StackActions.replace("Profile", { id: data.username }))}
+        onPress={() => navigation.dispatch(StackActions.push("Profile", { id: data.username }))}
         style={{
             flexDirection: 'row',
             padding: 12,

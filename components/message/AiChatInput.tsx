@@ -2,7 +2,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Icon } from "@/components/skysolo-ui";
 import { memo, useCallback, useState } from "react";
-import { disPatchResponse, NavigationProps } from "@/types";
+import { disPatchResponse } from "@/types";
 import { ToastAndroid, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
@@ -21,11 +21,7 @@ import { getSecureStorage, setSecureStorage } from "@/lib/SecureStore";
 const schema = z.object({
     message: z.string().min(1)
 })
-const AiChatScreenInput = memo(function AiChatScreenInput({
-    navigation,
-}: {
-    navigation: NavigationProps
-}) {
+const AiChatScreenInput = memo(function AiChatScreenInput() {
     const dispatch = useDispatch()
     const session = useSelector((state: RootState) => state.AuthState.session.user)
     const [loading, setLoading] = useState(false)
@@ -56,9 +52,9 @@ const AiChatScreenInput = memo(function AiChatScreenInput({
         try {
             if (!session?.id) return ToastAndroid.show("Something went wrong CI", ToastAndroid.SHORT);
             let allPrompts = [] as AiMessage[];
-            const getPreviousPrompt = await getSecureStorage<string>("myPrompt");
+            const getPreviousPrompt = await getSecureStorage<AiMessage[]>("myPrompt", "json");
             if (getPreviousPrompt) {
-                allPrompts = JSON.parse(getPreviousPrompt);
+                allPrompts = getPreviousPrompt
             } else {
                 await setSecureStorage("myPrompt", JSON.stringify([]));
             };

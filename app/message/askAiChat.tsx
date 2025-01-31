@@ -8,20 +8,16 @@ import {
 import AiChatScreenInput from "@/components/message/AiChatInput";
 import AiMessageList from "@/components/message/AiMessageList";
 import { useTheme } from 'hyper-native-ui';
+import { useNavigation } from "@react-navigation/native";
 
-interface AskAiChatScreenProps {
-    navigation: NavigationProps
-    route: {
-        params: {
-            id: string;
-        },
-        name: string;
-    }
-}
-
-const AskAiChatScreen = memo(function AskAiChatScreen({ navigation, route }: AskAiChatScreenProps) {
+const AskAiChatScreen = memo(function AskAiChatScreen() {
+    const navigation = useNavigation()
     // const ConversationData = useSelector((Root: RootState) => Root.ConversationState.conversation, (prev, next) => prev?.id === next?.id)
-    const PressBack = useCallback(() => { navigation?.goBack() }, [])
+    const PressBack = useCallback(() => {
+        if (navigation.canGoBack()) {
+            navigation?.goBack()
+        }
+    }, [])
 
     // if (!ConversationData) return <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
     //     <Text variant="heading3">No conversation found</Text>
@@ -34,11 +30,11 @@ const AskAiChatScreen = memo(function AskAiChatScreen({ navigation, route }: Ask
             height: '100%',
         }}>
             <AskAiChatScreenNavbar pressBack={PressBack} />
-            <AiMessageList navigation={navigation} />
-            <AiChatScreenInput navigation={navigation} />
+            <AiMessageList />
+            <AiChatScreenInput />
         </ThemedView>
     )
-}, (prev, next) => prev.route.params.id === next.route.params.id)
+})
 export default AskAiChatScreen;
 
 const AskAiChatScreenNavbar = memo(function AskAiChatScreenNavbar({
@@ -76,14 +72,21 @@ const AskAiChatScreenNavbar = memo(function AskAiChatScreenNavbar({
                     gap: 10,
                 }}>
                     <View style={{
-                        borderWidth: 1,
+                        borderWidth: 2,
                         borderColor: currentTheme?.border,
                         borderRadius: 100,
+                        backgroundColor: "white",
+                        padding: 6
                     }}>
-                        <Avatar
-                            serverImage={false}
-                            url={require("../../assets/images/ai.png")}
-                            size={46} />
+                        <View style={{
+                            borderColor: currentTheme?.border,
+                            borderRadius: 100,
+                        }}>
+                            <Avatar
+                                serverImage={false}
+                                url={require("../../assets/images/ai.png")}
+                                size={30} />
+                        </View>
                     </View>
                     <View>
                         <Text

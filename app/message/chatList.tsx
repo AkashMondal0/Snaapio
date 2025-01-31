@@ -150,15 +150,22 @@ const ActionButton = memo(function ActionButton({ onPress }: { onPress: () => vo
         borderWidth: 2,
         borderRadius: 100,
         elevation: 5,
-        width: 55,
-        height: 55,
         justifyContent: "center",
         alignItems: "center",
+        padding: 8,
+        backgroundColor:"white",
     }}>
-        <Avatar
-            serverImage={false}
-            onPress={onPress}
-            url={require("../../assets/images/ai.png")}
-            size={52} />
+        <View style={{
+            width: 46,
+            height: 46,
+            backgroundColor:"white",
+            borderRadius: 100,
+        }}>
+            <Avatar
+                serverImage={false}
+                onPress={onPress}
+                url={require("../../assets/images/ai.png")}
+                size={42} />
+        </View>
     </View>
 }, () => true)

@@ -7,9 +7,11 @@ import { logoutApi } from "@/redux-stores/slice/auth/api.service";
 import { memo, useCallback, useState } from "react";
 import { Linking, ScrollView, View } from "react-native";
 import { useDispatch } from "react-redux";
+import { useNavigation } from "@react-navigation/native";
 
-const SettingScreen = memo(function HomeScreen({ navigation }: any) {
+const SettingScreen = memo(function HomeScreen() {
     const dispatch = useDispatch();
+    const navigation = useNavigation()
     const [modalVisible, setModalVisible] = useState(false)
     const settingList = [
         {
@@ -17,7 +19,7 @@ const SettingScreen = memo(function HomeScreen({ navigation }: any) {
             description: "Change the appearance of the app",
             icon: "Palette",
             onPress: () => {
-                navigation.navigate("settings/theme")
+                navigation.navigate("ThemeSettings")
             }
         },
         {

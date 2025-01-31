@@ -58,7 +58,11 @@ const ProfileNavbar = memo(function HomeScreen({
         alignItems: 'center',
         justifyContent: 'space-between'
     }}>
-        <Icon iconName="ChevronLeft" size={34} onPress={() => navigation.goBack()} />
+        <Icon iconName="ChevronLeft" size={34} onPress={() => {
+            if (navigation.canGoBack()) {
+                navigation.goBack()
+            }
+        }} />
         <Text style={{ fontSize: 24, fontWeight: "400" }}>{username}</Text>
         <View style={{ width: 40 }} />
     </View>
