@@ -45,7 +45,9 @@ function Root() {
           <BottomSheetProvider>
             {session.user ? <Navigation theme={theme} linking={{
               prefixes: [prefix, 'snaapio://', 'https://snaapio.vercel.app'],
-            }} /> : <AuthNavigation theme={theme} />}
+            }} /> : <AuthNavigation theme={theme} linking={{
+              prefixes: [prefix, 'snaapio://', 'https://snaapio.vercel.app'],
+            }} />}
           </BottomSheetProvider>
         </SocketConnections>
       </SafeAreaProvider>

@@ -40,6 +40,8 @@ const AppHeader = memo(function HomeScreen({
                         if (navigation.canGoBack()) {
                             navigation.goBack()
                             backCallback && backCallback()
+                        } else {
+                            navigation.navigate("HomeTabs")
                         }
                     }} />
                 <Text variant="H5" style={{

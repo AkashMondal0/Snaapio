@@ -4,6 +4,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: "Snaapio",
   slug: "snaapio",
+  scheme: "snaapio",
   version: "0.1.0",
   orientation: "default",
   icon: "./assets/icon.png",

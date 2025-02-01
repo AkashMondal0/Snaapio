@@ -1,7 +1,9 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import {
     createStaticNavigation,
+    StackActions,
     StaticParamList,
+    useNavigation,
 } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Film, HomeIcon, PlusCircle, Search } from "lucide-react-native"
@@ -28,8 +30,9 @@ import { HighlightPageScreen, HighlightSelectingScreen, HighlightUploadScreen } 
 import { FeedsScreen, AccountScreen, ReelsScreen, SearchScreen } from '@/app/HomeTab';
 import { NotificationScreen } from '@/app/notification';
 import { NotFound } from './NotFound';
+import React, { useEffect } from 'react';
 
-const HomeTabs = createBottomTabNavigator({
+export const HomeTabs = createBottomTabNavigator({
     screenOptions: {
         headerShown: false
     },
@@ -81,15 +84,49 @@ const HomeTabs = createBottomTabNavigator({
     },
 });
 
+export const RedirectHome = () => {
+    const navigation = useNavigation()
+    useEffect(() => {
+        if (navigation?.canGoBack()) {
+            navigation.goBack()
+            return
+        } else {
+            navigation.dispatch(StackActions.replace("HomeTabs"))
+        }
+    }, [])
+    return <></>
+}
 const AuthStack = createNativeStackNavigator({
     screenOptions: {
         headerShown: false,
         keyboardHandlingEnabled: true,
     },
+    initialRouteName: "Welcome",
     screens: {
-        Welcome: InitialScreen,
-        Login: LoginScreen,
-        Register: RegisterScreen
+        Welcome: {
+            screen: InitialScreen,
+            linking: {
+                path: "/welcome"
+            }
+        },
+        Login: {
+            screen: LoginScreen,
+            linking: {
+                path: "/login"
+            }
+        },
+        Register: {
+            screen: RegisterScreen,
+            linking: {
+                path: "/register"
+            }
+        },
+        NotFound: {
+            screen: LoginScreen,
+            linking: {
+                path: '*',
+            },
+        },
     }
 })
 
@@ -331,6 +368,28 @@ const RootStack = createNativeStackNavigator({
                         path: 'ai/message'
                     }
                 },
+            }
+        },
+        Auth: {
+            screens: {
+                Welcome: {
+                    screen: RedirectHome,
+                    linking: {
+                        path: "/welcome"
+                    }
+                },
+                Login: {
+                    screen: RedirectHome,
+                    linking: {
+                        path: "/login"
+                    }
+                },
+                Register: {
+                    screen: RedirectHome,
+                    linking: {
+                        path: "/register"
+                    }
+                }
             }
         },
         NotFound: {

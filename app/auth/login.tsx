@@ -1,5 +1,5 @@
 import React, { useCallback, useRef } from 'react';
-import { ScrollView, ToastAndroid, View } from 'react-native';
+import { ScrollView, ToastAndroid, TouchableOpacity, View } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,7 +9,7 @@ import { Text, Button, ThemedView, Input } from 'hyper-native-ui'
 import { loginApi } from '@/redux-stores/slice/auth/api.service';
 import { ApiResponse, Session } from '@/types';
 import { setSession } from '@/redux-stores/slice/auth';
-import { useNavigation } from '@react-navigation/native';
+import { StackActions, useNavigation } from '@react-navigation/native';
 
 const schema = z.object({
     email: z.string().email({ message: "Invalid email" })
@@ -76,16 +76,14 @@ const LoginScreen = () => {
                     padding: 20,
                     width: "100%",
                 }}>
-                <Icon
+                {navigation.canGoBack() ? <Icon
                     disabled={state.loading}
                     iconName="ArrowLeft"
                     size={30}
                     onPress={() => {
-                        if (navigation.canGoBack()) {
-                            navigation.goBack()
-                        }
+                        navigation.goBack()
                     }}
-                    isButton />
+                    isButton /> : <></>}
 
                 <View style={{
                     flex: 1,
@@ -201,6 +199,25 @@ const LoginScreen = () => {
                         Login
                     </Button>
                 </View>
+                <TouchableOpacity onPress={() => {
+                    navigation.dispatch(StackActions.replace("Register"))
+                }}
+                    activeOpacity={1}
+                    style={{
+                        padding: 10,
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "center",
+                    }}>
+                    <Text
+                        variantColor="secondary"
+                        style={{
+                            textAlign: "center",
+                            paddingRight: 4,
+                        }}>
+                        Register
+                    </Text>
+                </TouchableOpacity>
             </ScrollView>
         </ThemedView>
     );

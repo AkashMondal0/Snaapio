@@ -61,6 +61,8 @@ const ProfileNavbar = memo(function HomeScreen({
         <Icon iconName="ChevronLeft" size={34} onPress={() => {
             if (navigation.canGoBack()) {
                 navigation.goBack()
+            } else {
+                navigation.navigate("HomeTabs")
             }
         }} />
         <Text style={{ fontSize: 24, fontWeight: "400" }}>{username}</Text>
