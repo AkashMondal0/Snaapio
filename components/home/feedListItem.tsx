@@ -11,7 +11,7 @@ import { Heart } from 'lucide-react-native';
 import PagerView from 'react-native-pager-view';
 import { useDispatch, useSelector } from 'react-redux';
 import useDebounce from '@/lib/debouncing';
-import { useTheme, Text, Skeleton } from 'hyper-native-ui';
+import { useTheme, Text } from 'hyper-native-ui';
 import { Avatar, Image, Icon } from '@/components/skysolo-ui';
 import React from 'react';
 import { StackActions, useNavigation } from '@react-navigation/native';
@@ -23,13 +23,12 @@ const FeedItem = memo(function FeedItem({
 }) {
     const navigation = useNavigation();
     const { currentTheme } = useTheme();
-    const [tabIndex, setTabIndex] = useState(0)
-    const imageLength = data.fileUrl.length
+    const [tabIndex, setTabIndex] = useState(0);
+    const imageLength = data.fileUrl.length;
     const navigateToProfile = useCallback(() => {
-        if (!data.user) return ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
-        // navigation.navigate("Profile", { id: data.user.username })
-        navigation.dispatch(StackActions.push("Profile", { id: data.user.username }))
-    }, [data.user])
+        if (!data.user) return ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT);
+        navigation.dispatch(StackActions.push("Profile", { id: data.user.username }));
+    }, [data.user]);
 
     return <View style={{
         width: "100%",
@@ -375,15 +374,16 @@ const FeedItemContent = memo(function FeedItemContent({ data
     </Text>)
 }, () => true)
 
-
-export const FeedLoader = () => {
+export const FeedLoader = ({ size }: { size?: number }) => {
+    const { currentTheme } = useTheme();
+    const background = currentTheme.input;
     return <View>
-        {Array(4).fill(0).map((_, i) =>
-            <View key={i} 
-            style={{
-                width: "100%",
-                paddingVertical: 14,
-            }}>
+        {Array(size ?? 4).fill(0).map((_, i) =>
+            <View key={i}
+                style={{
+                    width: "100%",
+                    paddingVertical: 14,
+                }}>
                 {/* header */}
                 <View style={{
                     marginHorizontal: "2%",
@@ -393,23 +393,45 @@ export const FeedLoader = () => {
                     alignItems: "center",
                     gap: 6
                 }}>
-                    <Skeleton width={52} height={52} borderRadius={150} />
+                    <View
+                        style={{
+                            width: 52,
+                            height: 52,
+                            borderRadius: 120,
+                            backgroundColor: background
+                        }}
+                    />
                     <View style={{
                         gap: 5
                     }}>
-                        <Skeleton width={180} height={14} />
-                        <Skeleton width={120} height={12} />
+                        <View
+                            style={{
+                                width: 180,
+                                height: 14,
+                                borderRadius: 50,
+                                backgroundColor: background
+                            }}
+                        />
+                        <View
+                            style={{
+                                width: 120,
+                                height: 12,
+                                borderRadius: 50,
+                                backgroundColor: background
+                            }}
+                        />
                     </View>
                 </View>
                 {/* view image */}
-                <Skeleton
-                    width={"100%"}
-                    height={400}
-                    borderRadius={0}
+                <View
                     style={{
                         aspectRatio: 4 / 5,
                         flex: 1,
-                        padding: 4
+                        padding: 4,
+                        width: "100%",
+                        height: "100%",
+                        borderRadius: 0,
+                        backgroundColor: background
                     }} />
                 {/* action */}
                 <View style={{
@@ -417,8 +439,18 @@ export const FeedLoader = () => {
                     marginHorizontal: "2%",
                     paddingVertical: 10
                 }}>
-                    <Skeleton width={200} height={16} />
-                    <Skeleton width={120} height={14} />
+                    <View style={{
+                        width: 200,
+                        height: 16,
+                        borderRadius: 50,
+                        backgroundColor: background
+                    }} />
+                    <View style={{
+                        width: 120,
+                        height: 14,
+                        borderRadius: 50,
+                        backgroundColor: background
+                    }} />
                 </View>
             </View>)}
     </View>

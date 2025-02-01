@@ -1,11 +1,13 @@
-import { Skeleton } from "hyper-native-ui"
+import { useTheme } from "hyper-native-ui";
 import React from "react"
 import { View } from "react-native"
 
 
 const UserItemLoader = ({ size }: { size?: number }) => {
+	const { currentTheme } = useTheme();
+	const background = currentTheme.input
 	return <>
-		{Array(size ?? 8).fill(0).map((_, i) => <View
+		{Array(size ?? 12).fill(0).map((_, i) => <View
 			key={i}
 			style={{
 				flexDirection: 'row',
@@ -22,15 +24,36 @@ const UserItemLoader = ({ size }: { size?: number }) => {
 				gap: 10,
 				alignItems: 'center',
 			}}>
-				<Skeleton width={60} height={60} borderRadius={120} />
+				<View
+					style={{
+						width: 60,
+						height: 60,
+						borderRadius: 120,
+						backgroundColor: background
+					}} />
 				<View style={{
 					gap: 8,
 				}}>
-					<Skeleton width={120} height={12} />
-					<Skeleton width={70} height={10} />
+					<View style={{
+						width: 120,
+						height: 12,
+						borderRadius: 120,
+						backgroundColor: background
+					}} />
+					<View style={{
+						width: 70,
+						height: 10,
+						borderRadius: 120,
+						backgroundColor: background
+					}} />
 				</View>
 			</View>
-			<Skeleton width={80} height={40} />
+			<View style={{
+				width: 80,
+				height: 40,
+				borderRadius: 10,
+				backgroundColor: background
+			}} />
 		</View>)}
 	</>
 }

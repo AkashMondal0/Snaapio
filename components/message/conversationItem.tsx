@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { View } from 'react-native';
 import { Conversation } from '@/types';
 import { Avatar } from '@/components/skysolo-ui';
-import { Skeleton, Text, TouchableOpacity, useTheme } from "hyper-native-ui";
+import { Text, TouchableOpacity, useTheme } from "hyper-native-ui";
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
 import { timeFormat } from '@/lib/timeFormat';
@@ -100,33 +100,58 @@ const ConversationItem = memo(function ConversationItem({
 export default ConversationItem;
 
 export const ConversationLoader = ({ size }: { size?: number }) => {
+    const { currentTheme } = useTheme();
+    const background = currentTheme.input;
     return <>
-        {Array(size ?? 6).fill(0).map((_, i) =>
-            <View style={{ paddingHorizontal: 4 }} key={i}>
-                <View
-                    style={{
-                        width: "100%",
-                        height: 75,
-                        paddingHorizontal: 10,
-                        display: 'flex',
-                        flexDirection: "row",
-                        alignItems: "center",
-                        gap: 10,
-                        borderRadius: 15,
-                    }}>
-                    <Skeleton width={55} height={55} borderRadius={100} />
+        {Array(12).fill(0).map((_, i) => <View
+            key={i}
+            style={{
+                flexDirection: 'row',
+                padding: 10,
+                alignItems: 'center',
+                width: '100%',
+                gap: 10,
+                justifyContent: 'space-between',
+            }}>
+            <View style={{
+                display: 'flex',
+                flexDirection: 'row',
+                gap: 8,
+                alignItems: 'center',
+                width: '65%',
+            }}>
+                <View style={{
+                    width: 55,
+                    height: 55,
+                    borderRadius: 100,
+                    backgroundColor: background
+                }} />
+                <View style={{ paddingHorizontal: 2 }}>
                     <View style={{
-                        flex: 1,
-                        justifyContent: "center",
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: 6,
                     }}>
                         <View style={{
                             gap: 5
                         }}>
-                            <Skeleton width={180} height={14} />
-                            <Skeleton width={120} height={12} />
+                            <View style={{
+                                width: 180,
+                                height: 14,
+                                borderRadius: 100,
+                                backgroundColor: background
+                            }} />
+                            <View style={{
+                                width: 120,
+                                height: 12,
+                                borderRadius: 10,
+                                backgroundColor: background
+                            }} />
                         </View>
                     </View>
                 </View>
-            </View>)}
+            </View>
+        </View>)}
     </>
 }

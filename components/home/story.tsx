@@ -183,13 +183,21 @@ export const AddStories = ({
 }
 
 const StoryLoader = () => {
+    const { currentTheme } = useTheme();
     return <View style={{
         display: "flex",
         flexDirection: "row",
         gap: 10,
         height: 90,
-        alignItems:"center"
+        alignItems: "center"
     }}>
-        {Array(10).fill(0).map((_,i) => <Skeleton key={i} width={80} height={80} borderRadius={160} />)}
+        {Array(10).fill(0).map((_, i) => <View key={i}
+            style={{
+                width: 80,
+                height: 80,
+                borderRadius: 180,
+                backgroundColor: currentTheme.input
+            }}
+        />)}
     </View>
 }

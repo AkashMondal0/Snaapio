@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useState } from "react";
-import { Loader, ThemedView } from "hyper-native-ui";
+import { ThemedView } from "hyper-native-ui";
 import { disPatchResponse, loadingType, Post } from "@/types";
 import AppHeader from "@/components/AppHeader";
 import { FeedItem } from "@/components/home";
@@ -8,11 +8,12 @@ import { fetchOnePostApi } from "@/redux-stores/slice/post/api.service";
 import ErrorScreen from "@/components/error/page";
 import { ScrollView, View } from "react-native";
 import { StaticScreenProps } from "@react-navigation/native";
+import { FeedLoader } from "@/components/home/feedListItem";
 
 type Props = StaticScreenProps<{
     id: string;
 }>;
-const PostScreen = memo(function PostScreen({  route }: Props) {
+const PostScreen = memo(function PostScreen({ route }: Props) {
     const postId = route.params.id;
     const [state, setState] = useState<{
         loading: loadingType,
@@ -50,7 +51,7 @@ const PostScreen = memo(function PostScreen({  route }: Props) {
         }}>
             <AppHeader title="Post" titleCenter />
             <ScrollView>
-                {state.loading !== 'normal' ? <Loader size={50} />
+                {state.loading !== 'normal' ? <FeedLoader size={1} />
                     : state.error ? <ErrorScreen message="Not Found" /> :
                         state.data?.id ? <FeedItem data={state.data} /> : <View />}
             </ScrollView>

@@ -43,7 +43,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     intentFilters: [
       {
         action: "VIEW",
-        // autoVerify: true,
+        autoVerify: true,
         data: [
           {
             scheme: "https",
