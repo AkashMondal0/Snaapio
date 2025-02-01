@@ -104,15 +104,11 @@ const AccountScreen = () => {
                 }}
                 renderItem={({ item, index }) => (<ProfileGridItem
                     item={item} index={index} />)}
-                ListHeaderComponent={() => {
-                    if (loading === "idle" || loading === "pending") {
-
-                        return <ProfileHeaderLoader />
-                    }
-                    return <ProfileHeader
+                ListHeaderComponent={UserData.current ? <>
+                    <ProfileHeader
                         userData={UserData.current}
                         isProfile={isProfile} />
-                }}
+                </> : <></>}
                 ListFooterComponent={loading === "pending" || loading === "idle" ? <View style={{
                     width: '100%',
                     height: 50,

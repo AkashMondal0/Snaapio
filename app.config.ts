@@ -5,6 +5,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   name: "Snaapio",
   slug: "snaapio",
   scheme: "snaapio",
+  platforms: ["android"],
   version: "0.1.0",
   orientation: "default",
   icon: "./assets/icon.png",
@@ -39,6 +40,23 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       }
     },
     package: "com.akashmondal0.snaapio",
+    intentFilters: [
+      {
+        action: "VIEW",
+        // autoVerify: true,
+        data: [
+          {
+            scheme: "https",
+            host: "snaapio.vercel.app",
+            pathPrefix: "/*"
+          },
+        ],
+        category: [
+          "BROWSABLE",
+          "DEFAULT"
+        ]
+      }
+    ],
     permissions: [
       "android.permission.RECORD_AUDIO",
       "android.permission.MODIFY_AUDIO_SETTINGS",
