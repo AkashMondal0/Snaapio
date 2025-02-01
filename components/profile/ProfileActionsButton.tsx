@@ -1,5 +1,5 @@
 import { memo, useState } from "react";
-import { User, Conversation, disPatchResponse, NavigationProps } from "@/types";
+import { User, Conversation, disPatchResponse } from "@/types";
 import { ToastAndroid, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";

@@ -56,7 +56,7 @@ const MessageList = memo(function MessageList({
     const fetchMore = debounce(() => loadMoreMessages(conversation.id), 1000)
 
     const navigateToImagePreview = useCallback((data: Message) => {
-        navigation.navigate("MessageImagePreview", { data })
+        navigation.navigate("MessageImagePreview" as any, { data })
     }, [])
 
     return (

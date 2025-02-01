@@ -1,7 +1,7 @@
 import { memo, useState } from "react";
 import { Image } from "@/components/skysolo-ui";
 import { ThemedView } from 'hyper-native-ui';
-import { Message, NavigationProps, Post } from "@/types";
+import { Message, NavigationProps } from "@/types";
 import AppHeader from "@/components/AppHeader";
 import PagerView from "react-native-pager-view";
 import { View } from "react-native";
@@ -31,7 +31,7 @@ const ImagePreviewScreen = memo(function ImagePreviewScreen({ navigation, route 
             width: '100%',
             height: '100%',
         }}>
-            <AppHeader title={title} navigation={navigation} titleCenter />
+            <AppHeader title={title} titleCenter />
             <PagerView
                 initialPage={tabIndex}
                 onPageSelected={(e) => setTabIndex(e.nativeEvent.position)}

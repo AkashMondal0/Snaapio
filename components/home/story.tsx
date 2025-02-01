@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { fetchAccountStoryTimelineApi, fetchAccountStoryApi } from "@/redux-stores/slice/account/api.service";
 import { AuthorData, Session } from "@/types";
-import { useTheme, Text, Loader, Skeleton } from 'hyper-native-ui';
+import { useTheme, Text, Skeleton } from 'hyper-native-ui';
 import { StackActions, useNavigation } from "@react-navigation/native";
 
 const StoriesComponent = memo(function StoriesComponent() {
@@ -190,6 +190,6 @@ const StoryLoader = () => {
         height: 90,
         alignItems:"center"
     }}>
-        {Array(10).fill(0).map(() => <Skeleton width={80} height={80} borderRadius={160} />)}
+        {Array(10).fill(0).map((_,i) => <Skeleton key={i} width={80} height={80} borderRadius={160} />)}
     </View>
 }

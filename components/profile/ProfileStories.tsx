@@ -5,7 +5,7 @@ import { Icon, Avatar } from "@/components/skysolo-ui";
 import { disPatchResponse, loadingType, User, Highlight } from "@/types";
 import { useDispatch } from "react-redux";
 import { fetchUserHighlightApi } from "@/redux-stores/slice/profile/api.service";
-import { Text, Loader, ThemedView } from "hyper-native-ui"
+import { Text, Loader, ThemedView, Skeleton } from "hyper-native-ui"
 import { StackActions, useNavigation } from "@react-navigation/native";
 
 const StoriesComponent = memo(function StoriesComponent({
@@ -129,14 +129,7 @@ const StoriesComponent = memo(function StoriesComponent({
                 ListHeaderComponent={<View style={{ width: 6 }} />}
                 ListEmptyComponent={() => {
                     if (state.loading === "idle" || state.loading === "pending") {
-                        return <View style={{
-                            width: 100,
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            height: 80,
-                        }}>
-                            <Loader size={40} />
-                        </View>
+                        return <StoryLoader />
                     }
                     if (state.error && state.loading === "normal") return <View />
                     return <View />
@@ -174,3 +167,16 @@ export const StoriesItem = memo(function StoriesItem({
         </Text>
     </TouchableOpacity>)
 }, () => true)
+
+
+const StoryLoader = () => {
+    return <View style={{
+        display: "flex",
+        flexDirection: "row",
+        gap: 10,
+        height: 90,
+        alignItems: "center"
+    }}>
+        {Array(10).fill(0).map((_, i) => <Skeleton key={i} width={80} height={80} borderRadius={160} />)}
+    </View>
+}

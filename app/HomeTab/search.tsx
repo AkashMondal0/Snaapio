@@ -7,7 +7,7 @@ import { searchUsersProfileApi } from "@/redux-stores/slice/users/api.service";
 import { RootState } from "@/redux-stores/store";
 import { AuthorData } from "@/types";
 import { StackActions, useNavigation } from "@react-navigation/native";
-import { Input, Text, Loader, TouchableOpacity } from "hyper-native-ui";
+import { Input, Text, TouchableOpacity } from "hyper-native-ui";
 import React from "react";
 import { memo, useCallback, useRef } from "react";
 import { FlatList, View } from "react-native";

@@ -6,6 +6,7 @@ import { View } from "react-native"
 const UserItemLoader = ({ size }: { size?: number }) => {
 	return <>
 		{Array(size ?? 8).fill(0).map((_, i) => <View
+			key={i}
 			style={{
 				flexDirection: 'row',
 				padding: 12,

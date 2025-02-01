@@ -1,5 +1,4 @@
 import { memo, useCallback, } from "react";
-import { NavigationProps } from "@/types";
 import { View } from "react-native";
 import { Avatar, Icon } from "@/components/skysolo-ui";
 import {

@@ -13,9 +13,9 @@ import Markdown, { MarkdownIt, stringToTokens, tokensToAST } from 'react-native-
 import { getSecureStorage } from '@/lib/SecureStore';
 let loaded = false
 const AiMessageList = memo(function AiMessageList() {
-    const stopFetch = useRef(false)
+    // const stopFetch = useRef(false)
     const dispatch = useDispatch()
-    const totalFetchedItemCount = useRef<number>(0)
+    // const totalFetchedItemCount = useRef<number>(0)
 
     const messages = useSelector((Root: RootState) => Root.ConversationState?.ai_messages)
     const messagesLoading = useSelector((Root: RootState) => Root.ConversationState?.ai_messageCreateLoading)

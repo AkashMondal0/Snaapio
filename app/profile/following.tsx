@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { FlatList, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { Avatar } from "@/components/skysolo-ui";
-import { Button, Loader, Skeleton, Text, TouchableOpacity } from "hyper-native-ui"
+import { Button, Loader, Text, TouchableOpacity } from "hyper-native-ui"
 import { RootState } from "@/redux-stores/store";
 import { AuthorData, disPatchResponse, loadingType } from "@/types";
 import { memo, useCallback, useEffect, useRef } from "react";

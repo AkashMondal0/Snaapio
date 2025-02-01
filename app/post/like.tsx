@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from "react-redux";
 import ErrorScreen from "@/components/error/page";
 import ListEmpty from "@/components/ListEmpty";
 import { StackActions, StaticScreenProps, useNavigation } from "@react-navigation/native";
+import UserItemLoader from "@/components/loader/user-loader";
 type Props = StaticScreenProps<{
     id: string;
 }>;
@@ -89,7 +90,7 @@ const LikeScreen = memo(function LikeScreen({ route }: Props) {
                 onEndReached={onEndReached}
                 refreshing={false}
                 ListEmptyComponent={() => {
-                    if (likeLoading === "idle") return <View />
+                    if (likeLoading === "idle" || likeLoading === "pending") return <UserItemLoader size={10}/>
                     if (likesError) return <ErrorScreen message={likesError} />
                     if (!likesError && likeLoading === "normal") return <ListEmpty text="No likes yet" />
                 }}

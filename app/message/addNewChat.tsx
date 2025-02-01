@@ -2,7 +2,7 @@ import React from "react";
 import AppHeader from "@/components/AppHeader";
 import { ListEmptyComponent } from "@/components/home";
 import { Avatar } from "@/components/skysolo-ui";
-import { Input, Loader, TouchableOpacity, Text, ThemedView } from 'hyper-native-ui';
+import { Input, TouchableOpacity, Text, ThemedView } from 'hyper-native-ui';
 import debounce from "@/lib/debouncing";
 import { setConversation } from "@/redux-stores/slice/conversation";
 import { CreateConversationApi } from "@/redux-stores/slice/conversation/api.service";

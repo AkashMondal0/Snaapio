@@ -18,6 +18,7 @@ import ListEmpty from "@/components/ListEmpty";
 import React from "react";
 import { ThemedView, Input, Text, TouchableOpacity, Separator, Loader } from "hyper-native-ui";
 import { StackActions, StaticScreenProps, useNavigation } from "@react-navigation/native";
+import UserItemLoader from "@/components/loader/user-loader";
 
 const schema = z.object({
     text: z.string().min(1)
@@ -112,9 +113,9 @@ const CommentScreen = memo(function CommentScreen({ route }: Props) {
                 refreshing={false}
                 onRefresh={onRefresh}
                 ListEmptyComponent={() => {
-                    if (commentsLoading === "idle") return <View />
+                    if (state.loading === "idle" || state.loading === "pending" || commentsLoading === "idle" || commentsLoading === "pending") return <UserItemLoader size={10} />
                     if (commentsError) return <ErrorScreen message={commentsError} />
-                    if (!commentsError && commentsLoading === "normal") return <ListEmpty text="No Comments yet" />
+                    if (!commentsError && commentsLoading === "normal" && state.loading === "normal") return <ListEmpty text="No Comments yet" />
                 }}
                 ListFooterComponent={commentsLoading === "pending" ? <Loader size={50} /> : <></>} />
             <CommentInput post={state.data || Postdata} />

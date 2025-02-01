@@ -121,7 +121,7 @@ const ProfileEditScreen = memo(function ProfileEditScreen({
         flex: 1,
         width: "100%"
     }}>
-        <AppHeader title="Edit Profile" navigation={navigation} />
+        <AppHeader title="Edit Profile" />
         <ScrollView
             keyboardDismissMode='on-drag'
             keyboardShouldPersistTaps='handled'>

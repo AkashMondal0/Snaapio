@@ -36,7 +36,7 @@ const Avatar = memo(function SkysoloAvatar({ style,
     ...otherProps }: Props) {
     size = Number(size)
     const { currentTheme } = useTheme();
-    const [state, setState] = useState<loadingType>("idle")
+    // const [state, setState] = useState<loadingType>("idle")
     const error = useRef(false)
 
     const colorVariant = () => {
@@ -114,17 +114,17 @@ const Avatar = memo(function SkysoloAvatar({ style,
                 source={!url ? require('../../assets/images/user.jpg') : serverImage ? configs.serverApi.supabaseStorageUrl + url : url}
                 contentFit="cover"
                 transition={100}
-                onLoadStart={() => {
-                    if (state === "pending") return;
-                    setState("pending");
-                }}
-                onError={() => {
-                    error.current = true;
-                }}
-                onLoadEnd={() => {
-                    if (state === "normal") return;
-                    setState("normal");
-                }}
+                // onLoadStart={() => {
+                //     if (state === "pending") return;
+                //     setState("pending");
+                // }}
+                // onError={() => {
+                //     error.current = true;
+                // }}
+                // onLoadEnd={() => {
+                //     if (state === "normal") return;
+                //     setState("normal");
+                // }}
                 style={[
                     {
                         resizeMode: "cover",
