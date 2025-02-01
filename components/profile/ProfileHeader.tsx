@@ -5,7 +5,7 @@ import ProfileInfoCount from "./ProfileInfoCount";
 import ProfileActionsButton from "./ProfileActionsButton";
 import ProfileStories from "./ProfileStories";
 import ProfilePicView from "./ProfilePicView";
-import { Separator, Text } from "hyper-native-ui";
+import { Separator, Skeleton, Text } from "hyper-native-ui";
 
 const ProfileHeader = memo(function HomeScreen({
     userData,
@@ -95,3 +95,65 @@ const ProfileHeader = memo(function HomeScreen({
     return prevProps.userData?.id === nextProps.userData?.id
 })
 export default ProfileHeader;
+
+
+
+export const ProfileHeaderLoader = () => {
+    return (<>
+        <View style={{
+            width: '100%',
+            padding: "3.2%",
+        }}>
+            <View style={{
+                height: 10,
+            }} />
+            <View style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+                width: '100%',
+                marginBottom: 8,
+            }}>
+                <Skeleton width={120} height={120} borderRadius={200} />
+                <View style={{
+                    flex: 1,
+                    flexDirection: 'row',
+                    justifyContent: 'space-around',
+                    padding: 10
+                }}>
+                    {Array(3).fill(0).map((item, index) => (
+                        <View key={index} style={{ alignItems: 'center' }}>
+                            <Skeleton width={50} height={50} borderRadius={10} />
+                        </View>
+                    ))}
+                </View>
+            </View>
+            <View style={{
+                gap: 6,
+                marginTop: 20
+            }}>
+                <Skeleton width={230} height={12} borderRadius={10} />
+                <Skeleton width={100} height={10} borderRadius={10} />
+            </View>
+            <View style={{
+                flexDirection: 'row',
+                justifyContent: 'space-around',
+                paddingTop: 20,
+                gap: 10,
+            }}>
+                <Skeleton
+                    height={40}
+                    width={"49%"}
+                    style={{
+                        flex: 1,
+                    }} />
+                <Skeleton
+                    height={40}
+                    width={"49%"}
+                    style={{
+                        flex: 1,
+                    }} />
+            </View>
+        </View>
+    </>)
+}

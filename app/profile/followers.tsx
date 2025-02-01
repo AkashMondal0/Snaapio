@@ -13,6 +13,7 @@ import { setConversation } from "@/redux-stores/slice/conversation";
 import { CreateConversationApi } from "@/redux-stores/slice/conversation/api.service";
 import { Button, Loader, Text, TouchableOpacity } from "hyper-native-ui";
 import { StackActions, useNavigation } from "@react-navigation/native";
+import UserItemLoader from "@/components/loader/user-loader";
 
 interface ScreenProps {
     username: string
@@ -113,7 +114,7 @@ const FollowersScreen = memo(function FollowersScreen({ username }: ScreenProps)
                 refreshing={false}
                 onRefresh={onRefresh}
                 ListEmptyComponent={() => {
-                    if (loading === "idle") return <View />
+                    if (loading === "idle" || loading === "pending") return <UserItemLoader />
                     if (error) return <ErrorScreen message={error} />
                     if (!error && loading === "normal") return <ListEmpty text="No followers yet" />
                 }}

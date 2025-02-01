@@ -10,10 +10,10 @@
     "lint": "expo lint"
   },
   "dependencies": {
+    "@expo/metro-runtime": "~4.0.0",
     "@gorhom/bottom-sheet": "^4",
     "@hookform/resolvers": "^3.3.4",
     "@react-native-community/slider": "4.5.5",
-    "@expo/metro-runtime": "~4.0.0",
     "@react-navigation/bottom-tabs": "^7.1.1",
     "@react-navigation/native": "^7.0.12",
     "@react-navigation/native-stack": "^7.1.13",
@@ -39,7 +39,7 @@
     "expo-splash-screen": "~0.29.20",
     "expo-status-bar": "~2.0.1",
     "expo-video": "~2.0.5",
-    "hyper-native-ui": "^0.2.9",
+    "hyper-native-ui": "^0.2.12",
     "lottie-react-native": "7.1.0",
     "lucide-react-native": "^0.473.0",
     "react": "18.3.1",

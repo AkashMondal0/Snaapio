@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { fetchAccountStoryTimelineApi, fetchAccountStoryApi } from "@/redux-stores/slice/account/api.service";
 import { AuthorData, Session } from "@/types";
-import { useTheme, Text, Loader } from 'hyper-native-ui';
+import { useTheme, Text, Loader, Skeleton } from 'hyper-native-ui';
 import { StackActions, useNavigation } from "@react-navigation/native";
 
 const StoriesComponent = memo(function StoriesComponent() {
@@ -73,14 +73,7 @@ const StoriesComponent = memo(function StoriesComponent() {
                 ListFooterComponent={<View style={{ width: 6 }} />}
                 ListEmptyComponent={() => {
                     if (storyListLoading === "idle" || storyListLoading === "pending") {
-                        return <View style={{
-                            width: 100,
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            height: 80,
-                        }}>
-                            <Loader size={40} />
-                        </View>
+                        return <StoryLoader />
                     }
                     if (storyError && storyListLoading === "normal") return <View />
                     return <View />
@@ -187,4 +180,16 @@ export const AddStories = ({
             Add Story
         </Text>
     </TouchableOpacity>)
+}
+
+const StoryLoader = () => {
+    return <View style={{
+        display: "flex",
+        flexDirection: "row",
+        gap: 10,
+        height: 90,
+        alignItems:"center"
+    }}>
+        {Array(10).fill(0).map(() => <Skeleton width={80} height={80} borderRadius={160} />)}
+    </View>
 }

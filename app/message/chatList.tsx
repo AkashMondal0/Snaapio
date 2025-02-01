@@ -15,6 +15,7 @@ import { ConversationDetailsSheet, ConversationItem, ListHeader } from '@/compon
 import ListEmpty from '@/components/ListEmpty';
 import { Loader, ThemedView, useTheme } from "hyper-native-ui";
 import { useNavigation } from '@react-navigation/native';
+import { ConversationLoader } from '@/components/message/conversationItem';
 
 let totalFetchedItemCount: number = 0;
 let pageLoaded = false;
@@ -124,7 +125,9 @@ const ChatListScreen = memo(function ChatListScreen() {
                 InputOnChange={onChangeInput} />}
             data={conversationList}
             ListEmptyComponent={() => {
-                if (listLoading === "idle") return <View />
+                if (listLoading === "idle" || listLoading === "pending") {
+                    return <ConversationLoader size={12}/>
+                }
                 if (listError) return <ErrorScreen message={listError} />
                 if (!listError && listLoading === "normal") return <ListEmpty text="No Messages" />
             }}
@@ -153,12 +156,12 @@ const ActionButton = memo(function ActionButton({ onPress }: { onPress: () => vo
         justifyContent: "center",
         alignItems: "center",
         padding: 8,
-        backgroundColor:"white",
+        backgroundColor: "white",
     }}>
         <View style={{
             width: 46,
             height: 46,
-            backgroundColor:"white",
+            backgroundColor: "white",
             borderRadius: 100,
         }}>
             <Avatar

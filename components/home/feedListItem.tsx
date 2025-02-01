@@ -11,7 +11,7 @@ import { Heart } from 'lucide-react-native';
 import PagerView from 'react-native-pager-view';
 import { useDispatch, useSelector } from 'react-redux';
 import useDebounce from '@/lib/debouncing';
-import { useTheme, Text } from 'hyper-native-ui';
+import { useTheme, Text, Skeleton } from 'hyper-native-ui';
 import { Avatar, Image, Icon } from '@/components/skysolo-ui';
 import React from 'react';
 import { StackActions, useNavigation } from '@react-navigation/native';
@@ -28,7 +28,7 @@ const FeedItem = memo(function FeedItem({
     const navigateToProfile = useCallback(() => {
         if (!data.user) return ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
         // navigation.navigate("Profile", { id: data.user.username })
-        navigation.dispatch(StackActions.push("Profile", { id: data.user.username  }))
+        navigation.dispatch(StackActions.push("Profile", { id: data.user.username }))
     }, [data.user])
 
     return <View style={{
@@ -374,3 +374,52 @@ const FeedItemContent = memo(function FeedItemContent({ data
         </TouchableWithoutFeedback>
     </Text>)
 }, () => true)
+
+
+export const FeedLoader = () => {
+    return <View>
+        {Array(4).fill(0).map((_, i) =>
+            <View key={i} 
+            style={{
+                width: "100%",
+                paddingVertical: 14,
+            }}>
+                {/* header */}
+                <View style={{
+                    marginHorizontal: "2%",
+                    paddingVertical: 10,
+                    display: 'flex',
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 6
+                }}>
+                    <Skeleton width={52} height={52} borderRadius={150} />
+                    <View style={{
+                        gap: 5
+                    }}>
+                        <Skeleton width={180} height={14} />
+                        <Skeleton width={120} height={12} />
+                    </View>
+                </View>
+                {/* view image */}
+                <Skeleton
+                    width={"100%"}
+                    height={400}
+                    borderRadius={0}
+                    style={{
+                        aspectRatio: 4 / 5,
+                        flex: 1,
+                        padding: 4
+                    }} />
+                {/* action */}
+                <View style={{
+                    gap: 6,
+                    marginHorizontal: "2%",
+                    paddingVertical: 10
+                }}>
+                    <Skeleton width={200} height={16} />
+                    <Skeleton width={120} height={14} />
+                </View>
+            </View>)}
+    </View>
+}

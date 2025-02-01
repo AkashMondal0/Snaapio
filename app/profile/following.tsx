@@ -3,13 +3,14 @@ import React, { useState } from "react";
 import { FlatList, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { Avatar } from "@/components/skysolo-ui";
-import { Button, Loader, Text, TouchableOpacity } from "hyper-native-ui"
+import { Button, Loader, Skeleton, Text, TouchableOpacity } from "hyper-native-ui"
 import { RootState } from "@/redux-stores/store";
 import { AuthorData, disPatchResponse, loadingType } from "@/types";
 import { memo, useCallback, useEffect, useRef } from "react";
 import ErrorScreen from "@/components/error/page";
 import ListEmpty from "@/components/ListEmpty";
 import { StackActions, useNavigation } from "@react-navigation/native";
+import UserItemLoader from "@/components/loader/user-loader";
 interface ScreenProps {
     username: string
 }
@@ -92,7 +93,7 @@ const FollowingScreen = memo(function FollowingScreen({ username }: ScreenProps)
                 refreshing={false}
                 onRefresh={onRefresh}
                 ListEmptyComponent={() => {
-                    if (loading === "idle") return <View />
+                    if (loading === "idle" || loading === "pending") return <UserItemLoader />
                     if (error) return <ErrorScreen message={error} />
                     if (!error && loading === "normal") return <ListEmpty text="No following yet" />
                 }}

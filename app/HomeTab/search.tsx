@@ -1,4 +1,6 @@
+import ErrorScreen from "@/components/error/page";
 import { ListEmptyComponent } from "@/components/home";
+import { ConversationLoader } from "@/components/message/conversationItem";
 import { Avatar, Icon, } from "@/components/skysolo-ui";
 import debounce from "@/lib/debouncing";
 import { searchUsersProfileApi } from "@/redux-stores/slice/users/api.service";
@@ -6,6 +8,7 @@ import { RootState } from "@/redux-stores/store";
 import { AuthorData } from "@/types";
 import { StackActions, useNavigation } from "@react-navigation/native";
 import { Input, Text, Loader, TouchableOpacity } from "hyper-native-ui";
+import React from "react";
 import { memo, useCallback, useRef } from "react";
 import { FlatList, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,6 +17,7 @@ const SearchScreen = memo(function SearchScreen() {
     const navigation = useNavigation();
     const users = useSelector((Root: RootState) => Root.UsersState.searchUsers)
     const loading = useSelector((Root: RootState) => Root.UsersState.searchUsersLoading)
+    const error = useSelector((Root: RootState) => Root.UsersState.searchUsersError)
     const stopRef = useRef(false)
     const dispatch = useDispatch()
     const inputText = useRef<string>('')
@@ -76,8 +80,14 @@ const SearchScreen = memo(function SearchScreen() {
                 scrollEventThrottle={16}
                 windowSize={10}
                 bounces={false}
-                ListFooterComponent={() => <View>{loading ? <Loader size={50} /> : <View></View>}</View>}
-                ListEmptyComponent={!loading ? <ListEmptyComponent text="No User yet" /> : <View></View>} />
+                ListHeaderComponent={() => <>{loading === "pending" ? <ConversationLoader size={6} /> : <></>}</>}
+                ListEmptyComponent={() => {
+                    if (loading === "pending") {
+                        return <ConversationLoader size={6} />
+                    }
+                    if (error) return <ErrorScreen />
+                    if (!error && loading === "normal") return <ListEmptyComponent text="No User yet" />
+                }} />
         </View>
     )
 })

@@ -7,6 +7,7 @@ import { fetchUserProfileDetailApi, fetchUserProfilePostsApi } from "@/redux-sto
 import { RootState } from "@/redux-stores/store";
 import ErrorScreen from "@/components/error/page";
 import { Loader, ThemedView } from "hyper-native-ui";
+import { ProfileHeaderLoader } from "@/components/profile/ProfileHeader";
 
 const AccountScreen = () => {
     const session = useSelector((state: RootState) => state.AuthState.session.user)
@@ -103,11 +104,15 @@ const AccountScreen = () => {
                 }}
                 renderItem={({ item, index }) => (<ProfileGridItem
                     item={item} index={index} />)}
-                ListHeaderComponent={UserData.current ? <>
-                    <ProfileHeader
+                ListHeaderComponent={() => {
+                    if (loading === "idle" || loading === "pending") {
+
+                        return <ProfileHeaderLoader />
+                    }
+                    return <ProfileHeader
                         userData={UserData.current}
                         isProfile={isProfile} />
-                </> : <></>}
+                }}
                 ListFooterComponent={loading === "pending" || loading === "idle" ? <View style={{
                     width: '100%',
                     height: 50,

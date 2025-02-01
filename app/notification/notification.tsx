@@ -11,7 +11,7 @@ import { resetNotificationState } from "@/redux-stores/slice/notification";
 import { timeAgoFormat } from "@/lib/timeFormat";
 import ErrorScreen from "@/components/error/page";
 import ListEmpty from "@/components/ListEmpty";
-import { ThemedView, Loader, Text, TouchableOpacity, } from "hyper-native-ui";
+import { ThemedView, Loader, Text, TouchableOpacity, Skeleton, } from "hyper-native-ui";
 import { useNavigation } from "@react-navigation/native";
 let totalFetchedItemCount = 0;
 
@@ -73,7 +73,9 @@ const NotificationScreen = memo(function NotificationScreen() {
                 refreshing={false}
                 onRefresh={onRefresh}
                 ListEmptyComponent={() => {
-                    if (notificationsLoading === "idle") return <View />
+                    if (notificationsLoading === "idle" || notificationsLoading === "pending") {
+                        return <NotificationLoader />
+                    }
                     if (notificationsError) return <ErrorScreen message={notificationsError} />
                     if (!notificationsError && notificationsLoading === "normal") return <ListEmpty text="No Notification yet" />
                 }}
@@ -155,3 +157,48 @@ const NotificationItem = memo(function NotificationItem({
 }, (prevProps, nextProps) => {
     return prevProps.data.id === nextProps.data.id
 })
+
+const NotificationLoader = () => {
+    return <>
+        {Array(10).fill(0).map((_, i) => <View
+            key={i}
+            style={{
+                flexDirection: 'row',
+                padding: 12,
+                alignItems: 'center',
+                width: '100%',
+                gap: 10,
+                marginVertical: 2,
+                justifyContent: 'space-between',
+            }}>
+            <View style={{
+                display: 'flex',
+                flexDirection: 'row',
+                gap: 8,
+                alignItems: 'center',
+                width: '65%',
+            }}>
+                <Skeleton width={55} height={55} borderRadius={100} />
+                <View style={{ paddingHorizontal: 2 }}>
+                    <View style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: 6,
+                    }}>
+                        <View style={{
+                            gap: 5
+                        }}>
+                            <Skeleton width={180} height={14} />
+                            <Skeleton width={120} height={12} />
+                        </View>
+                    </View>
+                </View>
+            </View>
+            <Skeleton width={60} height={60} borderRadius={12} style={{
+                aspectRatio: 1 / 1,
+                flex: 0
+            }} />
+        </View>)}
+    </>
+}
