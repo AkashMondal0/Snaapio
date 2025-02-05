@@ -192,10 +192,22 @@ const RootStack = createNativeStackNavigator({
                         },
                     },
                 },
-                ProfileFollowingFollowers: {
+                ProfileFollowing: {
                     screen: TabFollowingAndFollowers,
                     linking: {
-                        path: '/:id/:section',
+                        path: '/:id/following',
+                        parse: {
+                            id: (id) => id.replace(/^@/, ''),
+                        },
+                        stringify: {
+                            id: (id) => `@${id}`,
+                        },
+                    },
+                },
+                ProfileFollower: {
+                    screen: TabFollowingAndFollowers,
+                    linking: {
+                        path: '/:id/follower',
                         parse: {
                             id: (id) => id.replace(/^@/, ''),
                         },
@@ -319,13 +331,13 @@ const RootStack = createNativeStackNavigator({
                 MessageList: {
                     screen: ChatListScreen,
                     linking: {
-                        path: 'chat/list'
+                        path: 'message'
                     }
                 },
                 MessageRoom: {
                     screen: ChatScreen,
                     linking: {
-                        path: 'chat/:id',
+                        path: 'message/:id',
                         parse: {
                             id: (id) => id.replace(/^@/, ''),
                         },
@@ -337,25 +349,25 @@ const RootStack = createNativeStackNavigator({
                 FindMessage: {
                     screen: NewChatScreen,
                     linking: {
-                        path: 'chat/new'
+                        path: 'message/new'
                     }
                 },
                 MessageSelectFile: {
                     screen: AssetSelectScreen,
                     linking: {
-                        path: 'chat/asset/select'
+                        path: 'message/asset/select'
                     }
                 },
                 MessageUploadFile: {
                     screen: ChatAssetsReviewScreen,
                     linking: {
-                        path: 'chat/asset/upload'
+                        path: 'message/asset/upload'
                     }
                 },
                 MessageImagePreview: {
                     screen: ImagePreviewScreen,
                     linking: {
-                        path: 'chat/image/preview'
+                        path: 'message/image/preview'
                     }
                 }
             }
@@ -365,7 +377,7 @@ const RootStack = createNativeStackNavigator({
                 AiMessage: {
                     screen: AskAiChatScreen,
                     linking: {
-                        path: 'ai/message'
+                        path: 'message/ai'
                     }
                 },
             }

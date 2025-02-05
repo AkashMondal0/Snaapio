@@ -9,7 +9,6 @@ import BottomSheetProvider from '@/provider/BottomSheetProvider';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import SocketConnections from '@/provider/SocketConnections';
 import { ThemeProvider, useTheme } from 'hyper-native-ui';
-import { StatusBar } from 'react-native';
 import { AuthNavigation, Navigation } from '@/app/navigation';
 import * as Linking from 'expo-linking';
 
@@ -17,7 +16,7 @@ SplashScreen.preventAutoHideAsync();
 const prefix = Linking.createURL('/');
 
 function Root() {
-  const { currentTheme, themeScheme } = useTheme();
+  const { currentTheme } = useTheme();
   const session = useSelector((state: RootState) => state.AuthState.session);
   const background = currentTheme.background;
   const theme: any = {
@@ -32,12 +31,9 @@ function Root() {
     }
   }
   return (<>
-    <StatusBar translucent backgroundColor={"transparent"}
-      barStyle={themeScheme === "dark" ? "light-content" : "dark-content"} />
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: background }}>
       <SafeAreaProvider style={{
         flex: 1,
-        paddingTop: StatusBar.currentHeight,
         backgroundColor: background,
       }}>
         <SocketConnections >
@@ -59,7 +55,7 @@ export default function App() {
 
   return (
     <>
-      <ThemeProvider>
+      <ThemeProvider enableThemedStatusBar>
         <Provider store={store}>
           <Root />
         </Provider>

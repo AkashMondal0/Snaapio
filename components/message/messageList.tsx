@@ -75,11 +75,9 @@ const MessageList = memo(function MessageList({
                 data={item} seenMessage={cMembers === item.seenBy?.length}
                 key={item.id} myself={session?.id === item.authorId} />}
             ListFooterComponent={<View style={{ width: "100%", height: 50 }}>
-                {messagesLoading ? <Loader size={36} /> : <></>}
+                {messagesLoading === "normal" ? <></> : <Loader size={36} />}
             </View>}
         />)
 }, (prev, next) => prev.conversation.id === next.conversation.id)
 
-export default MessageList
-
-
+export default MessageList;

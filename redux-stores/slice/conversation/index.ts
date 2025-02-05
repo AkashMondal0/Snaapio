@@ -26,10 +26,11 @@ interface ConversationStateType {
     listError: string | null;
 
     conversation: Conversation | null;
-    loading: boolean;
+    loading: loadingType;
     error: string | null;
+
     messages: Message[];
-    messageLoading: boolean;
+    messageLoading: loadingType;
     messageError: string | null;
 
     currentTyping: Typing | null;
@@ -60,10 +61,10 @@ const ConversationState: ConversationStateType = {
     listError: null,
 
     conversation: null,
-    loading: false,
+    loading: "idle",
     error: null,
     messages: [],
-    messageLoading: false,
+    messageLoading: "idle",
     messageError: null,
 
     currentTyping: null,
@@ -132,6 +133,7 @@ export const ConversationSlice = createSlice({
         resetConversation: (state) => {
             state.conversation = null;
             state.messages = [];
+            state.loading = "idle"
         },
         resetConversationState: (state) => {
             state.conversationList = [];
@@ -192,12 +194,12 @@ export const ConversationSlice = createSlice({
             },
         );
         builder.addCase(fetchConversationsApi.rejected, (state, action) => {
-            state.listLoading = "normal";
+            state.listLoading = "pending";
             state.listError = "error";
         });
         // fetchConversationApi
         builder.addCase(fetchConversationApi.pending, (state) => {
-            state.loading = true;
+            state.loading = "pending";
             state.error = null;
             state.messages = [];
         });
@@ -205,17 +207,17 @@ export const ConversationSlice = createSlice({
             fetchConversationApi.fulfilled,
             (state, action: PayloadAction<Conversation>) => {
                 state.conversation = action.payload;
-                state.loading = false;
+                state.loading = "normal";
             },
         );
         builder.addCase(fetchConversationApi.rejected, (state, action) => {
-            state.loading = false;
+            state.loading = "normal";
             state.error = "error";
             state.messages = [];
         });
         //fetchConversationAllMessagesApi
         builder.addCase(fetchConversationAllMessagesApi.pending, (state) => {
-            state.messageLoading = true;
+            state.messageLoading = "pending";
             state.messageError = null;
         });
         builder.addCase(
@@ -224,13 +226,13 @@ export const ConversationSlice = createSlice({
                 if (state.conversation) {
                     state.messages.push(...action.payload.reverse());
                 }
-                state.messageLoading = false;
+                state.messageLoading = "normal";
             },
         );
         builder.addCase(
             fetchConversationAllMessagesApi.rejected,
             (state, action) => {
-                state.messageLoading = false;
+                state.messageLoading = "normal";
                 state.messageError = "error";
             },
         );

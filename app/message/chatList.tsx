@@ -7,7 +7,7 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
 import { fetchConversationsApi } from '@/redux-stores/slice/conversation/api.service';
-import { resetConversation, resetConversationState, setConversation } from '@/redux-stores/slice/conversation';
+import { resetConversation, resetConversationState } from '@/redux-stores/slice/conversation';
 import debounce from '@/lib/debouncing';
 import searchText from '@/lib/TextSearch';
 import ErrorScreen from '@/components/error/page';
@@ -22,16 +22,16 @@ let pageLoaded = false;
 
 const ChatListScreen = memo(function ChatListScreen() {
     const navigation = useNavigation();
-    const stopRef = useRef(false)
-    const list = useSelector((Root: RootState) => Root.ConversationState.conversationList)
-    const listLoading = useSelector((Root: RootState) => Root.ConversationState.listLoading)
-    const listError = useSelector((Root: RootState) => Root.ConversationState.listError)
+    const stopRef = useRef(false);
+    const list = useSelector((Root: RootState) => Root.ConversationState.conversationList);
+    const listLoading = useSelector((Root: RootState) => Root.ConversationState.listLoading);
+    const listError = useSelector((Root: RootState) => Root.ConversationState.listError);
 
     const [BottomSheetData, setBottomSheetData] = useState<Conversation | null>(null)
     const bottomSheetModalRef = useRef<BottomSheetModal>(null);
     const snapPoints = useMemo(() => ["50%", '50%', "70%"], []);
-    const [inputText, setInputText] = useState("")
-    const dispatch = useDispatch()
+    const [inputText, setInputText] = useState("");
+    const dispatch = useDispatch();
 
     const conversationList = useMemo(() => {
         return [...list].sort((a, b) => {
@@ -58,9 +58,8 @@ const ChatListScreen = memo(function ChatListScreen() {
     const onChangeInput = debounce((text: string) => setInputText(text), 400)
 
     const pushToPage = useCallback((data: Conversation) => {
-        dispatch(resetConversation())
-        dispatch(setConversation(data))
-        navigation?.navigate("MessageRoom", { id: data.id })
+        dispatch(resetConversation());
+        navigation?.navigate("MessageRoom", { id: data.id });
     }, [])
 
     // fetch -------------------------------------------------------------------------------------

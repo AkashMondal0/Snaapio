@@ -18,8 +18,14 @@ const ChatScreenNavbar = memo(function ChatScreenNavbar({
     const navigation = useNavigation();
     const { currentTheme } = useTheme();
     const currentTyping = useSelector((Root: RootState) => Root.ConversationState.currentTyping);
-    
-    const PressBack = useCallback(() => { navigation?.goBack() }, [])
+
+    const PressBack = useCallback(() => {
+        if (navigation.canGoBack()) {
+            navigation?.goBack()
+        } else {
+            navigation.navigate("MessageList")
+        }
+    }, [])
 
     return (
         <View style={{
