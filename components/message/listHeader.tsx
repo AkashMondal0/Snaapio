@@ -18,9 +18,7 @@ const ListHeader = memo(function ListHeader({
 
     const PressBack = useCallback(() => {
         if (navigation.canGoBack()) {
-            navigation?.goBack()
-        } else {
-            navigation.navigate("MessageList")
+            navigation.navigate("HomeTabs")
         }
     }, [])
     return <>

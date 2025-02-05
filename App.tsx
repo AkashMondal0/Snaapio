@@ -11,7 +11,7 @@ import SocketConnections from '@/provider/SocketConnections';
 import { ThemeProvider, useTheme } from 'hyper-native-ui';
 import { AuthNavigation, Navigation } from '@/app/navigation';
 import * as Linking from 'expo-linking';
-import { StatusBar } from 'react-native';
+import { StatusBar, View } from 'react-native';
 
 SplashScreen.preventAutoHideAsync();
 const prefix = Linking.createURL('/');
@@ -39,18 +39,20 @@ function Root() {
       <SafeAreaProvider style={{
         flex: 1,
         backgroundColor: background,
-        paddingTop: StatusBar.currentHeight
       }}>
+        <View style={{
+          height: StatusBar.currentHeight,
+          width: "100%",
+          backgroundColor: background
+        }} />
         <PreConfiguration />
         <SocketConnections >
           <BottomSheetProvider>
             {appLoading === "normal" ? <>
               <StatusBar
                 barStyle={themeScheme ? "light-content" : "dark-content"}
-                backgroundColor={background}
-                translucent
-                animated
-              />
+                backgroundColor={"transparent"}
+                translucent />
               <StatusBar />
               {session.user ? <Navigation onReady={() => { SplashScreen.hideAsync() }} theme={theme} linking={{
                 prefixes: [prefix, 'snaapio://', 'https://snaapio.vercel.app'],
