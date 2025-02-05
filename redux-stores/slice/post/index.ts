@@ -55,18 +55,24 @@ export const PostsSlice = createSlice({
             state.viewPost = null
             state.likesUserList = []
             state.comments = []
+            state.viewPostLoading = "idle"
+            state.commentsLoading = "idle"
+            state.likesLoading = "idle"
         },
         resetViewPost: (state) => {
             state.viewPost = null
+            state.viewPostLoading = "idle"
         },
         resetComments: (state) => {
             state.comments = []
+            state.commentsLoading = "idle"
         },
         setViewPost: (state, action: PayloadAction<Post>) => {
             state.viewPost = action.payload
         },
         resetLike: (state) => {
             state.likesUserList = []
+            state.likesLoading = "idle"
         }
     },
     extraReducers: (builder) => {

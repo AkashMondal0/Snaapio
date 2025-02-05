@@ -6,7 +6,7 @@ import { SocketContext } from '@/provider/SocketConnections';
 import { createNotificationApi, destroyNotificationApi } from '@/redux-stores/slice/notification/api.service';
 import { createPostLikeApi, destroyPostLikeApi } from '@/redux-stores/slice/post/api.service';
 import { RootState } from '@/redux-stores/store';
-import { disPatchResponse, NavigationProps, NotificationType, Post } from '@/types';
+import { disPatchResponse, NotificationType, Post } from '@/types';
 import { Heart } from 'lucide-react-native';
 import PagerView from 'react-native-pager-view';
 import { useDispatch, useSelector } from 'react-redux';
@@ -14,25 +14,21 @@ import useDebounce from '@/lib/debouncing';
 import { useTheme, Text } from 'hyper-native-ui';
 import { Avatar, Image, Icon } from '@/components/skysolo-ui';
 import React from 'react';
-const FeedItem = memo(function FeedItem({
-    data,
-    navigation
-}: {
-    data: Post,
-    navigation: NavigationProps
-}) {
-    const { currentTheme } = useTheme();
-    const [tabIndex, setTabIndex] = useState(0)
-    const imageLength = data.fileUrl.length
-    const navigateToProfile = useCallback(() => {
-        if (!data.user) return ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
-        navigation.push("profile", { username: data.user.username })
-    }, [data.user])
+import { StackActions, useNavigation } from '@react-navigation/native';
 
-    const navigateToPost = useCallback((path: "post/like" | "post/comment", post: Post) => {
-        if (!post) return ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
-        navigation.push(path, { post, index: 0 })
-    }, [])
+const FeedItem = memo(function FeedItem({
+    data
+}: {
+    data: Post
+}) {
+    const navigation = useNavigation();
+    const { currentTheme } = useTheme();
+    const [tabIndex, setTabIndex] = useState(0);
+    const imageLength = data.fileUrl.length;
+    const navigateToProfile = useCallback(() => {
+        if (!data.user) return ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT);
+        navigation.dispatch(StackActions.push("Profile", { id: data.user.username }));
+    }, [data.user]);
 
     return <View style={{
         width: "100%",
@@ -124,11 +120,13 @@ const FeedItem = memo(function FeedItem({
         </View> : <View />}
         {/* action */}
         <View>
-            <FeedItemActionsButtons post={data} onPress={navigateToPost} />
+            <FeedItemActionsButtons post={data} />
             {/* text */}
-            <FeedItemContent data={data} navigation={navigation} />
+            <FeedItemContent data={data} />
             <View>
-                <TouchableOpacity activeOpacity={0.5} onPress={() => navigateToPost("post/comment", data)}>
+                <TouchableOpacity activeOpacity={0.5} onPress={() => {
+                    navigation.dispatch(StackActions.push("PostComment", { id: data.id }))
+                }}>
                     <Text
                         style={{
                             marginHorizontal: "2%",
@@ -148,14 +146,13 @@ export default FeedItem;
 const FeedItemActionsButtons = (
     {
         post,
-        onPress
     }: {
-        onPress: (path: "post/like" | "post/comment", post: Post) => void,
         post: Post
     }
 ) => {
     const SocketState = useContext(SocketContext)
     const dispatch = useDispatch()
+    const navigation = useNavigation();
     const session = useSelector((state: RootState) => state.AuthState.session.user)
     const [like, setLike] = useState({
         isLike: post.is_Liked,
@@ -251,7 +248,7 @@ const FeedItemActionsButtons = (
             iconName: "MessageCircle",
             count: post.commentCount,
             size: 30,
-            onPress: () => onPress("post/comment", post),
+            onPress: () => navigation.dispatch(StackActions.push("PostComment", { id: post.id })),
         },
         {
             iconName: "Send",
@@ -282,7 +279,7 @@ const FeedItemActionsButtons = (
                 }} key={"like"}>
                     {!like.isLike ? <Icon iconName={"Heart"} size={30} onPress={onLike} /> :
                         <Heart size={30} fill={like.isLike ? "red" : ""} onPress={onLike} />}
-                    <TouchableOpacity onPress={() => onPress("post/like", post)} >
+                    <TouchableOpacity onPress={() => navigation.navigate("PostLike", { id: post.id })} >
                         <Text style={{
                             fontSize: 16,
                             fontWeight: "600"
@@ -328,12 +325,11 @@ const ImageItem = memo(function ImageItem({ item, index }: { item: any, index: n
 }, (prev, next) => {
     return prev.item.id === next.item.id
 })
-const FeedItemContent = memo(function FeedItemContent({ data,
-    navigation
+const FeedItemContent = memo(function FeedItemContent({ data
 }: {
     data: Post,
-    navigation: NavigationProps
 }) {
+    const navigation = useNavigation();
     const [readMore, setReadMore] = useState(false)
 
     if (data.content.length <= 0) {
@@ -351,7 +347,7 @@ const FeedItemContent = memo(function FeedItemContent({ data,
                 borderColor: "red",
             }}
             onPress={() => {
-                navigation.push("profile", { username: data.user.username })
+                navigation.navigate("Profile", { id: data.user.username })
             }}>
             <Text
                 style={{
@@ -377,3 +373,85 @@ const FeedItemContent = memo(function FeedItemContent({ data,
         </TouchableWithoutFeedback>
     </Text>)
 }, () => true)
+
+export const FeedLoader = ({ size }: { size?: number }) => {
+    const { currentTheme } = useTheme();
+    const background = currentTheme.input;
+    return <View>
+        {Array(size ?? 4).fill(0).map((_, i) =>
+            <View key={i}
+                style={{
+                    width: "100%",
+                    paddingVertical: 14,
+                }}>
+                {/* header */}
+                <View style={{
+                    marginHorizontal: "2%",
+                    paddingVertical: 10,
+                    display: 'flex',
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 6
+                }}>
+                    <View
+                        style={{
+                            width: 52,
+                            height: 52,
+                            borderRadius: 120,
+                            backgroundColor: background
+                        }}
+                    />
+                    <View style={{
+                        gap: 5
+                    }}>
+                        <View
+                            style={{
+                                width: 180,
+                                height: 14,
+                                borderRadius: 50,
+                                backgroundColor: background
+                            }}
+                        />
+                        <View
+                            style={{
+                                width: 120,
+                                height: 12,
+                                borderRadius: 50,
+                                backgroundColor: background
+                            }}
+                        />
+                    </View>
+                </View>
+                {/* view image */}
+                <View
+                    style={{
+                        aspectRatio: 4 / 5,
+                        flex: 1,
+                        padding: 4,
+                        width: "100%",
+                        height: "100%",
+                        borderRadius: 0,
+                        backgroundColor: background
+                    }} />
+                {/* action */}
+                <View style={{
+                    gap: 6,
+                    marginHorizontal: "2%",
+                    paddingVertical: 10
+                }}>
+                    <View style={{
+                        width: 200,
+                        height: 16,
+                        borderRadius: 50,
+                        backgroundColor: background
+                    }} />
+                    <View style={{
+                        width: 120,
+                        height: 14,
+                        borderRadius: 50,
+                        backgroundColor: background
+                    }} />
+                </View>
+            </View>)}
+    </View>
+}

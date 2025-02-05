@@ -26,10 +26,11 @@ interface ConversationStateType {
     listError: string | null;
 
     conversation: Conversation | null;
-    loading: boolean;
+    loading: loadingType;
     error: string | null;
+
     messages: Message[];
-    messageLoading: boolean;
+    messageLoading: loadingType;
     messageError: string | null;
 
     currentTyping: Typing | null;
@@ -48,6 +49,7 @@ interface ConversationStateType {
     // ai
     ai_messages: AiMessage[];
     ai_messageLoading: boolean;
+    ai_CurrentMessageId: string | null;
     ai_messageError: string | null;
 
     ai_messageCreateLoading: boolean;
@@ -60,10 +62,10 @@ const ConversationState: ConversationStateType = {
     listError: null,
 
     conversation: null,
-    loading: false,
+    loading: "idle",
     error: null,
     messages: [],
-    messageLoading: false,
+    messageLoading: "idle",
     messageError: null,
 
     currentTyping: null,
@@ -83,6 +85,7 @@ const ConversationState: ConversationStateType = {
     ai_messageLoading: false,
     ai_messageError: null,
     ai_messageCreateLoading: false,
+    ai_CurrentMessageId: null
 };
 
 export const ConversationSlice = createSlice({
@@ -132,6 +135,7 @@ export const ConversationSlice = createSlice({
         resetConversation: (state) => {
             state.conversation = null;
             state.messages = [];
+            state.loading = "idle"
         },
         resetConversationState: (state) => {
             state.conversationList = [];
@@ -173,6 +177,11 @@ export const ConversationSlice = createSlice({
         // save my prompt
         saveMyPrompt: (state, action: PayloadAction<AiMessage>) => {
             state.ai_messages.unshift(action.payload);
+            state.ai_CurrentMessageId = action.payload.id;
+        },
+        completeAiMessageGenerate: (state) => {
+            state.ai_CurrentMessageId = null
+            state.ai_messageCreateLoading = false
         },
         loadMyPrompt: (state, action: PayloadAction<AiMessage[]>) => {
             state.ai_messages.push(...action.payload.reverse());
@@ -192,12 +201,12 @@ export const ConversationSlice = createSlice({
             },
         );
         builder.addCase(fetchConversationsApi.rejected, (state, action) => {
-            state.listLoading = "normal";
+            state.listLoading = "pending";
             state.listError = "error";
         });
         // fetchConversationApi
         builder.addCase(fetchConversationApi.pending, (state) => {
-            state.loading = true;
+            state.loading = "pending";
             state.error = null;
             state.messages = [];
         });
@@ -205,17 +214,17 @@ export const ConversationSlice = createSlice({
             fetchConversationApi.fulfilled,
             (state, action: PayloadAction<Conversation>) => {
                 state.conversation = action.payload;
-                state.loading = false;
+                state.loading = "normal";
             },
         );
         builder.addCase(fetchConversationApi.rejected, (state, action) => {
-            state.loading = false;
+            state.loading = "normal";
             state.error = "error";
             state.messages = [];
         });
         //fetchConversationAllMessagesApi
         builder.addCase(fetchConversationAllMessagesApi.pending, (state) => {
-            state.messageLoading = true;
+            state.messageLoading = "pending";
             state.messageError = null;
         });
         builder.addCase(
@@ -224,13 +233,13 @@ export const ConversationSlice = createSlice({
                 if (state.conversation) {
                     state.messages.push(...action.payload.reverse());
                 }
-                state.messageLoading = false;
+                state.messageLoading = "normal";
             },
         );
         builder.addCase(
             fetchConversationAllMessagesApi.rejected,
             (state, action) => {
-                state.messageLoading = false;
+                state.messageLoading = "normal";
                 state.messageError = "error";
             },
         );
@@ -338,7 +347,7 @@ export const ConversationSlice = createSlice({
             state.ai_messageError = null;
         });
         builder.addCase(AiMessagePromptApi.fulfilled, (state) => {
-            state.ai_messageCreateLoading = false;
+            // state.ai_messageCreateLoading = false;
         });
         builder.addCase(AiMessagePromptApi.rejected, (state, action) => {
             state.ai_messageCreateLoading = false;
@@ -359,6 +368,7 @@ export const {
     setUploadFiles,
     saveMyPrompt,
     loadMyPrompt,
+    completeAiMessageGenerate
 } = ConversationSlice.actions;
 
 export default ConversationSlice.reducer;

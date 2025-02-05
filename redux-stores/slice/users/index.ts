@@ -1,4 +1,4 @@
-import { AuthorData } from '@/types'
+import { AuthorData,loadingType } from '@/types'
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { searchUsersProfileApi } from './api.service'
@@ -7,14 +7,14 @@ import { searchUsersProfileApi } from './api.service'
 export interface UsersStateType {
     UserDB: AuthorData[]
     searchUsers: AuthorData[]
-    searchUsersLoading: boolean
+    searchUsersLoading: loadingType
     searchUsersError: unknown
 }
 // Define the initial state using that type
 const UsersState: UsersStateType = {
     UserDB: [],
     searchUsers: [],
-    searchUsersLoading: false,
+    searchUsersLoading: "idle",
     searchUsersError: null
 }
 
@@ -36,7 +36,7 @@ export const UsersSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(searchUsersProfileApi.pending, (state) => {
-                state.searchUsersLoading = true
+                state.searchUsersLoading = "pending"
                 state.searchUsersError = null
             })
             .addCase(searchUsersProfileApi.fulfilled, (state, action: PayloadAction<AuthorData[]>) => {
@@ -47,10 +47,10 @@ export const UsersSlice = createSlice({
                     }
                     return null
                 }).filter((item) => item !== null)
-                state.searchUsersLoading = false
+                state.searchUsersLoading = "normal"
             })
             .addCase(searchUsersProfileApi.rejected, (state, action) => {
-                state.searchUsersLoading = false
+                state.searchUsersLoading = "normal"
                 state.searchUsersError = action.payload
             })
     },

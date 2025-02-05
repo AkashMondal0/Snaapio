@@ -2,7 +2,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Icon } from "@/components/skysolo-ui";
 import { memo, useCallback, useState } from "react";
-import { disPatchResponse, NavigationProps } from "@/types";
+import { disPatchResponse } from "@/types";
 import { ToastAndroid, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
@@ -21,14 +21,10 @@ import { getSecureStorage, setSecureStorage } from "@/lib/SecureStore";
 const schema = z.object({
     message: z.string().min(1)
 })
-const AiChatScreenInput = memo(function AiChatScreenInput({
-    navigation,
-}: {
-    navigation: NavigationProps
-}) {
+const AiChatScreenInput = memo(function AiChatScreenInput() {
     const dispatch = useDispatch()
     const session = useSelector((state: RootState) => state.AuthState.session.user)
-    const [loading, setLoading] = useState(false)
+    const messagesLoading = useSelector((Root: RootState) => Root.ConversationState?.ai_messageCreateLoading)
     const [image, setImage] = useState<string | null>(null);
 
     const pickImage = async () => {
@@ -52,13 +48,12 @@ const AiChatScreenInput = memo(function AiChatScreenInput({
     });
 
     const sendMessageHandle = useCallback(async (_data: { message: string }) => {
-        setLoading((pre) => !pre);
         try {
             if (!session?.id) return ToastAndroid.show("Something went wrong CI", ToastAndroid.SHORT);
             let allPrompts = [] as AiMessage[];
-            const getPreviousPrompt = await getSecureStorage<string>("myPrompt");
+            const getPreviousPrompt = await getSecureStorage<AiMessage[]>("myPrompt", "json");
             if (getPreviousPrompt) {
-                allPrompts = JSON.parse(getPreviousPrompt);
+                allPrompts = getPreviousPrompt
             } else {
                 await setSecureStorage("myPrompt", JSON.stringify([]));
             };
@@ -103,7 +98,7 @@ const AiChatScreenInput = memo(function AiChatScreenInput({
         } catch (error: any) {
             ToastAndroid.show("Something went wrong", ToastAndroid.SHORT)
         } finally {
-            setLoading((pre) => !pre)
+
         }
     }, [session?.id, image])
 
@@ -136,7 +131,7 @@ const AiChatScreenInput = memo(function AiChatScreenInput({
                         placeholder="Type a message"
                         // variant="secondary"
                         multiline
-                        disabled={loading}
+                        disabled={messagesLoading}
                         onBlur={onBlur}
                         onChangeText={onChange}
                         value={value}
@@ -154,7 +149,7 @@ const AiChatScreenInput = memo(function AiChatScreenInput({
                             variant="secondary"
                             iconColorVariant="secondary"
                             size={28}
-                            disabled={loading}
+                            disabled={messagesLoading}
                             onPress={pickImage}
                             style={{
                                 width: "10%",
@@ -169,7 +164,7 @@ const AiChatScreenInput = memo(function AiChatScreenInput({
                 iconName="Send"
                 isButton
                 size={26}
-                disabled={loading}
+                disabled={messagesLoading}
                 onPress={handleSubmit(sendMessageHandle)}
                 style={{
                     width: "10%",

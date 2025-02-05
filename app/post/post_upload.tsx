@@ -18,9 +18,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
 import { AddImage, PreviewImage } from '@/components/upload/preview-image';
 import { uploadFilesApi } from '@/redux-stores/slice/account/api.service';
+import { StackActions, useNavigation } from '@react-navigation/native';
 
-const PostReviewScreen = memo(function PostReviewScreen({
-    navigation,
+const PostUploadScreen = memo(function PostUploadScreen({
     route
 }: PageProps<{
     assets: MediaLibrary.Asset[]
@@ -30,6 +30,7 @@ const PostReviewScreen = memo(function PostReviewScreen({
     const loading = useSelector((state: RootState) => state.AccountState.uploadFilesLoading, (prev, next) => prev === next)
     const inputRef = useRef("")
     const dispatch = useDispatch()
+    const navigation = useNavigation();
 
     const handleDelete = useCallback((id: string) => {
         setAssets((prev) => prev.filter((item) => item.id !== id))
@@ -49,14 +50,13 @@ const PostReviewScreen = memo(function PostReviewScreen({
         }) as any)
         setAssets([])
         ToastAndroid.show("Post uploaded", ToastAndroid.SHORT)
-        // if (navigation?.canGoBack()) { navigation?.goBack() }
-        navigation?.navigate("Root", { screen: "home" })
+        navigation.dispatch(StackActions.replace("HomeTabs"));
     }, [assets.length, session?.id])
 
     return (
         <>
             {/* <PageLoader loading={loading} text='Uploading' /> */}
-            <AppHeader title="New Post" navigation={navigation} titleCenter />
+            <AppHeader title="New Post" titleCenter />
             <ScrollView
                 keyboardDismissMode='on-drag'
                 keyboardShouldPersistTaps='handled'
@@ -129,7 +129,7 @@ const PostReviewScreen = memo(function PostReviewScreen({
     );
 }, () => true);
 
-export default PostReviewScreen;
+export default PostUploadScreen;
 
 const InfoComponent = memo(function InfoComponent() {
     const list = [

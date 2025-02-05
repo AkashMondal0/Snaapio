@@ -1,11 +1,10 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { memo, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { Avatar, Icon } from "@/components/skysolo-ui";
 import { FlatList, ToastAndroid, TouchableWithoutFeedback, View } from "react-native";
 import { timeAgoFormat } from "@/lib/timeFormat";
-import { createPostCommentApi, fetchPostCommentsApi } from "@/redux-stores/slice/post/api.service";
+import { createPostCommentApi, fetchOnePostApi, fetchPostCommentsApi } from "@/redux-stores/slice/post/api.service";
 import AppHeader from "@/components/AppHeader";
-import { Comment, disPatchResponse, NavigationProps, NotificationType, Post } from "@/types";
+import { Comment, disPatchResponse, loadingType, NotificationType, Post } from "@/types";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { resetComments } from "@/redux-stores/slice/post";
@@ -17,36 +16,52 @@ import { Controller, useForm } from "react-hook-form";
 import ErrorScreen from "@/components/error/page";
 import ListEmpty from "@/components/ListEmpty";
 import React from "react";
-import { ThemedView, Input, Text, TouchableOpacity, Separator, Loader } from "hyper-native-ui";
+import { Input, Text, TouchableOpacity, Separator, Loader } from "hyper-native-ui";
+import { StackActions, StaticScreenProps, useNavigation } from "@react-navigation/native";
+import UserItemLoader from "@/components/loader/user-loader";
 
 const schema = z.object({
     text: z.string().min(1)
 })
-interface CommentScreenProps {
-    navigation: NavigationProps;
-    route: {
-        params: {
-            post: Post
-        }
-    }
-}
+type Props = StaticScreenProps<{
+    id: string;
+}>;
 let totalFetchedItemCount = 0
 let postId = "NO_ID"
+let Postdata: Post;
 
-const CommentScreen = memo(function CommentScreen({ navigation, route }: CommentScreenProps) {
-    const post = route?.params?.post
+const CommentScreen = memo(function CommentScreen({ route }: Props) {
+    const _postId = route?.params?.id;
     const Comments = useSelector((Root: RootState) => Root.PostState.comments)
     const commentsLoading = useSelector((Root: RootState) => Root.PostState.commentsLoading)
     const commentsError = useSelector((Root: RootState) => Root.PostState.commentsError)
     const stopRef = useRef(false)
     const dispatch = useDispatch()
+    const [state, setState] = useState<{
+        loading: loadingType,
+        error: boolean,
+        data: Post | null
+    }>({
+        data: null,
+        error: false,
+        loading: "idle"
+    })
+
 
     const fetchApi = useCallback(async () => {
         if (stopRef.current || totalFetchedItemCount === -1) return
         stopRef.current = true
         try {
+            const postRes = await dispatch(fetchOnePostApi(postId) as any) as disPatchResponse<Post>
+            if (postRes.error) return setState({ ...state, loading: "normal", error: true })
+            if (!postRes.payload.id) {
+                setState((pre) => ({ ...pre, error: true, loading: "normal" }))
+                return
+            }
+            setState({ ...state, loading: "normal", data: postRes.payload })
+            Postdata = postRes.payload
             const res = await dispatch(fetchPostCommentsApi({
-                id: post.id,
+                id: _postId,
                 offset: totalFetchedItemCount,
                 limit: 12
             }) as any) as disPatchResponse<Comment[]>
@@ -55,17 +70,21 @@ const CommentScreen = memo(function CommentScreen({ navigation, route }: Comment
                 return
             }
             totalFetchedItemCount = -1
-        } finally { stopRef.current = false }
-    }, [post.id])
+        } finally {
+            stopRef.current = false
+        }
+    }, [_postId])
 
     useEffect(() => {
-        if (postId !== post.id) {
-            postId = post.id
+        if (postId !== _postId) {
+            postId = _postId
             totalFetchedItemCount = 0
             dispatch(resetComments())
             fetchApi()
+        }else{
+            setState({ ...state, loading: "normal", data: Postdata })
         }
-    }, [post.id])
+    }, [_postId, postId])
 
     const onEndReached = useCallback(() => {
         if (stopRef.current || totalFetchedItemCount < 10) return
@@ -79,15 +98,15 @@ const CommentScreen = memo(function CommentScreen({ navigation, route }: Comment
     }, [])
 
     return (
-        <ThemedView style={{
+        <View style={{
             flex: 1,
             width: '100%',
             height: '100%',
         }}>
-            <AppHeader title="Comments" navigation={navigation} />
+            <AppHeader title="Comments" />
             <FlatList
                 data={Comments}
-                renderItem={({ item }) => <CommentItem data={item} navigation={navigation} />}
+                renderItem={({ item }) => <CommentItem data={item} />}
                 keyExtractor={(item, index) => index.toString()}
                 removeClippedSubviews={true}
                 scrollEventThrottle={16}
@@ -98,24 +117,23 @@ const CommentScreen = memo(function CommentScreen({ navigation, route }: Comment
                 refreshing={false}
                 onRefresh={onRefresh}
                 ListEmptyComponent={() => {
-                    if (commentsLoading === "idle") return <View />
+                    if (commentsLoading === "idle" || commentsLoading === "pending") return <UserItemLoader size={10} />
                     if (commentsError) return <ErrorScreen message={commentsError} />
-                    if (!commentsError && commentsLoading === "normal") return <ListEmpty text="No Comments yet" />
+                    if (!commentsError && commentsLoading === "normal" && state.loading === "normal") return <ListEmpty text="No Comments yet" />
                 }}
                 ListFooterComponent={commentsLoading === "pending" ? <Loader size={50} /> : <></>} />
-            <CommentInput post={post} />
-        </ThemedView>
+            <CommentInput post={state.data || Postdata} />
+        </View>
     )
 })
 export default CommentScreen;
 
 const CommentItem = memo(function CommentItem({
     data,
-    navigation
 }: {
-    data: Comment,
-    navigation: NavigationProps
+    data: Comment
 }) {
+    const navigation = useNavigation()
     const [readMore, setReadMore] = useState(false)
     return (<TouchableOpacity
         onPress={() => setReadMore(!readMore)}
@@ -136,13 +154,15 @@ const CommentItem = memo(function CommentItem({
         }}>
             <Avatar url={data.user.profilePicture} size={50}
                 onPress={() => {
-                    navigation.push("profile", { username: data.user.username })
+                    // navigation.navigate("Profile", { id: data.user.username })
+                    navigation.dispatch(StackActions.replace("Profile", { id: data.user.username }))
                 }} />
             <View>
                 <Text numberOfLines={readMore ? 100 : 3} ellipsizeMode="tail">
                     <TouchableWithoutFeedback
                         onPress={() => {
-                            navigation.push("profile", { username: data.user.username })
+                            // navigation.navigate("Profile", { id: data.user.username })
+                            navigation.dispatch(StackActions.replace("Profile", { id: data.user.username }))
                         }}>
                         <Text lineBreakMode="clip" numberOfLines={2}>
                             {data.user.name}{" "}
@@ -175,7 +195,7 @@ const CommentItem = memo(function CommentItem({
         </View>
         <Icon iconName="Heart" size={24}
             onPress={() => {
-                // navigation.push("profile", { username: data.user.username })
+                navigation.navigate("Profile", { id: data.user.username })
             }}
             style={{
                 width: "10%"
@@ -188,7 +208,7 @@ const CommentItem = memo(function CommentItem({
 const CommentInput = memo(function CommentInput({
     post
 }: {
-    post: Post,
+    post: Post | null
 }) {
     const SocketState = useContext(SocketContext)
     const session = useSelector((Root: RootState) => Root.AuthState.session.user)
@@ -202,8 +222,8 @@ const CommentInput = memo(function CommentInput({
 
     const handleComment = useCallback(async (_data: { text: string }) => {
         if (_data.text.length <= 0 || loadingRef.current) return
-        if (!session) return ToastAndroid.show("You need to login to comment", ToastAndroid.SHORT)
         if (!post?.id) return ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
+        if (!session) return ToastAndroid.show("You need to login to comment", ToastAndroid.SHORT)
         try {
             loadingRef.current = true
             const commentRes = await dispatch(createPostCommentApi({
@@ -248,7 +268,7 @@ const CommentInput = memo(function CommentInput({
         } finally {
             loadingRef.current = false
         }
-    }, [SocketState, post.fileUrl, post.id, post.user.id, session])
+    }, [SocketState, post?.fileUrl, post?.id, post?.user.id, session])
 
 
     return (

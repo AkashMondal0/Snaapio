@@ -108,7 +108,7 @@ export const registerApi = async ({
 }
 
 export const logoutApi = createAsyncThunk(
-    'fetchConversationApi/get',
+    'logout/get',
     async (_, thunkAPI) => {
         try {
             await deleteSecureStorage(configs.sessionName);

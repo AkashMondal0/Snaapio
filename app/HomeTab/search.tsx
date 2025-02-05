@@ -1,21 +1,23 @@
+import ErrorScreen from "@/components/error/page";
 import { ListEmptyComponent } from "@/components/home";
+import { ConversationLoader } from "@/components/message/conversationItem";
 import { Avatar, Icon, } from "@/components/skysolo-ui";
 import debounce from "@/lib/debouncing";
 import { searchUsersProfileApi } from "@/redux-stores/slice/users/api.service";
 import { RootState } from "@/redux-stores/store";
-import { AuthorData, NavigationProps } from "@/types";
-import { Input, Text, Loader, TouchableOpacity } from "hyper-native-ui";
+import { AuthorData } from "@/types";
+import { StackActions, useNavigation } from "@react-navigation/native";
+import { Input, Text, TouchableOpacity } from "hyper-native-ui";
+import React from "react";
 import { memo, useCallback, useRef } from "react";
 import { FlatList, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 
-const SearchScreen = memo(function SearchScreen({
-    navigation
-}: {
-    navigation: NavigationProps
-}) {
+const SearchScreen = memo(function SearchScreen() {
+    const navigation = useNavigation();
     const users = useSelector((Root: RootState) => Root.UsersState.searchUsers)
     const loading = useSelector((Root: RootState) => Root.UsersState.searchUsersLoading)
+    const error = useSelector((Root: RootState) => Root.UsersState.searchUsersError)
     const stopRef = useRef(false)
     const dispatch = useDispatch()
     const inputText = useRef<string>('')
@@ -36,10 +38,6 @@ const SearchScreen = memo(function SearchScreen({
 
     const delayFetchUsers = debounce(fetchUsers, 600)
 
-    const onNavigate = useCallback((path: string, options?: { params?: any }) => {
-        navigation.push(path, options);
-    }, [])
-
     const onRemove = useCallback((id: string) => {
     }, [])
 
@@ -58,7 +56,9 @@ const SearchScreen = memo(function SearchScreen({
                 <Icon iconName="ArrowLeft"
                     size={32}
                     onPress={() => {
-                        navigation.goBack()
+                        if (navigation.canGoBack()) {
+                            navigation.goBack()
+                        }
                     }} />
                 <Input placeholder="Search people"
                     onChangeText={delayFetchUsers}
@@ -74,30 +74,34 @@ const SearchScreen = memo(function SearchScreen({
                 keyboardDismissMode='on-drag'
                 keyboardShouldPersistTaps='handled'
                 data={users}
-                renderItem={({ item }) => <UserItem data={item}
-                    onNavigate={onNavigate} onRemove={onRemove} />}
+                renderItem={({ item }) => <UserItem data={item} onRemove={onRemove} />}
                 keyExtractor={(item, index) => index.toString()}
                 removeClippedSubviews={true}
                 scrollEventThrottle={16}
                 windowSize={10}
                 bounces={false}
-                ListFooterComponent={() => <View>{loading ? <Loader size={50} /> : <View></View>}</View>}
-                ListEmptyComponent={!loading ? <ListEmptyComponent text="No User yet" /> : <View></View>} />
+                ListHeaderComponent={() => <>{loading === "pending" ? <ConversationLoader size={6} /> : <></>}</>}
+                ListEmptyComponent={() => {
+                    if (loading === "pending") {
+                        return <ConversationLoader size={6} />
+                    }
+                    if (error) return <ErrorScreen />
+                    if (!error && loading === "normal") return <ListEmptyComponent text="No User yet" />
+                }} />
         </View>
     )
 })
 export default SearchScreen;
 
 const UserItem = memo(function UserItem({
-    data, onNavigate, onRemove
+    data, onRemove
 }: {
     data: AuthorData,
-    onNavigate: (path: string, options?: any) => void
     onRemove: (text: string) => void
 }) {
-
+    const navigation = useNavigation();
     return (<TouchableOpacity
-        onPress={() => onNavigate("profile", { username: data.username })}
+        onPress={() => navigation.dispatch(StackActions.push("Profile", { id: data.username }))}
         style={{
             flexDirection: 'row',
             padding: 12,

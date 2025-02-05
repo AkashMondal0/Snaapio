@@ -3,17 +3,16 @@ import { View, ViewProps } from "react-native";
 import { Icon } from "@/components/skysolo-ui";
 import { useTheme } from 'hyper-native-ui';
 import { Text } from "hyper-native-ui";
+import { useNavigation } from "@react-navigation/native";
 
 
 const AppHeader = memo(function HomeScreen({
-    navigation,
     title,
     titleCenter = false,
     rightSideComponent,
     containerStyle,
     backCallback
 }: {
-    navigation: any
     title: string
     titleCenter?: boolean
     rightSideComponent?: React.ReactNode
@@ -21,6 +20,7 @@ const AppHeader = memo(function HomeScreen({
     backCallback?: () => void
 }) {
     const { currentTheme } = useTheme();
+    const navigation = useNavigation();
 
     if (titleCenter) {
         return (
@@ -37,8 +37,12 @@ const AppHeader = memo(function HomeScreen({
                 <Icon iconName="ArrowLeft"
                     size={28}
                     onPress={() => {
-                        backCallback && backCallback()
-                        navigation.goBack()
+                        if (navigation.canGoBack()) {
+                            navigation.goBack()
+                            backCallback && backCallback()
+                        } else {
+                            navigation.navigate("HomeTabs")
+                        }
                     }} />
                 <Text variant="H5" style={{
                     fontSize: 22,

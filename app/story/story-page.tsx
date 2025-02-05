@@ -1,24 +1,23 @@
 import { memo, useCallback, useEffect, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { Avatar, Icon, Image } from "@/components/skysolo-ui";
-import { ThemedView, Text, Loader } from "hyper-native-ui";
+import { Text, Loader } from "hyper-native-ui";
 import { useDispatch } from "react-redux";
 import { fetchStoryApi } from "@/redux-stores/slice/account/api.service";
-import { AuthorData, disPatchResponse, loadingType, NavigationProps, Story } from "@/types";
+import { AuthorData, disPatchResponse, loadingType, Story } from "@/types";
 import ErrorScreen from "@/components/error/page";
 import { timeAgoFormat } from "@/lib/timeFormat";
 import { useTheme } from 'hyper-native-ui';
 import React from "react";
+import { useNavigation } from "@react-navigation/native";
 
 interface ScreenProps {
-    navigation: NavigationProps;
     route: {
         params: { user: AuthorData }
     }
 }
 
 const StoryScreen = memo(function StoryScreen({
-    navigation,
     route
 }: ScreenProps) {
     const { user } = route.params;
@@ -35,6 +34,7 @@ const StoryScreen = memo(function StoryScreen({
     const totalImages = state.data.length - 1
     const [currentImageIndex, setCurrentImageIndex] = useState(0)
     const dispatch = useDispatch()
+    const navigation = useNavigation()
     const data = state.data[currentImageIndex]
 
     const fetchApi = useCallback(async () => {
@@ -74,16 +74,16 @@ const StoryScreen = memo(function StoryScreen({
     }, [currentImageIndex])
 
     if (state.loading === "idle" || state.loading === "pending") {
-        return <ThemedView style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        return <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
             <Loader size={50} />
-        </ThemedView>
+        </View>
     }
     if (state.loading === "normal" && state.error) {
         return <ErrorScreen />
     }
 
     return (
-        <ThemedView style={{
+        <View style={{
             flex: 1,
             width: '100%',
             height: '100%',
@@ -166,7 +166,7 @@ const StoryScreen = memo(function StoryScreen({
                     {data?.content}
                 </Text>
             </View>
-        </ThemedView>
+        </View>
     )
 })
 export default StoryScreen;
@@ -180,7 +180,7 @@ const Header = ({
     user: AuthorData;
     time: string;
 }) => {
-    return <ThemedView
+    return <View
         style={{
             width: "100%",
             display: 'flex',
@@ -227,5 +227,5 @@ const Header = ({
         <View style={{ paddingRight: 10 }}>
             <Icon iconName={"Info"} isButton variant="secondary" size={26} style={{ elevation: 2 }} />
         </View>
-    </ThemedView>;
+    </View>;
 }

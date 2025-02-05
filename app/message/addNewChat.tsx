@@ -2,28 +2,29 @@ import React from "react";
 import AppHeader from "@/components/AppHeader";
 import { ListEmptyComponent } from "@/components/home";
 import { Avatar } from "@/components/skysolo-ui";
-import { Input, Loader, TouchableOpacity, Text, ThemedView } from 'hyper-native-ui';
+import { Input, TouchableOpacity, Text } from 'hyper-native-ui';
 import debounce from "@/lib/debouncing";
 import { setConversation } from "@/redux-stores/slice/conversation";
 import { CreateConversationApi } from "@/redux-stores/slice/conversation/api.service";
 import { searchUsersProfileApi } from "@/redux-stores/slice/users/api.service";
 import { RootState } from "@/redux-stores/store";
-import { AuthorData, Conversation, disPatchResponse, NavigationProps } from "@/types";
+import { AuthorData, Conversation, disPatchResponse } from "@/types";
 import { memo, useCallback, useRef } from "react";
 import { FlatList, ToastAndroid, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigation } from "@react-navigation/native";
+import ErrorScreen from "@/components/error/page";
+import { ConversationLoader } from "@/components/message/conversationItem";
 
-const NewChatScreen = memo(function NewChatScreen({
-    navigation
-}: {
-    navigation: NavigationProps
-}) {
+const NewChatScreen = memo(function NewChatScreen() {
     const users = useSelector((Root: RootState) => Root.UsersState.searchUsers)
     const loading = useSelector((Root: RootState) => Root.UsersState.searchUsersLoading)
+    const error = useSelector((Root: RootState) => Root.UsersState.searchUsersError)
     const session = useSelector((Root: RootState) => Root.AuthState.session.user)
     const stopRef = useRef(false)
     const dispatch = useDispatch()
     const inputText = useRef<string>('')
+    const navigation = useNavigation();
 
     const fetchUsers = useCallback(async (text: string) => {
         try {
@@ -46,14 +47,15 @@ const NewChatScreen = memo(function NewChatScreen({
             isGroup: false,
             user: userData,
         } as Conversation))
-        navigation?.navigate("message/conversation", { id: res.payload.id })
+        navigation?.navigate("MessageRoom", { id: res.payload.id })
+
     }, [])
 
     return (
-        <ThemedView style={{
+        <View style={{
             flex: 1
         }}>
-            <AppHeader navigation={navigation} title='New Message' />
+            <AppHeader title='New Message' />
             <View style={{
                 flexDirection: 'row',
                 alignItems: 'center',
@@ -86,9 +88,16 @@ const NewChatScreen = memo(function NewChatScreen({
                 scrollEventThrottle={16}
                 windowSize={10}
                 bounces={false}
-                ListFooterComponent={() => <>{loading ? <Loader size={50} /> : <></>}</>}
-                ListEmptyComponent={!loading ? <ListEmptyComponent text="No User yet" /> : <></>} />
-        </ThemedView>
+                ListHeaderComponent={() => <>{loading === "pending" ? <ConversationLoader size={6} /> : <></>}</>}
+                ListEmptyComponent={() => {
+                    if (loading === "pending") {
+                        return <ConversationLoader size={6} />
+                    }
+                    if (error) return <ErrorScreen />
+                    if (!error && loading === "normal") return <ListEmptyComponent text="No User yet" />
+                }}
+            />
+        </View>
     )
 })
 export default NewChatScreen;
@@ -132,3 +141,4 @@ const UserItem = memo(function UserItem({
 }, (prevProps, nextProps) => {
     return prevProps.data.id === nextProps.data.id
 })
+ConversationLoader

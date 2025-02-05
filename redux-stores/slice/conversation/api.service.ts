@@ -4,7 +4,6 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { CQ } from "./conversation.queries";
 import { Asset } from "expo-media-library";
 import {
-    ImageCompressor,
     ImageCompressorAllQuality,
 } from "@/lib/RN-ImageCompressor";
 import { configs } from "@/configs";

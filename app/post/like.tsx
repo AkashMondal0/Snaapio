@@ -2,41 +2,39 @@
 import React, { memo, useCallback, useEffect, useRef } from "react";
 import AppHeader from "@/components/AppHeader";
 import { Avatar } from "@/components/skysolo-ui";
-import { ThemedView, Text, Loader, TouchableOpacity } from "hyper-native-ui";
+import { Text, Loader, TouchableOpacity } from "hyper-native-ui";
 import { resetLike } from "@/redux-stores/slice/post";
 import { fetchPostLikesApi } from "@/redux-stores/slice/post/api.service";
 import { RootState } from "@/redux-stores/store";
-import { AuthorData, Comment, disPatchResponse, NavigationProps, Post } from "@/types";
+import { AuthorData, Comment, disPatchResponse } from "@/types";
 import { FlatList, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import ErrorScreen from "@/components/error/page";
 import ListEmpty from "@/components/ListEmpty";
-interface ScreenProps {
-    navigation: NavigationProps;
-    route: {
-        params: {
-            post: Post
-        }
-    }
-}
+import { StackActions, StaticScreenProps, useNavigation } from "@react-navigation/native";
+import UserItemLoader from "@/components/loader/user-loader";
+type Props = StaticScreenProps<{
+    id: string;
+}>;
 
 let totalFetchedItemCount = 0
 let postId = "NO_ID"
 
-const LikeScreen = memo(function LikeScreen({ navigation, route }: ScreenProps) {
-    const post = route?.params?.post
+const LikeScreen = memo(function LikeScreen({ route }: Props) {
+    const _postId = route?.params?.id
     const likes = useSelector((Root: RootState) => Root.PostState.likesUserList)
     const likeLoading = useSelector((Root: RootState) => Root.PostState.likesLoading)
     const likesError = useSelector((Root: RootState) => Root.PostState.likesError)
     const stopRef = useRef(false)
     const dispatch = useDispatch()
+    const navigation = useNavigation()
 
     const fetchApi = useCallback(async () => {
         if (stopRef.current || totalFetchedItemCount === -1) return
         stopRef.current = true
         try {
             const res = await dispatch(fetchPostLikesApi({
-                id: route?.params?.post?.id,
+                id: _postId,
                 offset: totalFetchedItemCount,
                 limit: 12
             }) as any) as disPatchResponse<Comment[]>
@@ -46,16 +44,16 @@ const LikeScreen = memo(function LikeScreen({ navigation, route }: ScreenProps) 
             }
             totalFetchedItemCount = -1
         } finally { stopRef.current = false }
-    }, [post.id])
+    }, [_postId])
 
     useEffect(() => {
-        if (postId !== post.id) {
-            postId = post.id
+        if (postId !== _postId) {
+            postId = _postId
             totalFetchedItemCount = 0
             dispatch(resetLike())
             fetchApi()
         }
-    }, [post.id])
+    }, [_postId])
 
     const onEndReached = useCallback(() => {
         if (stopRef.current || totalFetchedItemCount < 10) return
@@ -69,16 +67,17 @@ const LikeScreen = memo(function LikeScreen({ navigation, route }: ScreenProps) 
     }, [])
 
     const onPress = useCallback((username: string) => {
-        navigation.push("profile", { username })
+        // navigation.navigate("Profile", { id: username })
+        navigation.dispatch(StackActions.replace("Profile", { id:  username}))
     }, [])
 
     return (
-        <ThemedView style={{
+        <View style={{
             flex: 1,
             width: '100%',
             height: '100%',
         }}>
-            <AppHeader title="Likes" navigation={navigation} />
+            <AppHeader title="Likes" />
             <FlatList
                 removeClippedSubviews={true}
                 scrollEventThrottle={16}
@@ -91,13 +90,13 @@ const LikeScreen = memo(function LikeScreen({ navigation, route }: ScreenProps) 
                 onEndReached={onEndReached}
                 refreshing={false}
                 ListEmptyComponent={() => {
-                    if (likeLoading === "idle") return <View />
+                    if (likeLoading === "idle" || likeLoading === "pending") return <UserItemLoader size={10}/>
                     if (likesError) return <ErrorScreen message={likesError} />
                     if (!likesError && likeLoading === "normal") return <ListEmpty text="No likes yet" />
                 }}
                 ListFooterComponent={likeLoading === "pending" ? <Loader size={50} /> : <></>}
                 onRefresh={onRefresh} />
-        </ThemedView>
+        </View>
     )
 })
 export default LikeScreen;

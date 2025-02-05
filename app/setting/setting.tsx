@@ -1,15 +1,17 @@
 import AppHeader from "@/components/AppHeader";
 import LogOutDialog from "@/components/dialogs/logout";
 import { Icon, type IconName } from "@/components/skysolo-ui";
-import { Text, ThemedView, TouchableOpacity } from "hyper-native-ui";
+import { Text, TouchableOpacity } from "hyper-native-ui";
 import { configs } from "@/configs";
 import { logoutApi } from "@/redux-stores/slice/auth/api.service";
 import { memo, useCallback, useState } from "react";
 import { Linking, ScrollView, View } from "react-native";
 import { useDispatch } from "react-redux";
+import { useNavigation } from "@react-navigation/native";
 
-const SettingScreen = memo(function HomeScreen({ navigation }: any) {
+const SettingScreen = memo(function HomeScreen() {
     const dispatch = useDispatch();
+    const navigation = useNavigation()
     const [modalVisible, setModalVisible] = useState(false)
     const settingList = [
         {
@@ -17,7 +19,7 @@ const SettingScreen = memo(function HomeScreen({ navigation }: any) {
             description: "Change the appearance of the app",
             icon: "Palette",
             onPress: () => {
-                navigation.navigate("settings/theme")
+                navigation.navigate("ThemeSettings")
             }
         },
         {
@@ -56,7 +58,7 @@ const SettingScreen = memo(function HomeScreen({ navigation }: any) {
     }, []);
 
     return (
-        <ThemedView style={{
+        <View style={{
             flex: 1,
             width: "100%",
             height: "100%"
@@ -72,7 +74,7 @@ const SettingScreen = memo(function HomeScreen({ navigation }: any) {
                 height: '100%',
                 flex: 1,
             }}>
-                <AppHeader title="Settings" navigation={navigation}
+                <AppHeader title="Settings"
                     rightSideComponent={<Icon iconName="Search" size={24} isButton variant="normal" />}
                     key={"setting-page-1"} />
                 <ScrollView keyboardDismissMode='on-drag'
@@ -108,7 +110,7 @@ const SettingScreen = memo(function HomeScreen({ navigation }: any) {
                     }}>| Version {configs.AppDetails.version}
                 </Text>
             </TouchableOpacity>
-        </ThemedView>
+        </View>
     )
 })
 export default SettingScreen;

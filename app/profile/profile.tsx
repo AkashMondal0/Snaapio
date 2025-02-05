@@ -2,21 +2,20 @@ import ErrorScreen from "@/components/error/page";
 import { ProfileEmptyPosts, ProfileGridItem, ProfileHeader, ProfileNavbar } from "@/components/profile";
 import { fetchUserProfileDetailApi, fetchUserProfilePostsApi } from "@/redux-stores/slice/profile/api.service";
 import { RootState } from "@/redux-stores/store";
-import { disPatchResponse, loadingType, NavigationProps, Post, User } from "@/types";
-import { Loader, ThemedView } from "hyper-native-ui";
+import { disPatchResponse, loadingType, Post, User } from "@/types";
+import { StaticScreenProps } from "@react-navigation/native";
+import { Loader } from "hyper-native-ui";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { View, FlatList, ToastAndroid } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-
-interface ScreenProps {
-    navigation: NavigationProps;
-    route: {
-        params: { username: string }
-    }
-}
-const ProfileScreen = ({ navigation, route }: ScreenProps) => {
+let _Pid = "NO_ID"
+type Props = StaticScreenProps<{
+    id: string;
+}>;
+const ProfileScreen = ({ route }: Props) => {
+    // console.log(route.params.id)
     const session = useSelector((state: RootState) => state.AuthState.session.user)
-    const username = route.params?.username
+    const username = route.params.id
     const isProfile = session?.username === username
     const [loading, setLoading] = useState<loadingType>('idle')
     const [error, setError] = useState<string | null>(null)
@@ -50,7 +49,7 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
     }, [loading])
 
     const fetchUserData = useCallback(async () => {
-        if (UserData.current) return
+        // if (UserData.current) return
         const res = await dispatch(fetchUserProfileDetailApi(username) as any) as disPatchResponse<User>
         if (res.error) {
             setError(res?.error?.message || "An error occurred")
@@ -67,7 +66,7 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
     }, [loading])
 
     const onRefresh = useCallback(() => {
-        if (loading === "pending" || loading === "idle") return
+        if (loading === "pending") return
         setLoading("pending")
         UserData.current = null
         Posts.current = []
@@ -75,23 +74,26 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
         fetchUserData()
     }, [loading])
 
-    const navigateToPostDetail = useCallback((item: Post, index: number) => {
-        navigation.navigate('post', { post: item, index })
-    }, [])
-
     useEffect(() => {
+        if (route.params.id !== _Pid) {
+            _Pid = route.params.id
+            setLoading("pending")
+            UserData.current = null
+            Posts.current = []
+            totalFetchedItemCount.current = 0
+        }
         fetchUserData()
-    }, [])
+    }, [route.params.id])
 
     if (error) return <ErrorScreen />
 
     return (
-        <ThemedView style={{
+        <View style={{
             flex: 1,
             width: '100%',
             height: '100%',
         }}>
-            <ProfileNavbar navigation={navigation}
+            <ProfileNavbar
                 isProfile={isProfile} username={username} />
             <FlatList
                 data={Posts.current}
@@ -110,11 +112,10 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
                     paddingVertical: 1,
                 }}
                 renderItem={({ item, index }) => (
-                    <ProfileGridItem item={item} index={index} onPress={navigateToPostDetail} />
+                    <ProfileGridItem item={item} index={index} />
                 )}
                 ListHeaderComponent={UserData.current ? <>
                     <ProfileHeader
-                        navigation={navigation}
                         userData={UserData.current}
                         isProfile={isProfile} />
                 </> : <></>}
@@ -128,7 +129,7 @@ const ProfileScreen = ({ navigation, route }: ScreenProps) => {
                 </View> : <View style={{ height: totalFetchedItemCount.current === -1 ? 0 : 50 }} />}
                 ListEmptyComponent={<ProfileEmptyPosts loading={loading} />}
             />
-        </ThemedView>
+        </View>
     )
 }
 

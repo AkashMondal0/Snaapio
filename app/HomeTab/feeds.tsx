@@ -1,6 +1,6 @@
 import { fetchAccountFeedApi, fetchAccountStoryTimelineApi, fetchStoryApi } from "@/redux-stores/slice/account/api.service";
 import { RootState } from "@/redux-stores/store";
-import { NavigationProps, Post, disPatchResponse } from "@/types";
+import { Post, disPatchResponse } from "@/types";
 import React, { useCallback, useRef, memo, useEffect } from "react";
 import { Animated, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
@@ -8,11 +8,12 @@ import { resetFeeds } from '@/redux-stores/slice/account';
 import { FeedItem, HomeHeader } from '@/components/home';
 import ErrorScreen from '@/components/error/page';
 import ListEmpty from '@/components/ListEmpty';
-import { Loader, ThemedView } from 'hyper-native-ui';
+import { Loader } from 'hyper-native-ui';
 import StoriesComponent from "@/components/home/story";
+import { FeedLoader } from "@/components/home/feedListItem";
 let totalFetchedItemCount: number = 0;
 
-const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: NavigationProps }) {
+const FeedsScreen = memo(function FeedsScreen() {
     const feedList = useSelector((state: RootState) => state.AccountState.feeds);
     const feedListLoading = useSelector((state: RootState) => state.AccountState.feedsLoading);
     const feedsError = useSelector((state: RootState) => state.AccountState.feedsError);
@@ -70,20 +71,20 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: Navi
     }, [session?.id])
 
     return (
-        <ThemedView style={{
+        <View style={{
             flex: 1,
             width: "100%",
             height: "100%",
         }}>
-            {useCallback(() => <HomeHeader translateY={translateY} navigation={navigation} />, [])()}
+            {useCallback(() => <HomeHeader translateY={translateY} />, [])()}
             <Animated.FlatList
-                ListHeaderComponent={useCallback(() => <StoriesComponent navigation={navigation} />, [])}
+                ListHeaderComponent={useCallback(() => <StoriesComponent />, [])}
                 contentContainerStyle={{ paddingTop: 60 }}
                 scrollEventThrottle={16}
                 removeClippedSubviews={true}
                 windowSize={12}
                 data={feedList}
-                renderItem={({ item }) => <FeedItem data={item} navigation={navigation} />}
+                renderItem={({ item }) => <FeedItem data={item} />}
                 keyExtractor={(item, index) => index.toString()}
                 onEndReached={onEndReached}
                 onEndReachedThreshold={0.5}
@@ -92,13 +93,16 @@ const FeedsScreen = memo(function FeedsScreen({ navigation }: { navigation: Navi
                 onRefresh={onRefresh}
                 onScroll={handleScroll}
                 ListEmptyComponent={() => {
-                    if (feedListLoading === "idle") return <View />
+                    if (feedListLoading === "idle" || feedListLoading === "pending") {
+                        return <FeedLoader />
+                    }
                     if (feedsError) return <ErrorScreen message={feedsError} />
                     if (!feedsError && feedListLoading === "normal") return <ListEmpty text="No feeds available" />
                 }}
                 ListFooterComponent={() => feedListLoading === "pending" ? <Loader size={40} /> : <></>}
             />
-        </ThemedView>
+        </View>
     )
 })
 export default FeedsScreen;
+

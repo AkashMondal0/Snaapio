@@ -32,7 +32,7 @@ const ImageComponent = ({
     blurUrl,
     ...otherProps }: Props) => {
     const error = useRef(false);
-    const [state, setState] = useState<loadingType>("idle");
+    // const [state, setState] = useState<loadingType>("idle");
     const { currentTheme } = useTheme();
 
     if (error.current && showImageError || !url) {
@@ -69,7 +69,7 @@ const ImageComponent = ({
 
     return (
         <>
-            <View style={[{
+            {/* <View style={[{
                 position: "absolute",
                 width: "100%",
                 height: "100%",
@@ -79,7 +79,7 @@ const ImageComponent = ({
                 display: state === "pending" ? "flex" : "none",
             }, style as any]}>
                 <Loader size={40} />
-            </View>
+            </View> */}
             <Image
                 source={{ uri: serverImage ? configs.serverApi.supabaseStorageUrl + url : url }}
                 contentFit="cover"
@@ -89,18 +89,18 @@ const ImageComponent = ({
                     height: "100%",
                     backgroundColor: currentTheme?.background,
                 }, style]}
-                onLoadStart={() => {
-                    if (state === "pending") return;
-                    setState("pending")
-                }}
-                onError={() => {
-                    error.current = true
-                    setState("normal")
-                }}
-                onLoadEnd={() => {
-                    if (state === "normal") return;
-                    setState("normal")
-                }}
+                // onLoadStart={() => {
+                //     if (state === "pending") return;
+                //     setState("pending")
+                // }}
+                // onError={() => {
+                //     error.current = true
+                //     setState("normal")
+                // }}
+                // onLoadEnd={() => {
+                //     if (state === "normal") return;
+                //     setState("normal")
+                // }}
                 {...otherProps} />
         </>
     )

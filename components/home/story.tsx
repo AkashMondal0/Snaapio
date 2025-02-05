@@ -4,14 +4,12 @@ import { Avatar, Icon } from "@/components/skysolo-ui";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { fetchAccountStoryTimelineApi, fetchAccountStoryApi } from "@/redux-stores/slice/account/api.service";
-import { AuthorData, NavigationProps, Session } from "@/types";
-import { useTheme, Text, Loader } from 'hyper-native-ui';
+import { AuthorData, Session } from "@/types";
+import { useTheme, Text, Skeleton } from 'hyper-native-ui';
+import { StackActions, useNavigation } from "@react-navigation/native";
 
-const StoriesComponent = memo(function StoriesComponent({
-    navigation
-}: {
-    navigation: NavigationProps,
-}) {
+const StoriesComponent = memo(function StoriesComponent() {
+    const navigation = useNavigation();
     const storyList = useSelector((state: RootState) => state.AccountState.storyAvatars)
     const storyListLoading = useSelector((state: RootState) => state.AccountState.storyAvatarsLoading)
     const storyError = useSelector((state: RootState) => state.AccountState.storyAvatarsError)
@@ -42,11 +40,12 @@ const StoriesComponent = memo(function StoriesComponent({
     }, [totalFetchedItemCount])
 
     const onPress = useCallback((item: AuthorData | Session) => {
-        navigation.push('story', { user: item })
+        // navigation.navigate("Story", { user: item }) 
+        navigation.dispatch(StackActions.push("Story", { user: item }));
     }, [])
 
     const navigateToStoriesUpload = useCallback(() => {
-        navigation.navigate('story/selection')
+        navigation.navigate("SelectStory")
     }, [])
 
     return (
@@ -74,14 +73,7 @@ const StoriesComponent = memo(function StoriesComponent({
                 ListFooterComponent={<View style={{ width: 6 }} />}
                 ListEmptyComponent={() => {
                     if (storyListLoading === "idle" || storyListLoading === "pending") {
-                        return <View style={{
-                            width: 100,
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            height: 80,
-                        }}>
-                            <Loader size={40} />
-                        </View>
+                        return <StoryLoader />
                     }
                     if (storyError && storyListLoading === "normal") return <View />
                     return <View />
@@ -188,4 +180,24 @@ export const AddStories = ({
             Add Story
         </Text>
     </TouchableOpacity>)
+}
+
+const StoryLoader = () => {
+    const { currentTheme } = useTheme();
+    return <View style={{
+        display: "flex",
+        flexDirection: "row",
+        gap: 10,
+        height: 90,
+        alignItems: "center"
+    }}>
+        {Array(10).fill(0).map((_, i) => <View key={i}
+            style={{
+                width: 80,
+                height: 80,
+                borderRadius: 180,
+                backgroundColor: currentTheme.input
+            }}
+        />)}
+    </View>
 }

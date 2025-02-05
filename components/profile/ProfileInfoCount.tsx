@@ -1,32 +1,39 @@
 import { memo } from "react";
-import { NavigationProps, User } from "@/types";
+import { User } from "@/types";
 import { TouchableOpacity, View } from "react-native";
 import { Text } from "hyper-native-ui";
+import {
+     StackActions,
+     useNavigation 
+} from "@react-navigation/native";
 
 
 const ProfileInfoCount = memo(function ProfileInfoCount({
-    navigation,
     userData,
 }: {
-    navigation: NavigationProps,
     userData: User | null,
 }) {
+    const navigation = useNavigation();
     const counts = [
         { title: "Posts", count: userData?.postCount, onPress: () => { } },
         {
-            title: "Followers", count: userData?.followerCount, onPress: () => {
-                navigation.push('profile/followersAndFollowing', {
-                    screen: 'followers',
-                    params: { username: userData?.username, tab: 0 }
-                })
+            title: "Follower", count: userData?.followerCount, onPress: () => {
+                if (userData?.username) {
+                    navigation.dispatch(StackActions.push("ProfileFollower", {
+                        id: userData.username,
+                        section: "Follower"
+                    }));
+                }
             }
         },
         {
             title: "Following", count: userData?.followingCount, onPress: () => {
-                navigation.push('profile/followersAndFollowing', {
-                    screen: 'following',
-                    params: { username: userData?.username, tab: 1 }
-                })
+                if (userData?.username) {
+                    navigation.dispatch(StackActions.push("ProfileFollowing", {
+                        id: userData.username,
+                        section: "Following"
+                    }));
+                }
             }
         }
     ]

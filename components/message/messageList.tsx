@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
-import { Conversation, Message, NavigationProps, disPatchResponse } from '@/types';
+import { Conversation, Message, disPatchResponse } from '@/types';
 import { FlatList, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
@@ -9,14 +9,14 @@ import { fetchConversationAllMessagesApi } from "@/redux-stores/slice/conversati
 import MessageItem from './messageItem';
 import { SocketContext } from '@/provider/SocketConnections';
 import { Loader } from 'hyper-native-ui';
+import { useNavigation } from '@react-navigation/native';
 
 const MessageList = memo(function MessageList({
     conversation,
-    navigation
 }: {
     conversation: Conversation,
-    navigation: NavigationProps
 }) {
+    const navigation = useNavigation();
     const stopFetch = useRef(false)
     const dispatch = useDispatch()
     const totalFetchedItemCount = useRef<number>(0)
@@ -56,7 +56,7 @@ const MessageList = memo(function MessageList({
     const fetchMore = debounce(() => loadMoreMessages(conversation.id), 1000)
 
     const navigateToImagePreview = useCallback((data: Message) => {
-        navigation.navigate('message/assets/preview', { data })
+        navigation.navigate("MessageImagePreview" as any, { data })
     }, [])
 
     return (
@@ -75,11 +75,9 @@ const MessageList = memo(function MessageList({
                 data={item} seenMessage={cMembers === item.seenBy?.length}
                 key={item.id} myself={session?.id === item.authorId} />}
             ListFooterComponent={<View style={{ width: "100%", height: 50 }}>
-                {messagesLoading ? <Loader size={36} /> : <></>}
+                {messagesLoading === "normal" ? <></> : <Loader size={36} />}
             </View>}
         />)
 }, (prev, next) => prev.conversation.id === next.conversation.id)
 
-export default MessageList
-
-
+export default MessageList;

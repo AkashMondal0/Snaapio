@@ -29,14 +29,14 @@ const Avatar = memo(function SkysoloAvatar({ style,
     isBorder = false,
     showImageError,
     size = 40,
-    borderWidth = 2,
+    borderWidth = 1.6,
     borderColorVariant = "primary",
     url,
     TouchableOpacityOptions,
     ...otherProps }: Props) {
     size = Number(size)
     const { currentTheme } = useTheme();
-    const [state, setState] = useState<loadingType>("idle")
+    // const [state, setState] = useState<loadingType>("idle")
     const error = useRef(false)
 
     const colorVariant = () => {
@@ -92,7 +92,7 @@ const Avatar = memo(function SkysoloAvatar({ style,
                 borderWidth: borderWidth,
                 borderColor: isBorder ? colorVariant().borderColor : "transparent",
                 borderRadius: 500,
-                padding: 2.6,
+                padding: 0.5,
             }, TouchableOpacityOptions?.style]}
             activeOpacity={touchableOpacity ? 0.6 : 1}
             onLongPress={otherProps.onLongPress}
@@ -114,17 +114,17 @@ const Avatar = memo(function SkysoloAvatar({ style,
                 source={!url ? require('../../assets/images/user.jpg') : serverImage ? configs.serverApi.supabaseStorageUrl + url : url}
                 contentFit="cover"
                 transition={100}
-                onLoadStart={() => {
-                    if (state === "pending") return;
-                    setState("pending");
-                }}
-                onError={() => {
-                    error.current = true;
-                }}
-                onLoadEnd={() => {
-                    if (state === "normal") return;
-                    setState("normal");
-                }}
+                // onLoadStart={() => {
+                //     if (state === "pending") return;
+                //     setState("pending");
+                // }}
+                // onError={() => {
+                //     error.current = true;
+                // }}
+                // onLoadEnd={() => {
+                //     if (state === "normal") return;
+                //     setState("normal");
+                // }}
                 style={[
                     {
                         resizeMode: "cover",

@@ -7,28 +7,31 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
 import { fetchConversationsApi } from '@/redux-stores/slice/conversation/api.service';
-import { resetConversation, resetConversationState, setConversation } from '@/redux-stores/slice/conversation';
+import { resetConversation, resetConversationState } from '@/redux-stores/slice/conversation';
 import debounce from '@/lib/debouncing';
 import searchText from '@/lib/TextSearch';
 import ErrorScreen from '@/components/error/page';
 import { ConversationDetailsSheet, ConversationItem, ListHeader } from '@/components/message';
 import ListEmpty from '@/components/ListEmpty';
-import { Loader, ThemedView, useTheme } from "hyper-native-ui";
+import { Loader, useTheme } from "hyper-native-ui";
+import { useNavigation } from '@react-navigation/native';
+import { ConversationLoader } from '@/components/message/conversationItem';
 
 let totalFetchedItemCount: number = 0;
 let pageLoaded = false;
 
-const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
-    const stopRef = useRef(false)
-    const list = useSelector((Root: RootState) => Root.ConversationState.conversationList)
-    const listLoading = useSelector((Root: RootState) => Root.ConversationState.listLoading)
-    const listError = useSelector((Root: RootState) => Root.ConversationState.listError)
+const ChatListScreen = memo(function ChatListScreen() {
+    const navigation = useNavigation();
+    const stopRef = useRef(false);
+    const list = useSelector((Root: RootState) => Root.ConversationState.conversationList);
+    const listLoading = useSelector((Root: RootState) => Root.ConversationState.listLoading);
+    const listError = useSelector((Root: RootState) => Root.ConversationState.listError);
 
     const [BottomSheetData, setBottomSheetData] = useState<Conversation | null>(null)
     const bottomSheetModalRef = useRef<BottomSheetModal>(null);
     const snapPoints = useMemo(() => ["50%", '50%', "70%"], []);
-    const [inputText, setInputText] = useState("")
-    const dispatch = useDispatch()
+    const [inputText, setInputText] = useState("");
+    const dispatch = useDispatch();
 
     const conversationList = useMemo(() => {
         return [...list].sort((a, b) => {
@@ -55,9 +58,8 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
     const onChangeInput = debounce((text: string) => setInputText(text), 400)
 
     const pushToPage = useCallback((data: Conversation) => {
-        dispatch(resetConversation())
-        dispatch(setConversation(data))
-        navigation?.navigate("message/conversation", { id: data.id })
+        dispatch(resetConversation());
+        navigation?.navigate("MessageRoom", { id: data.id });
     }, [])
 
     // fetch -------------------------------------------------------------------------------------
@@ -96,7 +98,7 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
         }
     }, [])
 
-    return <ThemedView style={{
+    return <View style={{
         flex: 1,
         width: "100%",
         height: "100%",
@@ -117,12 +119,13 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
             onRefresh={onRefresh}
             onEndReached={onEndReached}
             ListHeaderComponent={<ListHeader
-                pageToNewChat={() => { navigation?.navigate("message/searchNewChat") }}
-                pressBack={() => { navigation?.goBack() }}
+                pageToNewChat={() => { navigation?.navigate("FindMessage") }}
                 InputOnChange={onChangeInput} />}
             data={conversationList}
             ListEmptyComponent={() => {
-                if (listLoading === "idle") return <View />
+                if (listLoading === "idle" || listLoading === "pending") {
+                    return <ConversationLoader size={12}/>
+                }
                 if (listError) return <ErrorScreen message={listError} />
                 if (!listError && listLoading === "normal") return <ListEmpty text="No Messages" />
             }}
@@ -133,8 +136,8 @@ const ChatListScreen = memo(function ChatListScreen({ navigation }: any) {
             handleSheetChanges={handleSheetChanges}>
             <ConversationDetailsSheet data={BottomSheetData} />
         </ActionSheet>
-        <ActionButton onPress={() => { navigation?.navigate("message/askAiChat") }} />
-    </ThemedView>
+        <ActionButton onPress={() => { navigation?.navigate("AiMessage") }} />
+    </View>
 })
 export default ChatListScreen;
 
@@ -148,15 +151,22 @@ const ActionButton = memo(function ActionButton({ onPress }: { onPress: () => vo
         borderWidth: 2,
         borderRadius: 100,
         elevation: 5,
-        width: 55,
-        height: 55,
         justifyContent: "center",
         alignItems: "center",
+        padding: 8,
+        backgroundColor: "white",
     }}>
-        <Avatar
-            serverImage={false}
-            onPress={onPress}
-            url={require("../../assets/images/ai.png")}
-            size={52} />
+        <View style={{
+            width: 46,
+            height: 46,
+            backgroundColor: "white",
+            borderRadius: 100,
+        }}>
+            <Avatar
+                serverImage={false}
+                onPress={onPress}
+                url={require("../../assets/images/ai.png")}
+                size={42} />
+        </View>
     </View>
 }, () => true)

@@ -1,13 +1,14 @@
 import { memo, useCallback, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { Avatar, Icon, Image } from "@/components/skysolo-ui";
-import { AuthorData, NavigationProps, Highlight } from "@/types";
+import { AuthorData, Highlight } from "@/types";
 import ErrorScreen from "@/components/error/page";
 import { dateFormat } from "@/lib/timeFormat";
-import { ThemedView, useTheme, Text } from 'hyper-native-ui';
+import { useTheme, Text } from 'hyper-native-ui';
+import { useNavigation } from "@react-navigation/native";
+import React from "react";
 
 interface ScreenProps {
-    navigation: NavigationProps;
     route: {
         params: {
             highlight: Highlight,
@@ -18,16 +19,20 @@ interface ScreenProps {
 }
 
 const HighlightPageScreen = memo(function HighlightPageScreen({
-    navigation,
     route
 }: ScreenProps) {
     const { currentTheme } = useTheme();
+    const navigation = useNavigation();
     const [currentImageIndex, setCurrentImageIndex] = useState(0)
     const { user, highlight } = route.params;
     const actualLength = highlight.stories?.length ?? 0
     const totalImages = highlight.stories ? highlight?.stories?.length - 1 : 0
     const story = highlight.stories ? highlight?.stories[currentImageIndex] : null
-    const PressBack = useCallback(() => { navigation?.goBack() }, [])
+    const PressBack = useCallback(() => {
+        if (navigation?.canGoBack()) {
+            navigation?.goBack()
+        }
+    }, [])
 
     const handleNextImage = useCallback(() => {
         if (currentImageIndex === totalImages) {
@@ -48,7 +53,7 @@ const HighlightPageScreen = memo(function HighlightPageScreen({
     if (!highlight?.stories || !story) return <ErrorScreen />
 
     return (
-        <ThemedView style={{
+        <View style={{
             flex: 1,
             width: '100%',
             height: '100%',
@@ -130,7 +135,7 @@ const HighlightPageScreen = memo(function HighlightPageScreen({
                     {story?.content}
                 </Text>
             </View>
-        </ThemedView>
+        </View>
     )
 })
 export default HighlightPageScreen;
@@ -144,7 +149,7 @@ const Header = ({
     user: AuthorData;
     time: string;
 }) => {
-    return <ThemedView
+    return <View
         style={{
             width: "100%",
             display: 'flex',
@@ -190,5 +195,5 @@ const Header = ({
         <View style={{ paddingRight: 10 }}>
             <Icon iconName={"Info"} isButton variant="secondary" size={26} style={{ elevation: 2 }} />
         </View>
-    </ThemedView>;
+    </View>;
 }

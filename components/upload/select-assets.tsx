@@ -11,11 +11,9 @@ import { PageProps } from '@/types';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
 import { setDeviceAssets } from '@/redux-stores/slice/account';
-import { ThemedView } from 'hyper-native-ui';
 
 let loaded = false;
 const SelectAssets = memo(function SelectAssets({
-    navigation,
     nextAction,
     assetsLimit = 5
 }: PageProps<any> & {
@@ -119,9 +117,8 @@ const SelectAssets = memo(function SelectAssets({
                 rightSideComponent={selectedCount > 0 ? <Icon
                     iconName='Check' isButton
                     onPress={navigateToPostReview}
-                    variant="primary" /> : <></>}
-                navigation={navigation} />
-            <ThemedView style={{ flex: 1 }}>
+                    variant="primary" /> : <></>} />
+            <View style={{ flex: 1 }}>
                 <FlatList
                     nestedScrollEnabled
                     data={media}
@@ -137,9 +134,9 @@ const SelectAssets = memo(function SelectAssets({
                             selectAssetIndex={selectedAssets.current.findIndex(asset => asset.id === item.id)}
                             onPressAssetHandle={onPressAssetHandle} />
                     }} />
-            </ThemedView>
+            </View>
         </>
     );
 }, () => true);
 
-export default SelectAssets
+export default SelectAssets;

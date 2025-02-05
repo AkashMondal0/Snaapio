@@ -1,39 +1,55 @@
-import { ThemedView, Text } from "hyper-native-ui";
-import { memo, useCallback, } from "react";
+import { Loader } from "hyper-native-ui";
+import { memo, useCallback, useEffect } from "react";
 import { Navbar, Input, MessageList } from "@/components/message";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
+import { StaticScreenProps } from "@react-navigation/native";
+import { NotFound } from "../NotFound";
+import { fetchConversationApi } from "@/redux-stores/slice/conversation/api.service";
 import { View } from "react-native";
-import { NavigationProps } from "@/types";
 
-interface ChatScreenProps {
-    navigation: NavigationProps
-    route: {
-        params: {
-            id: string;
-        },
-        name: string;
-    }
-}
+type Props = StaticScreenProps<{
+    id: string;
+}>;
 
-const ChatScreen = memo(function ChatScreen({ navigation, route }: ChatScreenProps) {
+const ChatScreen = memo(function ChatScreen({ route }: Props) {
+    const id = route.params.id;
     const ConversationData = useSelector((Root: RootState) => Root.ConversationState.conversation, (prev, next) => prev?.id === next?.id)
-    const PressBack = useCallback(() => { navigation?.goBack() }, [])
+    const loading = useSelector((Root: RootState) => Root.ConversationState.loading)
+    const error = useSelector((Root: RootState) => Root.ConversationState.error)
+    const dispatch = useDispatch()
 
-    if (!ConversationData) return <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text variant="H4">No conversation found</Text>
+    const fetchApi = useCallback(async () => {
+        dispatch(fetchConversationApi(id) as any)
+    }, [])
+
+    useEffect(() => {
+        fetchApi()
+    }, [id])
+
+    if (loading === "pending" || loading === "idle") return <View style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center"
+    }}>
+        <Loader size={40} />
     </View>
 
+    if (loading === "normal" && error || !ConversationData || error) {
+        if (!ConversationData && error) return <NotFound />
+        return <View />
+    }
+
     return (
-        <ThemedView style={{
+        <View style={{
             flex: 1,
             width: '100%',
             height: '100%',
         }}>
-            <Navbar conversation={ConversationData} pressBack={PressBack} />
-            <MessageList conversation={ConversationData} navigation={navigation} />
-            <Input conversation={ConversationData} navigation={navigation} />
-        </ThemedView>
+            <Navbar conversation={ConversationData} />
+            <MessageList conversation={ConversationData} />
+            <Input conversation={ConversationData} />
+        </View>
     )
 }, (prev, next) => prev.route.params.id === next.route.params.id)
 export default ChatScreen;
