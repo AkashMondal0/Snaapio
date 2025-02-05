@@ -49,6 +49,7 @@ interface ConversationStateType {
     // ai
     ai_messages: AiMessage[];
     ai_messageLoading: boolean;
+    ai_CurrentMessageId: string | null;
     ai_messageError: string | null;
 
     ai_messageCreateLoading: boolean;
@@ -84,6 +85,7 @@ const ConversationState: ConversationStateType = {
     ai_messageLoading: false,
     ai_messageError: null,
     ai_messageCreateLoading: false,
+    ai_CurrentMessageId: null
 };
 
 export const ConversationSlice = createSlice({
@@ -175,6 +177,11 @@ export const ConversationSlice = createSlice({
         // save my prompt
         saveMyPrompt: (state, action: PayloadAction<AiMessage>) => {
             state.ai_messages.unshift(action.payload);
+            state.ai_CurrentMessageId = action.payload.id;
+        },
+        completeAiMessageGenerate: (state) => {
+            state.ai_CurrentMessageId = null
+            state.ai_messageCreateLoading = false
         },
         loadMyPrompt: (state, action: PayloadAction<AiMessage[]>) => {
             state.ai_messages.push(...action.payload.reverse());
@@ -340,7 +347,7 @@ export const ConversationSlice = createSlice({
             state.ai_messageError = null;
         });
         builder.addCase(AiMessagePromptApi.fulfilled, (state) => {
-            state.ai_messageCreateLoading = false;
+            // state.ai_messageCreateLoading = false;
         });
         builder.addCase(AiMessagePromptApi.rejected, (state, action) => {
             state.ai_messageCreateLoading = false;
@@ -361,6 +368,7 @@ export const {
     setUploadFiles,
     saveMyPrompt,
     loadMyPrompt,
+    completeAiMessageGenerate
 } = ConversationSlice.actions;
 
 export default ConversationSlice.reducer;

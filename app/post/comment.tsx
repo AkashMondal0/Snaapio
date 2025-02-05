@@ -70,7 +70,9 @@ const CommentScreen = memo(function CommentScreen({ route }: Props) {
                 return
             }
             totalFetchedItemCount = -1
-        } finally { stopRef.current = false }
+        } finally {
+            stopRef.current = false
+        }
     }, [_postId])
 
     useEffect(() => {
@@ -79,8 +81,10 @@ const CommentScreen = memo(function CommentScreen({ route }: Props) {
             totalFetchedItemCount = 0
             dispatch(resetComments())
             fetchApi()
+        }else{
+            setState({ ...state, loading: "normal", data: Postdata })
         }
-    }, [_postId])
+    }, [_postId, postId])
 
     const onEndReached = useCallback(() => {
         if (stopRef.current || totalFetchedItemCount < 10) return
@@ -113,7 +117,7 @@ const CommentScreen = memo(function CommentScreen({ route }: Props) {
                 refreshing={false}
                 onRefresh={onRefresh}
                 ListEmptyComponent={() => {
-                    if (state.loading === "idle" || state.loading === "pending" || commentsLoading === "idle" || commentsLoading === "pending") return <UserItemLoader size={10} />
+                    if (commentsLoading === "idle" || commentsLoading === "pending") return <UserItemLoader size={10} />
                     if (commentsError) return <ErrorScreen message={commentsError} />
                     if (!commentsError && commentsLoading === "normal" && state.loading === "normal") return <ListEmpty text="No Comments yet" />
                 }}

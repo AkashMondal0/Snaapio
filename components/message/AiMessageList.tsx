@@ -1,16 +1,17 @@
-import React, { memo, useCallback, useEffect, useRef } from 'react';
+import React, { memo, useCallback, useEffect } from 'react';
 import { Message } from '@/types';
 import { FlatList, View, Text, StyleSheet, Clipboard, Image } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
 import { Icon } from '@/components/skysolo-ui';
-import { Loader, useTheme } from 'hyper-native-ui';
+import { useTheme } from 'hyper-native-ui';
 import { ToastAndroid } from "react-native";
 import { timeFormat } from '@/lib/timeFormat';
-import { AiMessage, loadMyPrompt } from '@/redux-stores/slice/conversation';
+import { AiMessage, completeAiMessageGenerate, loadMyPrompt } from '@/redux-stores/slice/conversation';
 
 import Markdown, { MarkdownIt, stringToTokens, tokensToAST } from 'react-native-markdown-display';
 import { getSecureStorage } from '@/lib/SecureStore';
+import AITextLoader from '@/app/message/AITextLoader';
 let loaded = false
 const AiMessageList = memo(function AiMessageList() {
     // const stopFetch = useRef(false)
@@ -18,7 +19,8 @@ const AiMessageList = memo(function AiMessageList() {
     // const totalFetchedItemCount = useRef<number>(0)
 
     const messages = useSelector((Root: RootState) => Root.ConversationState?.ai_messages)
-    const messagesLoading = useSelector((Root: RootState) => Root.ConversationState?.ai_messageCreateLoading)
+    const currentGeneratingMessage = useSelector((Root: RootState) => Root.ConversationState?.ai_CurrentMessageId)
+    // const messagesLoading = useSelector((Root: RootState) => Root.ConversationState?.ai_messageCreateLoading)
 
     const loadMoreMessages = useCallback(async () => {
         if (loaded) return
@@ -53,14 +55,15 @@ const AiMessageList = memo(function AiMessageList() {
             bounces={false}
             scrollEventThrottle={16}
             showsVerticalScrollIndicator={false}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => <MessageItem
+            keyExtractor={(_, index) => index.toString()}
+            renderItem={({ item, index: i }) => <MessageItem
                 navigateToImagePreview={navigateToImagePreview}
                 data={item}
+                currentTyping={item.id === currentGeneratingMessage}
                 myself={!item.isAi}
                 key={item.id} />}
             ListHeaderComponent={<View style={{ width: "100%", height: 50 }}>
-                {messagesLoading ? <Loader size={36} /> : <></>}
+                {/* {messagesLoading ? <Loader size={36} /> : <></>} */}
             </View>}
         />)
 }, () => true)
@@ -69,14 +72,17 @@ export default AiMessageList
 
 const MessageItem = memo(function Item({
     data, myself,
+    currentTyping,
     navigateToImagePreview
 }: {
     data: AiMessage, myself: boolean,
+    currentTyping: boolean
     navigateToImagePreview: (data: Message) => void
 }) {
     const { currentTheme } = useTheme();
-    const color = myself ? currentTheme?.primary_foreground : currentTheme?.foreground
-    const bg = myself ? currentTheme?.primary : currentTheme?.muted
+    const color = myself ? currentTheme?.primary_foreground : currentTheme?.foreground;
+    const bg = myself ? currentTheme?.primary : currentTheme?.muted;
+    const dispatch = useDispatch();
 
     const markdownItInstance = MarkdownIt({ typographer: true });
 
@@ -133,6 +139,58 @@ const MessageItem = memo(function Item({
         }
     });
 
+    if (data.isAi && currentTyping) {
+        return <View style={{
+            flexDirection: 'row',
+            justifyContent: myself ? 'flex-end' : 'flex-start',
+            padding: 6,
+        }}>
+            <View style={{
+                backgroundColor: bg,
+                paddingHorizontal: 8,
+                paddingVertical: 4,
+                borderRadius: 16,
+                width: 'auto',
+                maxWidth: '94%',
+                elevation: 0.4
+            }}>
+                {data.image && !data.isAi ? <Image source={{ uri: data.image }} style={{
+                    height: 250,
+                    aspectRatio: 1,
+                    borderRadius: 20,
+                }} /> : <></>}
+                <AITextLoader
+                    onComplete={() => {
+                        dispatch(completeAiMessageGenerate())
+                    }}
+                    text={data.content} 
+                    />
+
+                {/* date and time */}
+                <View style={{
+                    flexDirection: 'row',
+                    justifyContent: 'flex-end',
+                    gap: 10,
+                }}>
+                    <Text
+                        style={{
+                            color: color,
+                            fontSize: 14,
+                            lineHeight: 24,
+                            fontWeight: '400',
+                        }}>
+                        {timeFormat(data?.createdAt as string)}
+                    </Text>
+                </View>
+            </View>
+            {myself ? <></> : <Icon iconName='Copy'
+                size={24} onPress={() => {
+                    Clipboard.setString(data.content)
+                    ToastAndroid.show("Copied to clipboard", ToastAndroid.SHORT)
+                }} />}
+        </View>
+    }
+
 
     return <View style={{
         flexDirection: 'row',
@@ -182,3 +240,8 @@ const MessageItem = memo(function Item({
             }} />}
     </View>
 }, (prev, next) => true)
+
+
+
+
+const aitex = "Lorem ipsum dolor sit amet consectetur adipisicing elit. Fuga natus perspiciatis commodi officiis, reprehenderit cumque totam molestias repellat ipsam quasi modi? Animi reiciendis beatae, inventore alias laudantium nemo quidem voluptates minus aspernatur repudiandae deserunt sed enim vero rerum provident necessitatibus accusamus esse, mollitia temporibus adipisci illum at omnis ea saepe! Nam asperiores, quod quo perspiciatis iure facilis quis iusto aperiam odit recusandae consequatur voluptatem, necessitatibus laudantium doloribus ullam excepturi, atque possimus est officiis autem minus! Voluptatem alias modi enim culpa ut doloremque soluta optio odio nesciunt a commodi architecto, ea, delectus fugit recusandae. Nobis, porro velit! Officiis ex dignissimos vero asperiores tenetur quasi et, dolores neque nam ea recusandae quo voluptates? Voluptatibus, cupiditate optio ullam, quo totam, illum quos numquam mollitia odit minima rerum deserunt obcaecati fugiat minus iste alias consequuntur enim modi. Tempora dolores a pariatur aliquid tenetur, officiis culpa rerum eius accusamus hic. Hic, sit. Architecto, suscipit? Dicta corrupti voluptatum cum neque omnis? Dignissimos fugiat aliquid reprehenderit dolores optio facilis alias officiis mollitia, obcaecati deserunt ad error unde quod omnis hic eveniet debitis eum nam placeat fugit necessitatibus earum ipsum consequatur? Eligendi cumque dolor optio, perspiciatis et nesciunt facilis corporis deleniti, perferendis dolorem ipsam asperiores, eum repudiandae esse."
