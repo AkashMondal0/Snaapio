@@ -5,7 +5,7 @@ import { Icon, Avatar } from "@/components/skysolo-ui";
 import { disPatchResponse, loadingType, User, Highlight } from "@/types";
 import { useDispatch } from "react-redux";
 import { fetchUserHighlightApi } from "@/redux-stores/slice/profile/api.service";
-import { Text, Skeleton } from "hyper-native-ui"
+import { Text, useTheme } from "hyper-native-ui"
 import { StackActions, useNavigation } from "@react-navigation/native";
 
 const StoriesComponent = memo(function StoriesComponent({
@@ -170,6 +170,7 @@ export const StoriesItem = memo(function StoriesItem({
 
 
 const StoryLoader = () => {
+    const { currentTheme } = useTheme();
     return <View style={{
         display: "flex",
         flexDirection: "row",
@@ -177,6 +178,11 @@ const StoryLoader = () => {
         height: 90,
         alignItems: "center"
     }}>
-        {Array(10).fill(0).map((_, i) => <Skeleton key={i} width={80} height={80} borderRadius={160} />)}
+        {Array(10).fill(0).map((_, i) => <View key={i} style={{
+            width: 80,
+            height: 80,
+            borderRadius: 100,
+            backgroundColor: currentTheme.muted
+        }} />)}
     </View>
 }

@@ -120,7 +120,6 @@ const ChatListScreen = memo(function ChatListScreen() {
             onEndReached={onEndReached}
             ListHeaderComponent={<ListHeader
                 pageToNewChat={() => { navigation?.navigate("FindMessage") }}
-                pressBack={() => { navigation?.goBack() }}
                 InputOnChange={onChangeInput} />}
             data={conversationList}
             ListEmptyComponent={() => {

@@ -1,21 +1,28 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback } from 'react';
 import { View } from 'react-native';
 import { Icon } from '@/components/skysolo-ui';
 import { Input, Text } from 'hyper-native-ui';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
+import { useNavigation } from '@react-navigation/native';
 
 const ListHeader = memo(function ListHeader({
-    pressBack,
     pageToNewChat,
     InputOnChange
 }: {
     pageToNewChat: () => void,
-    pressBack: () => void,
     InputOnChange: (text: string) => void
 }) {
     const session = useSelector((Root: RootState) => Root.AuthState.session.user)
+    const navigation = useNavigation();
 
+    const PressBack = useCallback(() => {
+        if (navigation.canGoBack()) {
+            navigation?.goBack()
+        } else {
+            navigation.navigate("MessageList")
+        }
+    }, [])
     return <>
         <View style={{
             paddingHorizontal: 14,
@@ -33,7 +40,7 @@ const ListHeader = memo(function ListHeader({
                     alignItems: "center",
                     gap: 6,
                 }}>
-                    <Icon iconName={"ArrowLeft"} size={30} onPress={pressBack} />
+                    <Icon iconName={"ArrowLeft"} size={30} onPress={PressBack} />
                     <Text
                         style={{
                             fontSize: 22,
