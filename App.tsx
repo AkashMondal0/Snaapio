@@ -47,7 +47,7 @@ function Root() {
             {appLoading === "normal" ? <>
               <StatusBar
                 barStyle={themeScheme ? "light-content" : "dark-content"}
-                backgroundColor={"transparent"}
+                backgroundColor={background}
                 translucent
                 animated
               />
