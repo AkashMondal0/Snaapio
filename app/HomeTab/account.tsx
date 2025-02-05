@@ -6,8 +6,7 @@ import { ProfileEmptyPosts, ProfileGridItem, ProfileHeader, ProfileNavbar } from
 import { fetchUserProfileDetailApi, fetchUserProfilePostsApi } from "@/redux-stores/slice/profile/api.service";
 import { RootState } from "@/redux-stores/store";
 import ErrorScreen from "@/components/error/page";
-import { Loader, ThemedView } from "hyper-native-ui";
-import { ProfileHeaderLoader } from "@/components/profile/ProfileHeader";
+import { Loader } from "hyper-native-ui";
 
 const AccountScreen = () => {
     const session = useSelector((state: RootState) => state.AuthState.session.user)
@@ -77,7 +76,7 @@ const AccountScreen = () => {
     if (error) return <ErrorScreen />
 
     return (
-        <ThemedView style={{
+        <View style={{
             flex: 1,
             width: "100%",
             height: "100%"
@@ -119,7 +118,7 @@ const AccountScreen = () => {
                 </View> : <View style={{ height: totalFetchedItemCount.current === -1 ? 0 : 50 }} />}
                 ListEmptyComponent={<ProfileEmptyPosts loading={loading} />}
             />
-        </ThemedView>
+        </View>
     )
 }
 

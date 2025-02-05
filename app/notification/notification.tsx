@@ -11,7 +11,7 @@ import { resetNotificationState } from "@/redux-stores/slice/notification";
 import { timeAgoFormat } from "@/lib/timeFormat";
 import ErrorScreen from "@/components/error/page";
 import ListEmpty from "@/components/ListEmpty";
-import { ThemedView, Loader, Text, TouchableOpacity, useTheme, } from "hyper-native-ui";
+import { Loader, Text, TouchableOpacity, useTheme, } from "hyper-native-ui";
 import { useNavigation } from "@react-navigation/native";
 let totalFetchedItemCount = 0;
 
@@ -54,7 +54,7 @@ const NotificationScreen = memo(function NotificationScreen() {
     }, [])
 
     return (
-        <ThemedView style={{
+        <View style={{
             flex: 1,
             width: '100%',
             height: '100%',
@@ -81,7 +81,7 @@ const NotificationScreen = memo(function NotificationScreen() {
                 }}
                 ListFooterComponent={notificationsLoading === "pending" ? <Loader size={50} /> : <></>}
             />
-        </ThemedView>
+        </View>
     )
 })
 export default NotificationScreen;

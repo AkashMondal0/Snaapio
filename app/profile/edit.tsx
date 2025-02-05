@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import { ScrollView, ToastAndroid, TouchableOpacity, View } from 'react-native';
 import { Avatar, Icon } from '@/components/skysolo-ui';
-import { Button, Input, Text, ThemedView } from "hyper-native-ui"
+import { Button, Input, Text } from "hyper-native-ui"
 import AppHeader from '@/components/AppHeader';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
@@ -117,7 +117,7 @@ const ProfileEditScreen = memo(function ProfileEditScreen({
         </Text>
     }
 
-    return <ThemedView style={{
+    return <View style={{
         flex: 1,
         width: "100%"
     }}>
@@ -249,7 +249,7 @@ const ProfileEditScreen = memo(function ProfileEditScreen({
                 </Button>
             </View>
         </ScrollView>
-    </ThemedView>
+    </View>
 }, () => true);
 
 export default ProfileEditScreen;

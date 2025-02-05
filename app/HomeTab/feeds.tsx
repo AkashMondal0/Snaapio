@@ -2,13 +2,13 @@ import { fetchAccountFeedApi, fetchAccountStoryTimelineApi, fetchStoryApi } from
 import { RootState } from "@/redux-stores/store";
 import { Post, disPatchResponse } from "@/types";
 import React, { useCallback, useRef, memo, useEffect } from "react";
-import { Animated } from "react-native";
+import { Animated, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { resetFeeds } from '@/redux-stores/slice/account';
 import { FeedItem, HomeHeader } from '@/components/home';
 import ErrorScreen from '@/components/error/page';
 import ListEmpty from '@/components/ListEmpty';
-import { Loader, ThemedView } from 'hyper-native-ui';
+import { Loader } from 'hyper-native-ui';
 import StoriesComponent from "@/components/home/story";
 import { FeedLoader } from "@/components/home/feedListItem";
 let totalFetchedItemCount: number = 0;
@@ -71,7 +71,7 @@ const FeedsScreen = memo(function FeedsScreen() {
     }, [session?.id])
 
     return (
-        <ThemedView style={{
+        <View style={{
             flex: 1,
             width: "100%",
             height: "100%",
@@ -101,7 +101,7 @@ const FeedsScreen = memo(function FeedsScreen() {
                 }}
                 ListFooterComponent={() => feedListLoading === "pending" ? <Loader size={40} /> : <></>}
             />
-        </ThemedView>
+        </View>
     )
 })
 export default FeedsScreen;

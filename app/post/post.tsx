@@ -1,5 +1,4 @@
 import { memo, useCallback, useEffect, useState } from "react";
-import { ThemedView } from "hyper-native-ui";
 import { disPatchResponse, loadingType, Post } from "@/types";
 import AppHeader from "@/components/AppHeader";
 import { FeedItem } from "@/components/home";
@@ -44,7 +43,7 @@ const PostScreen = memo(function PostScreen({ route }: Props) {
     }, [])
 
     return (
-        <ThemedView style={{
+        <View style={{
             flex: 1,
             width: '100%',
             height: '100%',
@@ -55,7 +54,7 @@ const PostScreen = memo(function PostScreen({ route }: Props) {
                     : state.error ? <ErrorScreen message="Not Found" /> :
                         state.data?.id ? <FeedItem data={state.data} /> : <View />}
             </ScrollView>
-        </ThemedView>
+        </View>
     )
 })
 export default PostScreen;

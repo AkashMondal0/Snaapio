@@ -2,7 +2,7 @@ import { memo, useCallback, } from "react";
 import { View } from "react-native";
 import { Avatar, Icon } from "@/components/skysolo-ui";
 import {
-    Text, ThemedView
+    Text
 } from 'hyper-native-ui';
 import AiChatScreenInput from "@/components/message/AiChatInput";
 import AiMessageList from "@/components/message/AiMessageList";
@@ -23,7 +23,7 @@ const AskAiChatScreen = memo(function AskAiChatScreen() {
     // </View>
 
     return (
-        <ThemedView style={{
+        <View style={{
             flex: 1,
             width: '100%',
             height: '100%',
@@ -31,7 +31,7 @@ const AskAiChatScreen = memo(function AskAiChatScreen() {
             <AskAiChatScreenNavbar pressBack={PressBack} />
             <AiMessageList />
             <AiChatScreenInput />
-        </ThemedView>
+        </View>
     )
 })
 export default AskAiChatScreen;

@@ -1,6 +1,6 @@
 import React from "react";
 import { memo, useCallback } from "react";
-import { ThemedView, useTheme, themeColors, Text, Dropdown } from "hyper-native-ui";
+import { useTheme, themeColors, Text, Dropdown } from "hyper-native-ui";
 import { TouchableOpacity, View } from "react-native";
 import AppHeader from "@/components/AppHeader";
 import { configs } from "@/configs";
@@ -18,7 +18,7 @@ const ThemeSettingScreen = memo(function HomeScreen() {
     }, [])
 
     return (
-        <ThemedView style={{
+        <View style={{
             flex: 1,
             width: '100%',
             height: '100%',
@@ -51,7 +51,7 @@ const ThemeSettingScreen = memo(function HomeScreen() {
             </View>
             {/* <SwitchDarkComponent /> */}
             <SwitchDarkDropDownComponent />
-        </ThemedView>
+        </View>
     )
 })
 export default ThemeSettingScreen;

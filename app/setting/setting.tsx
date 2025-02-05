@@ -1,7 +1,7 @@
 import AppHeader from "@/components/AppHeader";
 import LogOutDialog from "@/components/dialogs/logout";
 import { Icon, type IconName } from "@/components/skysolo-ui";
-import { Text, ThemedView, TouchableOpacity } from "hyper-native-ui";
+import { Text, TouchableOpacity } from "hyper-native-ui";
 import { configs } from "@/configs";
 import { logoutApi } from "@/redux-stores/slice/auth/api.service";
 import { memo, useCallback, useState } from "react";
@@ -58,7 +58,7 @@ const SettingScreen = memo(function HomeScreen() {
     }, []);
 
     return (
-        <ThemedView style={{
+        <View style={{
             flex: 1,
             width: "100%",
             height: "100%"
@@ -110,7 +110,7 @@ const SettingScreen = memo(function HomeScreen() {
                     }}>| Version {configs.AppDetails.version}
                 </Text>
             </TouchableOpacity>
-        </ThemedView>
+        </View>
     )
 })
 export default SettingScreen;

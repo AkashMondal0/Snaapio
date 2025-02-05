@@ -5,8 +5,7 @@ import * as MediaLibrary from 'expo-media-library';
 import {
     Button,
     Separator,
-    Input,
-    ThemedView
+    Input
 } from 'hyper-native-ui';
 import AppHeader from '@/components/AppHeader';
 import { Conversation, disPatchResponse, Message, PageProps } from '@/types';
@@ -80,7 +79,7 @@ const ChatAssetsReviewScreen = memo(function ChatAssetsReviewScreen({
     ])
 
     return (
-        <ThemedView style={{
+        <View style={{
             flex: 1
         }}>
             <AppHeader title={conversation?.user?.username ?? "Chat"} titleCenter />
@@ -150,7 +149,7 @@ const ChatAssetsReviewScreen = memo(function ChatAssetsReviewScreen({
                     Send
                 </Button>
             </View>
-        </ThemedView>
+        </View>
     );
 }, () => true);
 

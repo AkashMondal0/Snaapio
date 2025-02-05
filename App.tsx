@@ -11,13 +11,16 @@ import SocketConnections from '@/provider/SocketConnections';
 import { ThemeProvider, useTheme } from 'hyper-native-ui';
 import { AuthNavigation, Navigation } from '@/app/navigation';
 import * as Linking from 'expo-linking';
+import { StatusBar } from 'react-native';
 
 SplashScreen.preventAutoHideAsync();
 const prefix = Linking.createURL('/');
 
 function Root() {
-  const { currentTheme } = useTheme();
-  const session = useSelector((state: RootState) => state.AuthState.session);
+  const { currentTheme, themeScheme } = useTheme();
+  const session = useSelector((state: RootState) => state.AuthState.session, (pre, next) => pre.user === next.user);
+  const appLoading = useSelector((state: RootState) => state.AuthState.loaded, (pre, next) => pre === next);
+
   const background = currentTheme.background;
   const theme: any = {
     ...DefaultTheme,
@@ -29,21 +32,32 @@ function Root() {
       primary: currentTheme.primary,
       text: currentTheme.foreground
     }
-  }
+  };
+
   return (<>
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: background }}>
       <SafeAreaProvider style={{
         flex: 1,
         backgroundColor: background,
+        paddingTop: StatusBar.currentHeight
       }}>
+        <PreConfiguration />
         <SocketConnections >
-          <PreConfiguration />
           <BottomSheetProvider>
-            {session.user ? <Navigation theme={theme} linking={{
-              prefixes: [prefix, 'snaapio://', 'https://snaapio.vercel.app'],
-            }} /> : <AuthNavigation theme={theme} linking={{
-              prefixes: [prefix, 'snaapio://', 'https://snaapio.vercel.app'],
-            }} />}
+            {appLoading === "normal" ? <>
+              <StatusBar
+                barStyle={themeScheme ? "light-content" : "dark-content"}
+                backgroundColor={"transparent"}
+                translucent
+                animated
+              />
+              <StatusBar />
+              {session.user ? <Navigation onReady={() => { SplashScreen.hideAsync() }} theme={theme} linking={{
+                prefixes: [prefix, 'snaapio://', 'https://snaapio.vercel.app'],
+              }} /> : <AuthNavigation onReady={() => { SplashScreen.hideAsync() }} theme={theme} linking={{
+                prefixes: [prefix, 'snaapio://', 'https://snaapio.vercel.app'],
+              }} />}
+            </> : <></>}
           </BottomSheetProvider>
         </SocketConnections>
       </SafeAreaProvider>
@@ -55,7 +69,7 @@ export default function App() {
 
   return (
     <>
-      <ThemeProvider enableThemedStatusBar>
+      <ThemeProvider>
         <Provider store={store}>
           <Root />
         </Provider>

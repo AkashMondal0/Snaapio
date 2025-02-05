@@ -2,10 +2,11 @@ import { setAppPermissionDialog } from '@/redux-stores/slice/dialog';
 import * as MediaLibrary from 'expo-media-library';
 import LottieView from 'lottie-react-native';
 import { useEffect, useRef } from 'react';
-import { Linking } from 'react-native';
+import { Linking, View } from 'react-native';
 import { useDispatch } from 'react-redux';
-import { Button, Text, ThemedView } from 'hyper-native-ui';
+import { Button, Text } from 'hyper-native-ui';
 import { configs } from '@/configs';
+import React from 'react';
 
 function PhotosPermissionRequester({ permission }: {
     permission: MediaLibrary.PermissionResponse
@@ -19,7 +20,7 @@ function PhotosPermissionRequester({ permission }: {
     if (permission.granted) return <view />;
 
     return (
-        <ThemedView
+        <View
             style={{
                 flex: 1,
                 height: "100%",
@@ -75,7 +76,7 @@ function PhotosPermissionRequester({ permission }: {
                         Open Settings
                     </Button>
                 </>}
-        </ThemedView>
+        </View>
     );
 }
 

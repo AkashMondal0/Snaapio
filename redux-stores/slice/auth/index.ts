@@ -1,12 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { Session } from '@/types'
+import { loadingType, Session } from '@/types'
 import { logoutApi, profileUpdateApi } from './api.service'
 
 
 export type AuthState = {
   session: Session
-  loaded: boolean
+  loaded: loadingType
   loading: boolean
   error: string | null
 }
@@ -16,7 +16,7 @@ const initialState: AuthState = {
   session: {
     user: null,
   },
-  loaded: false,
+  loaded: "idle",
   loading: false,
   error: null
 }
@@ -27,7 +27,7 @@ export const AuthSlice = createSlice({
   reducers: {
     setSession: (state, action: PayloadAction<Session['user']>) => {
       state.session.user = action.payload
-      state.loaded = true
+      state.loaded = "normal"
     },
     updateSession: (state, action: PayloadAction<Partial<Session['user']>>) => {
       if (!state.session.user) return

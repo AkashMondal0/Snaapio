@@ -1,4 +1,4 @@
-import { Text, Button, ThemedView } from 'hyper-native-ui'
+import { Text, Button } from 'hyper-native-ui'
 import { configs } from '@/configs'
 import React from 'react'
 import { View, Image } from 'react-native'
@@ -7,7 +7,7 @@ export default function InitialScreen() {
     const navigation = useNavigation();
 
     return (
-        <ThemedView style={{
+        <View style={{
             flex: 1,
             height: "100%",
             width: "100%",
@@ -65,6 +65,6 @@ export default function InitialScreen() {
             }}>
                 Login
             </Button>
-        </ThemedView>
+        </View>
     )
 }

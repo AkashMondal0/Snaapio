@@ -13,7 +13,7 @@ import searchText from '@/lib/TextSearch';
 import ErrorScreen from '@/components/error/page';
 import { ConversationDetailsSheet, ConversationItem, ListHeader } from '@/components/message';
 import ListEmpty from '@/components/ListEmpty';
-import { Loader, ThemedView, useTheme } from "hyper-native-ui";
+import { Loader, useTheme } from "hyper-native-ui";
 import { useNavigation } from '@react-navigation/native';
 import { ConversationLoader } from '@/components/message/conversationItem';
 
@@ -98,7 +98,7 @@ const ChatListScreen = memo(function ChatListScreen() {
         }
     }, [])
 
-    return <ThemedView style={{
+    return <View style={{
         flex: 1,
         width: "100%",
         height: "100%",
@@ -138,7 +138,7 @@ const ChatListScreen = memo(function ChatListScreen() {
             <ConversationDetailsSheet data={BottomSheetData} />
         </ActionSheet>
         <ActionButton onPress={() => { navigation?.navigate("AiMessage") }} />
-    </ThemedView>
+    </View>
 })
 export default ChatListScreen;
 

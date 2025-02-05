@@ -4,7 +4,7 @@ import { fetchUserProfileDetailApi, fetchUserProfilePostsApi } from "@/redux-sto
 import { RootState } from "@/redux-stores/store";
 import { disPatchResponse, loadingType, Post, User } from "@/types";
 import { StaticScreenProps } from "@react-navigation/native";
-import { Loader, ThemedView } from "hyper-native-ui";
+import { Loader } from "hyper-native-ui";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { View, FlatList, ToastAndroid } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
@@ -88,7 +88,7 @@ const ProfileScreen = ({ route }: Props) => {
     if (error) return <ErrorScreen />
 
     return (
-        <ThemedView style={{
+        <View style={{
             flex: 1,
             width: '100%',
             height: '100%',
@@ -129,7 +129,7 @@ const ProfileScreen = ({ route }: Props) => {
                 </View> : <View style={{ height: totalFetchedItemCount.current === -1 ? 0 : 50 }} />}
                 ListEmptyComponent={<ProfileEmptyPosts loading={loading} />}
             />
-        </ThemedView>
+        </View>
     )
 }
 

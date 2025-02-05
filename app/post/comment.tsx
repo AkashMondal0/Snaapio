@@ -16,7 +16,7 @@ import { Controller, useForm } from "react-hook-form";
 import ErrorScreen from "@/components/error/page";
 import ListEmpty from "@/components/ListEmpty";
 import React from "react";
-import { ThemedView, Input, Text, TouchableOpacity, Separator, Loader } from "hyper-native-ui";
+import { Input, Text, TouchableOpacity, Separator, Loader } from "hyper-native-ui";
 import { StackActions, StaticScreenProps, useNavigation } from "@react-navigation/native";
 import UserItemLoader from "@/components/loader/user-loader";
 
@@ -94,7 +94,7 @@ const CommentScreen = memo(function CommentScreen({ route }: Props) {
     }, [])
 
     return (
-        <ThemedView style={{
+        <View style={{
             flex: 1,
             width: '100%',
             height: '100%',
@@ -119,7 +119,7 @@ const CommentScreen = memo(function CommentScreen({ route }: Props) {
                 }}
                 ListFooterComponent={commentsLoading === "pending" ? <Loader size={50} /> : <></>} />
             <CommentInput post={state.data || Postdata} />
-        </ThemedView>
+        </View>
     )
 })
 export default CommentScreen;

@@ -1,8 +1,8 @@
 import React, { memo } from 'react';
 import SelectAssets from '@/components/upload/select-assets';
 import * as MediaLibrary from 'expo-media-library';
-import { ThemedView } from 'hyper-native-ui';
 import { useNavigation } from '@react-navigation/native';
+import { View } from 'react-native';
 
 const StorySelectingScreen = memo(function StorySelectingScreen() {
     const navigation = useNavigation();
@@ -10,13 +10,13 @@ const StorySelectingScreen = memo(function StorySelectingScreen() {
         navigation?.navigate("StoryUpload" as any, { assets: selectedAssets });
     };
     return (
-        <ThemedView style={{
+        <View style={{
             flex: 1,
             width: '100%',
             height: '100%',
         }}>
             <SelectAssets nextAction={nextAction} assetsLimit={1} />
-        </ThemedView>
+        </View>
     )
 })
 

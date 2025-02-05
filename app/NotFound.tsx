@@ -1,11 +1,11 @@
 import { StackActions, useNavigation } from "@react-navigation/native";
-import { ThemedView, Text, Button } from "hyper-native-ui";
+import { Text, Button } from "hyper-native-ui";
 import { View } from "react-native";
 
 export function NotFound() {
   const navigation = useNavigation();
   return (
-    <ThemedView style={{
+    <View style={{
       flex: 1,
       height: '100%',
     }}>
@@ -19,6 +19,6 @@ export function NotFound() {
         <Text variant="H4">Conversation not found</Text>
         <Button onPress={() => { navigation.dispatch(StackActions.replace('HomeTabs')) }}>Go To Home</Button>
       </View>
-    </ThemedView>
+    </View>
   );
 }

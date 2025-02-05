@@ -2,7 +2,7 @@ import React from "react";
 import AppHeader from "@/components/AppHeader";
 import { ListEmptyComponent } from "@/components/home";
 import { Avatar } from "@/components/skysolo-ui";
-import { Input, TouchableOpacity, Text, ThemedView } from 'hyper-native-ui';
+import { Input, TouchableOpacity, Text } from 'hyper-native-ui';
 import debounce from "@/lib/debouncing";
 import { setConversation } from "@/redux-stores/slice/conversation";
 import { CreateConversationApi } from "@/redux-stores/slice/conversation/api.service";
@@ -52,7 +52,7 @@ const NewChatScreen = memo(function NewChatScreen() {
     }, [])
 
     return (
-        <ThemedView style={{
+        <View style={{
             flex: 1
         }}>
             <AppHeader title='New Message' />
@@ -97,7 +97,7 @@ const NewChatScreen = memo(function NewChatScreen() {
                     if (!error && loading === "normal") return <ListEmptyComponent text="No User yet" />
                 }}
             />
-        </ThemedView>
+        </View>
     )
 })
 export default NewChatScreen;

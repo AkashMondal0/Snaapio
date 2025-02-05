@@ -1,9 +1,10 @@
-import { Text, ThemedView } from "hyper-native-ui";
+import { Text } from "hyper-native-ui";
 import { memo } from "react";
+import { View } from "react-native";
 
 const ReelsScreen = memo(function ReelsScreen({ navigation }: any) {
     return (
-        <ThemedView style={{
+        <View style={{
             flex: 1,
             justifyContent: 'center',
             alignItems: 'center',
@@ -11,7 +12,7 @@ const ReelsScreen = memo(function ReelsScreen({ navigation }: any) {
             height: '100%',
         }}>
             <Text variant="H4">Reels Screen</Text>
-        </ThemedView>
+        </View>
     )
 })
 export default ReelsScreen;

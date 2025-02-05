@@ -5,7 +5,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from "zod"
 import { Icon } from '@/components/skysolo-ui';
-import { Text, Button, ThemedView, Input } from 'hyper-native-ui'
+import { Text, Button, Input } from 'hyper-native-ui'
 import { registerApi } from '@/redux-stores/slice/auth/api.service';
 import { ApiResponse, Session } from '@/types';
 import { setSession } from '@/redux-stores/slice/auth';
@@ -82,7 +82,7 @@ const RegisterScreen = () => {
     }, [])
 
     return (
-        <ThemedView style={{
+        <View style={{
             flex: 1,
             height: "100%",
             width: "100%",
@@ -306,7 +306,7 @@ const RegisterScreen = () => {
                     </Text>
                 </TouchableOpacity>
             </ScrollView>
-        </ThemedView>
+        </View>
     );
 };
 

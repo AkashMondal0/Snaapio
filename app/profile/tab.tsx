@@ -3,8 +3,8 @@ import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import FollowersScreen from "./followers";
 import FollowingScreen from "./following";
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
-import { useWindowDimensions } from "react-native";
-import { ThemedView, useTheme } from 'hyper-native-ui';
+import { useWindowDimensions, View } from "react-native";
+import { useTheme } from 'hyper-native-ui';
 import { fetchUserProfileFollowerUserApi, fetchUserProfileFollowingUserApi } from "@/redux-stores/slice/profile/api.service";
 import { AuthorData, disPatchResponse, loadingType } from "@/types";
 import { useDispatch, useSelector } from "react-redux";
@@ -133,7 +133,7 @@ const TabFollowingAndFollowers = memo(function TabFollowingAndFollowers({ route 
     }
     if (error) return <ErrorScreen />
     return (
-        <ThemedView style={{
+        <View style={{
             flex: 1,
             width: '100%',
             height: '100%',
@@ -171,7 +171,7 @@ const TabFollowingAndFollowers = memo(function TabFollowingAndFollowers({ route 
                 onIndexChange={setIndex}
                 initialLayout={{ width: layout.width }}
             />
-        </ThemedView>
+        </View>
     )
 })
 export default TabFollowingAndFollowers;

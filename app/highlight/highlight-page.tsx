@@ -4,7 +4,7 @@ import { Avatar, Icon, Image } from "@/components/skysolo-ui";
 import { AuthorData, Highlight } from "@/types";
 import ErrorScreen from "@/components/error/page";
 import { dateFormat } from "@/lib/timeFormat";
-import { ThemedView, useTheme, Text } from 'hyper-native-ui';
+import { useTheme, Text } from 'hyper-native-ui';
 import { useNavigation } from "@react-navigation/native";
 import React from "react";
 
@@ -53,7 +53,7 @@ const HighlightPageScreen = memo(function HighlightPageScreen({
     if (!highlight?.stories || !story) return <ErrorScreen />
 
     return (
-        <ThemedView style={{
+        <View style={{
             flex: 1,
             width: '100%',
             height: '100%',
@@ -135,7 +135,7 @@ const HighlightPageScreen = memo(function HighlightPageScreen({
                     {story?.content}
                 </Text>
             </View>
-        </ThemedView>
+        </View>
     )
 })
 export default HighlightPageScreen;
@@ -149,7 +149,7 @@ const Header = ({
     user: AuthorData;
     time: string;
 }) => {
-    return <ThemedView
+    return <View
         style={{
             width: "100%",
             display: 'flex',
@@ -195,5 +195,5 @@ const Header = ({
         <View style={{ paddingRight: 10 }}>
             <Icon iconName={"Info"} isButton variant="secondary" size={26} style={{ elevation: 2 }} />
         </View>
-    </ThemedView>;
+    </View>;
 }

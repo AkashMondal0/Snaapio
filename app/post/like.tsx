@@ -2,7 +2,7 @@
 import React, { memo, useCallback, useEffect, useRef } from "react";
 import AppHeader from "@/components/AppHeader";
 import { Avatar } from "@/components/skysolo-ui";
-import { ThemedView, Text, Loader, TouchableOpacity } from "hyper-native-ui";
+import { Text, Loader, TouchableOpacity } from "hyper-native-ui";
 import { resetLike } from "@/redux-stores/slice/post";
 import { fetchPostLikesApi } from "@/redux-stores/slice/post/api.service";
 import { RootState } from "@/redux-stores/store";
@@ -72,7 +72,7 @@ const LikeScreen = memo(function LikeScreen({ route }: Props) {
     }, [])
 
     return (
-        <ThemedView style={{
+        <View style={{
             flex: 1,
             width: '100%',
             height: '100%',
@@ -96,7 +96,7 @@ const LikeScreen = memo(function LikeScreen({ route }: Props) {
                 }}
                 ListFooterComponent={likeLoading === "pending" ? <Loader size={50} /> : <></>}
                 onRefresh={onRefresh} />
-        </ThemedView>
+        </View>
     )
 })
 export default LikeScreen;

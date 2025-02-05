@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { disPatchResponse, Story } from '@/types';
 import { Icon, Image } from '@/components/skysolo-ui';
-import { Text, ThemedView } from 'hyper-native-ui'
+import { Text } from 'hyper-native-ui'
 import AppHeader from '@/components/AppHeader';
 import { FlatList, ToastAndroid, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -88,7 +88,7 @@ const HighlightSelectingScreen = memo(function HighlightSelectingScreen() {
     }, [])
 
     return (
-        <ThemedView style={{
+        <View style={{
             flex: 1,
             width: '100%',
             height: '100%',
@@ -124,7 +124,7 @@ const HighlightSelectingScreen = memo(function HighlightSelectingScreen() {
                     }}
                 />
             </View>
-        </ThemedView >
+        </View >
     )
 })
 

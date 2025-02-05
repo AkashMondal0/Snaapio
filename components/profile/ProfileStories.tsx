@@ -5,7 +5,7 @@ import { Icon, Avatar } from "@/components/skysolo-ui";
 import { disPatchResponse, loadingType, User, Highlight } from "@/types";
 import { useDispatch } from "react-redux";
 import { fetchUserHighlightApi } from "@/redux-stores/slice/profile/api.service";
-import { Text, Loader, ThemedView, Skeleton } from "hyper-native-ui"
+import { Text, Skeleton } from "hyper-native-ui"
 import { StackActions, useNavigation } from "@react-navigation/native";
 
 const StoriesComponent = memo(function StoriesComponent({
@@ -105,7 +105,7 @@ const StoriesComponent = memo(function StoriesComponent({
                                 width: 100,
                                 height: 120,
                             }}>
-                            <ThemedView
+                            <View
                                 style={{
                                     width: 84,
                                     aspectRatio: 1 / 1,
@@ -122,7 +122,7 @@ const StoriesComponent = memo(function StoriesComponent({
                                     iconColorVariant="secondary"
                                     strokeWidth={1}
                                     onPress={navigateToHighlightUpload} />
-                            </ThemedView>
+                            </View>
                             <Text variantColor="secondary">Highlight</Text>
                         </TouchableOpacity> : <></>}
                 </View>}

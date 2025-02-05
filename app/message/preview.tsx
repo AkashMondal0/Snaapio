@@ -1,6 +1,5 @@
 import { memo, useState } from "react";
 import { Image } from "@/components/skysolo-ui";
-import { ThemedView } from 'hyper-native-ui';
 import { Message, NavigationProps } from "@/types";
 import AppHeader from "@/components/AppHeader";
 import PagerView from "react-native-pager-view";
@@ -26,7 +25,7 @@ const ImagePreviewScreen = memo(function ImagePreviewScreen({ navigation, route 
     // }, [data.user])
 
     return (
-        <ThemedView style={{
+        <View style={{
             flex: 1,
             width: '100%',
             height: '100%',
@@ -42,7 +41,7 @@ const ImagePreviewScreen = memo(function ImagePreviewScreen({ navigation, route 
                 }}>
                 {data.fileUrl.map((item, index) => (<ImageItem key={index} item={item} index={index} />))}
             </PagerView>
-        </ThemedView>
+        </View>
     )
 })
 export default ImagePreviewScreen;
