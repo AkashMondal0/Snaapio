@@ -81,7 +81,7 @@ const CommentScreen = memo(function CommentScreen({ route }: Props) {
             totalFetchedItemCount = 0
             dispatch(resetComments())
             fetchApi()
-        }else{
+        } else {
             setState({ ...state, loading: "normal", data: Postdata })
         }
     }, [_postId, postId])
@@ -122,7 +122,7 @@ const CommentScreen = memo(function CommentScreen({ route }: Props) {
                     if (!commentsError && commentsLoading === "normal" && state.loading === "normal") return <ListEmpty text="No Comments yet" />
                 }}
                 ListFooterComponent={commentsLoading === "pending" ? <Loader size={50} /> : <></>} />
-            <CommentInput post={state.data || Postdata} />
+            <CommentInput post={state.data} />
         </View>
     )
 })
@@ -230,7 +230,7 @@ const CommentInput = memo(function CommentInput({
                 postId: post.id,
                 user: {
                     username: session.username,
-                    name: session.name,
+                    name: session.name ?? session.username,
                     profilePicture: session.profilePicture as string,
                     id: session.id,
                     email: session.email
@@ -318,4 +318,4 @@ const CommentInput = memo(function CommentInput({
             </View>
         </>
     )
-}, () => true)
+}, (pre, next) => pre.post?.id === next.post?.id)

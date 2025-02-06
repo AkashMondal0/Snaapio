@@ -11,13 +11,12 @@ import SocketConnections from '@/provider/SocketConnections';
 import { ThemeProvider, useTheme } from 'hyper-native-ui';
 import { AuthNavigation, Navigation } from '@/app/navigation';
 import * as Linking from 'expo-linking';
-import { StatusBar, View } from 'react-native';
 
 SplashScreen.preventAutoHideAsync();
 const prefix = Linking.createURL('/');
 
 function Root() {
-  const { currentTheme, themeScheme } = useTheme();
+  const { currentTheme } = useTheme();
   const session = useSelector((state: RootState) => state.AuthState.session, (pre, next) => pre.user === next.user);
   const appLoading = useSelector((state: RootState) => state.AuthState.loaded, (pre, next) => pre === next);
 
@@ -35,31 +34,26 @@ function Root() {
   };
 
   return (<>
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: background }}>
+    <GestureHandlerRootView style={{
+      flex: 1,
+      backgroundColor: background,
+    }}>
       <SafeAreaProvider style={{
         flex: 1,
         backgroundColor: background,
       }}>
-        <View style={{
-          height: StatusBar.currentHeight,
-          width: "100%",
-          backgroundColor: background
-        }} />
         <PreConfiguration />
         <SocketConnections >
           <BottomSheetProvider>
-            {appLoading === "normal" ? <>
-              <StatusBar
-                barStyle={themeScheme ? "light-content" : "dark-content"}
-                backgroundColor={"transparent"}
-                translucent />
-              <StatusBar />
-              {session.user ? <Navigation onReady={() => { SplashScreen.hideAsync() }} theme={theme} linking={{
+            {appLoading === "normal" ? session.user ? <Navigation
+              onReady={() => { SplashScreen.hideAsync() }}
+              theme={theme} linking={{
                 prefixes: [prefix, 'snaapio://', 'https://snaapio.vercel.app'],
-              }} /> : <AuthNavigation onReady={() => { SplashScreen.hideAsync() }} theme={theme} linking={{
+              }} /> : <AuthNavigation
+              onReady={() => { SplashScreen.hideAsync() }}
+              theme={theme} linking={{
                 prefixes: [prefix, 'snaapio://', 'https://snaapio.vercel.app'],
-              }} />}
-            </> : <></>}
+              }} /> : <></>}
           </BottomSheetProvider>
         </SocketConnections>
       </SafeAreaProvider>
@@ -70,12 +64,10 @@ function Root() {
 export default function App() {
 
   return (
-    <>
-      <ThemeProvider>
-        <Provider store={store}>
-          <Root />
-        </Provider>
-      </ThemeProvider>
-    </>
+    <ThemeProvider enableThemedStatusBar>
+      <Provider store={store}>
+        <Root />
+      </Provider>
+    </ThemeProvider>
   );
 };
