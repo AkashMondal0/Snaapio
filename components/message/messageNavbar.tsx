@@ -23,7 +23,7 @@ const ChatScreenNavbar = memo(function ChatScreenNavbar({
         if (navigation.canGoBack()) {
             navigation?.goBack()
         } else {
-            navigation.navigate("HomeTabs")
+            navigation.navigate("MessageList")
         }
     }, [])
 

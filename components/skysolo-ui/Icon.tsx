@@ -129,7 +129,7 @@ const IconButton = ({
                 onPressOut={() => {
                     setIsPress(false)
                 }}
-                activeOpacity={0.7}
+                activeOpacity={0.9}
                 disabled={disabled}
                 style={[{
                     alignItems: 'center',
@@ -146,14 +146,15 @@ const IconButton = ({
                 }, style]}
                 {...otherProps}>
                 <IconComponent size={size} strokeWidth={strokeWidth}
-                    color={color ?? isPress ? currentTheme.muted_foreground : buttonVariant().color} key={iconName} />
+                    color={color ?? isPress ? currentTheme.muted_foreground : buttonVariant().color}
+                     key={iconName} />
             </TouchableOpacity>
         </View>
 
     }
 
     return (<TouchableOpacity
-        activeOpacity={0.7}
+        activeOpacity={0.9}
         style={{
             opacity: disabled ? 0.5 : 1,
         }}

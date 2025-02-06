@@ -16,6 +16,7 @@ const StoriesComponent = memo(function StoriesComponent({
     isProfile?: boolean
 }) {
     const navigation = useNavigation();
+    const { currentTheme } = useTheme();
 
     const [state, setState] = useState<{
         loading: loadingType,
@@ -97,7 +98,7 @@ const StoriesComponent = memo(function StoriesComponent({
                     <View style={{ width: 6 }} />
                     {isProfile ?
                         <TouchableOpacity
-                            activeOpacity={0.9}
+                            activeOpacity={0.8}
                             onPress={navigateToHighlightUpload}
                             style={{
                                 alignItems: 'center',
@@ -112,7 +113,8 @@ const StoriesComponent = memo(function StoriesComponent({
                                     borderRadius: 100,
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    borderWidth: 2,
+                                    borderWidth: 1.4,
+                                    borderColor: currentTheme.muted_foreground,
                                     marginBottom: 4,
                                 }}>
                                 <Icon
