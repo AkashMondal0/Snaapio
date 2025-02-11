@@ -5,11 +5,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
 import debounce from "@/lib/debouncing";
 import { ToastAndroid } from "react-native";
-import { fetchConversationAllMessagesApi } from "@/redux-stores/slice/conversation/api.service";
+import { conversationSeenAllMessage, fetchConversationAllMessagesApi } from "@/redux-stores/slice/conversation/api.service";
 import MessageItem from './messageItem';
 import { SocketContext } from '@/provider/SocketConnections';
 import { Loader } from 'hyper-native-ui';
 import { useNavigation } from '@react-navigation/native';
+import { configs } from '@/configs';
 
 const MessageList = memo(function MessageList({
     conversation,
@@ -17,22 +18,33 @@ const MessageList = memo(function MessageList({
     conversation: Conversation,
 }) {
     const navigation = useNavigation();
-    const stopFetch = useRef(false)
     const dispatch = useDispatch()
+    const stopFetch = useRef(false)
     const totalFetchedItemCount = useRef<number>(0)
     const session = useSelector((Root: RootState) => Root.AuthState.session.user)
     const messagesLoading = useSelector((Root: RootState) => Root.ConversationState?.messageLoading)
     const messages = useSelector((Root: RootState) => Root.ConversationState?.messages)
-    const socketState = useContext(SocketContext)
-    const firstSeen = useRef(false)
     const cMembers = useMemo(() => conversation.members?.map((m) => m).length, [conversation.members])
+    const socketState = useContext(SocketContext)
+
+
+    const seenAllMessage = useCallback(debounce(() => {
+        if (!conversation?.id || !session?.id) return
+        dispatch(conversationSeenAllMessage({
+            conversationId: conversation.id,
+            authorId: session?.id,
+        }) as any)
+        socketState?.socket?.emit(configs.eventNames.conversation.seen, {
+            conversationId: conversation.id,
+            authorId: session?.id,
+            members: conversation.members?.filter((member) => member !== session?.id),
+        })
+    }, 1000), [session, conversation]);
+
 
     useEffect(() => {
-        if (!firstSeen.current) {
-            socketState.seenAllMessage(conversation.id)
-            firstSeen.current = true
-        }
-    }, [])
+        seenAllMessage()
+    }, [messages.length])
 
     const loadMoreMessages = useCallback(async (conversationId?: string) => {
         if (totalFetchedItemCount.current === -1 || stopFetch.current) return

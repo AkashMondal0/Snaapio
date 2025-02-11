@@ -1,5 +1,5 @@
-import { memo, useRef, useState } from 'react';
-import { TouchableOpacityProps, TouchableOpacity } from 'react-native';
+import React, { memo, useRef, useState, useMemo, useEffect } from 'react';
+import { TouchableOpacityProps, TouchableOpacity, View, StyleSheet } from 'react-native';
 import { Image, type ImageProps } from 'expo-image';
 import { configs } from '@/configs';
 import { loadingType, variantType } from '@/types';
@@ -9,21 +9,21 @@ export type Props = ImageProps & {
     lightColor?: string;
     darkColor?: string;
     url?: string | null;
-    source?: null;
     size?: number | string;
     serverImage?: boolean;
     onPress?: () => void;
     onLongPress?: () => void;
     showImageError?: boolean;
-    TouchableOpacityOptions?: TouchableOpacityProps
-    touchableOpacity?: boolean
-    isBorder?: boolean
-    borderWidth?: number
-    borderColorVariant?: variantType
+    TouchableOpacityOptions?: TouchableOpacityProps;
+    touchableOpacity?: boolean;
+    isBorder?: boolean;
+    borderWidth?: number;
+    borderColorVariant?: variantType;
+    fastLoad?: boolean
 };
 
-
-const Avatar = memo(function SkysoloAvatar({ style,
+const Avatar = memo(function Avatar({
+    style,
     serverImage = true,
     touchableOpacity = true,
     isBorder = false,
@@ -32,110 +32,121 @@ const Avatar = memo(function SkysoloAvatar({ style,
     borderWidth = 1.6,
     borderColorVariant = "primary",
     url,
+    fastLoad = false,
     TouchableOpacityOptions,
-    ...otherProps }: Props) {
-    size = Number(size)
+    ...otherProps
+}: Props) {
     const { currentTheme } = useTheme();
-    // const [state, setState] = useState<loadingType>("idle")
-    const error = useRef(false)
+    const [state, setState] = useState<loadingType>("idle");
+    const error = useRef(false);
 
-    const colorVariant = () => {
-        if (!currentTheme) return {}
-        if (borderColorVariant === "outline") {
-            return {
-                backgroundColor: currentTheme.secondary,
-                color: currentTheme.secondary_foreground,
-                borderColor: currentTheme.secondary_foreground
-            }
+    const imageSize = Number(size);
+
+    const imageUrl = useMemo(() => {
+        if (!url) return require('../../assets/images/user.jpg');
+        return serverImage ? configs.serverApi.supabaseStorageUrl + url : url;
+    }, [url, serverImage]);
+
+    useEffect(() => {
+        if (typeof imageUrl === "string" && fastLoad) {
+            Image.prefetch(imageUrl)
+                .then(() => setState("normal"))
+                .catch(() => {
+                    error.current = true;
+                    setState("normal");
+                });
         }
-        if (borderColorVariant === "secondary") {
-            return {
-                backgroundColor: currentTheme.secondary,
-                color: currentTheme.secondary_foreground,
-                borderColor: currentTheme.border
-            }
+    }, [imageUrl]);
+
+    const colorVariant = useMemo(() => {
+        if (!currentTheme) return {};
+        switch (borderColorVariant) {
+            case "outline":
+                return {
+                    borderColor: currentTheme.secondary_foreground,
+                };
+            case "secondary":
+                return {
+                    borderColor: currentTheme.border,
+                };
+            case "danger":
+                return {
+                    borderColor: currentTheme.destructive,
+                };
+            case "warning":
+                return {
+                    borderColor: "hsl(47.9 95.8% 53.1%)",
+                };
+            case "success":
+                return {
+                    borderColor: "hsl(142.1 76.2% 36.3%)",
+                };
+            default:
+                return {
+                    borderColor: currentTheme.primary,
+                };
         }
-        else if (borderColorVariant === "danger") {
-            return {
-                backgroundColor: currentTheme.destructive,
-                color: currentTheme.destructive_foreground,
-                borderColor: currentTheme.destructive
-            }
-        }
-        else if (borderColorVariant === "warning") {
-            return {
-                backgroundColor: "hsl(47.9 95.8% 53.1%)",
-                color: "hsl(26 83.3% 14.1%)",
-                borderColor: "hsl(47.9 95.8% 53.1%)"
-            }
-        }
-        else if (borderColorVariant === "success") {
-            return {
-                backgroundColor: "hsl(142.1 76.2% 36.3%)",
-                color: "hsl(355.7 100% 97.3%)",
-                borderColor: "hsl(142.1 76.2% 36.3%)"
-            }
-        }
-        else {
-            return {
-                backgroundColor: currentTheme.primary,
-                color: currentTheme.primary_foreground,
-                borderColor: currentTheme.primary
-            }
-        }
-    }
+    }, [borderColorVariant, currentTheme]);
 
     return (
         <TouchableOpacity
             {...TouchableOpacityOptions}
-            style={[{
-                borderWidth: borderWidth,
-                borderColor: isBorder ? colorVariant().borderColor : "transparent",
-                borderRadius: 500,
-                padding: 0.5,
-            }, TouchableOpacityOptions?.style]}
+            style={[
+                styles.touchable,
+                {
+                    borderWidth: isBorder ? borderWidth : 0,
+                    borderColor: isBorder ? colorVariant.borderColor : "transparent",
+                },
+                TouchableOpacityOptions?.style,
+            ]}
             activeOpacity={touchableOpacity ? 0.6 : 1}
             onLongPress={otherProps.onLongPress}
-            onPress={otherProps.onPress}>
-            {/* <View style={{
-                position: "absolute",
-                width: size,
-                height: size,
-                borderRadius: 1000,
-                backgroundColor: currentTheme?.muted,
-                justifyContent: "center",
-                alignItems: "center",
-                zIndex: 1,
-                display: state === "pending" ? "flex" : "none",
-            }}>
-                <Loader size={30} />
-            </View> */}
+            onPress={otherProps.onPress}
+        >
+            {state === "pending" && (
+                <View style={[styles.loading, { backgroundColor: currentTheme?.muted, width: imageSize, height: imageSize }]} />
+            )}
             <Image
-                source={!url ? require('../../assets/images/user.jpg') : serverImage ? configs.serverApi.supabaseStorageUrl + url : url}
+                source={imageUrl}
                 contentFit="cover"
                 transition={100}
-                // onLoadStart={() => {
-                //     if (state === "pending") return;
-                //     setState("pending");
-                // }}
-                // onError={() => {
-                //     error.current = true;
-                // }}
-                // onLoadEnd={() => {
-                //     if (state === "normal") return;
-                //     setState("normal");
-                // }}
+                onLoadStart={() => setState("pending")}
+                onError={() => {
+                    error.current = true;
+                }}
+                onLoadEnd={() => setState("normal")}
                 style={[
+                    styles.image,
                     {
-                        resizeMode: "cover",
-                        width: size,
-                        height: size,
-                        borderRadius: 500,
-                        aspectRatio: 1,
-                    }, style]}
-                {...otherProps} />
+                        width: imageSize,
+                        height: imageSize,
+                        backgroundColor: currentTheme?.background,
+                    },
+                    style,
+                ]}
+                {...otherProps}
+            />
         </TouchableOpacity>
-    )
-})
+    );
+});
 
-export default Avatar
+const styles = StyleSheet.create({
+    touchable: {
+        borderRadius: 500,
+        padding: 0.5,
+    },
+    loading: {
+        position: "absolute",
+        borderRadius: 1000,
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 1,
+    },
+    image: {
+        resizeMode: "cover",
+        borderRadius: 500,
+        aspectRatio: 1,
+    },
+});
+
+export default Avatar;

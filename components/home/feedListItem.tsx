@@ -15,6 +15,7 @@ import { useTheme, Text } from 'hyper-native-ui';
 import { Avatar, Image, Icon } from '@/components/skysolo-ui';
 import React from 'react';
 import { StackActions, useNavigation } from '@react-navigation/native';
+import { configs } from '@/configs';
 
 const FeedItem = memo(function FeedItem({
     data
@@ -176,7 +177,7 @@ const FeedItemActionsButtons = (
                 type: NotificationType.Like,
                 recipientId: post.user.id
             }) as any) as disPatchResponse<Notification>
-            SocketState.sendDataToServer("notification_post", {
+            SocketState.socket?.emit(configs.eventNames.notification.post, {
                 ...notificationRes.payload,
                 author: {
                     username: session?.username,
@@ -317,6 +318,7 @@ const ImageItem = memo(function ImageItem({ item, index }: { item: any, index: n
         key={index}
         isBorder
         url={item.urls?.high}
+        fastLoad
         style={{
             width: "100%",
             flex: 1,

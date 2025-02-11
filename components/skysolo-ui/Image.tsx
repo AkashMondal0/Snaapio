@@ -1,13 +1,10 @@
 import { configs } from '@/configs';
 import { RotateCcw } from 'lucide-react-native';
-import { useRef, useState } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
-import { Image, type ImageProps } from "expo-image"
+import { useRef, useState, useMemo, useEffect } from 'react';
+import { Text, TouchableOpacity, View, StyleSheet, ImageProps, Image } from 'react-native';
 import { loadingType } from '@/types';
-import { Loader } from 'hyper-native-ui';
 import { useTheme } from 'hyper-native-ui';
 import React from 'react';
-
 
 export type Props = ImageProps & {
     lightColor?: string;
@@ -19,8 +16,8 @@ export type Props = ImageProps & {
     showImageError?: boolean;
     serverImage?: boolean;
     blurUrl?: string | null | undefined;
+    fastLoad?: boolean
 };
-
 
 const ImageComponent = ({
     style,
@@ -30,80 +27,96 @@ const ImageComponent = ({
     isBorder = true,
     showImageError = false,
     blurUrl,
-    ...otherProps }: Props) => {
+    fastLoad = false,
+    ...otherProps
+}: Props) => {
     const error = useRef(false);
-    // const [state, setState] = useState<loadingType>("idle");
+    const [state, setState] = useState<loadingType>("idle");
     const { currentTheme } = useTheme();
 
-    if (error.current && showImageError || !url) {
+    const imageUrl = useMemo(() => {
+        if (!url) return null;
+        return serverImage ? configs.serverApi.supabaseStorageUrl + url : url;
+    }, [url, serverImage]);
+
+    // Preload image for better performance
+    useEffect(() => {
+        if (imageUrl && fastLoad) {
+            Image.prefetch(imageUrl)
+                .then(() => setState("normal"))
+                .catch(() => {
+                    error.current = true;
+                    setState("normal");
+                });
+        }
+    }, [imageUrl]);
+
+    if ((error.current && showImageError) || !url) {
         return (
-            <View
-                style={{
-                    width: "100%",
-                    height: "auto",
-                    backgroundColor: currentTheme?.muted,
-                    borderWidth: isBorder ? 1 : 0,
-                    justifyContent: "center",
-                    alignItems: "center",
-                    ...style as any,
-                }}>
-                <TouchableOpacity activeOpacity={0.6}
-                    style={{
-                        width: "100%",
-                        height: "100%",
-                        justifyContent: "center",
-                        alignItems: "center",
-                    }}>
+            <View style={[styles.errorContainer, { backgroundColor: currentTheme?.muted, borderWidth: isBorder ? 1 : 0 }, style as any]}>
+                <TouchableOpacity activeOpacity={0.6} style={styles.errorContent}>
                     <RotateCcw color={currentTheme?.foreground} size={40} strokeWidth={0.8} />
-                    <Text style={{
-                        color: currentTheme?.foreground,
-                        fontSize: 16,
-                        textAlign: "center",
-                    }}>
+                    <Text style={[styles.errorText, { color: currentTheme?.foreground }]}>
                         Failed to load image
                     </Text>
                 </TouchableOpacity>
             </View>
-        )
+        );
     }
 
     return (
-        <>
-            {/* <View style={[{
-                position: "absolute",
-                width: "100%",
-                height: "100%",
-                justifyContent: "center",
-                alignItems: "center",
-                zIndex: 1,
-                display: state === "pending" ? "flex" : "none",
-            }, style as any]}>
-                <Loader size={40} />
-            </View> */}
+        <View style={[styles.container, style as any]}>
+            {state === "pending" ? <View style={[styles.loadingOverlay, { backgroundColor: currentTheme.muted }, style as any]} /> : <></>}
             <Image
-                source={{ uri: serverImage ? configs.serverApi.supabaseStorageUrl + url : url }}
-                contentFit="cover"
-                transition={150}
-                style={[{
-                    width: '100%',
-                    height: "100%",
-                    backgroundColor: currentTheme?.background,
-                }, style]}
-                // onLoadStart={() => {
-                //     if (state === "pending") return;
-                //     setState("pending")
-                // }}
-                // onError={() => {
-                //     error.current = true
-                //     setState("normal")
-                // }}
-                // onLoadEnd={() => {
-                //     if (state === "normal") return;
-                //     setState("normal")
-                // }}
-                {...otherProps} />
-        </>
-    )
-}
+                source={imageUrl ? { uri: imageUrl } : undefined}
+                resizeMode="cover"
+                style={[styles.image, { backgroundColor: currentTheme?.background }, style]}
+                onLoadStart={() => setState("pending")}
+                onError={() => {
+                    error.current = true;
+                    setState("normal");
+                }}
+                onLoadEnd={() => setState("normal")}
+                {...otherProps}
+            />
+        </View>
+    );
+};
+
+const styles = StyleSheet.create({
+    container: {
+        position: "relative",
+        width: "100%",
+        height: "100%",
+    },
+    loadingOverlay: {
+        position: "absolute",
+        width: "100%",
+        height: "100%",
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 1,
+    },
+    image: {
+        width: "100%",
+        height: "100%",
+    },
+    errorContainer: {
+        width: "100%",
+        height: "auto",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    errorContent: {
+        width: "100%",
+        height: "100%",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    errorText: {
+        fontSize: 16,
+        textAlign: "center",
+    },
+});
 
 export default ImageComponent;

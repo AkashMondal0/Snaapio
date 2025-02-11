@@ -14,6 +14,7 @@ import * as Linking from 'expo-linking';
 
 SplashScreen.preventAutoHideAsync();
 const prefix = Linking.createURL('/');
+const prefixes = [prefix, 'snaapio://', 'https://snaapio.vercel.app'];
 
 function Root() {
   const { currentTheme } = useTheme();
@@ -47,13 +48,9 @@ function Root() {
           <BottomSheetProvider>
             {appLoading === "normal" ? session.user ? <Navigation
               onReady={() => { SplashScreen.hideAsync() }}
-              theme={theme} linking={{
-                prefixes: [prefix, 'snaapio://', 'https://snaapio.vercel.app'],
-              }} /> : <AuthNavigation
+              theme={theme} linking={{ prefixes }} /> : <AuthNavigation
               onReady={() => { SplashScreen.hideAsync() }}
-              theme={theme} linking={{
-                prefixes: [prefix, 'snaapio://', 'https://snaapio.vercel.app'],
-              }} /> : <></>}
+              theme={theme} linking={{ prefixes }} /> : <></>}
           </BottomSheetProvider>
         </SocketConnections>
       </SafeAreaProvider>

@@ -58,7 +58,6 @@ const ChatListScreen = memo(function ChatListScreen() {
     const onChangeInput = debounce((text: string) => setInputText(text), 400)
 
     const pushToPage = useCallback((data: Conversation) => {
-        dispatch(resetConversation());
         navigation?.navigate("MessageRoom", { id: data.id });
     }, [])
 

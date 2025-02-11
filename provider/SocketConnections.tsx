@@ -7,25 +7,14 @@ import { configs } from "@/configs";
 import { ToastAndroid } from "react-native";
 import { Typing, Notification, Message } from "@/types";
 import { setMessage, setMessageSeen, setTyping } from "@/redux-stores/slice/conversation";
-import { conversationSeenAllMessage, fetchConversationsApi } from "@/redux-stores/slice/conversation/api.service";
+import { fetchConversationsApi } from "@/redux-stores/slice/conversation/api.service";
 import { setNotification } from "@/redux-stores/slice/notification";
 import { fetchUnreadMessageNotificationCountApi } from "@/redux-stores/slice/notification/api.service";
-import debounce from "@/lib/debouncing";
-
-export type SocketEmitType = "conversation_message" | "conversation_message_seen" | "conversation_user_keyboard_pressing" | "notification_post" | "conversation_list_refetch" | "test"
 interface SocketStateType {
     socket: Socket | null
-    sendDataToServer: (eventName: SocketEmitType, data: unknown) => void
-    SocketConnection: () => void
-    seenAllMessage: (conversationId: string) => void
 }
 
-export const SocketContext = createContext<SocketStateType>({
-    socket: null,
-    sendDataToServer: () => { },
-    SocketConnection: () => { },
-    seenAllMessage: () => { }
-})
+export const SocketContext = createContext<SocketStateType>({socket: null})
 
 const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
     children
@@ -39,81 +28,71 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
     const socketRef = useRef<Socket | null>(null)
 
     const SocketConnection = useCallback(async () => {
-        if (session?.id && !socketRef.current) {
-            socketRef.current = io(`${configs.serverApi?.baseUrl?.replace("/v1", "")}/chat`, {
-                transports: ['websocket'],
-                extraHeaders: {
-                    Authorization: session.accessToken
-                },
-                query: {
-                    userId: session.id,
-                    username: session.username
-                }
-            })
-        }
-    }, [session?.accessToken, session?.id, session?.username])
+        if (!session || socketRef.current) return;
+        socketRef.current = io(`${configs.serverApi?.baseUrl?.replace("/v1", "")}/chat`, {
+            transports: ['websocket'],
+            withCredentials: true,
+            extraHeaders: {
+                Authorization: session.accessToken
+            },
+            query: {
+                userId: session.id,
+                username: session.username
+            }
+        })
+    }, [session])
 
-    const seenAllMessage = debounce((conversationId: string) => {
-        if (!conversationId || !session?.id || !currentConversation?.id) return
-        if (currentConversation?.id === conversationId) {
-            dispatch(conversationSeenAllMessage({
-                conversationId: currentConversation.id,
-                authorId: session?.id,
-            }) as any)
-            socketRef.current?.emit(configs.eventNames.conversation.seen, {
-                conversationId: currentConversation.id,
-                authorId: session?.id,
-                members: currentConversation.members?.filter((member) => member !== session?.id),
-            })
+    const checkFunction = useCallback((data: Message) => {
+        if (data.authorId === session?.id) return;
+        if (list.find(con => con.id === data.conversationId)) {
+            dispatch(setMessage(data))
+        } else {
+            if (list.length > 0) {
+                dispatch(fetchConversationsApi({
+                    limit: 12,
+                    offset: 0,
+                }) as any)
+            }
         }
-    }, 1000)
+        dispatch(fetchUnreadMessageNotificationCountApi() as any)
+    }, [session, list])
+
+    const userSeenMessages = useCallback((data: { conversationId: string, authorId: string }) => {
+        if (data.authorId === session?.id) return;
+        dispatch(setMessageSeen(data))
+    }, [session])
+
+    const typingRealtime = useCallback((data: Typing) => {
+        if (data.authorId === session?.id) return;
+        dispatch(setTyping(data))
+    }, [session])
+
+    const notification = useCallback((data: Notification) => {
+        if (data.authorId === session?.id) return;
+        dispatch(setNotification(data))
+    }, [session])
+
+    const systemMessageFromServerSocket = useCallback(() => {
+        ToastAndroid.show("Test from socket server", ToastAndroid.SHORT)
+    }, [])
 
     useEffect(() => {
         SocketConnection()
         if (socketRef.current && session?.id) {
-            socketRef.current?.on(configs.eventNames.conversation.message, (data: Message) => {
-                if (data.authorId !== session?.id) {
-                    if (list.find(con => con.id === data.conversationId)) {
-                        dispatch(setMessage(data))
-                    } else {
-                        if (list.length > 0) {
-                            dispatch(fetchConversationsApi({
-                                limit: 12,
-                                offset: 0,
-                            }) as any)
-                        }
-                    }
-                    dispatch(fetchUnreadMessageNotificationCountApi() as any)
-                    seenAllMessage(data.conversationId)
-                }
+            socketRef.current?.on(configs.eventNames.conversation.message, checkFunction);
+            socketRef.current?.on(configs.eventNames.conversation.seen, userSeenMessages);
+            socketRef.current?.on(configs.eventNames.conversation.typing, typingRealtime);
+            socketRef.current?.on(configs.eventNames.notification.post, notification);
+            socketRef.current?.on("test", systemMessageFromServerSocket);
+            socketRef.current?.on("connect", () => {
+                ToastAndroid.show("Connected to socket server", ToastAndroid.SHORT)
             });
-            socketRef.current?.on(configs.eventNames.conversation.seen, (data: { conversationId: string, authorId: string }) => {
-                if (data.authorId !== session?.id) {
-                    dispatch(setMessageSeen(data))
-                }
-            });
-            socketRef.current?.on(configs.eventNames.conversation.typing, (data: Typing) => {
-                if (data.authorId !== session?.id) {
-                    dispatch(setTyping(data))
-                }
-            });
-            socketRef.current?.on(configs.eventNames.notification.post, (data: Notification) => {
-                if (data.authorId !== session?.id) {
-                    dispatch(setNotification(data))
-                }
-            });
-            socketRef.current?.on("test", (data: Typing) => {
-                ToastAndroid.show("Test from socket server", ToastAndroid.SHORT)
-            });
-            // socketRef.current?.on("connect", () => {
-            //     ToastAndroid.show("Connected to socket server", ToastAndroid.SHORT)
-            // });
             socketRef.current?.on("disconnect", () => {
                 socketRef.current = null
                 ToastAndroid.show("Disconnected from socket server", ToastAndroid.SHORT)
             });
             return () => {
-                // socketRef.current?.off('connect')
+                socketRef.current?.off('connect')
                 socketRef.current?.off('disconnect')
                 socketRef.current?.off('test')
                 socketRef.current?.off(configs.eventNames.conversation.message)
@@ -122,22 +101,12 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
                 socketRef.current?.off(configs.eventNames.notification.post)
             }
         }
-    }, [session?.id, currentConversation?.id, list.length, list.length])
+    }, [session, currentConversation, list.length])
 
-
-    const sendDataToServer = useCallback((eventName: SocketEmitType, data: unknown) => {
-        if (socketRef.current) { socketRef.current.emit(eventName, data) }
-    }, [])
-
-    return <SocketContext.Provider value={{
-        socket: socketRef.current,
-        sendDataToServer,
-        SocketConnection,
-        seenAllMessage
-    }}>
+    return <SocketContext.Provider value={{socket: socketRef.current}}>
         {children}
     </SocketContext.Provider>
 })
 
 
-export default SocketConnectionsProvider;
+export default memo(SocketConnectionsProvider);
