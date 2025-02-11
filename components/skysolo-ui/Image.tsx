@@ -1,10 +1,11 @@
 import { configs } from '@/configs';
 import { RotateCcw } from 'lucide-react-native';
 import { useRef, useState, useMemo, useEffect } from 'react';
-import { Text, TouchableOpacity, View, StyleSheet, ImageProps, Image } from 'react-native';
+import { Text, TouchableOpacity, View, StyleSheet } from 'react-native';
 import { loadingType } from '@/types';
 import { useTheme } from 'hyper-native-ui';
 import React from 'react';
+import { ImageProps, Image } from 'expo-image';
 
 export type Props = ImageProps & {
     lightColor?: string;
@@ -66,10 +67,20 @@ const ImageComponent = ({
 
     return (
         <View style={[styles.container, style as any]}>
-            {state === "pending" ? <View style={[styles.loadingOverlay, { backgroundColor: currentTheme.muted }, style as any]} /> : <></>}
+            <View
+                style={[{
+                    position: "absolute",
+                    backgroundColor: currentTheme?.muted,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    zIndex: 1,
+                    display: state === "pending" ? "flex" : "none",
+                }, style as any]} />
             <Image
                 source={imageUrl ? { uri: imageUrl } : undefined}
-                resizeMode="cover"
+                contentFit="cover"
+                priority={"high"}
+                renderToHardwareTextureAndroid
                 style={[styles.image, { backgroundColor: currentTheme?.background }, style]}
                 onLoadStart={() => setState("pending")}
                 onError={() => {
@@ -88,14 +99,6 @@ const styles = StyleSheet.create({
         position: "relative",
         width: "100%",
         height: "100%",
-    },
-    loadingOverlay: {
-        position: "absolute",
-        width: "100%",
-        height: "100%",
-        justifyContent: "center",
-        alignItems: "center",
-        zIndex: 1,
     },
     image: {
         width: "100%",

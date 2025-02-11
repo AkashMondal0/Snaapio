@@ -123,12 +123,15 @@ const conversationQueries = {
       updatedAt
     }
   }`,
-  seenMessages: `mutation SeenMessages($conversationId: String!) {
-    seenMessages(conversationId: $conversationId) {
+  seenMessages: `mutation SeenMessages($createMessageInputSeen: CreateMessageInputSeen!) {
+    seenMessages(createMessageInputSeen: $createMessageInputSeen) {
       __typename
     }
   }
-  `
+  `,
+  sendTypingStatus: `query Query($typingStatusInput: TypingStatusInput!) {
+  typingStatus(typingStatusInput: $typingStatusInput)
+}`
 }
 
 export const CQ = Object.freeze(conversationQueries)

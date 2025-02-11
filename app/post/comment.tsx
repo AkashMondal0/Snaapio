@@ -1,4 +1,4 @@
-import { memo, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Avatar, Icon } from "@/components/skysolo-ui";
 import { FlatList, ToastAndroid, TouchableWithoutFeedback, View } from "react-native";
 import { timeAgoFormat } from "@/lib/timeFormat";
@@ -8,7 +8,6 @@ import { Comment, disPatchResponse, loadingType, NotificationType, Post } from "
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { resetComments } from "@/redux-stores/slice/post";
-import { SocketContext } from "@/provider/SocketConnections";
 import { createNotificationApi } from "@/redux-stores/slice/notification/api.service";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -46,7 +45,6 @@ const CommentScreen = memo(function CommentScreen({ route }: Props) {
         error: false,
         loading: "idle"
     })
-
 
     const fetchApi = useCallback(async () => {
         if (stopRef.current || totalFetchedItemCount === -1) return
@@ -154,14 +152,12 @@ const CommentItem = memo(function CommentItem({
         }}>
             <Avatar url={data.user.profilePicture} size={50}
                 onPress={() => {
-                    // navigation.navigate("Profile", { id: data.user.username })
                     navigation.dispatch(StackActions.replace("Profile", { id: data.user.username }))
                 }} />
             <View>
                 <Text numberOfLines={readMore ? 100 : 3} ellipsizeMode="tail">
                     <TouchableWithoutFeedback
                         onPress={() => {
-                            // navigation.navigate("Profile", { id: data.user.username })
                             navigation.dispatch(StackActions.replace("Profile", { id: data.user.username }))
                         }}>
                         <Text lineBreakMode="clip" numberOfLines={2}>
@@ -210,7 +206,6 @@ const CommentInput = memo(function CommentInput({
 }: {
     post: Post | null
 }) {
-    const SocketState = useContext(SocketContext)
     const session = useSelector((Root: RootState) => Root.AuthState.session.user)
     const loading = useSelector((Root: RootState) => Root.PostState.createCommentLoading)
     const { control, reset, handleSubmit } = useForm({
@@ -246,29 +241,26 @@ const CommentInput = memo(function CommentInput({
                 return
             }
             // notification
-            const notificationRes = await dispatch(createNotificationApi({
+            await dispatch(createNotificationApi({
                 postId: post.id,
                 commentId: commentRes.payload.id,
                 authorId: session?.id,
                 type: NotificationType.Comment,
-                recipientId: post.user.id
-            }) as any) as disPatchResponse<Notification>
-            SocketState.sendDataToServer("notification_post", {
-                ...notificationRes.payload,
+                recipientId: post.user.id,
                 author: {
-                    username: session.username,
-                    profilePicture: session.profilePicture as string
+                    username: session?.username,
+                    profilePicture: session?.profilePicture
                 },
                 post: {
                     id: post.id,
-                    fileUrl: post.fileUrl,
-                },
-            })
+                    fileUrl: post.fileUrl[0].urls?.low,
+                }
+            }) as any) as disPatchResponse<Notification>
             reset()
         } finally {
             loadingRef.current = false
         }
-    }, [SocketState, post?.fileUrl, post?.id, post?.user.id, session])
+    }, [post?.fileUrl, post?.id, post?.user.id, session])
 
 
     return (

@@ -1,4 +1,5 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import { Conversation, Message, disPatchResponse } from '@/types';
 import { FlatList, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -7,11 +8,8 @@ import debounce from "@/lib/debouncing";
 import { ToastAndroid } from "react-native";
 import { conversationSeenAllMessage, fetchConversationAllMessagesApi } from "@/redux-stores/slice/conversation/api.service";
 import MessageItem from './messageItem';
-import { SocketContext } from '@/provider/SocketConnections';
 import { Loader } from 'hyper-native-ui';
 import { useNavigation } from '@react-navigation/native';
-import { configs } from '@/configs';
-
 const MessageList = memo(function MessageList({
     conversation,
 }: {
@@ -25,22 +23,17 @@ const MessageList = memo(function MessageList({
     const messagesLoading = useSelector((Root: RootState) => Root.ConversationState?.messageLoading)
     const messages = useSelector((Root: RootState) => Root.ConversationState?.messages)
     const cMembers = useMemo(() => conversation.members?.map((m) => m).length, [conversation.members])
-    const socketState = useContext(SocketContext)
 
 
     const seenAllMessage = useCallback(debounce(() => {
-        if (!conversation?.id || !session?.id) return
+        // const lastMessage = messages[messages.length - 1]?.authorId === session?.id
+        if (!conversation?.id || !session?.id) return;
         dispatch(conversationSeenAllMessage({
             conversationId: conversation.id,
             authorId: session?.id,
-        }) as any)
-        socketState?.socket?.emit(configs.eventNames.conversation.seen, {
-            conversationId: conversation.id,
-            authorId: session?.id,
             members: conversation.members?.filter((member) => member !== session?.id),
-        })
+        }) as any)
     }, 1000), [session, conversation]);
-
 
     useEffect(() => {
         seenAllMessage()

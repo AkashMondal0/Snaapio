@@ -10,17 +10,9 @@ import { setMessage, setMessageSeen, setTyping } from "@/redux-stores/slice/conv
 import { fetchConversationsApi } from "@/redux-stores/slice/conversation/api.service";
 import { setNotification } from "@/redux-stores/slice/notification";
 import { fetchUnreadMessageNotificationCountApi } from "@/redux-stores/slice/notification/api.service";
-interface SocketStateType {
-    socket: Socket | null
-}
+import React from "react";
 
-export const SocketContext = createContext<SocketStateType>({socket: null})
-
-const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
-    children
-}: {
-    children: React.ReactNode
-}) {
+const SocketConnectionsProvider = memo(function SocketConnectionsProvider() {
     const dispatch = useDispatch()
     const session = useSelector((state: RootState) => state.AuthState.session.user)
     const currentConversation = useSelector((state: RootState) => state.ConversationState.conversation)
@@ -103,9 +95,7 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
         }
     }, [session, currentConversation, list.length])
 
-    return <SocketContext.Provider value={{socket: socketRef.current}}>
-        {children}
-    </SocketContext.Provider>
+    return <></>
 })
 
 

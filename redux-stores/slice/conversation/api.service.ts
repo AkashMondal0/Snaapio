@@ -17,7 +17,7 @@ export const fetchConversationsApi = createAsyncThunk(
                 query: CQ.findAllConversation,
                 variables: { graphQlPageQuery: limitAndOffset },
             });
-            return res;
+            return res as any;
         } catch (error: any) {
             return thunkAPI.rejectWithValue({
                 ...error?.response?.data,
@@ -34,7 +34,7 @@ export const fetchConversationApi = createAsyncThunk(
                 query: CQ.findOneConversation,
                 variables: { graphQlPageQuery: { id } },
             });
-            return res;
+            return res as any;
         } catch (error: any) {
             return thunkAPI.rejectWithValue({
                 ...error?.response?.data,
@@ -51,7 +51,7 @@ export const fetchConversationAllMessagesApi = createAsyncThunk(
                 query: CQ.findAllMessages,
                 variables: { graphQlPageQuery },
             });
-            return res;
+            return res as any;
         } catch (error: any) {
             return thunkAPI.rejectWithValue({
                 ...error?.response?.data,
@@ -122,7 +122,7 @@ export const CreateMessageApi = createAsyncThunk(
                 query: CQ.createMessage,
                 variables: { createMessageInput },
             });
-            return res;
+            return res as any;
         } catch (error: any) {
             return thunkAPI.rejectWithValue({
                 ...error?.response?.data,
@@ -133,19 +133,21 @@ export const CreateMessageApi = createAsyncThunk(
 
 export const conversationSeenAllMessage = createAsyncThunk(
     "conversationSeenAllMessage/post",
-    async ({
-        conversationId,
-        authorId,
-    }: {
+    async (createMessageInputSeen: {
         conversationId: string;
         authorId: string;
+        members: string[]
     }, thunkAPI) => {
         try {
             await graphqlQuery({
                 query: CQ.seenMessages,
-                variables: { conversationId },
+                variables: { createMessageInputSeen },
             });
-            return { conversationId, authorId };
+            return {
+                conversationId: createMessageInputSeen.conversationId,
+                authorId: createMessageInputSeen.authorId,
+                memberLength: createMessageInputSeen.members.length
+            };
         } catch (error: any) {
             return thunkAPI.rejectWithValue({
                 ...error?.response?.data,
@@ -155,7 +157,6 @@ export const conversationSeenAllMessage = createAsyncThunk(
 );
 
 // ai messages
-
 export const AiMessagePromptApi = createAsyncThunk(
     "AiMessagePromptApi/post",
     async (data: {
@@ -203,3 +204,10 @@ export const AiMessagePromptApi = createAsyncThunk(
         }
     },
 );
+
+export const sendTyping = async (typingStatusInput: any) => {
+    await graphqlQuery({
+        query: CQ.sendTypingStatus,
+        variables: { typingStatusInput },
+    });
+}
