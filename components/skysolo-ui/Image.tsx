@@ -1,8 +1,7 @@
 import { configs } from '@/configs';
 import { RotateCcw } from 'lucide-react-native';
-import { useRef, useState, useMemo, useEffect } from 'react';
+import { useRef, useMemo, useEffect } from 'react';
 import { Text, TouchableOpacity, View, StyleSheet } from 'react-native';
-import { loadingType } from '@/types';
 import { useTheme } from 'hyper-native-ui';
 import React from 'react';
 import { ImageProps, Image } from 'expo-image';
@@ -32,7 +31,6 @@ const ImageComponent = ({
     ...otherProps
 }: Props) => {
     const error = useRef(false);
-    const [state, setState] = useState<loadingType>("idle");
     const { currentTheme } = useTheme();
 
     const imageUrl = useMemo(() => {
@@ -42,17 +40,13 @@ const ImageComponent = ({
 
     // Preload image for better performance
     useEffect(() => {
-        if (imageUrl && fastLoad) {
+        if (typeof imageUrl === "string") {
+            if (!fastLoad) return
             Image.prefetch(imageUrl)
-                .then(() => setState("normal"))
-                .catch(() => {
-                    error.current = true;
-                    setState("normal");
-                });
         }
     }, [imageUrl]);
 
-    if ((error.current && showImageError) || !url) {
+    if ((error.current && showImageError) || !url || !imageUrl) {
         return (
             <View style={[styles.errorContainer, { backgroundColor: currentTheme?.muted, borderWidth: isBorder ? 1 : 0 }, style as any]}>
                 <TouchableOpacity activeOpacity={0.6} style={styles.errorContent}>
@@ -68,16 +62,10 @@ const ImageComponent = ({
     return (
         <View style={[styles.container, style as any]}>
             <Image
-                source={imageUrl ? { uri: imageUrl } : undefined}
+                source={{ uri: imageUrl }}
                 contentFit="cover"
                 priority={"high"}
                 style={[styles.image, { backgroundColor: currentTheme?.muted }, style]}
-                onLoadStart={() => setState("pending")}
-                onError={() => {
-                    error.current = true;
-                    setState("normal");
-                }}
-                onLoadEnd={() => setState("normal")}
                 {...otherProps}
             />
         </View>

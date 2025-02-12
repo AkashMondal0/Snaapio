@@ -2,10 +2,15 @@ import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { loadingType, Session } from '@/types'
 import { logoutApi, profileUpdateApi } from './api.service'
+import { ThemeNameType, ThemeSchemaType } from 'hyper-native-ui'
 
 
 export type AuthState = {
   session: Session
+  theme: {
+    themeSchema: ThemeSchemaType,
+    themeName: ThemeNameType,
+  }
   loaded: loadingType
   loading: boolean
   error: string | null
@@ -16,6 +21,10 @@ const initialState: AuthState = {
   session: {
     user: null,
   },
+  theme: {
+    themeName: "Zinc",
+    themeSchema: "system",
+  },
   loaded: "idle",
   loading: false,
   error: null
@@ -25,6 +34,14 @@ export const AuthSlice = createSlice({
   name: 'Auth',
   initialState,
   reducers: {
+    setThemeSchema: (state, action: PayloadAction<ThemeSchemaType>) => {
+      if (!action.payload) return;
+      state.theme.themeSchema = action.payload;
+    },
+    setThemeName: (state, action: PayloadAction<ThemeNameType>) => {
+      if (!action.payload) return;
+      state.theme.themeName = action.payload
+    },
     setSession: (state, action: PayloadAction<Session['user']>) => {
       state.session.user = action.payload
       state.loaded = "normal"
@@ -75,7 +92,9 @@ export const AuthSlice = createSlice({
 export const {
   setSession,
   updateSession,
-  logout
+  logout,
+  setThemeSchema,
+  setThemeName
 } = AuthSlice.actions
 
 export default AuthSlice.reducer

@@ -28,7 +28,7 @@ export const graphqlQuery = async <T>({
     url?: string;
     withCredentials?: boolean;
     errorCallBack?: (error: GraphqlError[]) => void;
-}): Promise<T | Error> => {
+}): Promise<T | any> => {
     try {
         const BearerToken = await getSecureStorage<Session["user"]>(configs.sessionName);
         if (!BearerToken?.accessToken) {
