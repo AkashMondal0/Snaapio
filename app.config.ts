@@ -88,6 +88,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       }
     ],
     [
+      "@config-plugins/react-native-webrtc",
+      {
+        cameraPermission: "Allow $(PRODUCT_NAME) to access your camera",
+        microphonePermission: "Allow $(PRODUCT_NAME) to access your microphone",
+      },
+    ],
+    [
       "expo-build-properties",
       {
         android: {
