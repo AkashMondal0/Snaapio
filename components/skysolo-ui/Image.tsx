@@ -67,21 +67,11 @@ const ImageComponent = ({
 
     return (
         <View style={[styles.container, style as any]}>
-            <View
-                style={[{
-                    position: "absolute",
-                    backgroundColor: currentTheme?.muted,
-                    justifyContent: "center",
-                    alignItems: "center",
-                    zIndex: 1,
-                    display: state === "pending" ? "flex" : "none",
-                }, style as any]} />
             <Image
                 source={imageUrl ? { uri: imageUrl } : undefined}
                 contentFit="cover"
                 priority={"high"}
-                renderToHardwareTextureAndroid
-                style={[styles.image, { backgroundColor: currentTheme?.background }, style]}
+                style={[styles.image, { backgroundColor: currentTheme?.muted }, style]}
                 onLoadStart={() => setState("pending")}
                 onError={() => {
                     error.current = true;
