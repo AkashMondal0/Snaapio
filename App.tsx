@@ -3,7 +3,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { DefaultTheme } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Provider, useSelector } from 'react-redux';
-import { RootState, store } from '@/redux-stores/store';
+import { RootState, persistor, store } from '@/redux-stores/store';
 import PreConfiguration from '@/provider/PreConfiguration';
 import BottomSheetProvider from '@/provider/BottomSheetProvider';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -11,6 +11,7 @@ import SocketConnections from '@/provider/SocketConnections';
 import { ThemeProvider, useTheme } from 'hyper-native-ui';
 import { AuthNavigation, Navigation } from '@/app/navigation';
 import * as Linking from 'expo-linking';
+import { PersistGate } from 'redux-persist/integration/react';
 
 SplashScreen.preventAutoHideAsync();
 const prefix = Linking.createURL('/');
@@ -62,7 +63,9 @@ export default function App() {
   return (
     <ThemeProvider enableThemedStatusBar>
       <Provider store={store}>
-        <Root />
+        <PersistGate loading={null} persistor={persistor}>
+          <Root />
+        </PersistGate>
       </Provider>
     </ThemeProvider>
   );

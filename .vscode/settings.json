@@ -8,5 +8,6 @@
         "snaapio",
         "Subviews",
         "supabase"
-    ]
+    ],
+    "postman.settings.dotenv-detection-notification-visibility": false
 }

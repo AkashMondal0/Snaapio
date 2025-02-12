@@ -1,6 +1,6 @@
-import { combineReducers, configureStore } from '@reduxjs/toolkit'
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { persistStore, persistReducer } from 'redux-persist';
-import { reduxStorage } from '../lib/storage'; // Custom MMKV storage adapter
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import AuthReducer from './slice/auth'
 import AccountReducer from './slice/account'
 import ConversationReducer from './slice/conversation'
@@ -9,10 +9,12 @@ import ProfileReducer from './slice/profile'
 import UsersReducer from './slice/users'
 import NotificationReducer from './slice/notification'
 import DialogsReducer from './slice/dialog'
+import CounterReducer from './slice/counterState'
+
 
 const persistConfig = {
   key: 'root',
-  storage: reduxStorage, // Use MMKV
+  storage: AsyncStorage,
   whitelist: [
     'AuthState',
     'AccountState',
@@ -21,8 +23,11 @@ const persistConfig = {
     'ProfileState',
     'UsersState',
     'NotificationState',
-    'DialogsState'
   ],
+  blacklist: [
+    'CounterState',
+    'DialogsState',
+  ]
 };
 // Combine reducers
 const rootReducer = combineReducers({
@@ -33,7 +38,8 @@ const rootReducer = combineReducers({
   ProfileState: ProfileReducer,
   UsersState: UsersReducer,
   NotificationState: NotificationReducer,
-  DialogsState: DialogsReducer
+  DialogsState: DialogsReducer,
+  CounterState: CounterReducer
 });
 
 // Persisted Reducer
