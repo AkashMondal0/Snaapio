@@ -68,49 +68,40 @@ const FeedsScreen = memo(function FeedsScreen() {
         if (session?.id) {
             await dispatch(fetchStoryApi(session?.id) as any)
         }
-    }, [session?.id]);
+    }, [session?.id])
 
-    const keyExtractor = useCallback((item: any, index: number) => index.toString(), []);
-    const itemRender = useCallback(({ item }: any) => <FeedItem data={item} />, []);
-    const ListHeaderComponent = useCallback(() => <StoriesComponent />, []);
-    const ListEmptyComponent = useCallback(() => {
-        if (feedListLoading === "idle" || feedListLoading === "pending") {
-            return <FeedLoader />
-        }
-        if (feedsError) return <ErrorScreen message={feedsError} />
-        if (!feedsError && feedListLoading === "normal") return <ListEmpty text="No feeds available" />
-    }, [feedListLoading, feedsError])
-    const ListFooterComponent = useCallback(() => feedListLoading === "pending" ? <Loader size={40} /> : <></>, [feedListLoading])
-    const HeaderComponent = useCallback(() => <HomeHeader translateY={translateY} />, [translateY])
     return (
         <View style={{
             flex: 1,
             width: "100%",
             height: "100%",
         }}>
-            <HeaderComponent />
+            {useCallback(() => <HomeHeader translateY={translateY} />, [])()}
             <Animated.FlatList
-                ListHeaderComponent={ListHeaderComponent}
+                ListHeaderComponent={useCallback(() => <StoriesComponent />, [])}
                 contentContainerStyle={{ paddingTop: 60 }}
                 scrollEventThrottle={16}
                 removeClippedSubviews={true}
-                maxToRenderPerBatch={12}
-                initialNumToRender={12}
-                windowSize={4}
+                windowSize={12}
                 data={feedList}
-                renderItem={itemRender}
-                keyExtractor={keyExtractor}
+                renderItem={({ item }) => <FeedItem data={item} />}
+                keyExtractor={(item, index) => index.toString()}
                 onEndReached={onEndReached}
                 onEndReachedThreshold={0.5}
                 bounces={false}
                 refreshing={false}
                 onRefresh={onRefresh}
                 onScroll={handleScroll}
-                ListEmptyComponent={ListEmptyComponent}
-                ListFooterComponent={ListFooterComponent}
+                ListEmptyComponent={() => {
+                    if (feedListLoading === "idle" || feedListLoading === "pending") {
+                        return <FeedLoader />
+                    }
+                    if (feedsError) return <ErrorScreen message={feedsError} />
+                    if (!feedsError && feedListLoading === "normal") return <ListEmpty text="No feeds available" />
+                }}
+                ListFooterComponent={() => feedListLoading === "pending" ? <Loader size={40} /> : <></>}
             />
         </View>
     )
 })
 export default FeedsScreen;
-

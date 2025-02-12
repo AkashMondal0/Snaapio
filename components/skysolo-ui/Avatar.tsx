@@ -103,22 +103,11 @@ const Avatar = memo(function Avatar({
             onLongPress={otherProps.onLongPress}
             onPress={otherProps.onPress}
         >
-            <View
-                style={[{
-                    position: "absolute",
-                    borderRadius: 1000,
-                    backgroundColor: currentTheme?.muted,
-                    justifyContent: "center",
-                    alignItems: "center",
-                    zIndex: 1,
-                    display: state === "pending" ? "flex" : "none",
-                }, style as any]} />
             <Image
                 source={imageUrl}
                 contentFit="cover"
                 contentPosition={"top center"}
                 priority={"high"}
-                renderToHardwareTextureAndroid
                 onLoadStart={() => setState("pending")}
                 onError={() => {
                     error.current = true;
@@ -129,7 +118,7 @@ const Avatar = memo(function Avatar({
                     {
                         width: imageSize,
                         height: imageSize,
-                        backgroundColor: currentTheme?.background,
+                        backgroundColor: currentTheme?.muted,
                     },
                     style,
                 ]}
