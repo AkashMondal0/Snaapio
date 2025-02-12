@@ -1,18 +1,20 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Icon } from "@/components/skysolo-ui";
-import { memo, useCallback, useContext, useMemo, useRef, useState } from "react";
-import { Conversation, disPatchResponse, Message, NavigationProps } from "@/types";
+import { memo, useCallback, useMemo, useRef, useState } from "react";
+import { Conversation, disPatchResponse, Message } from "@/types";
 import { ToastAndroid, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
-import { SocketContext } from "@/provider/SocketConnections";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import debounce from "@/lib/debouncing";
-import { CreateMessageApi, fetchConversationsApi } from "@/redux-stores/slice/conversation/api.service";
-import { configs } from "@/configs";
+import {
+    CreateMessageApi,
+    fetchConversationsApi,
+    sendTyping
+} from "@/redux-stores/slice/conversation/api.service";
 import { Input } from "hyper-native-ui";
 import { useNavigation } from "@react-navigation/native";
 const schema = z.object({
@@ -28,7 +30,6 @@ const ChatScreenInput = memo(function ChatScreenInput({
     const ConversationList = useSelector((state: RootState) => state.ConversationState.conversationList, (prev, next) => prev.length === next.length)
     const session = useSelector((state: RootState) => state.AuthState.session.user)
     const [loading, setLoading] = useState(false)
-    const socketState = useContext(SocketContext)
     const stopTypingRef = useRef(true)
     const members = useMemo(() => {
         return conversation.members?.filter((i) => i !== session?.id) ?? []
@@ -41,22 +42,21 @@ const ChatScreenInput = memo(function ChatScreenInput({
         }
     });
 
-    const typingSetter = useCallback((typing: boolean) => {
-        if (session?.id && conversation.id) {
-            socketState.socket?.emit(configs.eventNames.conversation.typing, {
-                typing: typing,
-                authorId: session?.id,
-                members: members,
-                conversationId: conversation.id,
-                isGroup: conversation.isGroup ?? false
-            })
-        }
-    }, [conversation.id, conversation.isGroup, members, session?.id, socketState.socket]);
+    const typingSetter = useCallback(async (typing: boolean) => {
+        if (!session?.id || !conversation.id) return;
+        await dispatch(sendTyping({
+            typing: typing,
+            authorId: session?.id,
+            members: members,
+            conversationId: conversation.id,
+            isGroup: conversation.isGroup ?? false
+        }) as any)
+    }, [conversation.id, conversation.isGroup, members, session?.id]);
 
     const onBlurTyping = debounce(() => {
         stopTypingRef.current = true
         typingSetter(false)
-    }, 2500);
+    }, 1600);
 
     const onTyping = useCallback(() => {
         if (stopTypingRef.current) {
@@ -71,34 +71,26 @@ const ChatScreenInput = memo(function ChatScreenInput({
         try {
             if (!session?.id || !conversation.id) return ToastAndroid.show("Something went wrong CI", ToastAndroid.SHORT)
             // if (isFile.length > 6) return toast.error("You can only send 6 files at a time")
-            const newMessage = await dispatch(CreateMessageApi({
+            await dispatch(CreateMessageApi({
                 conversationId: conversation?.id,
                 authorId: session?.id,
                 content: _data.message,
                 fileUrl: [],
                 members: members,
             }) as any) as disPatchResponse<Message>
-            if (newMessage?.payload?.id) {
-                socketState.socket?.emit(configs.eventNames.conversation.message, {
-                    ...newMessage.payload,
-                    members: members
-                })
-            }
             if (ConversationList.findIndex((i) => i.id === conversation?.id) === -1) {
-                // toast.success("New conversation created")
                 dispatch(fetchConversationsApi({
                     limit: 12,
                     offset: 0,
                 }) as any)
             }
-            reset()
-            // setIsFile([])
+            reset();
         } catch (error: any) {
             ToastAndroid.show("Something went wrong", ToastAndroid.SHORT)
         } finally {
             setLoading((pre) => !pre)
         }
-    }, [conversation.id, members, session?.id, socketState.socket])
+    }, [conversation.id, members, session?.id])
 
     const navigateToSelectFile = useCallback(() => {
         navigation.navigate("MessageSelectFile" as any, { conversation })

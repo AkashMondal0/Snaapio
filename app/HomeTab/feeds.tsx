@@ -105,4 +105,3 @@ const FeedsScreen = memo(function FeedsScreen() {
     )
 })
 export default FeedsScreen;
-

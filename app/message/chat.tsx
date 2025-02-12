@@ -7,11 +7,13 @@ import { StaticScreenProps } from "@react-navigation/native";
 import { NotFound } from "../NotFound";
 import { fetchConversationApi } from "@/redux-stores/slice/conversation/api.service";
 import { View } from "react-native";
+import { resetConversation } from "@/redux-stores/slice/conversation";
 
 type Props = StaticScreenProps<{
     id: string;
 }>;
 
+let pcId = "NoID";
 const ChatScreen = memo(function ChatScreen({ route }: Props) {
     const id = route.params.id;
     const ConversationData = useSelector((Root: RootState) => Root.ConversationState.conversation, (prev, next) => prev?.id === next?.id)
@@ -20,8 +22,11 @@ const ChatScreen = memo(function ChatScreen({ route }: Props) {
     const dispatch = useDispatch()
 
     const fetchApi = useCallback(async () => {
+        if (pcId === id) return
+        pcId = id
+        dispatch(resetConversation());
         dispatch(fetchConversationApi(id) as any)
-    }, [])
+    }, [id])
 
     useEffect(() => {
         fetchApi()

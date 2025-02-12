@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useRef, useState } from 'react';
+import React, { memo, useCallback, useRef, useState } from 'react';
 import { View, ScrollView, ToastAndroid } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import * as MediaLibrary from 'expo-media-library';
@@ -12,8 +12,6 @@ import { Conversation, disPatchResponse, Message, PageProps } from '@/types';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
 import { AddImage, PreviewImage } from '@/components/upload/preview-image';
-import { SocketContext } from '@/provider/SocketConnections';
-import { configs } from '@/configs';
 import { CreateMessageApi, fetchConversationsApi } from '@/redux-stores/slice/conversation/api.service';
 import { useNavigation } from '@react-navigation/native';
 
@@ -26,7 +24,6 @@ const ChatAssetsReviewScreen = memo(function ChatAssetsReviewScreen({
     const [assets, setAssets] = useState(route?.params?.assets ? [...route.params.assets] : [])
     const session = useSelector((state: RootState) => state.AuthState.session.user)
     const conversation = route?.params?.conversation ?? null
-    const socketState = useContext(SocketContext)
     const members = conversation?.members ?? []
     const ConversationList = useSelector((state: RootState) => state.ConversationState.conversationList, (prev, next) => prev.length === next.length)
     const [loading, setLoading] = useState(false)
@@ -42,19 +39,13 @@ const ChatAssetsReviewScreen = memo(function ChatAssetsReviewScreen({
         setLoading((pre) => !pre)
         try {
             if (!session?.id || !conversation?.id) return ToastAndroid.show("Something went wrong CI", ToastAndroid.SHORT)
-            const newMessage = await dispatch(CreateMessageApi({
+            await dispatch(CreateMessageApi({
                 conversationId: conversation?.id,
                 authorId: session?.id,
                 content: inputRef.current,
                 fileUrl: assets,
                 members: members,
             }) as any) as disPatchResponse<Message>
-            if (newMessage?.payload?.id) {
-                socketState.socket?.emit(configs.eventNames.conversation.message, {
-                    ...newMessage.payload,
-                    members: members
-                })
-            }
             if (ConversationList.findIndex((i) => i.id === conversation?.id) === -1) {
                 await dispatch(fetchConversationsApi({
                     limit: 12,
@@ -74,7 +65,6 @@ const ChatAssetsReviewScreen = memo(function ChatAssetsReviewScreen({
         conversation?.id,
         members.length,
         session?.id,
-        socketState.socket,
         assets.length,
     ])
 

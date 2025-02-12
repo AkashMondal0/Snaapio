@@ -1,4 +1,5 @@
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { memo } from 'react';
 
 const BottomSheetProvider = ({ children }: { children: React.ReactNode }) => {
 
@@ -8,4 +9,4 @@ const BottomSheetProvider = ({ children }: { children: React.ReactNode }) => {
 }
 
 
-export default BottomSheetProvider;
+export default memo(BottomSheetProvider);

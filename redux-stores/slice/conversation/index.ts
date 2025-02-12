@@ -293,49 +293,29 @@ export const ConversationSlice = createSlice({
         });
         builder.addCase(
             conversationSeenAllMessage.fulfilled,
-            (
-                state,
-                action: PayloadAction<
-                    {
-                        conversationId: string;
-                        authorId: string;
-                        memberLength?: number;
-                    }
-                >,
-            ) => {
-                const index = state.conversationList.findIndex((i) =>
-                    i.id === action.payload.conversationId
-                );
-                if (index !== -1) {
-                    state.conversationList[index].totalUnreadMessagesCount = 0;
-                    state.conversationList[index].messages?.forEach(
-                        (message) => {
-                            if (
-                                message.seenBy.findIndex((i) =>
-                                    i === action.payload.authorId
-                                ) === -1
-                            ) {
-                                message.seenBy.push(action.payload.authorId);
-                            }
-                        },
-                    );
-                }
-                if (
-                    state?.conversation &&
-                    action.payload.conversationId === state?.conversation.id
-                ) {
-                    state.conversation?.messages?.forEach((message) => {
-                        if (
-                            message.seenBy.findIndex((i) =>
-                                i === action.payload.authorId
-                            ) === -1
-                        ) {
-                            message.seenBy.push(action.payload.authorId);
-                        }
-                    });
-                }
-            },
-        );
+            (state, action: PayloadAction<{ conversationId: string; authorId: string; memberLength?: number }>) => {
+              const { conversationId, authorId } = action.payload;
+          
+              const updateSeenBy = (messages?: Message[]) => {
+                if (!messages) return;
+                messages.forEach((message) => {
+                  if (!message.seenBy.includes(authorId)) {
+                    message.seenBy.push(authorId);
+                  }
+                });
+              };
+          
+              const conversation = state.conversationList.find((c) => c.id === conversationId);
+              if (conversation) {
+                conversation.totalUnreadMessagesCount = 0;
+                updateSeenBy(conversation.messages);
+              }
+          
+              if (state.conversation?.id === conversationId) {
+                updateSeenBy(state.conversation.messages);
+              }
+            }
+          );          
         builder.addCase(
             conversationSeenAllMessage.rejected,
             (state, action) => {

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { memo, useEffect } from "react";
 import React, { useCallback } from "react";
 import { useDispatch } from "react-redux";
 import { Session } from '@/types';
@@ -50,4 +50,4 @@ const PreConfiguration = () => {
     return <></>;
 };
 
-export default PreConfiguration;
+export default memo(PreConfiguration);

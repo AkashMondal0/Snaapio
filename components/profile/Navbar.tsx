@@ -69,5 +69,7 @@ const ProfileNavbar = memo(function HomeScreen({
         <View style={{ width: 40 }} />
     </View>
 
-})
+}, (prevProps, nextProps) => {
+    return prevProps.username === nextProps.username && prevProps.isProfile === nextProps.isProfile;
+});
 export default ProfileNavbar;

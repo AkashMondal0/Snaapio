@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { memo, useCallback, useContext, useRef, useState } from 'react';
+import { memo, useCallback, useRef, useState } from 'react';
 import { ToastAndroid, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
-import { SocketContext } from '@/provider/SocketConnections';
 import { createNotificationApi, destroyNotificationApi } from '@/redux-stores/slice/notification/api.service';
 import { createPostLikeApi, destroyPostLikeApi } from '@/redux-stores/slice/post/api.service';
 import { RootState } from '@/redux-stores/store';
@@ -15,6 +14,7 @@ import { useTheme, Text } from 'hyper-native-ui';
 import { Avatar, Image, Icon } from '@/components/skysolo-ui';
 import React from 'react';
 import { StackActions, useNavigation } from '@react-navigation/native';
+import { configs } from '@/configs';
 
 const FeedItem = memo(function FeedItem({
     data
@@ -150,7 +150,6 @@ const FeedItemActionsButtons = (
         post: Post
     }
 ) => {
-    const SocketState = useContext(SocketContext)
     const dispatch = useDispatch()
     const navigation = useNavigation();
     const session = useSelector((state: RootState) => state.AuthState.session.user)
@@ -170,14 +169,11 @@ const FeedItemActionsButtons = (
                 return ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
             }
             if (post.user.id === session.id) return
-            const notificationRes = await dispatch(createNotificationApi({
+            await dispatch(createNotificationApi({
                 postId: post.id,
                 authorId: session.id,
                 type: NotificationType.Like,
-                recipientId: post.user.id
-            }) as any) as disPatchResponse<Notification>
-            SocketState.sendDataToServer("notification_post", {
-                ...notificationRes.payload,
+                recipientId: post.user.id,
                 author: {
                     username: session?.username,
                     profilePicture: session?.profilePicture
@@ -186,7 +182,7 @@ const FeedItemActionsButtons = (
                     id: post.id,
                     fileUrl: post.fileUrl[0].urls?.low,
                 }
-            })
+            }) as any) as disPatchResponse<Notification>
         } catch (error) {
             ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
         } finally {
@@ -208,7 +204,15 @@ const FeedItemActionsButtons = (
                 postId: post.id,
                 authorId: session.id,
                 type: NotificationType.Like,
-                recipientId: post.user.id
+                recipientId: post.user.id,
+                author: {
+                    username: session?.username,
+                    profilePicture: session?.profilePicture
+                },
+                post: {
+                    id: post.id,
+                    fileUrl: post.fileUrl[0].urls?.low,
+                }
             }) as any)
         } catch (error: any) {
             ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
@@ -317,6 +321,7 @@ const ImageItem = memo(function ImageItem({ item, index }: { item: any, index: n
         key={index}
         isBorder
         url={item.urls?.high}
+        fastLoad
         style={{
             width: "100%",
             flex: 1,

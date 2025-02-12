@@ -4,6 +4,7 @@ import { memo } from 'react';
 import { View, Text } from 'react-native';
 import { Icon, Image } from '@/components/skysolo-ui';
 import { TouchableOpacity, useTheme } from 'hyper-native-ui';   
+import React from 'react';
 const MessageItem = memo(function Item({
     data, myself, seenMessage,
     navigateToImagePreview

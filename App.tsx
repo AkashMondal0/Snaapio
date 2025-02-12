@@ -14,6 +14,7 @@ import * as Linking from 'expo-linking';
 
 SplashScreen.preventAutoHideAsync();
 const prefix = Linking.createURL('/');
+const prefixes = [prefix, 'snaapio://', 'https://snaapio.vercel.app'];
 
 function Root() {
   const { currentTheme } = useTheme();
@@ -43,19 +44,14 @@ function Root() {
         backgroundColor: background,
       }}>
         <PreConfiguration />
-        <SocketConnections >
-          <BottomSheetProvider>
-            {appLoading === "normal" ? session.user ? <Navigation
-              onReady={() => { SplashScreen.hideAsync() }}
-              theme={theme} linking={{
-                prefixes: [prefix, 'snaapio://', 'https://snaapio.vercel.app'],
-              }} /> : <AuthNavigation
-              onReady={() => { SplashScreen.hideAsync() }}
-              theme={theme} linking={{
-                prefixes: [prefix, 'snaapio://', 'https://snaapio.vercel.app'],
-              }} /> : <></>}
-          </BottomSheetProvider>
-        </SocketConnections>
+        <SocketConnections />
+        <BottomSheetProvider>
+          {appLoading === "normal" ? session.user ? <Navigation
+            onReady={() => { SplashScreen.hideAsync() }}
+            theme={theme} linking={{ prefixes }} /> : <AuthNavigation
+            onReady={() => { SplashScreen.hideAsync() }}
+            theme={theme} linking={{ prefixes }} /> : <></>}
+        </BottomSheetProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   </>)
