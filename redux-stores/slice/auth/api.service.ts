@@ -12,100 +12,88 @@ import { AQ } from "../account/account.queries";
 import { uploadFileToSupabase } from "@/lib/SupaBase-uploadFile";
 import { ImageCompressor } from "@/lib/RN-ImageCompressor";
 import { Session } from "@/types";
-export const loginApi = async ({
-    email,
-    password,
-}: {
-    email: string,
-    password: string,
-}) => {
-    return await fetch(`${configs.serverApi.baseUrl}/auth/login`, {
-        headers: {
-            "Content-Type": "application/json",
-        },
-        method: "POST",
-        redirect: "follow",
-        body: JSON.stringify({
-            email,
-            password
-        }),
-        credentials: "include"
-    })
-        .then(async (res) => {
-            const _data = await res.json()
-            if (!res.ok) {
-                return {
-                    data: _data,
-                    message: _data.message,
-                    code: 0
-                }
-            }
-            setSecureStorage(configs.sessionName, JSON.stringify(_data))
-            return {
-                data: _data,
-                message: "Login Successful",
-                code: 1
-            };
-        })
-        .catch((e) => {
-            return {
-                data: e,
-                message: e.message,
-                code: 0
-            }
-        });
-}
 
-export const registerApi = async ({
-    email,
-    password,
-    name,
-    username
-}: {
-    email: string,
-    password: string,
-    name: string,
-    username: string
-}) => {
+export const loginApi = createAsyncThunk(
+    'loginApi/post',
+    async ({ email, password }: { email: string, password: string }, thunkAPI) => {
+        try {
+            const response = await fetch(`${configs.serverApi.baseUrl}/auth/login`, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                method: "POST",
+                redirect: "follow",
+                body: JSON.stringify({
+                    email,
+                    password
+                }),
+                credentials: "include"
+            });
 
-    return await fetch(`${configs.serverApi.baseUrl}/auth/register`, {
-        headers: {
-            "Content-Type": "application/json",
-        },
-        method: "POST",
-        redirect: "follow",
-        body: JSON.stringify({
-            email,
-            password,
-            name,
-            username
-        }),
-        credentials: "include"
-    })
-        .then(async (res) => {
-            const _data = await res.json()
-            if (!res.ok) {
-                return {
-                    data: _data,
-                    message: _data.message,
-                    code: 0
-                }
+            if (!response.ok) {
+                const data = await response.json();
+                return thunkAPI.rejectWithValue({
+                    message: data.message
+                });
             }
-            setSecureStorage(configs.sessionName, JSON.stringify(_data))
-            return {
-                data: _data,
-                message: "Register Successful",
-                code: 1
-            };
-        })
-        .catch((e) => {
-            return {
-                data: e,
-                message: e.message,
-                code: 0
+
+            const data = await response.json();
+            setSecureStorage(configs.sessionName, JSON.stringify(data))
+            return data;
+        } catch (error) {
+            return thunkAPI.rejectWithValue({
+                message: "Internal Login Error"
+            });
+        }
+    }
+);
+
+export const registerApi = createAsyncThunk(
+    'registerApi/post',
+    async ({
+        email,
+        password,
+        name,
+        username
+    }: {
+        email: string,
+        password: string,
+        name: string,
+        username: string
+    }, thunkAPI) => {
+        try {
+            const response = await fetch(`${configs.serverApi.baseUrl}/auth/register`, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                method: "POST",
+                redirect: "follow",
+                body: JSON.stringify({
+                    email,
+                    password,
+                    name,
+                    username
+                }),
+                credentials: "include"
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                return thunkAPI.rejectWithValue({
+                    message: data.message
+                });
             }
-        });
-}
+
+            const data = await response.json();
+            setSecureStorage(configs.sessionName, JSON.stringify(data))
+            return data
+        } catch (error) {
+            return thunkAPI.rejectWithValue({
+                message: "Internal Login Error"
+            });
+        }
+    }
+);
 
 export const logoutApi = createAsyncThunk(
     'logout/get',

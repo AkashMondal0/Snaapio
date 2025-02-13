@@ -21,7 +21,6 @@ const prefixes = [prefix, 'snaapio://', 'https://snaapio.vercel.app'];
 function Root() {
   const { currentTheme } = useTheme();
   const session = useSelector((state: RootState) => state.AuthState.session, (pre, next) => pre.user === next.user);
-  const appLoading = useSelector((state: RootState) => state.AuthState.loaded, (pre, next) => pre === next);
 
   const background = currentTheme.background;
   const theme: any = {
@@ -49,11 +48,11 @@ function Root() {
         <PreConfiguration />
         <SocketConnections />
         <BottomSheetProvider>
-          {appLoading === "normal" ? session.user ? <Navigation
+          {session.user ? <Navigation
             onReady={() => { SplashScreen.hideAsync() }}
             theme={theme} linking={{ prefixes }} /> : <AuthNavigation
             onReady={() => { SplashScreen.hideAsync() }}
-            theme={theme} linking={{ prefixes }} /> : <></>}
+            theme={theme} linking={{ prefixes }} />}
         </BottomSheetProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

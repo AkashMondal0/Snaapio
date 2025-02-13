@@ -11,15 +11,17 @@ let loaded = false;
 
 const PreConfiguration = () => {
     const theme = useSelector((state: RootState) => state.AuthState.theme)
+    const session = useSelector((state: RootState) => state.AuthState.session.user)
     const dispatch = useDispatch();
     const { initialTheme } = useTheme();
     const colorScheme = theme.themeSchema === "system" ? Appearance.getColorScheme() === "dark" : theme.themeSchema === "dark";
 
     // initialize theme value
     const initialize = useCallback(async () => {
-        if (loaded) return;
-        loaded = true;
-        dispatch(fetchUnreadNotificationCountApi() as any);
+        if (!loaded && session) {
+            loaded = true;
+            dispatch(fetchUnreadNotificationCountApi() as any);
+        }
     }, []);
 
     const initializeTheme = useCallback(async () => {

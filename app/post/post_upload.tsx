@@ -103,7 +103,11 @@ const PostUploadScreen = memo(function PostUploadScreen({
                     <Input
                         disabled={loading}
                         multiline
-                        numberOfLines={3}
+                        numberOfLines={10}
+                        style={{
+                            minHeight: 140,
+                            textAlignVertical: 'top'
+                        }}
                         onChangeText={(text) => inputRef.current = text}
                         placeholder='Write a caption...' />
                 </View>

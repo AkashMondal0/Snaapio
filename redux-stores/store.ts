@@ -17,16 +17,16 @@ const persistConfig = {
   storage: AsyncStorage,
   whitelist: [
     'AuthState',
+  ],
+  blacklist: [
+    'CounterState',
+    'DialogsState',
     'AccountState',
     'ConversationState',
     'PostState',
     'ProfileState',
     'UsersState',
     'NotificationState',
-  ],
-  blacklist: [
-    'CounterState',
-    'DialogsState',
   ]
 };
 // Combine reducers
