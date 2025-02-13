@@ -12,7 +12,6 @@ import { ThemeProvider, useTheme } from 'hyper-native-ui';
 import { AuthNavigation, Navigation } from '@/app/navigation';
 import * as Linking from 'expo-linking';
 import { PersistGate } from 'redux-persist/integration/react';
-import { StatusBar } from 'react-native';
 
 SplashScreen.preventAutoHideAsync();
 const prefix = Linking.createURL('/');
@@ -42,8 +41,7 @@ function Root() {
     }}>
       <SafeAreaProvider style={{
         flex: 1,
-        backgroundColor: background,
-        paddingTop: StatusBar.currentHeight
+        backgroundColor: background
       }}>
         <PreConfiguration />
         <SocketConnections />
@@ -62,7 +60,7 @@ function Root() {
 export default function App() {
 
   return (
-    <ThemeProvider>
+    <ThemeProvider enableThemedStatusBar>
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
           <Root />

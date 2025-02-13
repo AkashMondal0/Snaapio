@@ -5,8 +5,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { fetchAccountStoryTimelineApi, fetchAccountStoryApi } from "@/redux-stores/slice/account/api.service";
 import { AuthorData, Session } from "@/types";
-import { useTheme, Text, Skeleton } from 'hyper-native-ui';
+import { useTheme, Text } from 'hyper-native-ui';
 import { StackActions, useNavigation } from "@react-navigation/native";
+const ITEM_HEIGHT = 120;
 
 const StoriesComponent = memo(function StoriesComponent() {
     const navigation = useNavigation();
@@ -56,12 +57,19 @@ const StoriesComponent = memo(function StoriesComponent() {
             <FlatList
                 data={storyList}
                 renderItem={({ item }) => <StoriesItem data={item} onPress={onPress} />}
-                keyExtractor={(item, index) => index.toString()}
+                keyExtractor={(item) => item.id}
                 horizontal
                 scrollEventThrottle={16}
                 onEndReached={onEndReached}
                 onEndReachedThreshold={0.5}
                 bounces={false}
+                removeClippedSubviews={true}
+                windowSize={12}
+                getItemLayout={(data, index) => ({
+                    index,
+                    length: ITEM_HEIGHT,
+                    offset: ITEM_HEIGHT * index
+                })}
                 ListHeaderComponent={<View style={{
                     flexDirection: 'row',
                     alignItems: 'center',

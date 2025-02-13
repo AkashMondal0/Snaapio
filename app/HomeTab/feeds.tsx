@@ -12,6 +12,7 @@ import { Loader } from 'hyper-native-ui';
 import StoriesComponent from "@/components/home/story";
 import { FeedLoader } from "@/components/home/feedListItem";
 let totalFetchedItemCount: number = 0;
+const ITEM_HEIGHT = 700;
 
 const FeedsScreen = memo(function FeedsScreen() {
     const feedList = useSelector((state: RootState) => state.AccountState.feeds);
@@ -81,17 +82,22 @@ const FeedsScreen = memo(function FeedsScreen() {
                 ListHeaderComponent={useCallback(() => <StoriesComponent />, [])}
                 contentContainerStyle={{ paddingTop: 60 }}
                 scrollEventThrottle={16}
-                removeClippedSubviews={true}
-                windowSize={12}
                 data={feedList}
                 renderItem={({ item }) => <FeedItem data={item} />}
-                keyExtractor={(item, index) => index.toString()}
+                keyExtractor={(item) => item.id}
                 onEndReached={onEndReached}
                 onEndReachedThreshold={0.5}
                 bounces={false}
                 refreshing={false}
                 onRefresh={onRefresh}
                 onScroll={handleScroll}
+                removeClippedSubviews={true}
+                windowSize={12}
+                getItemLayout={(data, index) => ({
+                    index,
+                    length: ITEM_HEIGHT,
+                    offset: ITEM_HEIGHT * index
+                })}
                 ListEmptyComponent={() => {
                     if (feedListLoading === "idle" || feedListLoading === "pending") {
                         return <FeedLoader />

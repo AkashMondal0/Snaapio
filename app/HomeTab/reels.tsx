@@ -16,14 +16,15 @@ const ReelsScreen = memo(function ReelsScreen() {
             width: '100%',
             height: '100%',
         }}>
-            <Text variant="H4">{value}</Text>
+            <Text variant="H4">Reels Screen</Text>
+            {/* <Text variant="H4">{value}</Text>
             <Button variant="success" onPress={() => dispatch(increment())}>
                 Increase
             </Button>
             <View style={{ height: 10 }} />
             <Button variant="danger" onPress={() => dispatch(decrement())}>
                 Decrease
-            </Button>
+            </Button> */}
         </View>
     )
 })

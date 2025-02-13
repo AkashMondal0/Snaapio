@@ -7,7 +7,7 @@ import { useDispatch } from "react-redux";
 import { fetchUserHighlightApi } from "@/redux-stores/slice/profile/api.service";
 import { Text, useTheme } from "hyper-native-ui"
 import { StackActions, useNavigation } from "@react-navigation/native";
-
+const ITEM_HEIGHT = 120;
 const StoriesComponent = memo(function StoriesComponent({
     user,
     isProfile
@@ -90,6 +90,13 @@ const StoriesComponent = memo(function StoriesComponent({
                 onEndReached={onEndReached}
                 onEndReachedThreshold={0.5}
                 bounces={false}
+                removeClippedSubviews={true}
+                windowSize={12}
+                getItemLayout={(data, index) => ({
+                    index,
+                    length: ITEM_HEIGHT,
+                    offset: ITEM_HEIGHT * index
+                })}
                 ListFooterComponent={<View style={{
                     flexDirection: 'row',
                     alignItems: 'center',

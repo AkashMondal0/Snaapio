@@ -1,13 +1,14 @@
 import { disPatchResponse, loadingType, Post, User } from "@/types";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { FlatList, ToastAndroid, View } from "react-native";
+import { Dimensions, FlatList, ToastAndroid, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { ProfileEmptyPosts, ProfileGridItem, ProfileHeader, ProfileNavbar } from "@/components/profile";
 import { fetchUserProfileDetailApi, fetchUserProfilePostsApi } from "@/redux-stores/slice/profile/api.service";
 import { RootState } from "@/redux-stores/store";
 import ErrorScreen from "@/components/error/page";
 import { Loader } from "hyper-native-ui";
-
+const screenWidth = Dimensions.get("screen").width;
+const ITEM_HEIGHT = screenWidth * 0.33;
 const AccountScreen = () => {
     const session = useSelector((state: RootState) => state.AuthState.session.user)
     const username = session?.username
@@ -85,7 +86,7 @@ const AccountScreen = () => {
                 isProfile={isProfile} username={username || "No User"} />
             <FlatList
                 data={Posts.current}
-                keyExtractor={(item, index) => index.toString()}
+                keyExtractor={(item) => item.id}
                 numColumns={3}
                 bounces={false}
                 bouncesZoom={false}
@@ -93,10 +94,15 @@ const AccountScreen = () => {
                 alwaysBounceHorizontal={false}
                 refreshing={false}
                 onEndReachedThreshold={0.5}
-                removeClippedSubviews={true}
-                windowSize={10}
                 onEndReached={onEndReached}
                 onRefresh={onRefresh}
+                removeClippedSubviews={true}
+                windowSize={12}
+                getItemLayout={(data, index) => ({
+                    index,
+                    length: ITEM_HEIGHT,
+                    offset: ITEM_HEIGHT * index
+                })}
                 columnWrapperStyle={{
                     gap: 2,
                     paddingVertical: 1,

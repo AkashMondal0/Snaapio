@@ -6,8 +6,12 @@ import { disPatchResponse, loadingType, Post, User } from "@/types";
 import { StaticScreenProps } from "@react-navigation/native";
 import { Loader } from "hyper-native-ui";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { View, FlatList, ToastAndroid } from "react-native";
+import { View, FlatList, ToastAndroid, Dimensions } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
+
+const screenWidth = Dimensions.get("screen").width;
+const ITEM_HEIGHT = screenWidth * 0.33;
+
 let _Pid = "NO_ID"
 type Props = StaticScreenProps<{
     id: string;
@@ -107,6 +111,13 @@ const ProfileScreen = ({ route }: Props) => {
                 onEndReachedThreshold={0.5}
                 onEndReached={onEndReached}
                 onRefresh={onRefresh}
+                removeClippedSubviews={true}
+                windowSize={12}
+                getItemLayout={(data, index) => ({
+                    index,
+                    length: ITEM_HEIGHT,
+                    offset: ITEM_HEIGHT * index
+                })}
                 columnWrapperStyle={{
                     gap: 2,
                     paddingVertical: 1,

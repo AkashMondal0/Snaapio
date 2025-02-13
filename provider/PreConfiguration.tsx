@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchUnreadNotificationCountApi } from '@/redux-stores/slice/notification/api.service';
 import { useTheme } from 'hyper-native-ui';
 import { RootState } from "@/redux-stores/store";
-import { Appearance, StatusBar } from "react-native";
 
 
 let loaded = false;
@@ -14,8 +13,6 @@ const PreConfiguration = () => {
     const session = useSelector((state: RootState) => state.AuthState.session.user)
     const dispatch = useDispatch();
     const { initialTheme } = useTheme();
-    const colorScheme = theme.themeSchema === "system" ? Appearance.getColorScheme() === "dark" : theme.themeSchema === "dark";
-
     // initialize theme value
     const initialize = useCallback(async () => {
         if (!loaded && session) {
@@ -34,10 +31,6 @@ const PreConfiguration = () => {
     }, [theme]);
 
     return <>
-        <StatusBar
-            translucent
-            barStyle={colorScheme ? "light-content" : "dark-content"}
-            backgroundColor={"transparent"} />
     </>;
 };
 
