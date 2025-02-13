@@ -1,10 +1,31 @@
-import { memo } from "react";
+import { memo, useCallback } from "react";
 import { Text, useTheme } from "hyper-native-ui";
 import { Image, TouchableOpacity, View } from "react-native";
 import { Icon } from "@/components/skysolo-ui";
+import { StackActions, useNavigation } from "@react-navigation/native";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux-stores/store";
+import * as Haptics from 'expo-haptics';
 
 const Calling = memo(function Calling() {
-	const { currentTheme } = useTheme()
+	const { currentTheme } = useTheme();
+	const navigation = useNavigation();
+	const session = useSelector((state: RootState) => state.AuthState.session.user);
+	const inComingCall = useSelector((state: RootState) => state.CallState.inComingCall);
+	const userData = inComingCall?.participants?.filter((p) => p.user.id !== session?.id)[0];
+
+	const HP = useCallback(() => {
+		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+	}, []);
+	
+	const Decline = useCallback(() => {
+		HP();
+		if (navigation.canGoBack()) {
+			navigation.goBack()
+			return
+		}
+		navigation.dispatch(StackActions.replace("HomeTabs"))
+	}, []);
 
 	return (
 		<View style={{
@@ -39,7 +60,7 @@ const Calling = memo(function Calling() {
 					flex: 1
 				}}>
 					<Text variant="H5" bold="bold">Akash ( Son )</Text>
-					<Text variant="body1" variantColor="secondary">0:07</Text>
+					<Text variant="body1" variantColor="secondary">0:00</Text>
 				</View>
 				<View>
 					<TouchableOpacity
@@ -100,13 +121,13 @@ const Calling = memo(function Calling() {
 				}}>
 					<Icon iconName="MicOff" size={24} onPress={() => { }} />
 				</TouchableOpacity>
-				<TouchableOpacity activeOpacity={0.6} style={[{
+				<TouchableOpacity onPress={Decline} activeOpacity={0.6} style={[{
 					padding: 15,
 					borderRadius: 50,
 					backgroundColor: currentTheme.destructive,
 					transform: [{ rotate: "133deg" }]
 				}]}>
-					<Icon iconName="Phone" size={24} onPress={() => { }} />
+					<Icon iconName="Phone" size={24} onPress={Decline} />
 				</TouchableOpacity>
 			</View>
 		</View>

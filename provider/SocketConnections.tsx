@@ -4,20 +4,22 @@ import { RootState } from "@/redux-stores/store";
 import { createContext, memo, useCallback, useEffect, useRef } from "react";
 import io, { Socket } from "socket.io-client";
 import { configs } from "@/configs";
-import { ToastAndroid } from "react-native";
+import { Linking, ToastAndroid } from "react-native";
 import { Typing, Notification, Message } from "@/types";
 import { setMessage, setMessageSeen, setTyping } from "@/redux-stores/slice/conversation";
 import { fetchConversationsApi } from "@/redux-stores/slice/conversation/api.service";
 import { setNotification } from "@/redux-stores/slice/notification";
 import { fetchUnreadMessageNotificationCountApi } from "@/redux-stores/slice/notification/api.service";
 import React from "react";
-
+import { CallSession, setIncomingCall } from "@/redux-stores/slice/call";
+import { useLinkTo } from "@react-navigation/native";
 const SocketConnectionsProvider = memo(function SocketConnectionsProvider() {
     const dispatch = useDispatch()
     const session = useSelector((state: RootState) => state.AuthState.session.user)
     const currentConversation = useSelector((state: RootState) => state.ConversationState.conversation)
     const list = useSelector((state: RootState) => state.ConversationState.conversationList)
     const socketRef = useRef<Socket | null>(null)
+    const toLink = useLinkTo()
 
     const SocketConnection = useCallback(async () => {
         if (!session || socketRef.current) return;
@@ -68,7 +70,15 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider() {
         ToastAndroid.show("Test from socket server", ToastAndroid.SHORT)
     }, [])
 
-    const incomingCall = useCallback(()=>{},[])
+    const incomingCall = useCallback(async (data: CallSession) => {
+        dispatch(setIncomingCall(data))
+        const supported = await Linking.canOpenURL('exp://192.168.31.212:8081/--/incomingcall');
+        if (supported) {
+            await Linking.openURL('exp://192.168.31.212:8081/--/incomingcall');
+        } else {
+            ToastAndroid.show("Internal Error", ToastAndroid.SHORT);
+        }
+    }, [])
 
     useEffect(() => {
         SocketConnection()
@@ -99,7 +109,7 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider() {
     }, [session, currentConversation, list.length])
 
     return <></>
-})
+}, () => true)
 
 
 export default memo(SocketConnectionsProvider);

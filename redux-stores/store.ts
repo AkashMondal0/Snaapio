@@ -10,6 +10,8 @@ import UsersReducer from './slice/users'
 import NotificationReducer from './slice/notification'
 import DialogsReducer from './slice/dialog'
 import CounterReducer from './slice/counterState'
+import CallReducer from './slice/call'
+
 
 
 const persistConfig = {
@@ -27,6 +29,7 @@ const persistConfig = {
     'ProfileState',
     'UsersState',
     'NotificationState',
+    'CallState'
   ]
 };
 // Combine reducers
@@ -39,7 +42,8 @@ const rootReducer = combineReducers({
   UsersState: UsersReducer,
   NotificationState: NotificationReducer,
   DialogsState: DialogsReducer,
-  CounterState: CounterReducer
+  CounterState: CounterReducer,
+  CallState: CallReducer
 });
 
 // Persisted Reducer

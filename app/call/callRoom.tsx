@@ -3,11 +3,24 @@ import { Text, useTheme } from "hyper-native-ui";
 import { Image, TouchableOpacity, View } from "react-native";
 import { Icon } from "@/components/skysolo-ui";
 import * as Haptics from 'expo-haptics';
+import { StackActions, useNavigation } from "@react-navigation/native";
 const CallRoom = memo(function CallRoom() {
-	const { currentTheme } = useTheme()
-	const hp = useCallback(() => {
+	const { currentTheme } = useTheme();
+	const navigation = useNavigation();
+
+	const HP = useCallback(() => {
 		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
 	}, []);
+
+	const HangUp = useCallback(() => {
+		HP();
+		if (navigation.canGoBack()) {
+			navigation.goBack()
+			return
+		}
+		navigation.dispatch(StackActions.replace("HomeTabs"))
+	}, []);
+	
 	return (
 		<View style={{
 			flex: 1,
@@ -65,6 +78,8 @@ const CallRoom = memo(function CallRoom() {
 						aspectRatio: 1 / 1,
 						borderRadius: 500,
 						marginBottom: 30,
+						borderWidth: 1,
+						borderColor: currentTheme.border
 					}}
 				/>
 			</View>
@@ -77,38 +92,48 @@ const CallRoom = memo(function CallRoom() {
 				gap: 12,
 				alignItems: "center",
 				backgroundColor: currentTheme.muted,
-				marginBottom: 20
+				marginBottom: 20,
+				borderWidth: 0.5,
+				borderColor: currentTheme.border
 			}}>
 				<TouchableOpacity
 					activeOpacity={0.6}
 					style={{
 						padding: 15,
 						borderRadius: 50,
-						backgroundColor: currentTheme.background
+						backgroundColor: currentTheme.background,
+						borderWidth: 1,
+						borderColor: currentTheme.border
 					}}>
-					<Icon iconName="Video" size={24} onPress={() => { }} />
+					<Icon iconName="Video" size={24} onPress={HangUp} />
 				</TouchableOpacity>
 				<TouchableOpacity activeOpacity={0.6} style={{
 					padding: 15,
 					borderRadius: 50,
-					backgroundColor: currentTheme.background
+					backgroundColor: currentTheme.background,
+					borderWidth: 1,
+					borderColor: currentTheme.border
 				}}>
-					<Icon iconName="Volume2" size={24} onPress={() => { }} />
+					<Icon iconName="Volume2" size={24} onPress={HangUp} />
 				</TouchableOpacity>
 				<TouchableOpacity activeOpacity={0.6} style={{
 					padding: 15,
 					borderRadius: 50,
-					backgroundColor: currentTheme.background
+					backgroundColor: currentTheme.background,
+					borderWidth: 1,
+					borderColor: currentTheme.border
 				}}>
-					<Icon iconName="MicOff" size={24} onPress={() => { }} />
+					<Icon iconName="MicOff" size={24} onPress={HangUp} />
 				</TouchableOpacity>
-				<TouchableOpacity activeOpacity={0.6} style={[{
+				<TouchableOpacity onPress={HangUp} activeOpacity={0.6} style={[{
 					padding: 15,
 					borderRadius: 50,
 					backgroundColor: currentTheme.destructive,
-					transform: [{ rotate: "133deg" }]
+					transform: [{ rotate: "133deg" }],
+					borderWidth: 1,
+					borderColor: currentTheme.border
 				}]}>
-					<Icon iconName="Phone" size={24} onPress={() => { }} />
+					<Icon iconName="Phone" size={24} onPress={HangUp} color="#fff" />
 				</TouchableOpacity>
 			</View>
 		</View>

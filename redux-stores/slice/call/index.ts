@@ -27,24 +27,28 @@ export type CallSession = {
 export interface CallState {
   currentCallingState: boolean
   callSessionState: CallSession | null
+  inComingCall: CallSession | null
 }
 
 const initialState: CallState = {
   currentCallingState: false,
-  callSessionState: null
+  callSessionState: null,
+  inComingCall: null
 }
 
 export const callSlice = createSlice({
   name: 'call',
   initialState,
   reducers: {
-
+    setIncomingCall: (state, action: PayloadAction<CallSession>) => {
+      state.inComingCall = action.payload
+    }
   },
 })
 
 // Action creators are generated for each case reducer function
 export const {
-
+  setIncomingCall
 } = callSlice.actions
 
 export default callSlice.reducer

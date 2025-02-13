@@ -3,7 +3,7 @@ import { Text } from "hyper-native-ui";
 import { memo, useCallback } from "react";
 import { Conversation } from "@/types";
 import { View } from "react-native";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { useTheme } from 'hyper-native-ui';
 import { useNavigation } from "@react-navigation/native";
@@ -17,7 +17,10 @@ const ChatScreenNavbar = memo(function ChatScreenNavbar({
 }) {
     const navigation = useNavigation();
     const { currentTheme } = useTheme();
+    const dispatch = useDispatch();
     const currentTyping = useSelector((Root: RootState) => Root.ConversationState.currentTyping);
+    const session = useSelector((Root: RootState) => Root.AuthState.session.user);
+
 
     const PressBack = useCallback(() => {
         if (navigation.canGoBack()) {
@@ -25,7 +28,19 @@ const ChatScreenNavbar = memo(function ChatScreenNavbar({
         } else {
             navigation.navigate("MessageList")
         }
-    }, [])
+    }, []);
+
+    const onPress = useCallback(async () => {
+        if (!session?.id) return;
+        // await dispatch(sendCallingRequest({
+        // typing: typing,
+        // authorId: session?.id,
+        // members: members,
+        // conversationId: conversation.id,
+        // isGroup: conversation.isGroup ?? false
+        // }) as any)
+        navigation.navigate("Calling")
+    }, [session])
 
     return (
         <View style={{
@@ -71,7 +86,7 @@ const ChatScreenNavbar = memo(function ChatScreenNavbar({
                 </View>
             </View>
             <View style={{ paddingRight: 10 }}>
-                <Icon iconName={"Info"} isButton variant="secondary" size={26} style={{ elevation: 2 }} />
+                <Icon iconName="Phone" isButton variant="secondary" size={30} style={{ elevation: 2 }} onPress={onPress} />
             </View>
         </View>
     )

@@ -417,7 +417,7 @@ const RootStack = createNativeStackNavigator({
                 InComingCall: {
                     screen: IncomingCallScreen,
                     linking: {
-                        path: "/incomingcall/akas"
+                        path: "/incomingcall"
                     }
                 },
                 Calling: {
