@@ -68,6 +68,8 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider() {
         ToastAndroid.show("Test from socket server", ToastAndroid.SHORT)
     }, [])
 
+    const incomingCall = useCallback(()=>{},[])
+
     useEffect(() => {
         SocketConnection()
         if (socketRef.current && session?.id) {
@@ -75,6 +77,7 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider() {
             socketRef.current?.on(configs.eventNames.conversation.seen, userSeenMessages);
             socketRef.current?.on(configs.eventNames.conversation.typing, typingRealtime);
             socketRef.current?.on(configs.eventNames.notification.post, notification);
+            socketRef.current?.on(configs.eventNames.calling.incomingCall, incomingCall);
             socketRef.current?.on("test", systemMessageFromServerSocket);
             socketRef.current?.on("connect", () => {
                 ToastAndroid.show("Connected to socket server", ToastAndroid.SHORT)

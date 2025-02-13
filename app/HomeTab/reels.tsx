@@ -1,31 +1,23 @@
-import { decrement, increment } from "@/redux-stores/slice/counterState";
-import { RootState } from "@/redux-stores/store";
-import { Button, Text } from "hyper-native-ui";
 import { memo } from "react";
+import { Button } from "hyper-native-ui";
 import { View } from "react-native";
-import { useDispatch, useSelector } from "react-redux";
+import { useNavigation } from "@react-navigation/native";
 
-const ReelsScreen = memo(function ReelsScreen() {
-    const value = useSelector((state: RootState) => state.CounterState.value);
-    const dispatch = useDispatch();
+const Reels = memo(function Reels() {
+    const nav = useNavigation()
+
     return (
         <View style={{
             flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            width: '100%',
-            height: '100%',
+            justifyContent: "space-between",
+            alignItems: "center",
         }}>
-            <Text variant="H4">Reels Screen</Text>
-            {/* <Text variant="H4">{value}</Text>
-            <Button variant="success" onPress={() => dispatch(increment())}>
-                Increase
-            </Button>
-            <View style={{ height: 10 }} />
-            <Button variant="danger" onPress={() => dispatch(decrement())}>
-                Decrease
+            {/* <Button onPress={() => {
+                nav.navigate("Calling")
+            }}>
+                go
             </Button> */}
         </View>
     )
 })
-export default ReelsScreen;
+export default Reels;
