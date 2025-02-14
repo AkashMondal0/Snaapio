@@ -2,11 +2,12 @@ import { Avatar, Icon } from "@/components/skysolo-ui";
 import { Text } from "hyper-native-ui";
 import { memo, useCallback } from "react";
 import { Conversation } from "@/types";
-import { View } from "react-native";
+import { ToastAndroid, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { useTheme } from 'hyper-native-ui';
 import { useNavigation } from "@react-navigation/native";
+import { sendCallingRequestApi } from "@/redux-stores/slice/call/api.service";
 
 
 
@@ -31,16 +32,16 @@ const ChatScreenNavbar = memo(function ChatScreenNavbar({
     }, []);
 
     const onPress = useCallback(async () => {
-        if (!session?.id) return;
-        // await dispatch(sendCallingRequest({
-        // typing: typing,
-        // authorId: session?.id,
-        // members: members,
-        // conversationId: conversation.id,
-        // isGroup: conversation.isGroup ?? false
-        // }) as any)
-        navigation.navigate("Calling")
-    }, [session])
+        if (!conversation?.user) return ToastAndroid.show('user id not found', ToastAndroid.SHORT);
+        await dispatch(sendCallingRequestApi({
+            requestUserId: conversation.user?.id,
+            requestUserData: conversation.user,
+            micOn: false,
+            videoOn: false,
+            type: "audio-call"
+        }) as any)
+        navigation.navigate("Calling");
+    }, [])
 
     return (
         <View style={{

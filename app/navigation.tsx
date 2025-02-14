@@ -32,6 +32,7 @@ import { FeedsScreen, AccountScreen, ReelsScreen, SearchScreen } from '@/app/Hom
 import { NotificationScreen } from '@/app/notification';
 import { NotFound } from './NotFound';
 import { CallingScreen, IncomingCallScreen, CallDeclinedScreen, CallRoomScreen } from './call';
+import RoomScreen from './call/videoCall';
 
 export const HomeTabs = createBottomTabNavigator({
     screenOptions: {
@@ -412,6 +413,12 @@ const RootStack = createNativeStackNavigator({
                     screen: CallDeclinedScreen,
                     linking: {
                         path: "/CallDeclined/in"
+                    }
+                },
+                Video:{
+                    screen: RoomScreen,
+                    linking: {
+                        path: "/video"
                     }
                 },
                 InComingCall: {

@@ -46,9 +46,9 @@ export interface AuthorData {
     email: string
     name: string
     profilePicture?: string | null
-    followed_by?: boolean
-    following?: boolean
-    bio?: string;
+    followed_by?: boolean | any
+    following?: boolean | any
+    bio?: string | any
     website?: string[] | any[];
 }
 export enum Role {

@@ -1,32 +1,27 @@
 // metro.config.js
 
-// Learn more https://docs.expo.io/guides/customizing-metro
 const { getDefaultConfig } = require("expo/metro-config");
-const resolveFrom = require("resolve-from");
+const path = require("path");
 
 /** @type {import('expo/metro-config').MetroConfig} */
 const config = getDefaultConfig(__dirname);
 
+// Override Metro's resolution behavior for "event-target-shim"
 config.resolver.resolveRequest = (context, moduleName, platform) => {
-  if (
-    // If the bundle is resolving "event-target-shim" from a module that is part of "react-native-webrtc".
-    moduleName.startsWith("event-target-shim") &&
-    context.originModulePath.includes("react-native-webrtc")
-  ) {
-    // Resolve event-target-shim relative to the react-native-webrtc package to use v6.
-    // React Native requires v5 which is not compatible with react-native-webrtc.
-    const eventTargetShimPath = resolveFrom(
+  if (moduleName === "event-target-shim" && context.originModulePath.includes("react-native-webrtc")) {
+    // Manually resolve to the correct file in event-target-shim.
+    const eventTargetShimPath = path.join(
       context.originModulePath,
-      moduleName
+      "node_modules/event-target-shim/dist/index.js"
     );
-
+    
     return {
       filePath: eventTargetShimPath,
       type: "sourceFile",
     };
   }
 
-  // Ensure you call the default resolver.
+  // Ensure you call the default resolver for other cases
   return context.resolveRequest(context, moduleName, platform);
 };
 
