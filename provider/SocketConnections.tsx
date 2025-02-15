@@ -82,12 +82,16 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
     }, [])
 
     const incomingCall = useCallback(async (data: IncomingCallData) => {
-        dispatch(setIncomingCall(data))
-        const supported = await Linking.canOpenURL('snaapio://incomingcall');
-        if (supported) {
-            await Linking.openURL('snaapio://incomingcall');
+        if (data.status === "calling") {
+            dispatch(setIncomingCall(data))
+            const supported = await Linking.canOpenURL('snaapio://incomingcall');
+            if (supported) {
+                await Linking.openURL('snaapio://incomingcall');
+            } else {
+                ToastAndroid.show("Internal Error incomingCall", ToastAndroid.SHORT);
+            }
         } else {
-            ToastAndroid.show("Internal Error", ToastAndroid.SHORT);
+            dispatch(setIncomingCall(null))
         }
     }, [])
 
@@ -95,13 +99,14 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
         message: string,
         data: "PENDING" | "ACCEPT" | "DECLINE" | "IDLE"
     }) => {
+        console.log("answerIncomingCall socket", res.data)
         dispatch(setAnswerIncomingCall(res.data))
     }, [])
 
     useEffect(() => {
         SocketConnection();
         if (socketRef.current && session?.id) {
-            // socketRef.current?.on("test", systemMessageFromServerSocket);
+            socketRef.current?.on("test", systemMessageFromServerSocket);
             socketRef.current?.on("connect", () => {
                 ToastAndroid.show("Connected to socket server", ToastAndroid.SHORT)
             });
@@ -113,15 +118,8 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
             socketRef.current?.on(configs.eventNames.conversation.seen, userSeenMessages);
             socketRef.current?.on(configs.eventNames.conversation.typing, typingRealtime);
             socketRef.current?.on(configs.eventNames.notification.post, notification);
-            // socketRef.current?.on(configs.eventNames.calling.requestForCall, incomingCall);
-            // socketRef.current?.on(configs.eventNames.calling.answerIncomingCall, answerIncomingCall);
-
-            // socketRef.current?.emit("join-room", roomId);
-            // socketRef.current?.on("offer", handleOffer);
-            // socketRef.current?.on("Action", handleOffer);
-            // socketRef.current?.on("answer", handleAnswer);
-            // socketRef.current?.on("candidate", handleCandidate);
-            // socketRef.current?.on("leave-room", endCall);
+            socketRef.current?.on(configs.eventNames.calling.requestForCall, incomingCall);
+            socketRef.current?.on(configs.eventNames.calling.answerIncomingCall, answerIncomingCall);
 
             return () => {
                 socketRef.current?.off('connect')
@@ -132,7 +130,7 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
                 socketRef.current?.off(configs.eventNames.conversation.typing, typingRealtime)
                 socketRef.current?.off(configs.eventNames.notification.post, notification)
                 socketRef.current?.off(configs.eventNames.calling.requestForCall, incomingCall)
-                socketRef.current?.off(configs.eventNames.calling.answerIncomingCall, notification)
+                socketRef.current?.off(configs.eventNames.calling.answerIncomingCall, answerIncomingCall)
 
             }
         }
@@ -151,6 +149,6 @@ export default memo(SocketConnectionsProvider);
 
 export const uesSocket = (): Socket => {
     const socketState = useContext(SocketContext);
-    if (!socketState.socket){}
+    if (!socketState.socket) { }
     return socketState.socket as Socket
 }

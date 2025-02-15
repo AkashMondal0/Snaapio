@@ -16,6 +16,8 @@ export type CallSessionUser = {
 }
 export type IncomingCallData = {
   members: string[]
+  isVideo: boolean,
+  status: "calling" | "hangUp"
   userData: {
     username: string;
     email: string | null | any
@@ -58,7 +60,7 @@ export const callSlice = createSlice({
   name: 'call',
   initialState,
   reducers: {
-    setIncomingCall: (state, action: PayloadAction<IncomingCallData>) => {
+    setIncomingCall: (state, action: PayloadAction<IncomingCallData | null>) => {
       state.inComingCall = action.payload
     },
     setAnswerIncomingCall: (state, action: PayloadAction<"PENDING" | "ACCEPT" | "DECLINE" | "IDLE">) => {

@@ -1,4 +1,4 @@
-import { memo, useCallback } from "react";
+import { memo, useCallback, useEffect } from "react";
 import { Text, useTheme } from "hyper-native-ui";
 import { TouchableOpacity, View } from "react-native";
 import { Avatar, Icon } from "@/components/skysolo-ui";
@@ -46,6 +46,14 @@ const InComingCall = memo(function InComingCall() {
         }
         navigation.dispatch(StackActions.replace("HomeTabs"))
     }, [userData?.id]);
+
+    useEffect(() => {
+        if (!inComingCall) {
+            if (navigation.canGoBack()) {
+                navigation.goBack()
+            }
+        }
+    }, [inComingCall])
 
 
     return (

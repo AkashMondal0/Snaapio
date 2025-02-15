@@ -1,6 +1,7 @@
+import { configs } from "@/configs";
 import { uesSocket } from "@/provider/SocketConnections";
 import { Session } from "@/types";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   RTCPeerConnection,
   mediaDevices,
@@ -23,12 +24,14 @@ const Empty = {
   remoteStream: null,
   isMuted: false,
   isCameraOn: true,
+  isSpeakerOn: false,
   startLocalUserStream: async () => { },
   createOffer: async () => { },
   toggleMicrophone: () => { },
   toggleCamera: () => { },
   switchCamera: () => { },
   stopStream: () => { },
+  toggleSpeaker: () => { }
 };
 
 const useWebRTC = ({
@@ -47,6 +50,7 @@ const useWebRTC = ({
   const [isMuted, setIsMuted] = useState(false);
   const [isCameraOn, setIsCameraOn] = useState(true);
   const [isFrontCam, setIsFrontCam] = useState(true);
+  const [isSpeakerOn, setIsSpeakerOn] = useState(false);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
 
@@ -61,11 +65,17 @@ const useWebRTC = ({
   const startLocalUserStream = async () => {
     try {
       const mediaConstraints = {
-        audio: true,
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          sampleRate: 48000,
+          channelCount: 2,
+        },
         video: { frameRate: 30, facingMode: "user" },
       };
 
-      const mediaStream = await mediaDevices.getUserMedia(mediaConstraints);
+      const mediaStream = await mediaDevices.getUserMedia(mediaConstraints as any);
 
       mediaStream.getTracks().forEach((track) =>
         peerConnectionRef.current?.addTrack(track, mediaStream)
@@ -144,6 +154,11 @@ const useWebRTC = ({
     }
   };
 
+  const handleAnswer = (data: SocketRes<RTCSessionDescription>) => {
+    peerConnectionRef.current?.setRemoteDescription(new RTCSessionDescription(data.data))
+  }
+
+
   // 📌 **Handle Remote Stream**
   const handleTrackEvent = (event: any) => {
     if (event.streams && event.streams[0]) {
@@ -186,6 +201,18 @@ const useWebRTC = ({
     console.log("📌 Camera switched.");
   };
 
+  //  📌 **AudioToSpeaker**
+  const toggleSpeaker = () => {
+    if (isSpeakerOn) {
+
+      setIsSpeakerOn(false);
+    } else {
+      setIsSpeakerOn(true);
+    }
+
+    console.log("📌 Audio To Speaker");
+  };
+
   // 📌 **Stop Stream & Cleanup**
   const stopStream = () => {
     if (localStream) {
@@ -204,24 +231,23 @@ const useWebRTC = ({
     console.log("📌 Streams stopped and cleaned up.");
   };
 
+
   // 📌 **WebRTC Event Listeners**
   useEffect(() => {
     startLocalUserStream();
     socket?.on("offer", createAnswer);
-    socket?.on("answer", (data: SocketRes<RTCSessionDescription>) =>
-      peerConnectionRef.current?.setRemoteDescription(new RTCSessionDescription(data.data))
-    );
+    socket?.on("answer", handleAnswer);
     socket?.on("candidate", handleRemoteICECandidate);
-
     peerConnectionRef.current?.addEventListener("track", handleTrackEvent);
     peerConnectionRef.current?.addEventListener("icecandidate", handleICECandidateEvent);
 
     return () => {
       peerConnectionRef.current?.removeEventListener("track", handleTrackEvent);
       peerConnectionRef.current?.removeEventListener("icecandidate", handleICECandidateEvent);
-      socket?.off("offer");
-      socket?.off("answer");
-      socket?.off("candidate");
+
+      socket?.off("offer", createAnswer);
+      socket?.off("answer", handleAnswer);
+      socket?.off("candidate", handleRemoteICECandidate);
       stopStream();
     };
   }, []);
@@ -231,10 +257,12 @@ const useWebRTC = ({
     remoteStream,
     isMuted,
     isCameraOn,
+    isSpeakerOn,
     startLocalUserStream,
     toggleMicrophone,
     toggleCamera,
     switchCamera,
+    toggleSpeaker,
     stopStream,
     createOffer,
     createAnswer,

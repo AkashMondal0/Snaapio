@@ -30,14 +30,13 @@ const ChatScreenNavbar = memo(function ChatScreenNavbar({
         }
     }, []);
 
-    const onPress = useCallback(async () => {
+    const onPress = useCallback(async (isVideo: boolean) => {
         if (!conversation?.user) return ToastAndroid.show('user id not found', ToastAndroid.SHORT);
         await dispatch(sendCallingRequestApi({
             requestUserId: conversation.user?.id,
             requestUserData: conversation.user,
-            micOn: false,
-            videoOn: false,
-            type: "audio-call"
+            isVideo: isVideo,
+            status: "calling",
         }) as any)
         // @ts-ignore
         navigation.navigate("Video", {
@@ -46,6 +45,7 @@ const ChatScreenNavbar = memo(function ChatScreenNavbar({
             username: conversation.user.username,
             name: conversation.user.name,
             id: conversation.user.id,
+            isVideo: isVideo,
         });
     }, [])
 
@@ -92,8 +92,9 @@ const ChatScreenNavbar = memo(function ChatScreenNavbar({
                     </View>
                 </View>
             </View>
-            <View style={{ paddingRight: 10 }}>
-                <Icon iconName="Phone" isButton variant="secondary" size={30} style={{ elevation: 2 }} onPress={onPress} />
+            <View style={{ paddingRight: 16, gap: 12, display: "flex", flexDirection: "row" }}>
+                <Icon iconName="Video" isButton variant="secondary" size={30} style={{ elevation: 2 }} onPress={() => onPress(true)} />
+                <Icon iconName="Phone" isButton variant="secondary" size={30} style={{ elevation: 2 }} onPress={() => onPress(false)} />
             </View>
         </View>
     )

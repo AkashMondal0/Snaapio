@@ -7,10 +7,9 @@ export const sendCallingRequestApi = createAsyncThunk(
     'sendCallingRequestApi/post',
     async (requestForCallInput: {
         requestUserId: string,
-        micOn: boolean,
-        videoOn: boolean,
-        type: string,
-        requestUserData: AuthorData
+        requestUserData: AuthorData,
+        isVideo: boolean,
+        status: "calling" | "hangUp"
     }, thunkAPI) => {
         try {
             const { requestUserData, ...Input } = requestForCallInput
