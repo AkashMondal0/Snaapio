@@ -1,14 +1,23 @@
 import { Icon } from "@/components/skysolo-ui";
 import useWebRTC from "@/lib/useWebRTC";
 import { Avatar, useTheme } from "hyper-native-ui";
-import React, { useCallback } from "react";
+import React from "react";
 import { View, StatusBar, TouchableOpacity } from "react-native";
 import { RTCView } from "react-native-webrtc";
-import * as Haptics from 'expo-haptics';
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux-stores/store";
+import { useNavigation } from "@react-navigation/native";
 
 
-const CallScreen: React.FC = ({ }) => {
-	const { localStream, remoteStream, cameraTurnOff} = useWebRTC();
+const CallScreen = ({
+	route
+}: { route: any }) => {
+	const session = useSelector((state: RootState) => state.AuthState.session.user);
+	const { localStream, remoteStream, toggleCamera, switchCamera, stopStream, toggleMicrophone } = useWebRTC({
+		session: session,
+		remoteUser: route.params
+	});
+
 
 	return (
 		<View style={{
@@ -51,53 +60,38 @@ const CallScreen: React.FC = ({ }) => {
 					zOrder={0}
 				/>
 			) : <></>}
-			{/* <ActionBoxComponent 
-			cameraTurnOff={cameraTurnOff}
-			/> */}
+			<ActionBoxComponent
+				endCall={stopStream}
+				toggleCamera={toggleCamera}
+				switchCamera={switchCamera}
+				toggleMicrophone={toggleMicrophone} />
 		</View>
 	);
 };
 
 export default CallScreen;
 
-const UserCameraEmpty = () => {
-	const { currentTheme } = useTheme();
-	return (
-		<View style={{
-			position: "absolute",
-			backgroundColor: currentTheme.muted,
-			borderRadius: 20,
-			overflow: "hidden",
-			width: "40%",
-			height: "25%",
-			right: 18,
-			zIndex: 1000,
-			top: Number(StatusBar.currentHeight) + 10,
-			alignItems: "center",
-			justifyContent: "center"
-		}}>
-			<Avatar size={120}
-				src={"https://i0.wp.com/ovicio.com.br/wp-content/uploads/2024/05/20240502-ovicio-ciri-witcher.webp?resize=555%2C555&ssl=1"} />
-		</View>
-	)
-}
-
 const ActionBoxComponent = ({
-	cameraTurnOff,
+	toggleCamera,
 	toggleMicrophone,
 	switchCamera,
-    stopStream
-}:{
-	cameraTurnOff: () => void;
-	toggleMicrophone : () => void;
-	switchCamera : () => void;
-	stopStream : () => void;
+	endCall
+}: {
+	toggleCamera: () => void;
+	toggleMicrophone: () => void;
+	switchCamera: () => void;
+	endCall: () => void;
 }) => {
+	console.log("ActionBoxComponent")
+	const navigation = useNavigation();
 	const { currentTheme } = useTheme();
-	const HangUp = useCallback(() => {
-		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-	}, []);
 
+	const hangUp = () => {
+		endCall();
+		if (navigation.canGoBack()) {
+			navigation.goBack()
+		}
+	}
 	return (
 		<View style={{
 			position: "absolute",
@@ -120,7 +114,7 @@ const ActionBoxComponent = ({
 				marginVertical: 10,
 				width: "80%",
 			}}>
-				<TouchableOpacity onPress={cameraTurnOff}
+				<TouchableOpacity onPress={toggleCamera}
 					activeOpacity={0.6}
 					style={{
 						padding: 15,
@@ -129,27 +123,28 @@ const ActionBoxComponent = ({
 						borderWidth: 1,
 						borderColor: currentTheme.border
 					}}>
-					<Icon iconName="Video" size={24} onPress={cameraTurnOff} />
+					<Icon iconName="Video" size={24} onPress={toggleCamera} />
 				</TouchableOpacity>
-				<TouchableOpacity activeOpacity={0.6} style={{
+				<TouchableOpacity onPress={switchCamera}
+					activeOpacity={0.6} style={{
+						padding: 15,
+						borderRadius: 50,
+						backgroundColor: currentTheme.background,
+						borderWidth: 1,
+						borderColor: currentTheme.border
+					}}>
+					<Icon iconName="Volume2" size={24} onPress={switchCamera} />
+				</TouchableOpacity>
+				<TouchableOpacity onPress={toggleMicrophone} activeOpacity={0.6} style={{
 					padding: 15,
 					borderRadius: 50,
 					backgroundColor: currentTheme.background,
 					borderWidth: 1,
 					borderColor: currentTheme.border
 				}}>
-					<Icon iconName="Volume2" size={24} onPress={HangUp} />
+					<Icon iconName="MicOff" size={24} onPress={toggleMicrophone} />
 				</TouchableOpacity>
-				<TouchableOpacity activeOpacity={0.6} style={{
-					padding: 15,
-					borderRadius: 50,
-					backgroundColor: currentTheme.background,
-					borderWidth: 1,
-					borderColor: currentTheme.border
-				}}>
-					<Icon iconName="MicOff" size={24} onPress={HangUp} />
-				</TouchableOpacity>
-				<TouchableOpacity onPress={HangUp} activeOpacity={0.6} style={[{
+				<TouchableOpacity onPress={hangUp} activeOpacity={0.6} style={[{
 					padding: 15,
 					borderRadius: 50,
 					backgroundColor: currentTheme.destructive,
@@ -157,9 +152,31 @@ const ActionBoxComponent = ({
 					borderWidth: 1,
 					borderColor: currentTheme.border
 				}]}>
-					<Icon iconName="Phone" size={24} onPress={HangUp} color="#fff" />
+					<Icon iconName="Phone" size={24} onPress={hangUp} color="#fff" />
 				</TouchableOpacity>
 			</View>
+		</View>
+	)
+}
+
+const UserCameraEmpty = () => {
+	const { currentTheme } = useTheme();
+	return (
+		<View style={{
+			position: "absolute",
+			backgroundColor: currentTheme.muted,
+			borderRadius: 20,
+			overflow: "hidden",
+			width: "40%",
+			height: "25%",
+			right: 18,
+			zIndex: 1000,
+			top: Number(StatusBar.currentHeight) + 10,
+			alignItems: "center",
+			justifyContent: "center"
+		}}>
+			<Avatar size={120}
+				src={"https://i0.wp.com/ovicio.com.br/wp-content/uploads/2024/05/20240502-ovicio-ciri-witcher.webp?resize=555%2C555&ssl=1"} />
 		</View>
 	)
 }

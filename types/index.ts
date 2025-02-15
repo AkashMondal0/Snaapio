@@ -36,8 +36,8 @@ export interface Session {
         email: string,
         name: string,
         profilePicture: string,
-        accessToken: string,
-        bio: string,
+        accessToken?: string,
+        bio?: string,
     } | null
 }
 export interface AuthorData {

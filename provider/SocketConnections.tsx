@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
-import { memo, useCallback, useEffect, useRef } from "react";
+import { memo, useCallback, useContext, useEffect, useRef } from "react";
 import io, { Socket } from "socket.io-client";
 import { configs } from "@/configs";
 import { Linking, ToastAndroid } from "react-native";
@@ -13,7 +13,19 @@ import { fetchUnreadMessageNotificationCountApi } from "@/redux-stores/slice/not
 import React from "react";
 import { CallSession, setIncomingCall } from "@/redux-stores/slice/call";
 
-const SocketConnectionsProvider = memo(function SocketConnectionsProvider() {
+// create socket context 
+
+const SocketContext = React.createContext<{
+    socket: Socket | null,
+}>({
+    socket: null,
+});
+
+const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
+    children
+}: {
+    children: React.ReactNode
+}) {
     const dispatch = useDispatch();
     const session = useSelector((state: RootState) => state.AuthState.session.user);
     const currentConversation = useSelector((state: RootState) => state.ConversationState.conversation);
@@ -21,12 +33,12 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider() {
     const socketRef = useRef<Socket | null>(null)
 
     const SocketConnection = useCallback(async () => {
-        if (!session || socketRef.current) return;
+        if (!session || !session?.accessToken || socketRef.current) return;
         socketRef.current = io(`${configs.serverApi?.baseUrl?.replace("/v1", "")}/chat`, {
             transports: ['websocket'],
             withCredentials: true,
             extraHeaders: {
-                Authorization: session.accessToken
+                Authorization: session?.accessToken
             },
             query: {
                 userId: session.id,
@@ -80,9 +92,9 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider() {
     }, [])
 
     useEffect(() => {
-        // SocketConnection()
+        SocketConnection();
         if (socketRef.current && session?.id) {
-            socketRef.current?.on("test", systemMessageFromServerSocket);
+            // socketRef.current?.on("test", systemMessageFromServerSocket);
             socketRef.current?.on("connect", () => {
                 ToastAndroid.show("Connected to socket server", ToastAndroid.SHORT)
             });
@@ -110,17 +122,23 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider() {
                 socketRef.current?.off(configs.eventNames.conversation.seen, userSeenMessages)
                 socketRef.current?.off(configs.eventNames.conversation.typing, typingRealtime)
                 socketRef.current?.off(configs.eventNames.notification.post, notification)
-                // 
-                // socketRef.current?.off("offer");
-                // socketRef.current?.off("answer");
-                // socketRef.current?.off("candidate");
-                // socketRef.current?.off("leave-room");
             }
         }
     }, [session, currentConversation, list.length])
 
-    return <></>
+    return <SocketContext.Provider value={{
+        socket: socketRef.current
+    }}>
+        {children}
+    </SocketContext.Provider>
 }, () => true)
 
 
 export default memo(SocketConnectionsProvider);
+
+
+export const uesSocket = (): Socket => {
+    const socketState = useContext(SocketContext);
+    if (!socketState.socket) throw new Error("Socket problem")
+    return socketState.socket as Socket
+}

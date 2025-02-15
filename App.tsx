@@ -44,14 +44,15 @@ function Root() {
         backgroundColor: background
       }}>
         <PreConfiguration />
-        <SocketConnections />
-        <BottomSheetProvider>
-          {session.user ? <Navigation
-            onReady={() => { SplashScreen.hideAsync() }}
-            theme={theme} linking={{ prefixes }} /> : <AuthNavigation
-            onReady={() => { SplashScreen.hideAsync() }}
-            theme={theme} linking={{ prefixes }} />}
-        </BottomSheetProvider>
+        <SocketConnections >
+          <BottomSheetProvider>
+            {session.user ? <Navigation
+              onReady={() => { SplashScreen.hideAsync() }}
+              theme={theme} linking={{ prefixes }} /> : <AuthNavigation
+              onReady={() => { SplashScreen.hideAsync() }}
+              theme={theme} linking={{ prefixes }} />}
+          </BottomSheetProvider>
+        </SocketConnections>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   </>)

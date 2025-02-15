@@ -40,7 +40,14 @@ const ChatScreenNavbar = memo(function ChatScreenNavbar({
             videoOn: false,
             type: "audio-call"
         }) as any)
-        navigation.navigate("Calling");
+        // @ts-ignore
+        navigation.navigate("Video", {
+            email: conversation.user.email,
+            profilePicture: conversation.user.profilePicture,
+            username: conversation.user.username,
+            name: conversation.user.name,
+            id: conversation.user.id,
+        });
     }, [])
 
     return (

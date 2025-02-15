@@ -1,4 +1,7 @@
-import { useState, useEffect, useRef } from "react";
+import { uesSocket } from "@/provider/SocketConnections";
+import { Session } from "@/types";
+import { useFocusEffect } from "@react-navigation/native";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   RTCPeerConnection,
   mediaDevices,
@@ -6,240 +9,203 @@ import {
   RTCIceCandidate,
   MediaStream,
 } from "react-native-webrtc";
-import { RTCSessionDescriptionInit } from "react-native-webrtc/lib/typescript/RTCSessionDescription";
-import { io } from "socket.io-client";
 
-// WebRTC Configuration
-const configuration = {
-  iceServers: [
-    { urls: ["stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302"] },
-  ],
+const Empty = {
+  localStream: null,
+  remoteStream: null,
+  isMuted: false,
+  isCameraOn: true,
+  startLocalUserStream: async () => { },
+  createOffer: async () => { },
+  toggleMicrophone: () => { },
+  toggleCamera: () => { },
+  switchCamera: () => { },
+  stopStream: () => { },
 };
 
-// Initialize Socket.io
-const socket = io("http://192.168.31.212:4000");
+const useWebRTC = ({
+  session,
+  remoteUser
+}: {
+  session: Session["user"] | null;
+  remoteUser: Session["user"] | null;
+}) => {
+  if (!session || !remoteUser) {
+    console.error("Session or remoteUser is invalid.");
+    return Empty;
+  }
+  const socket = uesSocket();
+  const [isMuted, setIsMuted] = useState(false);
+  const [isCameraOn, setIsCameraOn] = useState(true);
+  const [isFrontCam, setIsFrontCam] = useState(true);
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+  const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
+  const peerConnectionRef = useRef<RTCPeerConnection | null>(new RTCPeerConnection({
+    iceServers: [{
+      urls: [
+        "stun:stun1.l.google.com:19302",
+        "stun:stun2.l.google.com:19302"]
+    }]
+  }));
 
-const useWebRTC = () => {
-  const roomId = "1234";
-  let isVoiceOnly = false;
-  let sessionConstraints = {
-    mandatory: {
-      OfferToReceiveAudio: true,
-      OfferToReceiveVideo: true,
-      VoiceActivityDetection: true
-    }
-  };
-
-  const [localStream, setLocalStream] = useState<any>(null);
-  const [localMediaStream, setLocalMediaStream] = useState<any>(null);
-  const [remoteStream, setRemoteStream] = useState<any>(null);
-  const peerConnectionRef = useRef<RTCPeerConnection | null>(new RTCPeerConnection(configuration));
-  let datachannel = peerConnectionRef.current?.createDataChannel('my_channel');
-
-  // Getting a Media Stream using getUserMedia
-  // If you only want a voice call then you can flip isVoiceOnly over to true.
-  // You can then cycle and enable or disable the video tracks on demand during a call.
+  // 📌 **Start Local User Stream**
   const startLocalUserStream = async () => {
     try {
-      let mediaConstraints = {
+      const mediaConstraints = {
         audio: true,
         video: {
           frameRate: 30,
-          facingMode: 'user',
-        }
+          facingMode: "user",
+        },
       };
+
       const mediaStream = await mediaDevices.getUserMedia(mediaConstraints);
-      if (isVoiceOnly) {
-        let videoTrack = await mediaStream.getVideoTracks()[0];
-        videoTrack.enabled = false;
-      };
+
+      mediaStream.getTracks().forEach((track) => {
+        peerConnectionRef.current?.addTrack(track, mediaStream);
+      });
+
       setLocalStream(mediaStream);
     } catch (err) {
-      console.log("Error - startLocalStream function")
-    };
+      console.error("Error starting local stream:", err);
+    }
   };
 
-  // Getting a Media Stream using getDisplayMedia
-  // This will allow capturing the device screen, also requests permission on execution.
-  const startLocalMediaStream = async () => {
-    try {
-      const mediaStream = await mediaDevices.getDisplayMedia();
-      setLocalMediaStream(mediaStream);
-    } catch (err) {
-      // Handle Error
-      console.log("Error - startMediaStream function")
-    };
-  }
+  // 📌 **Toggle Microphone**
+  const toggleMicrophone = () => {
+    if (localStream) {
+      localStream.getAudioTracks().forEach((track) => {
+        track.enabled = !track.enabled;
+      });
+      setIsMuted((prev) => !prev);
+    }
+  };
 
-  // Toggle the Active Microphone
-  const toggleMicrophone = async () => {
-    let isMuted = false;
+  // 📌 **Toggle Camera**
+  const toggleCamera = () => {
+    if (localStream) {
+      localStream.getVideoTracks().forEach((track) => {
+        track.enabled = !track.enabled;
+      });
+      setIsCameraOn((prev) => !prev);
+    }
+  };
 
-    try {
-      const audioTrack = await localMediaStream.getAudioTracks()[0];
-      audioTrack.enabled = !audioTrack.enabled;
-      isMuted = !isMuted;
-    } catch (err) {
-      // Handle Error
-      console.log("Error - toggleMicrophone function")
-    };
-  }
+  // 📌 **Stop Camera**
+  const stopCamera = () => {
+    if (localStream) {
+      localStream.getVideoTracks().forEach((track) => {
+        track.enabled = !track.enabled;
+        track.stop();
+      });
+      setIsCameraOn((prev) => !prev);
+    }
+  };
 
-  // Switching the Active Camera
-  const switchCamera = async () => {
-    try {
-      const videoTrack = await localMediaStream.getVideoTracks()[0];
-      const facingMode = videoTrack.getSettings().facingMode === 'user' ? 'environment' : 'user';
-      videoTrack.setSettings({ facingMode });
-    } catch (err) {
-      // Handle Error
-      console.log("Error - switchCamera function")
-    };
-  }
+  // 📌 **Switch Front/Back Camera**
+  const switchCamera = () => {
+    if (localStream) {
+      const videoTrack = localStream.getVideoTracks()[0];
+      const constraints = { facingMode: isFrontCam ? 'user' : 'environment' };
+      videoTrack.applyConstraints(constraints);
+      setIsFrontCam((prev) => !prev);
+    }
+  };
 
-
-  const stopStream = async () => {
-    try {
-      peerConnectionRef.current?.close();
-      peerConnectionRef.current = null;
-      if (!datachannel) return;
-      datachannel?.close();
-    } catch (err) {
-      // Handle Error
-      console.log("Error - hangUp function")
-    };
-  }
-
-  const cameraTurnOff = async () => {
-    try {
-
-    } catch (err) {
-      // Handle Error
-      console.log("Error - cameraTurnOff function")
-    };
-  }
-
-  // Creating an Offer 
+  // 📌 **Create Offer**
   const createOffer = async () => {
     try {
-      const offerDescription = await peerConnectionRef.current?.createOffer(sessionConstraints);
+      const offerDescription = await peerConnectionRef.current?.createOffer();
       await peerConnectionRef.current?.setLocalDescription(offerDescription);
-      // Send the offerDescription to the other participant.
-    } catch (err) {
-      // Handle Errors
-      console.log("Error - createOffer function", err)
-    };
-  }
 
-  // Creating an Answer
-  const createAnswer = async (offerDescription: RTCSessionDescription | RTCSessionDescriptionInit) => {
+      socket.emit("offer", {
+        userId: session.id,
+        receiver: remoteUser.id,
+        offerDescription: peerConnectionRef.current?.localDescription,
+      });
+    } catch (err) {
+      console.error("Error creating offer:", err);
+    }
+  };
+
+  // 📌 **Create Answer**
+  const createAnswer = async ({ offer }: { offer: RTCSessionDescription }) => {
     try {
-      const remoteOfferDescription = new RTCSessionDescription(offerDescription);
+      const remoteOfferDescription = new RTCSessionDescription(offer);
       await peerConnectionRef.current?.setRemoteDescription(remoteOfferDescription);
 
-      const answerDescription = await peerConnectionRef.current?.createAnswer();
-      await peerConnectionRef.current?.setLocalDescription(answerDescription);
-      // Send the answerDescription back as a response to the offerDescription.
-
+      socket.emit("answer", {
+        userId: session.id,
+        receiver: remoteUser.id,
+        answer: peerConnectionRef.current?.localDescription,
+      });
     } catch (err) {
-      // Handle Errors
-      console.log("Error - createAnswer function")
-    };
-  }
+      console.error("Error creating answer:", err);
+    }
+  };
 
-  // Controlling remote audio tracks
-  // const controlRemoteAudio = async (trackId: string, isEnabled: boolean) => {
-  //   try {
-  //     const remoteAudioTracks = peerConnectionRef.current?.getRemoteStreams()[0].getAudioTracks();
-  //     const remoteAudioTrack = remoteAudioTracks.find((track) => track.id === trackId);
-  //     if (remoteAudioTrack) {
-  //       remoteAudioTrack.enabled = isEnabled;
-  //     }
-  //   } catch (err) {
-  //     // Handle Errors
-  //     console.log("Error - controlRemoteAudio function")
-  //   };
-  // }
-  // Joining a Room
-  // const joinRoom = () => {
-  //   socket.emit("join-room", { roomId });
-  //   socket.on("offer", (data) => {
-  //     createAnswer(data.offer);
-  //   });
-  //   socket.on("answer", (data) => {
-  //     peerConnectionRef.current?.setRemoteDescription(new RTCSessionDescription(data.answer));
-  //   });
-  //   socket.on("ice-candidate", (data) => {
-  //     const candidate = new RTCIceCandidate(data.candidate);
-  //     peerConnectionRef.current?.addIceCandidate(candidate);
-  //   });
-  // }
+  // 📌 **Handle ICE Candidate**
+  const handleICECandidate = async ({ candidate }: { candidate: RTCIceCandidate }) => {
+    try {
+      await peerConnectionRef.current?.addIceCandidate(new RTCIceCandidate(candidate));
+    } catch (err) {
+      console.error("Error handling ICE candidate:", err);
+    }
+  };
 
-  // // Leaving a Room
-  // const leaveRoom = () => {
-  //   socket.emit("leave-room", { roomId });
-  //   socket.off("offer");
-  //   socket.off("answer");
-  //   socket.off("ice-candidate");
-  // }
+  // 📌 **Stop Media Stream & Peer Connection**
+  const stopStream = async () => {
+    // socket.emit("leave-room", roomId);
+    stopCamera();
+    if (localStream) {
+      localStream.getTracks().forEach((track) => {
+        track.stop(); // Stop track
+        localStream.removeTrack(track); // Remove track
+      });
+    }
+    if (remoteStream) {
+      remoteStream.getTracks().forEach((track) => track.stop());
+    }
+    if (peerConnectionRef.current) {
+      peerConnectionRef.current.close();
+      peerConnectionRef.current = null;
+    }
+    setLocalStream(null);
+    setRemoteStream(null);
+    console.log("Stopping camera and media stream...");
+  };
 
-  // useEffect(() => {
-  //   joinRoom();
-  //   return leaveRoom;
-  // }, [joinRoom, leaveRoom]);
-
+  // 📌 **Event Listeners for WebRTC Signaling**
   useEffect(() => {
     startLocalUserStream();
-    // 
-    datachannel?.addEventListener('open', event => { });
-    datachannel?.addEventListener('close', event => { });
-    datachannel?.addEventListener('message', message => { });
-    // 
-    peerConnectionRef.current?.addEventListener('datachannel', event => {
-      let datachannel = event.channel;
-
-      // Now you've got the datachannel.
-      // You can hookup and use the same events as above ^
+    socket.on("offer", createAnswer);
+    socket.on("answer", async ({ answer }: { answer: RTCSessionDescription }) => {
+      await peerConnectionRef.current?.setRemoteDescription(
+        new RTCSessionDescription(answer)
+      );
     });
-    // 
-    peerConnectionRef.current?.addEventListener('connectionstatechange', event => { });
-    peerConnectionRef.current?.addEventListener('icecandidate', event => { });
-    peerConnectionRef.current?.addEventListener('icecandidateerror', event => { });
-    peerConnectionRef.current?.addEventListener('iceconnectionstatechange', event => { });
-    peerConnectionRef.current?.addEventListener('icegatheringstatechange', event => { });
-    peerConnectionRef.current?.addEventListener('negotiationneeded', event => { });
-    peerConnectionRef.current?.addEventListener('signalingstatechange', event => { });
-
-    peerConnectionRef.current?.addEventListener('track', event => {
-      if (event.track) {
-        const remoteStream = new MediaStream([event.track]);
-        setRemoteStream(remoteStream);
-      }
-    });
+    socket.on("candidate", handleICECandidate);
 
     return () => {
-      peerConnectionRef.current?.removeEventListener("connectionstatechange");
-      peerConnectionRef.current?.removeEventListener("icecandidate");
-      peerConnectionRef.current?.removeEventListener("icecandidateerror");
-      peerConnectionRef.current?.removeEventListener("icegatheringstatechange");
-      peerConnectionRef.current?.removeEventListener("iceconnectionstatechange");
-      peerConnectionRef.current?.removeEventListener("negotiationneeded");
-      peerConnectionRef.current?.removeEventListener("track");
-      peerConnectionRef.current?.removeEventListener("signalingstatechange");
+      socket.off("offer");
+      socket.off("answer");
+      socket.off("candidate");
+      stopStream();
     };
-  }, [peerConnectionRef.current]);
+  }, []);
 
   return {
     localStream,
     remoteStream,
-    localMediaStream,
-    peerConnectionRef,
-    startLocalMediaStream,
+    isMuted,
+    isCameraOn,
     startLocalUserStream,
+    createOffer,
     toggleMicrophone,
-    stopStream,
+    toggleCamera,
     switchCamera,
-    cameraTurnOff
+    stopStream,
+    stopCamera
   };
 };
 
