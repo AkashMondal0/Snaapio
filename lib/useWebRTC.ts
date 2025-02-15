@@ -1,14 +1,22 @@
 import { uesSocket } from "@/provider/SocketConnections";
 import { Session } from "@/types";
-import { useFocusEffect } from "@react-navigation/native";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   RTCPeerConnection,
   mediaDevices,
   RTCSessionDescription,
   RTCIceCandidate,
-  MediaStream,
+  registerGlobals,
 } from "react-native-webrtc";
+
+type SocketRes<T> = {
+  userId: string;
+  members: string[];
+  data: T;
+};
+
+// Register global WebRTC API for better compatibility
+registerGlobals();
 
 const Empty = {
   localStream: null,
@@ -25,7 +33,7 @@ const Empty = {
 
 const useWebRTC = ({
   session,
-  remoteUser
+  remoteUser,
 }: {
   session: Session["user"] | null;
   remoteUser: Session["user"] | null;
@@ -34,40 +42,113 @@ const useWebRTC = ({
     console.error("Session or remoteUser is invalid.");
     return Empty;
   }
+
   const socket = uesSocket();
   const [isMuted, setIsMuted] = useState(false);
   const [isCameraOn, setIsCameraOn] = useState(true);
   const [isFrontCam, setIsFrontCam] = useState(true);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
-  const peerConnectionRef = useRef<RTCPeerConnection | null>(new RTCPeerConnection({
-    iceServers: [{
-      urls: [
-        "stun:stun1.l.google.com:19302",
-        "stun:stun2.l.google.com:19302"]
-    }]
-  }));
+
+  // WebRTC PeerConnection Reference
+  const peerConnectionRef = useRef<RTCPeerConnection | null>(
+    new RTCPeerConnection({
+      iceServers: [{ urls: ["stun:stun.l.google.com:19302"] }],
+    })
+  );
 
   // 📌 **Start Local User Stream**
   const startLocalUserStream = async () => {
     try {
       const mediaConstraints = {
         audio: true,
-        video: {
-          frameRate: 30,
-          facingMode: "user",
-        },
+        video: { frameRate: 30, facingMode: "user" },
       };
 
       const mediaStream = await mediaDevices.getUserMedia(mediaConstraints);
 
-      mediaStream.getTracks().forEach((track) => {
-        peerConnectionRef.current?.addTrack(track, mediaStream);
+      mediaStream.getTracks().forEach((track) =>
+        peerConnectionRef.current?.addTrack(track, mediaStream)
+      );
+
+      setLocalStream(mediaStream as any);
+      console.log("📌 Local stream started.");
+    } catch (err) {
+      console.error("❌ Error starting local stream:", err);
+    }
+  };
+
+  // 📌 **Create Offer**
+  const createOffer = async () => {
+    try {
+      const offerDescription = await peerConnectionRef.current?.createOffer({
+        OfferToReceiveAudio: true,
+        OfferToReceiveVideo: true,
+      });
+      if (!offerDescription) return;
+
+      await peerConnectionRef.current?.setLocalDescription(offerDescription);
+      socket?.emit("offer", {
+        userId: session.id,
+        members: [remoteUser.id],
+        data: offerDescription,
       });
 
-      setLocalStream(mediaStream);
+      console.log("📌 Offer created and sent.");
     } catch (err) {
-      console.error("Error starting local stream:", err);
+      console.error("❌ Error creating offer:", err);
+    }
+  };
+
+  // 📌 **Create Answer**
+  const createAnswer = async (res: SocketRes<RTCSessionDescription>) => {
+    try {
+      const remoteOffer = new RTCSessionDescription(res.data);
+      await peerConnectionRef.current?.setRemoteDescription(remoteOffer);
+
+      const answer = await peerConnectionRef.current?.createAnswer();
+      await peerConnectionRef.current?.setLocalDescription(answer);
+
+      socket?.emit("answer", {
+        userId: session.id,
+        members: [remoteUser.id],
+        data: answer,
+      });
+
+      console.log("📌 Answer created and sent.");
+    } catch (err) {
+      console.error("❌ Error creating answer:", err);
+    }
+  };
+
+  // 📌 **Handle Incoming ICE Candidate**
+  const handleRemoteICECandidate = async (res: SocketRes<RTCIceCandidate>) => {
+    try {
+      if (!res.data) return;
+      await peerConnectionRef.current?.addIceCandidate(new RTCIceCandidate(res.data));
+      console.log("📌 Remote ICE candidate added.");
+    } catch (err) {
+      console.error("❌ Error adding ICE candidate:", err);
+    }
+  };
+
+  // 📌 **Handle ICE Candidate Event**
+  const handleICECandidateEvent = (event: any) => {
+    if (event.candidate) {
+      socket?.emit("candidate", {
+        userId: session.id,
+        members: [remoteUser.id],
+        data: event.candidate,
+      });
+      console.log("📌 ICE candidate sent.");
+    }
+  };
+
+  // 📌 **Handle Remote Stream**
+  const handleTrackEvent = (event: any) => {
+    if (event.streams && event.streams[0]) {
+      setRemoteStream(event.streams[0]);
+      console.log("📌 Remote stream received.");
     }
   };
 
@@ -78,6 +159,7 @@ const useWebRTC = ({
         track.enabled = !track.enabled;
       });
       setIsMuted((prev) => !prev);
+      console.log("📌 Microphone toggled.");
     }
   };
 
@@ -88,108 +170,58 @@ const useWebRTC = ({
         track.enabled = !track.enabled;
       });
       setIsCameraOn((prev) => !prev);
-    }
-  };
-
-  // 📌 **Stop Camera**
-  const stopCamera = () => {
-    if (localStream) {
-      localStream.getVideoTracks().forEach((track) => {
-        track.enabled = !track.enabled;
-        track.stop();
-      });
-      setIsCameraOn((prev) => !prev);
+      console.log("📌 Camera toggled.");
     }
   };
 
   // 📌 **Switch Front/Back Camera**
   const switchCamera = () => {
+    if (!localStream || !isCameraOn) return;
+
+    const videoTrack = localStream.getVideoTracks()[0];
+    const constraints = { facingMode: isFrontCam ? "environment" : "user" };
+
+    videoTrack.applyConstraints(constraints);
+    setIsFrontCam((prev) => !prev);
+    console.log("📌 Camera switched.");
+  };
+
+  // 📌 **Stop Stream & Cleanup**
+  const stopStream = () => {
     if (localStream) {
-      const videoTrack = localStream.getVideoTracks()[0];
-      const constraints = { facingMode: isFrontCam ? 'user' : 'environment' };
-      videoTrack.applyConstraints(constraints);
-      setIsFrontCam((prev) => !prev);
-    }
-  };
-
-  // 📌 **Create Offer**
-  const createOffer = async () => {
-    try {
-      const offerDescription = await peerConnectionRef.current?.createOffer();
-      await peerConnectionRef.current?.setLocalDescription(offerDescription);
-
-      socket.emit("offer", {
-        userId: session.id,
-        receiver: remoteUser.id,
-        offerDescription: peerConnectionRef.current?.localDescription,
-      });
-    } catch (err) {
-      console.error("Error creating offer:", err);
-    }
-  };
-
-  // 📌 **Create Answer**
-  const createAnswer = async ({ offer }: { offer: RTCSessionDescription }) => {
-    try {
-      const remoteOfferDescription = new RTCSessionDescription(offer);
-      await peerConnectionRef.current?.setRemoteDescription(remoteOfferDescription);
-
-      socket.emit("answer", {
-        userId: session.id,
-        receiver: remoteUser.id,
-        answer: peerConnectionRef.current?.localDescription,
-      });
-    } catch (err) {
-      console.error("Error creating answer:", err);
-    }
-  };
-
-  // 📌 **Handle ICE Candidate**
-  const handleICECandidate = async ({ candidate }: { candidate: RTCIceCandidate }) => {
-    try {
-      await peerConnectionRef.current?.addIceCandidate(new RTCIceCandidate(candidate));
-    } catch (err) {
-      console.error("Error handling ICE candidate:", err);
-    }
-  };
-
-  // 📌 **Stop Media Stream & Peer Connection**
-  const stopStream = async () => {
-    // socket.emit("leave-room", roomId);
-    stopCamera();
-    if (localStream) {
-      localStream.getTracks().forEach((track) => {
-        track.stop(); // Stop track
-        localStream.removeTrack(track); // Remove track
-      });
+      localStream.getTracks().forEach((track) => track.stop());
     }
     if (remoteStream) {
       remoteStream.getTracks().forEach((track) => track.stop());
     }
-    if (peerConnectionRef.current) {
-      peerConnectionRef.current.close();
-      peerConnectionRef.current = null;
-    }
+    peerConnectionRef.current?.close();
+    peerConnectionRef.current = new RTCPeerConnection({
+      iceServers: [{ urls: ["stun:stun.l.google.com:19302"] }],
+    });
+
     setLocalStream(null);
     setRemoteStream(null);
-    console.log("Stopping camera and media stream...");
+    console.log("📌 Streams stopped and cleaned up.");
   };
 
-  // 📌 **Event Listeners for WebRTC Signaling**
+  // 📌 **WebRTC Event Listeners**
   useEffect(() => {
     startLocalUserStream();
-    socket.on("offer", createAnswer);
-    socket.on("answer", async ({ answer }: { answer: RTCSessionDescription }) => {
-      await peerConnectionRef.current?.setRemoteDescription(
-        new RTCSessionDescription(answer)
-      );
-    });
-    socket.on("candidate", handleICECandidate);
+    socket?.on("offer", createAnswer);
+    socket?.on("answer", (data: SocketRes<RTCSessionDescription>) =>
+      peerConnectionRef.current?.setRemoteDescription(new RTCSessionDescription(data.data))
+    );
+    socket?.on("candidate", handleRemoteICECandidate);
+
+    peerConnectionRef.current?.addEventListener("track", handleTrackEvent);
+    peerConnectionRef.current?.addEventListener("icecandidate", handleICECandidateEvent);
 
     return () => {
-      socket.off("offer");
-      socket.off("answer");
-      socket.off("candidate");
+      peerConnectionRef.current?.removeEventListener("track", handleTrackEvent);
+      peerConnectionRef.current?.removeEventListener("icecandidate", handleICECandidateEvent);
+      socket?.off("offer");
+      socket?.off("answer");
+      socket?.off("candidate");
       stopStream();
     };
   }, []);
@@ -200,12 +232,12 @@ const useWebRTC = ({
     isMuted,
     isCameraOn,
     startLocalUserStream,
-    createOffer,
     toggleMicrophone,
     toggleCamera,
     switchCamera,
     stopStream,
-    stopCamera
+    createOffer,
+    createAnswer,
   };
 };
 

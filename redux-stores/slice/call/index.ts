@@ -14,6 +14,16 @@ export type CallSessionUser = {
   name: string;
   profilePicture: string | null
 }
+export type IncomingCallData = {
+  members: string[]
+  userData: {
+    username: string;
+    email: string | null | any
+    id: string;
+    name: string;
+    profilePicture: string | null
+  }
+}
 export type Participants = {
   sessionId: string
   user: CallSessionUser
@@ -33,35 +43,38 @@ export type CallSession = {
 export interface CallState {
   currentCallingState: boolean
   callSessionState: CallSession | null
-  inComingCall: CallSession | null
-  calling: CallSession | null
+  inComingCall: IncomingCallData | null
+  callingAnswer: "PENDING" | "ACCEPT" | "DECLINE" | "IDLE",
 }
 
 const initialState: CallState = {
   currentCallingState: false,
   callSessionState: null,
   inComingCall: null,
-  calling: null
+  callingAnswer: "IDLE"
 }
 
 export const callSlice = createSlice({
   name: 'call',
   initialState,
   reducers: {
-    setIncomingCall: (state, action: PayloadAction<CallSession>) => {
+    setIncomingCall: (state, action: PayloadAction<IncomingCallData>) => {
       state.inComingCall = action.payload
+    },
+    setAnswerIncomingCall: (state, action: PayloadAction<"PENDING" | "ACCEPT" | "DECLINE" | "IDLE">) => {
+      state.callingAnswer = action.payload
     }
   },
   extraReducers: (builder) => {
     // sendCallingRequestApi
     builder.addCase(sendCallingRequestApi.pending, (state) => {
-
+      state.callingAnswer = "PENDING"
     })
     builder.addCase(sendCallingRequestApi.fulfilled, (state, action: PayloadAction<CallRes>) => {
 
     })
     builder.addCase(sendCallingRequestApi.rejected, (state) => {
-
+      state.callingAnswer = "DECLINE"
     })
     // incomingCallAnswerApi
     builder.addCase(incomingCallAnswerApi.pending, (state) => {
@@ -78,7 +91,8 @@ export const callSlice = createSlice({
 
 // Action creators are generated for each case reducer function
 export const {
-  setIncomingCall
+  setIncomingCall,
+  setAnswerIncomingCall
 } = callSlice.actions
 
 export default callSlice.reducer

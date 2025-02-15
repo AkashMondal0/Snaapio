@@ -7,10 +7,7 @@ const Queries = {
   }
   `,
   incomingCallAnswer: `mutation IncomingCallAnswer($incomingCallAnswer: IncomingCallAnswerInput!) {
-    incomingCallAnswer(incomingCallAnswer: $incomingCallAnswer) {
-      data
-      message
-    }
+    incomingCallAnswer(incomingCallAnswer: $incomingCallAnswer)
   }`,
   
 }

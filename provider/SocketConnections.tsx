@@ -11,7 +11,7 @@ import { fetchConversationsApi } from "@/redux-stores/slice/conversation/api.ser
 import { setNotification } from "@/redux-stores/slice/notification";
 import { fetchUnreadMessageNotificationCountApi } from "@/redux-stores/slice/notification/api.service";
 import React from "react";
-import { CallSession, setIncomingCall } from "@/redux-stores/slice/call";
+import { IncomingCallData, setAnswerIncomingCall, setIncomingCall } from "@/redux-stores/slice/call";
 
 // create socket context 
 
@@ -81,14 +81,21 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
         ToastAndroid.show("Test from socket server", ToastAndroid.SHORT)
     }, [])
 
-    const incomingCall = useCallback(async (data: CallSession) => {
+    const incomingCall = useCallback(async (data: IncomingCallData) => {
         dispatch(setIncomingCall(data))
-        const supported = await Linking.canOpenURL('exp://192.168.31.212:8081/--/incomingcall');
+        const supported = await Linking.canOpenURL('snaapio://incomingcall');
         if (supported) {
-            await Linking.openURL('exp://192.168.31.212:8081/--/incomingcall');
+            await Linking.openURL('snaapio://incomingcall');
         } else {
             ToastAndroid.show("Internal Error", ToastAndroid.SHORT);
         }
+    }, [])
+
+    const answerIncomingCall = useCallback(async (res: {
+        message: string,
+        data: "PENDING" | "ACCEPT" | "DECLINE" | "IDLE"
+    }) => {
+        dispatch(setAnswerIncomingCall(res.data))
     }, [])
 
     useEffect(() => {
@@ -106,7 +113,9 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
             socketRef.current?.on(configs.eventNames.conversation.seen, userSeenMessages);
             socketRef.current?.on(configs.eventNames.conversation.typing, typingRealtime);
             socketRef.current?.on(configs.eventNames.notification.post, notification);
-            // socketRef.current?.on(configs.eventNames.calling.incomingCall, incomingCall);
+            // socketRef.current?.on(configs.eventNames.calling.requestForCall, incomingCall);
+            // socketRef.current?.on(configs.eventNames.calling.answerIncomingCall, answerIncomingCall);
+
             // socketRef.current?.emit("join-room", roomId);
             // socketRef.current?.on("offer", handleOffer);
             // socketRef.current?.on("Action", handleOffer);
@@ -122,6 +131,9 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
                 socketRef.current?.off(configs.eventNames.conversation.seen, userSeenMessages)
                 socketRef.current?.off(configs.eventNames.conversation.typing, typingRealtime)
                 socketRef.current?.off(configs.eventNames.notification.post, notification)
+                socketRef.current?.off(configs.eventNames.calling.requestForCall, incomingCall)
+                socketRef.current?.off(configs.eventNames.calling.answerIncomingCall, notification)
+
             }
         }
     }, [session, currentConversation, list.length])
@@ -139,6 +151,6 @@ export default memo(SocketConnectionsProvider);
 
 export const uesSocket = (): Socket => {
     const socketState = useContext(SocketContext);
-    if (!socketState.socket) throw new Error("Socket problem")
+    if (!socketState.socket){}
     return socketState.socket as Socket
 }

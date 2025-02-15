@@ -31,8 +31,6 @@ export const incomingCallAnswerApi = createAsyncThunk(
     'incomingCallAnswerApi/post',
     async (incomingCallAnswer: {
         requestSenderUserId: string,
-        micOn: boolean,
-        videoOn: boolean,
         acceptCall: boolean
     }, thunkAPI) => {
         try {

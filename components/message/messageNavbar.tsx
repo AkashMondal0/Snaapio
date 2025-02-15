@@ -20,7 +20,6 @@ const ChatScreenNavbar = memo(function ChatScreenNavbar({
     const { currentTheme } = useTheme();
     const dispatch = useDispatch();
     const currentTyping = useSelector((Root: RootState) => Root.ConversationState.currentTyping);
-    const session = useSelector((Root: RootState) => Root.AuthState.session.user);
 
 
     const PressBack = useCallback(() => {

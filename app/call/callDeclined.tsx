@@ -1,12 +1,25 @@
 import { memo, useCallback } from "react";
 import { Text, useTheme } from "hyper-native-ui";
-import { Image, TouchableOpacity, View } from "react-native";
-import { Icon } from "@/components/skysolo-ui";
+import { TouchableOpacity, View } from "react-native";
+import { Avatar, Icon } from "@/components/skysolo-ui";
 import * as Haptics from 'expo-haptics';
-const InComingCall = memo(function InComingCall() {
+import { useNavigation } from "@react-navigation/native";
+
+const InComingCall = memo(function InComingCall({
+	route
+}: { route: any }) {
+	const navigation = useNavigation();
+	const remoteUserData = route.params
 	const { currentTheme } = useTheme();
 	const hp = useCallback(() => {
 		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+	}, []);
+
+	const Back = useCallback(() => {
+		if (navigation.canGoBack()) {
+			navigation.goBack()
+			return
+		}
 	}, []);
 
 	return (
@@ -29,21 +42,23 @@ const InComingCall = memo(function InComingCall() {
 					alignItems: "center",
 					flex: 1
 				}}>
-					<Text variant="H4" bold="bold">Akash ( Son )</Text>
+					<Text variant="H4" bold="bold">{remoteUserData?.name}</Text>
 					<Text variant="body1" variantColor="secondary">Call Decline</Text>
 				</View>
 			</View>
 			{/* center */}
 			<View>
-				<Image
-					source={{ uri: "https://www.slashfilm.com/img/gallery/why-people-thought-ciri-was-recast-in-the-witcher-season-2/a-more-rugged-battle-hardened-ciri-1686416930.jpg" }}
-					style={{
-						width: 220,
-						aspectRatio: 1 / 1,
-						borderRadius: 500,
-						marginBottom: 30,
-					}}
-				/>
+				<View>
+					<Avatar
+						size={220}
+						url={remoteUserData?.profilePicture}
+						style={{
+							aspectRatio: 1 / 1,
+							borderRadius: 500,
+							marginBottom: 30,
+						}}
+					/>
+				</View>
 			</View>
 			{/* end */}
 			<View style={{
@@ -56,7 +71,7 @@ const InComingCall = memo(function InComingCall() {
 				paddingHorizontal: "6%",
 			}}>
 				<View>
-					<TouchableOpacity onPress={hp}
+					<TouchableOpacity onPress={Back}
 						activeOpacity={0.6}
 						style={{
 							aspectRatio: 1 / 1,
@@ -68,7 +83,7 @@ const InComingCall = memo(function InComingCall() {
 							marginBottom: 2,
 							transform: [{ rotate: "133deg" }]
 						}}>
-						<Icon iconName="Plus" size={40} color={currentTheme.background} onPress={hp}/>
+						<Icon iconName="Plus" size={40} color={currentTheme.background} onPress={Back} />
 					</TouchableOpacity>
 					<Text variant="body1" center variantColor="secondary">Decline</Text>
 				</View>
