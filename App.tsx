@@ -12,7 +12,10 @@ import { ThemeProvider, useTheme } from 'hyper-native-ui';
 import { AuthNavigation, Navigation } from '@/app/navigation';
 import * as Linking from 'expo-linking';
 import { PersistGate } from 'redux-persist/integration/react';
+import { registerGlobals } from 'react-native-webrtc';
+// Register global WebRTC API for better compatibility
 SplashScreen.preventAutoHideAsync();
+registerGlobals();
 const prefix = Linking.createURL('/');
 const prefixes = [prefix, 'snaapio://', 'https://snaapio.vercel.app'];
 

@@ -1,13 +1,11 @@
-import { configs } from "@/configs";
 import { uesSocket } from "@/provider/SocketConnections";
 import { Session } from "@/types";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   RTCPeerConnection,
   mediaDevices,
   RTCSessionDescription,
   RTCIceCandidate,
-  registerGlobals,
 } from "react-native-webrtc";
 
 type SocketRes<T> = {
@@ -15,9 +13,6 @@ type SocketRes<T> = {
   members: string[];
   data: T;
 };
-
-// Register global WebRTC API for better compatibility
-registerGlobals();
 
 const Empty = {
   localStream: null,
@@ -238,9 +233,6 @@ const useWebRTC = ({
     console.log("📌 Streams stopped and cleaned up.");
   };
 
-  const ChannelMessage = (message: any) => {
-    console.log("🎯 datachannelRef message", session.name, message.data)
-  }
   // 📌 **WebRTC Event Listeners**
   useEffect(() => {
     startLocalUserStream();
@@ -249,31 +241,14 @@ const useWebRTC = ({
     socket?.on("candidate", handleRemoteICECandidate);
     peerConnectionRef.current?.addEventListener("track", handleTrackEvent);
     peerConnectionRef.current?.addEventListener("icecandidate", handleICECandidateEvent);
-    peerConnectionRef.current?.addEventListener('datachannel', event => {
-      datachannelRef.current = event.channel;
-      console.warn(session.name,"datachannelRef")
-    });
-
-    // datachannelRef.current?.addEventListener('open', event => {
-    //   console.log("🎯 datachannelRef open")
-    // });
-    datachannelRef.current?.addEventListener('close', stopStream);
-    datachannelRef.current?.addEventListener('message', ChannelMessage);
 
     return () => {
-      peerConnectionRef.current?.removeEventListener("track", handleTrackEvent);
-      peerConnectionRef.current?.removeEventListener("icecandidate", handleICECandidateEvent);
-      datachannelRef.current?.removeEventListener('close', stopStream);
-      datachannelRef.current?.removeEventListener('message', ChannelMessage);
-      peerConnectionRef.current?.removeEventListener("datachannel");
-
-      // channel
-      // datachannelRef.current?.addEventListener('open', event => { });
-      // datachannelRef.current?.addEventListener('message', message => { });
-      // socket
       socket?.off("offer", createAnswer);
       socket?.off("answer", handleAnswer);
       socket?.off("candidate", handleRemoteICECandidate);
+      peerConnectionRef.current?.removeEventListener("track", handleTrackEvent);
+      peerConnectionRef.current?.removeEventListener("icecandidate", handleICECandidateEvent);
+      // socket
       stopStream();
     };
   }, []);

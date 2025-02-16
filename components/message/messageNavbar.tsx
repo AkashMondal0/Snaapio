@@ -46,6 +46,7 @@ const ChatScreenNavbar = memo(function ChatScreenNavbar({
             name: conversation.user.name,
             id: conversation.user.id,
             isVideo: isVideo,
+            userType: "LOCAL"
         } as any);
     }, [])
 

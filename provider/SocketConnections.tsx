@@ -99,7 +99,7 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
         message: string,
         data: "PENDING" | "ACCEPT" | "DECLINE" | "IDLE"
     }) => {
-        console.log("answerIncomingCall socket", res.data)
+        // console.log("answerIncomingCall socket", res.data)
         dispatch(setAnswerIncomingCall(res.data))
     }, [])
 

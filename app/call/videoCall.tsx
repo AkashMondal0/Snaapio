@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { Avatar, Icon } from "@/components/skysolo-ui";
 import useWebRTC from "@/lib/useWebRTC";
 import { useTheme } from "hyper-native-ui";
@@ -8,21 +8,24 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { StackActions, useNavigation } from "@react-navigation/native";
 import { Session } from "@/types";
-import { sendCallingRequestApi } from "@/redux-stores/slice/call/api.service";
+import { incomingCallAnswerApi, sendCallingRequestApi } from "@/redux-stores/slice/call/api.service";
 import { IconButtonWithoutThemed } from "@/components/skysolo-ui/Icon";
-
 
 const CallScreen = ({
 	route
 }: {
 	route: {
-		params: Session["user"] | null;
+		params: Session["user"] & {
+			isVideo: boolean;
+			userType: "REMOTE" | "LOCAL"
+		} | null
 	}
 }) => {
-	const remoteUserData = route.params;
+	const remoteUserData = route?.params;
 	const dispatch = useDispatch();
 	const { currentTheme } = useTheme();
 	const navigation = useNavigation();
+	const loaded = useRef(true);
 	const session = useSelector((state: RootState) => state.AuthState.session.user);
 	const remoteUserCallAnswer = useSelector((state: RootState) => state.CallState.callingAnswer);
 	const {
@@ -55,6 +58,18 @@ const CallScreen = ({
 		}
 	}, [stopStream])
 
+	const InitFunc = async () => {
+		if (!loaded) return;
+		loaded.current = false;
+		if (route.params?.userType === "REMOTE") {
+			// createOffer();
+			await dispatch(incomingCallAnswerApi({
+				acceptCall: true,
+				requestSenderUserId: route.params?.id as string,
+			}) as any)
+		}
+	}
+
 	useEffect(() => {
 		if (remoteUserCallAnswer === "ACCEPT") {
 			createOffer();
@@ -63,7 +78,11 @@ const CallScreen = ({
 			stopStream();
 			navigation.dispatch(StackActions.replace("CallDeclined", remoteUserData as any))
 		}
-	}, [remoteUserCallAnswer, stopStream, createOffer])
+	}, [remoteUserData, stopStream, createOffer])
+
+	useEffect(() => {
+		InitFunc();
+	}, [])
 
 	return (
 		<View style={{

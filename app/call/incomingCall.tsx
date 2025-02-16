@@ -26,11 +26,11 @@ const InComingCall = memo(function InComingCall() {
     const Accept = useCallback(async () => {
         if (!userData) return
         HP();
-        await dispatch(incomingCallAnswerApi({
-            acceptCall: true,
-            requestSenderUserId: userData?.id,
-        }) as any)
-        navigation.dispatch(StackActions.replace("Video", userData)) // in screen then send answer
+        navigation.dispatch(StackActions.replace("Video", {
+            ...userData,
+            isVideo: true,
+            userType: "REMOTE"
+        }))
     }, [userData?.id]);
 
     const Decline = useCallback(async () => {

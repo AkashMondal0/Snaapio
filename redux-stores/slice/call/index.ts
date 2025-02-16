@@ -79,15 +79,15 @@ export const callSlice = createSlice({
       state.callingAnswer = "DECLINE"
     })
     // incomingCallAnswerApi
-    builder.addCase(incomingCallAnswerApi.pending, (state) => {
+    // builder.addCase(incomingCallAnswerApi.pending, (state) => {
 
-    })
-    builder.addCase(incomingCallAnswerApi.fulfilled, (state, action: PayloadAction<CallRes>) => {
+    // })
+    // builder.addCase(incomingCallAnswerApi.fulfilled, (state, action: PayloadAction<CallRes>) => {
 
-    })
-    builder.addCase(incomingCallAnswerApi.rejected, (state) => {
+    // })
+    // builder.addCase(incomingCallAnswerApi.rejected, (state) => {
 
-    })
+    // })
   }
 })
 
