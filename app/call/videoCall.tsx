@@ -9,56 +9,66 @@ import { RootState } from "@/redux-stores/store";
 import { StackActions, useNavigation } from "@react-navigation/native";
 import { Session } from "@/types";
 import { sendCallingRequestApi } from "@/redux-stores/slice/call/api.service";
+import { IconButtonWithoutThemed } from "@/components/skysolo-ui/Icon";
 
 
 const CallScreen = ({
 	route
-}: { route: any }) => {
+}: {
+	route: {
+		params: Session["user"] | null;
+	}
+}) => {
 	const remoteUserData = route.params;
 	const dispatch = useDispatch();
+	const { currentTheme } = useTheme();
 	const navigation = useNavigation();
 	const session = useSelector((state: RootState) => state.AuthState.session.user);
 	const remoteUserCallAnswer = useSelector((state: RootState) => state.CallState.callingAnswer);
-
-	const { localStream, remoteStream,
-		toggleCamera, switchCamera,
-		stopStream, toggleMicrophone,
-		isCameraOn, isMuted, createOffer, toggleSpeaker, isSpeakerOn } = useWebRTC({
-			session: session,
-			remoteUser: remoteUserData
-		});
-	const exit = () => {
-		stopStream();
-		if (navigation.canGoBack()) {
-			navigation.goBack()
-		}
-	}
+	const {
+		localStream,
+		remoteStream,
+		toggleCamera,
+		switchCamera,
+		stopStream,
+		toggleMicrophone,
+		isCameraOn, isMuted,
+		createOffer,
+		toggleSpeaker,
+		isSpeakerOn
+	} = useWebRTC({
+		session: session,
+		remoteUser: remoteUserData,
+	});
 
 	const hangUp = useCallback(async () => {
 		if (!remoteUserData) return ToastAndroid.show('user id not found', ToastAndroid.SHORT);
+		stopStream();
 		await dispatch(sendCallingRequestApi({
 			requestUserId: remoteUserData.id,
 			requestUserData: remoteUserData,
 			isVideo: false,
 			status: "hangUp",
 		}) as any);
-		exit()
-	}, [])
+		if (navigation.canGoBack()) {
+			navigation.goBack();
+		}
+	}, [stopStream])
 
 	useEffect(() => {
-		console.log("remoteUserCallAnswer",remoteUserCallAnswer)
 		if (remoteUserCallAnswer === "ACCEPT") {
 			createOffer();
 		}
 		if (remoteUserCallAnswer === "DECLINE") {
-			// exit();
+			stopStream();
+			navigation.dispatch(StackActions.replace("CallDeclined", remoteUserData as any))
 		}
-	}, [remoteUserCallAnswer])
+	}, [remoteUserCallAnswer, stopStream, createOffer])
 
 	return (
 		<View style={{
 			flex: 1,
-			backgroundColor: "#000",
+			backgroundColor: currentTheme.accent,
 		}}>
 			<StatusBar translucent backgroundColor={"transparent"} barStyle={"light-content"} />
 			{remoteStream ? (
@@ -78,7 +88,7 @@ const CallScreen = ({
 			{localStream ?
 				<View style={{
 					position: "absolute",
-					backgroundColor: "#000",
+					backgroundColor: currentTheme.accent,
 					borderRadius: 20,
 					overflow: "hidden",
 					width: "30%",
@@ -97,6 +107,7 @@ const CallScreen = ({
 						objectFit="cover" />
 				</View> : <></>}
 			<ActionBoxComponent
+				currentTheme={currentTheme}
 				isCameraOn={isCameraOn}
 				isMuted={isMuted}
 				isSpeakerOn={isSpeakerOn}
@@ -119,8 +130,10 @@ const ActionBoxComponent = ({
 	toggleSpeaker,
 	isSpeakerOn,
 	isCameraOn,
-	isMuted
+	isMuted,
+	currentTheme
 }: {
+	currentTheme: any,
 	toggleCamera: () => void;
 	toggleMicrophone: () => void;
 	switchCamera: () => void;
@@ -130,7 +143,6 @@ const ActionBoxComponent = ({
 	isCameraOn: boolean;
 	isMuted: boolean
 }) => {
-	const { currentTheme } = useTheme();
 
 	return (
 		<View style={{
@@ -154,17 +166,22 @@ const ActionBoxComponent = ({
 				borderColor: currentTheme.input,
 				marginVertical: 10,
 			}}>
+				{/* video */}
 				<TouchableOpacity onPress={toggleCamera}
 					activeOpacity={0.6}
 					style={{
 						padding: 15,
 						borderRadius: 50,
-						backgroundColor: currentTheme.background,
+						backgroundColor: isCameraOn ? currentTheme.background : currentTheme.foreground,
 						borderWidth: 1,
 						borderColor: currentTheme.border
 					}}>
-					<Icon iconName={isCameraOn ? "Video" : "VideoOff"} size={24} onPress={toggleCamera} />
+					<IconButtonWithoutThemed
+						iconName={isCameraOn ? "Video" : "VideoOff"}
+						size={24} onPress={toggleCamera}
+						color={!isCameraOn ? currentTheme.background : currentTheme.foreground} />
 				</TouchableOpacity>
+				{/* SwitchCamera */}
 				<TouchableOpacity onPress={switchCamera}
 					activeOpacity={0.6} style={{
 						padding: 15,
@@ -173,27 +190,25 @@ const ActionBoxComponent = ({
 						borderWidth: 1,
 						borderColor: currentTheme.border
 					}}>
-					<Icon iconName="SwitchCamera" size={24} onPress={switchCamera} />
+					<IconButtonWithoutThemed
+						iconName="SwitchCamera"
+						size={24} onPress={switchCamera}
+						color={currentTheme.foreground} />
 				</TouchableOpacity>
-				{/* <TouchableOpacity onPress={toggleSpeaker}
-					activeOpacity={0.6} style={{
-						padding: 15,
-						borderRadius: 50,
-						backgroundColor: currentTheme.background,
-						borderWidth: 1,
-						borderColor: currentTheme.border
-					}}>
-					<Icon iconName="Volume2" size={24} onPress={toggleSpeaker } />
-				</TouchableOpacity> */}
+				{/* mic */}
 				<TouchableOpacity onPress={toggleMicrophone} activeOpacity={0.6} style={{
 					padding: 15,
 					borderRadius: 50,
-					backgroundColor: currentTheme.background,
+					backgroundColor: !isMuted ? currentTheme.background : currentTheme.foreground,
 					borderWidth: 1,
 					borderColor: currentTheme.border
 				}}>
-					<Icon iconName={isMuted ? "MicOff" : "Mic"} size={24} onPress={toggleMicrophone} />
+					<IconButtonWithoutThemed
+						iconName={isMuted ? "MicOff" : "Mic"}
+						size={24} onPress={toggleMicrophone}
+						color={isMuted ? currentTheme.background : currentTheme.foreground} />
 				</TouchableOpacity>
+				{/* end call */}
 				<TouchableOpacity onPress={endCall} activeOpacity={0.6} style={[{
 					padding: 15,
 					borderRadius: 50,
@@ -202,7 +217,9 @@ const ActionBoxComponent = ({
 					borderWidth: 1,
 					borderColor: currentTheme.border
 				}]}>
-					<Icon iconName="Phone" size={24} onPress={endCall} color="#fff" />
+					<IconButtonWithoutThemed iconName="Phone" size={24}
+						onPress={endCall}
+						color={currentTheme.destructive_foreground} />
 				</TouchableOpacity>
 			</View>
 		</View>

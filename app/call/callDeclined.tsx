@@ -4,10 +4,15 @@ import { TouchableOpacity, View } from "react-native";
 import { Avatar, Icon } from "@/components/skysolo-ui";
 import * as Haptics from 'expo-haptics';
 import { useNavigation } from "@react-navigation/native";
+import { Session } from "@/types";
 
 const InComingCall = memo(function InComingCall({
 	route
-}: { route: any }) {
+}: {
+	route: {
+		params: Session["user"] | null;
+	}
+}) {
 	const navigation = useNavigation();
 	const remoteUserData = route.params
 	const { currentTheme } = useTheme();

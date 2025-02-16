@@ -147,7 +147,7 @@ const IconButton = ({
                 {...otherProps}>
                 <IconComponent size={size} strokeWidth={strokeWidth}
                     color={color ?? isPress ? currentTheme.muted_foreground : buttonVariant().color}
-                     key={iconName} />
+                    key={iconName} />
             </TouchableOpacity>
         </View>
 
@@ -165,3 +165,49 @@ const IconButton = ({
 }
 
 export default IconButton;
+
+export const IconButtonWithoutThemed = ({
+    style,
+    size = 30,
+    disabled = false,
+    iconName = "Activity",
+    isButton = false,
+    strokeWidth = 1.8,
+    variant = "primary",
+    iconColorVariant = "primary",
+    color = undefined,
+    ...otherProps }: Props) => {
+    const IconComponent = (Icons[iconName as IconName] || <></>) as React.ComponentType<any>;
+
+    if (isButton) {
+        return <View>
+            <TouchableOpacity
+                activeOpacity={0.9}
+                disabled={disabled}
+                style={[{
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    elevation: 1,
+                    width: size + 8,
+                    height: size + 8,
+                    opacity: disabled ? 0.5 : 1,
+                    padding: 4,
+                    borderRadius: 100,
+                    borderWidth: variant === "normal" ? 0 : 0.6,
+                }, style]}
+                {...otherProps}>
+                <IconComponent size={size} strokeWidth={strokeWidth} color={color}
+                    key={iconName} />
+            </TouchableOpacity>
+        </View>
+
+    }
+
+    return (<TouchableOpacity
+        activeOpacity={0.9}
+        style={{ opacity: disabled ? 0.5 : 1 }}
+        disabled={disabled}
+        {...otherProps}>
+        <IconComponent size={size} key={iconName} strokeWidth={strokeWidth} color={color}/>
+    </TouchableOpacity>)
+}

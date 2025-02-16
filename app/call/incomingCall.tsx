@@ -30,7 +30,7 @@ const InComingCall = memo(function InComingCall() {
             acceptCall: true,
             requestSenderUserId: userData?.id,
         }) as any)
-        navigation.dispatch(StackActions.replace("Video", userData))
+        navigation.dispatch(StackActions.replace("Video", userData)) // in screen then send answer
     }, [userData?.id]);
 
     const Decline = useCallback(async () => {

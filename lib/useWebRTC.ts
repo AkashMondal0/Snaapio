@@ -37,9 +37,11 @@ const Empty = {
 const useWebRTC = ({
   session,
   remoteUser,
+  endStreamCallBack
 }: {
   session: Session["user"] | null;
   remoteUser: Session["user"] | null;
+  endStreamCallBack?: () => void
 }) => {
   if (!session || !remoteUser) {
     console.error("Session or remoteUser is invalid.");
@@ -60,6 +62,8 @@ const useWebRTC = ({
       iceServers: [{ urls: ["stun:stun.l.google.com:19302"] }],
     })
   );
+
+  const datachannelRef = useRef(peerConnectionRef.current?.createDataChannel("my_channel"))
 
   // 📌 **Start Local User Stream**
   const startLocalUserStream = async () => {
@@ -158,7 +162,6 @@ const useWebRTC = ({
     peerConnectionRef.current?.setRemoteDescription(new RTCSessionDescription(data.data))
   }
 
-
   // 📌 **Handle Remote Stream**
   const handleTrackEvent = (event: any) => {
     if (event.streams && event.streams[0]) {
@@ -225,13 +228,19 @@ const useWebRTC = ({
     peerConnectionRef.current = new RTCPeerConnection({
       iceServers: [{ urls: ["stun:stun.l.google.com:19302"] }],
     });
+    datachannelRef.current?.close();
+    datachannelRef.current = null as any;
 
     setLocalStream(null);
     setRemoteStream(null);
+
+    endStreamCallBack?.()
     console.log("📌 Streams stopped and cleaned up.");
   };
 
-
+  const ChannelMessage = (message: any) => {
+    console.log("🎯 datachannelRef message", session.name, message.data)
+  }
   // 📌 **WebRTC Event Listeners**
   useEffect(() => {
     startLocalUserStream();
@@ -240,11 +249,28 @@ const useWebRTC = ({
     socket?.on("candidate", handleRemoteICECandidate);
     peerConnectionRef.current?.addEventListener("track", handleTrackEvent);
     peerConnectionRef.current?.addEventListener("icecandidate", handleICECandidateEvent);
+    peerConnectionRef.current?.addEventListener('datachannel', event => {
+      datachannelRef.current = event.channel;
+      console.warn(session.name,"datachannelRef")
+    });
+
+    // datachannelRef.current?.addEventListener('open', event => {
+    //   console.log("🎯 datachannelRef open")
+    // });
+    datachannelRef.current?.addEventListener('close', stopStream);
+    datachannelRef.current?.addEventListener('message', ChannelMessage);
 
     return () => {
       peerConnectionRef.current?.removeEventListener("track", handleTrackEvent);
       peerConnectionRef.current?.removeEventListener("icecandidate", handleICECandidateEvent);
+      datachannelRef.current?.removeEventListener('close', stopStream);
+      datachannelRef.current?.removeEventListener('message', ChannelMessage);
+      peerConnectionRef.current?.removeEventListener("datachannel");
 
+      // channel
+      // datachannelRef.current?.addEventListener('open', event => { });
+      // datachannelRef.current?.addEventListener('message', message => { });
+      // socket
       socket?.off("offer", createAnswer);
       socket?.off("answer", handleAnswer);
       socket?.off("candidate", handleRemoteICECandidate);
