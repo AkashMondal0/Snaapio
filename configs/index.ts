@@ -25,6 +25,7 @@ const _configs = {
             // server
             requestForCall: "request-for-call",
             answerIncomingCall: "answer-incoming-call",
+            peerLeft:"peerLeft"
             // prepareSession: "prepare-session",
             // joinSession: "join-session",
             // currentRoom: "current-room",

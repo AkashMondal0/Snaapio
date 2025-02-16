@@ -21,15 +21,14 @@ const persistConfig = {
     'AuthState',
   ],
   blacklist: [
-    'CounterState',
-    'DialogsState',
-    'AccountState',
-    'ConversationState',
-    'PostState',
-    'ProfileState',
-    'UsersState',
-    'NotificationState',
-    'CallState'
+    // 'CounterState',
+    // 'DialogsState',
+    // 'AccountState',
+    // 'ConversationState',
+    // 'PostState',
+    // 'ProfileState',
+    // 'UsersState',
+    // 'NotificationState',
   ]
 };
 // Combine reducers

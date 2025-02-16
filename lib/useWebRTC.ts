@@ -42,14 +42,13 @@ const useWebRTC = ({
     console.error("Session or remoteUser is invalid.");
     return Empty;
   }
-
-  const socket = uesSocket();
   const [isMuted, setIsMuted] = useState(false);
   const [isCameraOn, setIsCameraOn] = useState(true);
   const [isFrontCam, setIsFrontCam] = useState(true);
   const [isSpeakerOn, setIsSpeakerOn] = useState(false);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
+  const socket = uesSocket();
 
   // WebRTC PeerConnection Reference
   const peerConnectionRef = useRef<RTCPeerConnection | null>(
@@ -228,11 +227,14 @@ const useWebRTC = ({
 
     setLocalStream(null);
     setRemoteStream(null);
-
+    socket?.emit("peerLeft", {
+      userId: session.id,
+      members: [remoteUser.id],
+      data: "END",
+    });
     endStreamCallBack?.()
     console.log("📌 Streams stopped and cleaned up.");
   };
-
   // 📌 **WebRTC Event Listeners**
   useEffect(() => {
     startLocalUserStream();

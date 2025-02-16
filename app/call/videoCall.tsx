@@ -10,6 +10,8 @@ import { StackActions, useNavigation } from "@react-navigation/native";
 import { Session } from "@/types";
 import { incomingCallAnswerApi, sendCallingRequestApi } from "@/redux-stores/slice/call/api.service";
 import { IconButtonWithoutThemed } from "@/components/skysolo-ui/Icon";
+import { uesSocket } from "@/provider/SocketConnections";
+import { configs } from "@/configs";
 
 const CallScreen = ({
 	route
@@ -26,8 +28,8 @@ const CallScreen = ({
 	const { currentTheme } = useTheme();
 	const navigation = useNavigation();
 	const loaded = useRef(true);
+	const socket = uesSocket();
 	const session = useSelector((state: RootState) => state.AuthState.session.user);
-	const remoteUserCallAnswer = useSelector((state: RootState) => state.CallState.callingAnswer);
 	const {
 		localStream,
 		remoteStream,
@@ -59,9 +61,8 @@ const CallScreen = ({
 	}, [stopStream])
 
 	const InitFunc = async () => {
-		if (!loaded) return;
-		loaded.current = false;
-		if (route.params?.userType === "REMOTE") {
+		if (route.params?.userType === "REMOTE" && loaded) {
+			loaded.current = false;
 			// createOffer();
 			await dispatch(incomingCallAnswerApi({
 				acceptCall: true,
@@ -69,20 +70,31 @@ const CallScreen = ({
 			}) as any)
 		}
 	}
-
-	useEffect(() => {
-		if (remoteUserCallAnswer === "ACCEPT") {
+	const answerIncomingCall = useCallback(async (res: {
+		message: string,
+		data: "PENDING" | "ACCEPT" | "DECLINE" | "IDLE"
+	}) => {
+		if (res.data === "ACCEPT") {
 			createOffer();
 		}
-		if (remoteUserCallAnswer === "DECLINE") {
+		if (res.data === "DECLINE") {
 			stopStream();
 			navigation.dispatch(StackActions.replace("CallDeclined", remoteUserData as any))
 		}
-	}, [remoteUserData, stopStream, createOffer])
+	}, [])
 
 	useEffect(() => {
 		InitFunc();
-	}, [])
+		socket?.on(configs.eventNames.calling.peerLeft, () => {
+			stopStream();
+			navigation.dispatch(StackActions.replace("CallDeclined", remoteUserData as any))
+		});
+		socket?.on(configs.eventNames.calling.answerIncomingCall, answerIncomingCall);
+		return () => {
+			socket?.off(configs.eventNames.calling.peerLeft);
+			socket?.off(configs.eventNames.calling.answerIncomingCall, answerIncomingCall);
+		}
+	}, [remoteUserData, stopStream, createOffer])
 
 	return (
 		<View style={{

@@ -90,18 +90,12 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
             } else {
                 ToastAndroid.show("Internal Error incomingCall", ToastAndroid.SHORT);
             }
-        } else {
+        }
+        if (data.status === "hangUp") {
             dispatch(setIncomingCall(null))
         }
     }, [])
 
-    const answerIncomingCall = useCallback(async (res: {
-        message: string,
-        data: "PENDING" | "ACCEPT" | "DECLINE" | "IDLE"
-    }) => {
-        // console.log("answerIncomingCall socket", res.data)
-        dispatch(setAnswerIncomingCall(res.data))
-    }, [])
 
     useEffect(() => {
         SocketConnection();
@@ -119,7 +113,7 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
             socketRef.current?.on(configs.eventNames.conversation.typing, typingRealtime);
             socketRef.current?.on(configs.eventNames.notification.post, notification);
             socketRef.current?.on(configs.eventNames.calling.requestForCall, incomingCall);
-            socketRef.current?.on(configs.eventNames.calling.answerIncomingCall, answerIncomingCall);
+
 
             return () => {
                 socketRef.current?.off('connect')
@@ -130,8 +124,6 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
                 socketRef.current?.off(configs.eventNames.conversation.typing, typingRealtime)
                 socketRef.current?.off(configs.eventNames.notification.post, notification)
                 socketRef.current?.off(configs.eventNames.calling.requestForCall, incomingCall)
-                socketRef.current?.off(configs.eventNames.calling.answerIncomingCall, answerIncomingCall)
-
             }
         }
     }, [session, currentConversation, list.length])
