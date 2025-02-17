@@ -12,7 +12,6 @@ import { Loader } from 'hyper-native-ui';
 import StoriesComponent from "@/components/home/story";
 import { FeedLoader } from "@/components/home/feedListItem";
 let totalFetchedItemCount: number = 0;
-const ITEM_HEIGHT = 700;
 
 const FeedsScreen = memo(function FeedsScreen() {
     const feedList = useSelector((state: RootState) => state.AccountState.feeds);
@@ -93,11 +92,6 @@ const FeedsScreen = memo(function FeedsScreen() {
                 onScroll={handleScroll}
                 removeClippedSubviews={true}
                 windowSize={12}
-                getItemLayout={(data, index) => ({
-                    index,
-                    length: ITEM_HEIGHT,
-                    offset: ITEM_HEIGHT * index
-                })}
                 ListEmptyComponent={() => {
                     if (feedListLoading === "idle" || feedListLoading === "pending") {
                         return <FeedLoader />

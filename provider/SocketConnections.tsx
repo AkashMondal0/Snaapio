@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
-import { memo, useCallback, useContext, useEffect, useRef } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import io, { Socket } from "socket.io-client";
 import { configs } from "@/configs";
 import { Linking, ToastAndroid } from "react-native";
@@ -12,10 +12,8 @@ import { setNotification } from "@/redux-stores/slice/notification";
 import { fetchUnreadMessageNotificationCountApi } from "@/redux-stores/slice/notification/api.service";
 import React from "react";
 import { IncomingCallData, setAnswerIncomingCall, setIncomingCall } from "@/redux-stores/slice/call";
-
 // create socket context 
-
-const SocketContext = React.createContext<{
+export const SocketContext = React.createContext<{
     socket: Socket | null,
 }>({
     socket: null,
@@ -31,6 +29,7 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
     const currentConversation = useSelector((state: RootState) => state.ConversationState.conversation);
     const list = useSelector((state: RootState) => state.ConversationState.conversationList)
     const socketRef = useRef<Socket | null>(null)
+    const [mounted, setMounted] = useState(false)
 
     const SocketConnection = useCallback(async () => {
         if (!session || !session?.accessToken || socketRef.current) return;
@@ -45,6 +44,7 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
                 username: session.username
             }
         })
+        setMounted(true)
     }, [session])
 
     const checkFunction = useCallback((data: Message) => {
@@ -82,6 +82,7 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
     }, [])
 
     const incomingCall = useCallback(async (data: IncomingCallData) => {
+        if (data.userData.id === session?.id) return;
         if (data.status === "calling") {
             dispatch(setIncomingCall(data))
             const supported = await Linking.canOpenURL('snaapio://incomingcall');
@@ -96,6 +97,12 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
         }
     }, [])
 
+    const answerIncomingCall = useCallback(async (res: {
+        message: string,
+        data: "PENDING" | "ACCEPT" | "DECLINE" | "IDLE"
+    }) => {
+        dispatch(setAnswerIncomingCall(res.data))
+    }, [])
 
     useEffect(() => {
         SocketConnection();
@@ -113,7 +120,7 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
             socketRef.current?.on(configs.eventNames.conversation.typing, typingRealtime);
             socketRef.current?.on(configs.eventNames.notification.post, notification);
             socketRef.current?.on(configs.eventNames.calling.requestForCall, incomingCall);
-
+            socketRef.current?.on(configs.eventNames.calling.answerIncomingCall, answerIncomingCall);
 
             return () => {
                 socketRef.current?.off('connect')
@@ -124,6 +131,7 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
                 socketRef.current?.off(configs.eventNames.conversation.typing, typingRealtime)
                 socketRef.current?.off(configs.eventNames.notification.post, notification)
                 socketRef.current?.off(configs.eventNames.calling.requestForCall, incomingCall)
+                socketRef.current?.off(configs.eventNames.calling.answerIncomingCall, answerIncomingCall);
             }
         }
     }, [session, currentConversation, list.length])
@@ -137,10 +145,3 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
 
 
 export default memo(SocketConnectionsProvider);
-
-
-export const uesSocket = (): Socket => {
-    const socketState = useContext(SocketContext);
-    if (!socketState.socket) { }
-    return socketState.socket as Socket
-}

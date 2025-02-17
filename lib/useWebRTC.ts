@@ -1,12 +1,14 @@
-import { uesSocket } from "@/provider/SocketConnections";
+import { SocketContext } from "@/provider/SocketConnections";
+import { RootState } from "@/redux-stores/store";
 import { Session } from "@/types";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import {
   RTCPeerConnection,
   mediaDevices,
   RTCSessionDescription,
   RTCIceCandidate,
 } from "react-native-webrtc";
+import { useSelector } from "react-redux";
 
 type SocketRes<T> = {
   userId: string;
@@ -14,41 +16,16 @@ type SocketRes<T> = {
   data: T;
 };
 
-const Empty = {
-  localStream: null,
-  remoteStream: null,
-  isMuted: false,
-  isCameraOn: true,
-  isSpeakerOn: false,
-  startLocalUserStream: async () => { },
-  createOffer: async () => { },
-  toggleMicrophone: () => { },
-  toggleCamera: () => { },
-  switchCamera: () => { },
-  stopStream: () => { },
-  toggleSpeaker: () => { }
-};
-
-const useWebRTC = ({
-  session,
-  remoteUser,
-  endStreamCallBack
-}: {
-  session: Session["user"] | null;
-  remoteUser: Session["user"] | null;
-  endStreamCallBack?: () => void
-}) => {
-  if (!session || !remoteUser) {
-    console.error("Session or remoteUser is invalid.");
-    return Empty;
-  }
+const useWebRTC = ({ remoteUser: RU,}: { remoteUser: Session["user"] }) => {
+  const socketState = useContext(SocketContext);
+  const [remoteUser, setRemoteUser] = useState<Session["user"]>(RU)
+  const session = useSelector((state: RootState) => state.AuthState.session.user);
   const [isMuted, setIsMuted] = useState(false);
   const [isCameraOn, setIsCameraOn] = useState(true);
   const [isFrontCam, setIsFrontCam] = useState(true);
   const [isSpeakerOn, setIsSpeakerOn] = useState(false);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
-  const socket = uesSocket();
 
   // WebRTC PeerConnection Reference
   const peerConnectionRef = useRef<RTCPeerConnection | null>(
@@ -88,6 +65,7 @@ const useWebRTC = ({
 
   // 📌 **Create Offer**
   const createOffer = async () => {
+    if (!session || !remoteUser) return console.error("not found !session | !remoteUser")
     try {
       const offerDescription = await peerConnectionRef.current?.createOffer({
         OfferToReceiveAudio: true,
@@ -96,7 +74,7 @@ const useWebRTC = ({
       if (!offerDescription) return;
 
       await peerConnectionRef.current?.setLocalDescription(offerDescription);
-      socket?.emit("offer", {
+      socketState.socket?.emit("offer", {
         userId: session.id,
         members: [remoteUser.id],
         data: offerDescription,
@@ -110,6 +88,7 @@ const useWebRTC = ({
 
   // 📌 **Create Answer**
   const createAnswer = async (res: SocketRes<RTCSessionDescription>) => {
+    if (!session || !remoteUser) return console.error("not found !session | !remoteUser")
     try {
       const remoteOffer = new RTCSessionDescription(res.data);
       await peerConnectionRef.current?.setRemoteDescription(remoteOffer);
@@ -117,7 +96,7 @@ const useWebRTC = ({
       const answer = await peerConnectionRef.current?.createAnswer();
       await peerConnectionRef.current?.setLocalDescription(answer);
 
-      socket?.emit("answer", {
+      socketState.socket?.emit("answer", {
         userId: session.id,
         members: [remoteUser.id],
         data: answer,
@@ -131,6 +110,7 @@ const useWebRTC = ({
 
   // 📌 **Handle Incoming ICE Candidate**
   const handleRemoteICECandidate = async (res: SocketRes<RTCIceCandidate>) => {
+    if (!session || !remoteUser) return console.error("not found !session | !remoteUser")
     try {
       if (!res.data) return;
       await peerConnectionRef.current?.addIceCandidate(new RTCIceCandidate(res.data));
@@ -142,8 +122,9 @@ const useWebRTC = ({
 
   // 📌 **Handle ICE Candidate Event**
   const handleICECandidateEvent = (event: any) => {
+    if (!session || !remoteUser) return console.error("not found !session | !remoteUser")
     if (event.candidate) {
-      socket?.emit("candidate", {
+      socketState.socket?.emit("candidate", {
         userId: session.id,
         members: [remoteUser.id],
         data: event.candidate,
@@ -227,33 +208,33 @@ const useWebRTC = ({
 
     setLocalStream(null);
     setRemoteStream(null);
-    socket?.emit("peerLeft", {
+    console.log("📌 Streams stopped and cleaned up.");
+    if (!session || !remoteUser) return console.error("not found !session | !remoteUser")
+    socketState.socket?.emit("peerLeft", {
       userId: session.id,
       members: [remoteUser.id],
       data: "END",
     });
-    endStreamCallBack?.()
-    console.log("📌 Streams stopped and cleaned up.");
   };
   // 📌 **WebRTC Event Listeners**
   useEffect(() => {
     startLocalUserStream();
-    socket?.on("offer", createAnswer);
-    socket?.on("answer", handleAnswer);
-    socket?.on("candidate", handleRemoteICECandidate);
+    socketState.socket?.on("offer", createAnswer);
+    socketState.socket?.on("answer", handleAnswer);
+    socketState.socket?.on("candidate", handleRemoteICECandidate);
     peerConnectionRef.current?.addEventListener("track", handleTrackEvent);
     peerConnectionRef.current?.addEventListener("icecandidate", handleICECandidateEvent);
 
     return () => {
-      socket?.off("offer", createAnswer);
-      socket?.off("answer", handleAnswer);
-      socket?.off("candidate", handleRemoteICECandidate);
+      socketState.socket?.off("offer", createAnswer);
+      socketState.socket?.off("answer", handleAnswer);
+      socketState.socket?.off("candidate", handleRemoteICECandidate);
       peerConnectionRef.current?.removeEventListener("track", handleTrackEvent);
       peerConnectionRef.current?.removeEventListener("icecandidate", handleICECandidateEvent);
       // socket
       stopStream();
     };
-  }, []);
+  }, [RU, socketState.socket, session]);
 
   return {
     localStream,
@@ -269,6 +250,7 @@ const useWebRTC = ({
     stopStream,
     createOffer,
     createAnswer,
+    setRemoteUser,
   };
 };
 

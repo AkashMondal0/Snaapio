@@ -1,17 +1,15 @@
 import React, { useCallback, useEffect, useRef } from "react";
-import { Avatar, Icon } from "@/components/skysolo-ui";
+import { Avatar } from "@/components/skysolo-ui";
 import useWebRTC from "@/lib/useWebRTC";
 import { useTheme } from "hyper-native-ui";
 import { View, StatusBar, TouchableOpacity, ToastAndroid } from "react-native";
-import { RTCView } from "react-native-webrtc";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/redux-stores/store";
 import { StackActions, useNavigation } from "@react-navigation/native";
 import { Session } from "@/types";
 import { incomingCallAnswerApi, sendCallingRequestApi } from "@/redux-stores/slice/call/api.service";
 import { IconButtonWithoutThemed } from "@/components/skysolo-ui/Icon";
-import { uesSocket } from "@/provider/SocketConnections";
-import { configs } from "@/configs";
+import { RootState } from "@/redux-stores/store";
+import { RTCView } from "react-native-webrtc";
 
 const CallScreen = ({
 	route
@@ -28,8 +26,8 @@ const CallScreen = ({
 	const { currentTheme } = useTheme();
 	const navigation = useNavigation();
 	const loaded = useRef(true);
-	const socket = uesSocket();
-	const session = useSelector((state: RootState) => state.AuthState.session.user);
+	const answerIncomingCall = useSelector((state: RootState) => state.CallState.callingAnswer);
+
 	const {
 		localStream,
 		remoteStream,
@@ -41,13 +39,10 @@ const CallScreen = ({
 		createOffer,
 		toggleSpeaker,
 		isSpeakerOn
-	} = useWebRTC({
-		session: session,
-		remoteUser: remoteUserData,
-	});
+	} = useWebRTC({ remoteUser: remoteUserData });
 
 	const hangUp = useCallback(async () => {
-		if (!remoteUserData) return ToastAndroid.show('user id not found', ToastAndroid.SHORT);
+		if (!remoteUserData) { return ToastAndroid.show('user id not found', ToastAndroid.SHORT); }
 		stopStream();
 		await dispatch(sendCallingRequestApi({
 			requestUserId: remoteUserData.id,
@@ -70,31 +65,18 @@ const CallScreen = ({
 			}) as any)
 		}
 	}
-	const answerIncomingCall = useCallback(async (res: {
-		message: string,
-		data: "PENDING" | "ACCEPT" | "DECLINE" | "IDLE"
-	}) => {
-		if (res.data === "ACCEPT") {
-			createOffer();
-		}
-		if (res.data === "DECLINE") {
-			stopStream();
-			navigation.dispatch(StackActions.replace("CallDeclined", remoteUserData as any))
-		}
-	}, [])
 
 	useEffect(() => {
 		InitFunc();
-		socket?.on(configs.eventNames.calling.peerLeft, () => {
+		if (answerIncomingCall === "ACCEPT") {
+			createOffer();
+		}
+		if (answerIncomingCall === "DECLINE") {
 			stopStream();
 			navigation.dispatch(StackActions.replace("CallDeclined", remoteUserData as any))
-		});
-		socket?.on(configs.eventNames.calling.answerIncomingCall, answerIncomingCall);
-		return () => {
-			socket?.off(configs.eventNames.calling.peerLeft);
-			socket?.off(configs.eventNames.calling.answerIncomingCall, answerIncomingCall);
 		}
-	}, [remoteUserData, stopStream, createOffer])
+	}, [remoteUserData, stopStream, createOffer, answerIncomingCall])
+
 
 	return (
 		<View style={{
@@ -145,7 +127,7 @@ const CallScreen = ({
 				toggleSpeaker={toggleSpeaker}
 				endCall={hangUp}
 				toggleCamera={toggleCamera}
-				switchCamera={createOffer}
+				switchCamera={switchCamera}
 				toggleMicrophone={toggleMicrophone} />
 		</View>
 	);
