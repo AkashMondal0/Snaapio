@@ -11,7 +11,7 @@ import { fetchConversationsApi } from "@/redux-stores/slice/conversation/api.ser
 import { setNotification } from "@/redux-stores/slice/notification";
 import { fetchUnreadMessageNotificationCountApi } from "@/redux-stores/slice/notification/api.service";
 import React from "react";
-import { IncomingCallData, setAnswerIncomingCall, setEndCall, setIncomingCall } from "@/redux-stores/slice/call";
+import { setCallStatus } from "@/redux-stores/slice/call";
 // create socket context 
 export const SocketContext = React.createContext<{
     socket: Socket | null,
@@ -81,31 +81,28 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
         ToastAndroid.show("Test from socket server", ToastAndroid.SHORT)
     }, [])
 
-    const incomingCall = useCallback(async (data: IncomingCallData) => {
-        if (data.userData.id === session?.id) return;
-        if (data.status === "calling") {
-            dispatch(setIncomingCall(data))
-            const supported = await Linking.canOpenURL('snaapio://incomingcall');
+    const incomingCall = useCallback(async (data: {
+        username: string;
+        email: string
+        id: string;
+        name: string;
+        profilePicture: string
+        status: "CALLING" | "HANGUP"
+        stream: "video" | "audio"
+    }) => {
+        if (data.status === "CALLING") {
+            dispatch(setCallStatus("IDLE"))
+            const url = `snaapio://incoming_call?username=${data.username}&email=${data.email}&id=${data.id}&name=${data.name}&profilePicture=${data.profilePicture}&userType=REMOTE&stream=${data.stream}`;
+            const supported = await Linking.canOpenURL(url);
             if (supported) {
-                await Linking.openURL('snaapio://incomingcall');
+                await Linking.openURL(url);
             } else {
                 ToastAndroid.show("Internal Error incomingCall", ToastAndroid.SHORT);
             }
         }
-        if (data.status === "hangUp") {
-            dispatch(setIncomingCall(null))
+        if (data.status === "HANGUP") {
+            dispatch(setCallStatus("DISCONNECTED"))
         }
-    }, [])
-
-    const answerIncomingCall = useCallback(async (res: {
-        message: string,
-        data: "PENDING" | "ACCEPT" | "DECLINE" | "IDLE"
-    }) => {
-        dispatch(setAnswerIncomingCall(res.data))
-    }, [])
-
-    const peerLeft = useCallback(() => {
-        dispatch(setEndCall())
     }, [])
 
     useEffect(() => {
@@ -123,21 +120,18 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
             socketRef.current?.on(configs.eventNames.conversation.seen, userSeenMessages);
             socketRef.current?.on(configs.eventNames.conversation.typing, typingRealtime);
             socketRef.current?.on(configs.eventNames.notification.post, notification);
-            socketRef.current?.on(configs.eventNames.calling.requestForCall, incomingCall);
-            socketRef.current?.on(configs.eventNames.calling.answerIncomingCall, answerIncomingCall);
-            socketRef.current?.on("peerLeft", peerLeft);
+            socketRef.current?.on("send-call", incomingCall);
 
             return () => {
                 socketRef.current?.off('connect')
                 socketRef.current?.off('disconnect')
                 socketRef.current?.off('test', systemMessageFromServerSocket)
-                socketRef.current?.off('peerLeft', peerLeft)
                 socketRef.current?.off(configs.eventNames.conversation.message, checkFunction)
                 socketRef.current?.off(configs.eventNames.conversation.seen, userSeenMessages)
                 socketRef.current?.off(configs.eventNames.conversation.typing, typingRealtime)
                 socketRef.current?.off(configs.eventNames.notification.post, notification)
-                socketRef.current?.off(configs.eventNames.calling.requestForCall, incomingCall)
-                socketRef.current?.off(configs.eventNames.calling.answerIncomingCall, answerIncomingCall);
+                socketRef.current?.off("send-call", incomingCall)
+                // socketRef.current?.off(configs.eventNames.calling.answerIncomingCall, answerIncomingCall);
             }
         }
     }, [session, currentConversation, list.length])

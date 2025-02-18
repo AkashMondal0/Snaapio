@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect } from "react";
+import { memo, useCallback, useContext, useEffect } from "react";
 import { Text, useTheme } from "hyper-native-ui";
 import { TouchableOpacity, View } from "react-native";
 import { Avatar, Icon } from "@/components/skysolo-ui";
@@ -7,14 +7,20 @@ import { RootState } from "@/redux-stores/store";
 import { StackActions, useNavigation } from "@react-navigation/native";
 import { incomingCallAnswerApi } from "@/redux-stores/slice/call/api.service";
 import { hapticVibrate } from "@/lib/RN-vibration";
+import { Session } from "@supabase/supabase-js";
+import { SocketContext } from "@/provider/SocketConnections";
 
-const InComingCall = memo(function InComingCall() {
+const InComingCall = memo(function InComingCall({
+    route
+}: {
+    route: { params: Session["user"] }
+}) {
     const { currentTheme } = useTheme();
     const navigation = useNavigation();
-    const dispatch = useDispatch();
-    const inComingCall = useSelector((state: RootState) => state.CallState.inComingCall);
-    const userData = inComingCall?.userData
-
+    const { socket } = useContext(SocketContext);
+    const callStatus = useSelector((state: RootState) => state.CallState.callStatus);
+    const session = useSelector((state: RootState) => state.AuthState.session.user);
+    const userData = route.params as any
     const Message = useCallback(() => {
         hapticVibrate()
     }, []);
@@ -32,10 +38,13 @@ const InComingCall = memo(function InComingCall() {
     const Decline = useCallback(async () => {
         if (!userData?.id) return
         hapticVibrate()
-        await dispatch(incomingCallAnswerApi({
-            acceptCall: false,
-            requestSenderUserId: userData?.id
-        }) as any);
+        socket?.emit("answer-call", {
+            ...session,
+            status: "calling",
+            stream: "video",
+            call: "DECLINE",
+            remoteId: userData?.id
+        })
         if (navigation.canGoBack()) {
             navigation.goBack()
             return
@@ -44,12 +53,12 @@ const InComingCall = memo(function InComingCall() {
     }, [userData?.id]);
 
     useEffect(() => {
-        if (!inComingCall) {
+        if (callStatus === "DISCONNECTED") {
             if (navigation.canGoBack()) {
                 navigation.goBack()
             }
         }
-    }, [inComingCall])
+    }, [callStatus])
 
 
     return (

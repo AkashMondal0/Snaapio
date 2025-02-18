@@ -1,5 +1,4 @@
 import { SocketContext } from "@/provider/SocketConnections";
-import { RootState } from "@/redux-stores/store";
 import { Session } from "@/types";
 import { useState, useEffect, useRef, useContext } from "react";
 import {
@@ -8,7 +7,7 @@ import {
   RTCSessionDescription,
   RTCIceCandidate,
 } from "react-native-webrtc";
-import { useSelector } from "react-redux";
+import { Socket } from "socket.io-client";
 
 type SocketRes<T> = {
   userId: string;
@@ -16,10 +15,19 @@ type SocketRes<T> = {
   data: T;
 };
 
-const useWebRTC = ({ remoteUser: RU,}: { remoteUser: Session["user"] }) => {
-  const socketState = useContext(SocketContext);
-  const [remoteUser, setRemoteUser] = useState<Session["user"]>(RU)
-  const session = useSelector((state: RootState) => state.AuthState.session.user);
+const useWebRTC = ({
+  remoteUser,
+  session,
+  socket,
+  onError,
+  onCallState
+}: {
+  remoteUser: Session["user"],
+  session: Session["user"],
+  socket: Socket | null
+  onCallState?: (value: "CONNECTED" | "DISCONNECTED" | "PENDING" | "IDLE" | "ERROR") => void,
+  onError?: (message: string, err: any) => void
+}) => {
   const [isMuted, setIsMuted] = useState(false);
   const [isCameraOn, setIsCameraOn] = useState(true);
   const [isFrontCam, setIsFrontCam] = useState(true);
@@ -57,8 +65,10 @@ const useWebRTC = ({ remoteUser: RU,}: { remoteUser: Session["user"] }) => {
       );
 
       setLocalStream(mediaStream as any);
+      onCallState?.("PENDING");
       console.log("📌 Local stream started.");
     } catch (err) {
+      onError?.("❌ Error starting local stream:", err);
       console.error("❌ Error starting local stream:", err);
     }
   };
@@ -74,14 +84,16 @@ const useWebRTC = ({ remoteUser: RU,}: { remoteUser: Session["user"] }) => {
       if (!offerDescription) return;
 
       await peerConnectionRef.current?.setLocalDescription(offerDescription);
-      socketState.socket?.emit("offer", {
+      socket?.emit("offer", {
         userId: session.id,
-        members: [remoteUser.id],
+        remoteId: remoteUser?.id,
         data: offerDescription,
       });
 
       console.log("📌 Offer created and sent.");
+      onCallState?.("PENDING");
     } catch (err) {
+      onError?.("❌ Error creating offer:", err)
       console.error("❌ Error creating offer:", err);
     }
   };
@@ -96,14 +108,16 @@ const useWebRTC = ({ remoteUser: RU,}: { remoteUser: Session["user"] }) => {
       const answer = await peerConnectionRef.current?.createAnswer();
       await peerConnectionRef.current?.setLocalDescription(answer);
 
-      socketState.socket?.emit("answer", {
+      socket?.emit("answer", {
         userId: session.id,
-        members: [remoteUser.id],
+        remoteId: remoteUser?.id,
         data: answer,
       });
 
       console.log("📌 Answer created and sent.");
+      onCallState?.("CONNECTED");
     } catch (err) {
+      onError?.("❌ Error creating answer:", err);
       console.error("❌ Error creating answer:", err);
     }
   };
@@ -116,6 +130,7 @@ const useWebRTC = ({ remoteUser: RU,}: { remoteUser: Session["user"] }) => {
       await peerConnectionRef.current?.addIceCandidate(new RTCIceCandidate(res.data));
       console.log("📌 Remote ICE candidate added.");
     } catch (err) {
+      onError?.("❌ Error adding ICE candidate:", err);
       console.error("❌ Error adding ICE candidate:", err);
     }
   };
@@ -124,9 +139,9 @@ const useWebRTC = ({ remoteUser: RU,}: { remoteUser: Session["user"] }) => {
   const handleICECandidateEvent = (event: any) => {
     if (!session || !remoteUser) return console.error("not found !session | !remoteUser")
     if (event.candidate) {
-      socketState.socket?.emit("candidate", {
+      socket?.emit("candidate", {
         userId: session.id,
-        members: [remoteUser.id],
+        remoteId: remoteUser?.id,
         data: event.candidate,
       });
       console.log("📌 ICE candidate sent.");
@@ -210,31 +225,50 @@ const useWebRTC = ({ remoteUser: RU,}: { remoteUser: Session["user"] }) => {
     setRemoteStream(null);
     console.log("📌 Streams stopped and cleaned up.");
     if (!session || !remoteUser) return console.error("not found !session | !remoteUser")
-    socketState.socket?.emit("peerLeft", {
+    socket?.emit("peerLeft", {
       userId: session.id,
-      members: [remoteUser.id],
+      remoteId: remoteUser?.id,
       data: "END",
     });
+    onCallState?.("DISCONNECTED");
   };
+
+  const PeerLeft = () => {
+    stopStream()
+  }
+
   // 📌 **WebRTC Event Listeners**
   useEffect(() => {
     startLocalUserStream();
-    socketState.socket?.on("offer", createAnswer);
-    socketState.socket?.on("answer", handleAnswer);
-    socketState.socket?.on("candidate", handleRemoteICECandidate);
+    socket?.on("offer", createAnswer);
+    socket?.on("answer", handleAnswer);
+    socket?.on("candidate", handleRemoteICECandidate);
+    // socket?.on("peerLeft",);
+    socket?.on("answer-call", (data) => {
+      if (data.call === "ACCEPT") {
+        createOffer();
+      }
+      if (data.data === "DECLINE") {
+        stopStream();
+      }
+    });
+    socket?.on("peerLeft", PeerLeft);
+
     peerConnectionRef.current?.addEventListener("track", handleTrackEvent);
     peerConnectionRef.current?.addEventListener("icecandidate", handleICECandidateEvent);
 
     return () => {
-      socketState.socket?.off("offer", createAnswer);
-      socketState.socket?.off("answer", handleAnswer);
-      socketState.socket?.off("candidate", handleRemoteICECandidate);
+      socket?.off("offer", createAnswer);
+      socket?.off("answer", handleAnswer);
+      socket?.off("candidate", handleRemoteICECandidate);
+      socket?.off("answer-call");
+      socket?.off("peerLeft", PeerLeft);
       peerConnectionRef.current?.removeEventListener("track", handleTrackEvent);
       peerConnectionRef.current?.removeEventListener("icecandidate", handleICECandidateEvent);
       // socket
       stopStream();
     };
-  }, [RU, socketState.socket, session]);
+  }, [session, remoteUser]);
 
   return {
     localStream,
@@ -250,7 +284,6 @@ const useWebRTC = ({ remoteUser: RU,}: { remoteUser: Session["user"] }) => {
     stopStream,
     createOffer,
     createAnswer,
-    setRemoteUser,
   };
 };
 

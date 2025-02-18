@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useContext, useEffect, useRef } from "react";
 import { Avatar } from "@/components/skysolo-ui";
 import useWebRTC from "@/lib/useWebRTC";
 import { useTheme } from "hyper-native-ui";
@@ -6,11 +6,11 @@ import { View, StatusBar, TouchableOpacity, ToastAndroid } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { StackActions, useNavigation } from "@react-navigation/native";
 import { Session } from "@/types";
-import { incomingCallAnswerApi, sendCallingRequestApi } from "@/redux-stores/slice/call/api.service";
 import { IconButtonWithoutThemed } from "@/components/skysolo-ui/Icon";
 import { RootState } from "@/redux-stores/store";
 import { RTCView } from "react-native-webrtc";
 import { hapticVibrate } from "@/lib/RN-vibration";
+import { SocketContext } from "@/provider/SocketConnections";
 
 const CallScreen = ({
 	route
@@ -23,12 +23,12 @@ const CallScreen = ({
 	}
 }) => {
 	const remoteUserData = route?.params;
-	const dispatch = useDispatch();
+	const { socket } = useContext(SocketContext);
 	const { currentTheme } = useTheme();
 	const navigation = useNavigation();
 	const loaded = useRef(true);
-	const answerIncomingCall = useSelector((state: RootState) => state.CallState.callingAnswer);
-	const callState = useSelector((state: RootState) => state.CallState.callState, (pre, next) => pre === next);
+	const session = useSelector((state: RootState) => state.AuthState.session.user);
+
 	const {
 		localStream,
 		remoteStream,
@@ -37,46 +37,52 @@ const CallScreen = ({
 		stopStream,
 		toggleMicrophone,
 		isCameraOn, isMuted,
-		createOffer,
+		// createOffer,
 		toggleSpeaker,
 		isSpeakerOn,
-	} = useWebRTC({ remoteUser: remoteUserData });
+	} = useWebRTC({
+		remoteUser: remoteUserData,
+		session: session,
+		socket: socket,
+	});
 
 	const hangUp = useCallback(async () => {
 		if (!remoteUserData) { return ToastAndroid.show('user id not found', ToastAndroid.SHORT); }
 		hapticVibrate()
 		stopStream();
-		await dispatch(sendCallingRequestApi({
-			requestUserId: remoteUserData.id,
-			requestUserData: remoteUserData,
-			isVideo: false,
-			status: "hangUp",
-		}) as any);
+		socket?.emit("send-call", {
+			...session,
+			status: "HANGUP",
+			stream: "video",
+			remoteId: remoteUserData?.id
+		})
 		if (navigation.canGoBack()) {
 			navigation.goBack();
 		}
 	}, [stopStream])
 
 	const InitFunc = async () => {
-		if (route.params?.userType === "REMOTE" && loaded) {
+		if (remoteUserData?.userType === "LOCAL" && loaded) {
 			loaded.current = false;
-			// createOffer();
-			await dispatch(incomingCallAnswerApi({
-				acceptCall: true,
-				requestSenderUserId: route.params?.id as string,
-			}) as any)
+
+			socket?.emit("send-call", {
+				...session,
+				status: "CALLING",
+				stream: "video",
+				remoteId: remoteUserData?.id
+			})
+		}
+		if (remoteUserData?.userType === "REMOTE" && session && loaded) {
+			loaded.current = false;
+			socket?.emit("answer-call", {
+				...session,
+				status: "calling",
+				stream: "video",
+				call: "ACCEPT",
+				remoteId: remoteUserData?.id
+			})
 		}
 	}
-
-	useEffect(() => {
-		if (answerIncomingCall === "ACCEPT") {
-			createOffer();
-		}
-		if (answerIncomingCall === "DECLINE" || callState === "DISCONNECTED") {
-			stopStream();
-			navigation.dispatch(StackActions.replace("CallDeclined", remoteUserData as any))
-		}
-	}, [remoteUserData, stopStream, createOffer, answerIncomingCall, callState])
 
 	useEffect(() => { InitFunc(); }, [])
 

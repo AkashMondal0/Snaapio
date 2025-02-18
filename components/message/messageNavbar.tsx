@@ -3,11 +3,10 @@ import { Text } from "hyper-native-ui";
 import { memo, useCallback } from "react";
 import { Conversation } from "@/types";
 import { ToastAndroid, View } from "react-native";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { useTheme } from 'hyper-native-ui';
 import { useNavigation } from "@react-navigation/native";
-import { sendCallingRequestApi } from "@/redux-stores/slice/call/api.service";
 
 
 
@@ -18,7 +17,6 @@ const ChatScreenNavbar = memo(function ChatScreenNavbar({
 }) {
     const navigation = useNavigation();
     const { currentTheme } = useTheme();
-    const dispatch = useDispatch();
     const currentTyping = useSelector((Root: RootState) => Root.ConversationState.currentTyping);
 
 
@@ -32,13 +30,6 @@ const ChatScreenNavbar = memo(function ChatScreenNavbar({
 
     const onPress = useCallback(async (isVideo: boolean) => {
         if (!conversation?.user) return ToastAndroid.show('user id not found', ToastAndroid.SHORT);
-        await dispatch(sendCallingRequestApi({
-            requestUserId: conversation.user?.id,
-            requestUserData: conversation.user,
-            isVideo: isVideo,
-            status: "calling",
-        }) as any)
-        // @ts-ignore
         navigation.navigate("Video", {
             email: conversation.user.email,
             profilePicture: conversation.user.profilePicture,

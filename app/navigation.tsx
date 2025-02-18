@@ -412,10 +412,10 @@ const RootStack = createNativeStackNavigator({
                 CallDeclined: {
                     screen: CallDeclinedScreen,
                     linking: {
-                        path: "/CallDeclined/in"
+                        path: "/CallDeclined"
                     }
                 },
-                Video:{
+                Video: {
                     screen: RoomScreen,
                     linking: {
                         path: "/video"
@@ -424,7 +424,14 @@ const RootStack = createNativeStackNavigator({
                 InComingCall: {
                     screen: IncomingCallScreen,
                     linking: {
-                        path: "/incomingcall"
+                        path: "/incoming_call",
+                        parse: {
+                            username: (username) => username || '',
+                            email: (email) => decodeURIComponent(email || ''),
+                            id: (id) => id || '',
+                            name: (name) => name || '',
+                            profilePicture: (profilePicture) => decodeURIComponent(profilePicture || ''),
+                        },
                     }
                 },
                 Calling: {
@@ -436,7 +443,7 @@ const RootStack = createNativeStackNavigator({
                 CallRoom: {
                     screen: CallRoomScreen,
                     linking: {
-                        path: "/CallRoom/in"
+                        path: "/CallRoom"
                     }
                 }
             }
