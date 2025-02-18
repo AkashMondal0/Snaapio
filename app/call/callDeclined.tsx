@@ -2,9 +2,9 @@ import { memo, useCallback } from "react";
 import { Text, useTheme } from "hyper-native-ui";
 import { TouchableOpacity, View } from "react-native";
 import { Avatar, Icon } from "@/components/skysolo-ui";
-import * as Haptics from 'expo-haptics';
 import { useNavigation } from "@react-navigation/native";
 import { Session } from "@/types";
+import { hapticVibrate } from "@/lib/RN-vibration";
 
 const InComingCall = memo(function InComingCall({
 	route
@@ -17,7 +17,7 @@ const InComingCall = memo(function InComingCall({
 	const remoteUserData = route.params
 	const { currentTheme } = useTheme();
 	const hp = useCallback(() => {
-		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+		hapticVibrate()
 	}, []);
 
 	const Back = useCallback(() => {

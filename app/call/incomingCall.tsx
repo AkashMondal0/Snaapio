@@ -2,11 +2,11 @@ import { memo, useCallback, useEffect } from "react";
 import { Text, useTheme } from "hyper-native-ui";
 import { TouchableOpacity, View } from "react-native";
 import { Avatar, Icon } from "@/components/skysolo-ui";
-// import * as Haptics from 'expo-haptics';
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { StackActions, useNavigation } from "@react-navigation/native";
 import { incomingCallAnswerApi } from "@/redux-stores/slice/call/api.service";
+import { hapticVibrate } from "@/lib/RN-vibration";
 
 const InComingCall = memo(function InComingCall() {
     const { currentTheme } = useTheme();
@@ -15,17 +15,13 @@ const InComingCall = memo(function InComingCall() {
     const inComingCall = useSelector((state: RootState) => state.CallState.inComingCall);
     const userData = inComingCall?.userData
 
-    const HP = useCallback(() => {
-        // Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-    }, []);
-
     const Message = useCallback(() => {
-        HP();
+        hapticVibrate()
     }, []);
 
     const Accept = useCallback(async () => {
         if (!userData) return
-        HP();
+        hapticVibrate()
         navigation.dispatch(StackActions.replace("Video", {
             ...userData,
             isVideo: true,
@@ -35,7 +31,7 @@ const InComingCall = memo(function InComingCall() {
 
     const Decline = useCallback(async () => {
         if (!userData?.id) return
-        HP();
+        hapticVibrate()
         await dispatch(incomingCallAnswerApi({
             acceptCall: false,
             requestSenderUserId: userData?.id

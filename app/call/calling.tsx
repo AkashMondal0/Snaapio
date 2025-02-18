@@ -5,21 +5,20 @@ import { Icon } from "@/components/skysolo-ui";
 import { StackActions, useNavigation } from "@react-navigation/native";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
-import * as Haptics from 'expo-haptics';
 
 const Calling = memo(function Calling() {
 	const { currentTheme } = useTheme();
 	const navigation = useNavigation();
 	const session = useSelector((state: RootState) => state.AuthState.session.user);
 	const inComingCall = useSelector((state: RootState) => state.CallState.inComingCall);
-	const userData = inComingCall?.participants?.filter((p) => p.user.id !== session?.id)[0];
+	// const userData = inComingCall?.participants?.filter((p) => p.user.id !== session?.id)[0];
 
-	const HP = useCallback(() => {
-		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-	}, []);
+	// const HP = useCallback(() => {
+	// 	Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+	// }, []);
 	
 	const Decline = useCallback(() => {
-		HP();
+		// HP();
 		if (navigation.canGoBack()) {
 			navigation.goBack()
 			return

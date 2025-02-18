@@ -21,6 +21,12 @@ const _configs = {
             post: "notification_post",
             followRequest: {}
         },
+        webRtc: {
+            offer: "offer",
+            answer: "answer",
+            candidate: "candidate",
+            peerLeft: "peerLeft"
+        },
         calling: {
             // server
             requestForCall: "request-for-call",

@@ -10,6 +10,7 @@ import { incomingCallAnswerApi, sendCallingRequestApi } from "@/redux-stores/sli
 import { IconButtonWithoutThemed } from "@/components/skysolo-ui/Icon";
 import { RootState } from "@/redux-stores/store";
 import { RTCView } from "react-native-webrtc";
+import { hapticVibrate } from "@/lib/RN-vibration";
 
 const CallScreen = ({
 	route
@@ -27,7 +28,6 @@ const CallScreen = ({
 	const navigation = useNavigation();
 	const loaded = useRef(true);
 	const answerIncomingCall = useSelector((state: RootState) => state.CallState.callingAnswer);
-
 	const {
 		localStream,
 		remoteStream,
@@ -43,6 +43,7 @@ const CallScreen = ({
 
 	const hangUp = useCallback(async () => {
 		if (!remoteUserData) { return ToastAndroid.show('user id not found', ToastAndroid.SHORT); }
+		hapticVibrate()
 		stopStream();
 		await dispatch(sendCallingRequestApi({
 			requestUserId: remoteUserData.id,

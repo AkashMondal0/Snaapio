@@ -2,18 +2,17 @@ import { memo, useCallback } from "react";
 import { Text, useTheme } from "hyper-native-ui";
 import { Image, TouchableOpacity, View } from "react-native";
 import { Icon } from "@/components/skysolo-ui";
-import * as Haptics from 'expo-haptics';
 import { StackActions, useNavigation } from "@react-navigation/native";
+import { hapticVibrate } from "@/lib/RN-vibration";
+
+
 const CallRoom = memo(function CallRoom() {
+
 	const { currentTheme } = useTheme();
 	const navigation = useNavigation();
 
-	const HP = useCallback(() => {
-		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-	}, []);
-
 	const HangUp = useCallback(() => {
-		HP();
+		hapticVibrate()
 		if (navigation.canGoBack()) {
 			navigation.goBack()
 			return

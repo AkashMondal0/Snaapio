@@ -29,7 +29,7 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
     const currentConversation = useSelector((state: RootState) => state.ConversationState.conversation);
     const list = useSelector((state: RootState) => state.ConversationState.conversationList)
     const socketRef = useRef<Socket | null>(null)
-    const [mounted, setMounted] = useState(false)
+    const [socketConnected, setSocketConnected] = useState(false)
 
     const SocketConnection = useCallback(async () => {
         if (!session || !session?.accessToken || socketRef.current) return;
@@ -44,7 +44,7 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
                 username: session.username
             }
         })
-        setMounted(true)
+        setSocketConnected(true)
     }, [session])
 
     const checkFunction = useCallback((data: Message) => {

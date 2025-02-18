@@ -1,7 +1,9 @@
 import React from "react";
-import { View, Dimensions, Text, StyleSheet } from "react-native";
+import { View, Dimensions, Text, StyleSheet, TouchableOpacity, Vibration } from "react-native";
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from "react-native-reanimated";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
+import RNvibrate, { hapticVibrate } from "@/lib/RN-vibration";
+import vibrate from "@/lib/RN-vibration";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -51,9 +53,11 @@ const DraggableVideo = () => {
     <View style={styles.container}>
       <GestureDetector gesture={panGesture}>
         <Animated.View style={[styles.video, animatedStyle]}>
-          <View style={styles.videoContent}>
-            <Text style={styles.videoText}>🎥 Video Player</Text>
-          </View>
+          <TouchableOpacity style={styles.videoContent} onPressIn={hapticVibrate}>
+            <View >
+              <Text style={styles.videoText}>🎥 Video Player</Text>
+            </View>
+          </TouchableOpacity>
         </Animated.View>
       </GestureDetector>
     </View>
