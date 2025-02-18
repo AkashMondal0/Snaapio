@@ -37,7 +37,7 @@ export const incomingCallAnswerApi = createAsyncThunk(
                 query: callQueries.incomingCallAnswer,
                 variables: { incomingCallAnswer }
             })
-            return res
+            return { ...res, acceptCall: incomingCallAnswer.acceptCall }
         } catch (error: any) {
             return thunkAPI.rejectWithValue({
                 message: "Internal Error"

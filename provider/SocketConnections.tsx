@@ -11,7 +11,7 @@ import { fetchConversationsApi } from "@/redux-stores/slice/conversation/api.ser
 import { setNotification } from "@/redux-stores/slice/notification";
 import { fetchUnreadMessageNotificationCountApi } from "@/redux-stores/slice/notification/api.service";
 import React from "react";
-import { IncomingCallData, setAnswerIncomingCall, setIncomingCall } from "@/redux-stores/slice/call";
+import { IncomingCallData, setAnswerIncomingCall, setEndCall, setIncomingCall } from "@/redux-stores/slice/call";
 // create socket context 
 export const SocketContext = React.createContext<{
     socket: Socket | null,
@@ -104,6 +104,10 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
         dispatch(setAnswerIncomingCall(res.data))
     }, [])
 
+    const peerLeft = useCallback(() => {
+        dispatch(setEndCall())
+    }, [])
+
     useEffect(() => {
         SocketConnection();
         if (socketRef.current && session?.id) {
@@ -121,11 +125,13 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
             socketRef.current?.on(configs.eventNames.notification.post, notification);
             socketRef.current?.on(configs.eventNames.calling.requestForCall, incomingCall);
             socketRef.current?.on(configs.eventNames.calling.answerIncomingCall, answerIncomingCall);
+            socketRef.current?.on("peerLeft", peerLeft);
 
             return () => {
                 socketRef.current?.off('connect')
                 socketRef.current?.off('disconnect')
-                socketRef.current?.off('test')
+                socketRef.current?.off('test', systemMessageFromServerSocket)
+                socketRef.current?.off('peerLeft', peerLeft)
                 socketRef.current?.off(configs.eventNames.conversation.message, checkFunction)
                 socketRef.current?.off(configs.eventNames.conversation.seen, userSeenMessages)
                 socketRef.current?.off(configs.eventNames.conversation.typing, typingRealtime)

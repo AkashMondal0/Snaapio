@@ -37,6 +37,7 @@ function Root() {
   };
 
   return (<>
+    <PreConfiguration />
     <GestureHandlerRootView style={{
       flex: 1,
       backgroundColor: background,
@@ -45,16 +46,17 @@ function Root() {
         flex: 1,
         backgroundColor: background
       }}>
-        <PreConfiguration />
-        <SocketConnections >
+        {session.user ? <>
           <BottomSheetProvider>
-            {session.user ? <Navigation
-              onReady={() => { SplashScreen.hideAsync() }}
-              theme={theme} linking={{ prefixes }} /> : <AuthNavigation
-              onReady={() => { SplashScreen.hideAsync() }}
-              theme={theme} linking={{ prefixes }} />}
+            <SocketConnections>
+              <Navigation
+                onReady={() => { SplashScreen.hideAsync() }}
+                theme={theme} linking={{ prefixes }} />
+            </SocketConnections>
           </BottomSheetProvider>
-        </SocketConnections>
+        </> : <AuthNavigation
+          onReady={() => { SplashScreen.hideAsync() }}
+          theme={theme} linking={{ prefixes }} />}
       </SafeAreaProvider>
     </GestureHandlerRootView>
   </>)

@@ -28,6 +28,7 @@ const CallScreen = ({
 	const navigation = useNavigation();
 	const loaded = useRef(true);
 	const answerIncomingCall = useSelector((state: RootState) => state.CallState.callingAnswer);
+	const callState = useSelector((state: RootState) => state.CallState.callState, (pre, next) => pre === next);
 	const {
 		localStream,
 		remoteStream,
@@ -38,7 +39,7 @@ const CallScreen = ({
 		isCameraOn, isMuted,
 		createOffer,
 		toggleSpeaker,
-		isSpeakerOn
+		isSpeakerOn,
 	} = useWebRTC({ remoteUser: remoteUserData });
 
 	const hangUp = useCallback(async () => {
@@ -68,16 +69,16 @@ const CallScreen = ({
 	}
 
 	useEffect(() => {
-		InitFunc();
 		if (answerIncomingCall === "ACCEPT") {
 			createOffer();
 		}
-		if (answerIncomingCall === "DECLINE") {
+		if (answerIncomingCall === "DECLINE" || callState === "DISCONNECTED") {
 			stopStream();
 			navigation.dispatch(StackActions.replace("CallDeclined", remoteUserData as any))
 		}
-	}, [remoteUserData, stopStream, createOffer, answerIncomingCall])
+	}, [remoteUserData, stopStream, createOffer, answerIncomingCall, callState])
 
+	useEffect(() => { InitFunc(); }, [])
 
 	return (
 		<View style={{
