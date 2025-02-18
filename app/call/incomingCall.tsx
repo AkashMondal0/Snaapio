@@ -2,28 +2,39 @@ import { memo, useCallback, useContext, useEffect } from "react";
 import { Text, useTheme } from "hyper-native-ui";
 import { TouchableOpacity, View } from "react-native";
 import { Avatar, Icon } from "@/components/skysolo-ui";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { StackActions, useNavigation } from "@react-navigation/native";
-import { incomingCallAnswerApi } from "@/redux-stores/slice/call/api.service";
 import { hapticVibrate } from "@/lib/RN-vibration";
 import { Session } from "@supabase/supabase-js";
 import { SocketContext } from "@/provider/SocketConnections";
+import { useCameraPermissions } from "expo-camera";
 
 const InComingCall = memo(function InComingCall({
     route
 }: {
     route: { params: Session["user"] }
 }) {
+    const [permission, requestPermission] = useCameraPermissions();
     const { currentTheme } = useTheme();
     const navigation = useNavigation();
     const { socket } = useContext(SocketContext);
     const callStatus = useSelector((state: RootState) => state.CallState.callStatus);
     const session = useSelector((state: RootState) => state.AuthState.session.user);
     const userData = route.params as any
+
     const Message = useCallback(() => {
         hapticVibrate()
     }, []);
+
+    const getMediaPermission = useCallback(async () => {
+        if (!permission) return
+        const rePermission = await requestPermission();
+        if (!rePermission.granted) {
+            return;
+        }
+        return rePermission;
+    }, [permission]);
 
     const Accept = useCallback(async () => {
         if (!userData) return
@@ -59,7 +70,6 @@ const InComingCall = memo(function InComingCall({
             }
         }
     }, [callStatus])
-
 
     return (
         <View style={{

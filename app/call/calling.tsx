@@ -10,7 +10,7 @@ const Calling = memo(function Calling() {
 	const { currentTheme } = useTheme();
 	const navigation = useNavigation();
 	const session = useSelector((state: RootState) => state.AuthState.session.user);
-	const inComingCall = useSelector((state: RootState) => state.CallState.inComingCall);
+	const inComingCall = useSelector((state: RootState) => state.CallState.callStatus);
 	// const userData = inComingCall?.participants?.filter((p) => p.user.id !== session?.id)[0];
 
 	// const HP = useCallback(() => {

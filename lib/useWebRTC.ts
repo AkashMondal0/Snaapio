@@ -1,6 +1,5 @@
-import { SocketContext } from "@/provider/SocketConnections";
 import { Session } from "@/types";
-import { useState, useEffect, useRef, useContext } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   RTCPeerConnection,
   mediaDevices,
@@ -8,7 +7,7 @@ import {
   RTCIceCandidate,
 } from "react-native-webrtc";
 import { Socket } from "socket.io-client";
-
+import { hapticVibrate } from "@/lib/RN-vibration";
 type SocketRes<T> = {
   userId: string;
   members: string[];
@@ -20,7 +19,7 @@ const useWebRTC = ({
   session,
   socket,
   onError,
-  onCallState
+  onCallState,
 }: {
   remoteUser: Session["user"],
   session: Session["user"],
@@ -115,7 +114,6 @@ const useWebRTC = ({
       });
 
       console.log("📌 Answer created and sent.");
-      onCallState?.("CONNECTED");
     } catch (err) {
       onError?.("❌ Error creating answer:", err);
       console.error("❌ Error creating answer:", err);
@@ -129,6 +127,7 @@ const useWebRTC = ({
       if (!res.data) return;
       await peerConnectionRef.current?.addIceCandidate(new RTCIceCandidate(res.data));
       console.log("📌 Remote ICE candidate added.");
+      onCallState?.("CONNECTED");
     } catch (err) {
       onError?.("❌ Error adding ICE candidate:", err);
       console.error("❌ Error adding ICE candidate:", err);
@@ -160,6 +159,7 @@ const useWebRTC = ({
     }
   };
 
+  /// ------------- system camera ---------------
   // 📌 **Toggle Microphone**
   const toggleMicrophone = () => {
     if (localStream) {
@@ -167,6 +167,7 @@ const useWebRTC = ({
         track.enabled = !track.enabled;
       });
       setIsMuted((prev) => !prev);
+      hapticVibrate()
       console.log("📌 Microphone toggled.");
     }
   };
@@ -178,6 +179,7 @@ const useWebRTC = ({
         track.enabled = !track.enabled;
       });
       setIsCameraOn((prev) => !prev);
+      hapticVibrate()
       console.log("📌 Camera toggled.");
     }
   };
@@ -191,18 +193,18 @@ const useWebRTC = ({
 
     videoTrack.applyConstraints(constraints);
     setIsFrontCam((prev) => !prev);
+    hapticVibrate()
     console.log("📌 Camera switched.");
   };
 
   //  📌 **AudioToSpeaker**
   const toggleSpeaker = () => {
     if (isSpeakerOn) {
-
       setIsSpeakerOn(false);
     } else {
       setIsSpeakerOn(true);
     }
-
+    hapticVibrate()
     console.log("📌 Audio To Speaker");
   };
 
@@ -230,11 +232,29 @@ const useWebRTC = ({
       remoteId: remoteUser?.id,
       data: "END",
     });
+    hapticVibrate()
     onCallState?.("DISCONNECTED");
   };
 
+  const cleanUp = () => {
+    if (localStream) {
+      localStream.getTracks().forEach((track) => track.stop());
+    }
+    if (remoteStream) {
+      remoteStream.getTracks().forEach((track) => track.stop());
+    }
+    peerConnectionRef.current?.close();
+    peerConnectionRef.current = new RTCPeerConnection({
+      iceServers: [{ urls: ["stun:stun.l.google.com:19302"] }],
+    });
+    datachannelRef.current?.close();
+    datachannelRef.current = null as any;
+    setLocalStream(null);
+    setRemoteStream(null);
+  };
+
   const PeerLeft = () => {
-    stopStream()
+    onCallState?.("DISCONNECTED");
   }
 
   // 📌 **WebRTC Event Listeners**
@@ -243,16 +263,16 @@ const useWebRTC = ({
     socket?.on("offer", createAnswer);
     socket?.on("answer", handleAnswer);
     socket?.on("candidate", handleRemoteICECandidate);
-    // socket?.on("peerLeft",);
+    socket?.on("peerLeft", PeerLeft);
     socket?.on("answer-call", (data) => {
       if (data.call === "ACCEPT") {
         createOffer();
       }
-      if (data.data === "DECLINE") {
+      if (data.call === "DECLINE") {
         stopStream();
+        onCallState?.("DISCONNECTED");
       }
     });
-    socket?.on("peerLeft", PeerLeft);
 
     peerConnectionRef.current?.addEventListener("track", handleTrackEvent);
     peerConnectionRef.current?.addEventListener("icecandidate", handleICECandidateEvent);
@@ -265,8 +285,7 @@ const useWebRTC = ({
       socket?.off("peerLeft", PeerLeft);
       peerConnectionRef.current?.removeEventListener("track", handleTrackEvent);
       peerConnectionRef.current?.removeEventListener("icecandidate", handleICECandidateEvent);
-      // socket
-      stopStream();
+      cleanUp();
     };
   }, [session, remoteUser]);
 
@@ -276,6 +295,7 @@ const useWebRTC = ({
     isMuted,
     isCameraOn,
     isSpeakerOn,
+    isFrontCam,
     startLocalUserStream,
     toggleMicrophone,
     toggleCamera,

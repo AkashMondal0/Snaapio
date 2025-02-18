@@ -1,4 +1,4 @@
-import { memo, useCallback } from "react";
+import { memo, useCallback, useEffect } from "react";
 import { Text, useTheme } from "hyper-native-ui";
 import { TouchableOpacity, View } from "react-native";
 import { Avatar, Icon } from "@/components/skysolo-ui";
@@ -6,26 +6,26 @@ import { useNavigation } from "@react-navigation/native";
 import { Session } from "@/types";
 import { hapticVibrate } from "@/lib/RN-vibration";
 
-const InComingCall = memo(function InComingCall({
-	route
+const CallDeclined = memo(function CallDeclined({
+	stopStream,
+	remoteUserData
 }: {
-	route: {
-		params: Session["user"] | null;
-	}
+	remoteUserData: Session["user"] | null;
+	stopStream: VoidFunction
 }) {
 	const navigation = useNavigation();
-	const remoteUserData = route.params
 	const { currentTheme } = useTheme();
-	const hp = useCallback(() => {
-		hapticVibrate()
-	}, []);
 
 	const Back = useCallback(() => {
+		hapticVibrate()
+		stopStream()
 		if (navigation.canGoBack()) {
 			navigation.goBack()
 			return
 		}
 	}, []);
+
+	useEffect(() => {stopStream()}, [])
 
 	return (
 		<View style={{
@@ -94,7 +94,7 @@ const InComingCall = memo(function InComingCall({
 				</View>
 				<View>
 					<TouchableOpacity
-						onPress={hp}
+						// onPress={hp}
 						activeOpacity={0.6}
 						style={{
 							aspectRatio: 1 / 1,
@@ -105,7 +105,7 @@ const InComingCall = memo(function InComingCall({
 							backgroundColor: currentTheme.muted,
 							marginBottom: 2
 						}}>
-						<Icon iconName="MessageSquareText" size={24} onPress={hp} />
+						<Icon iconName="MessageSquareText" size={24}  />
 					</TouchableOpacity>
 					<Text variant="body1" center variantColor="secondary">Message</Text>
 				</View>
@@ -113,4 +113,4 @@ const InComingCall = memo(function InComingCall({
 		</View>
 	)
 })
-export default InComingCall;
+export default CallDeclined;
