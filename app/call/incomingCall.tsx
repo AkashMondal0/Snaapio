@@ -1,6 +1,6 @@
 import { memo, useCallback, useContext, useEffect } from "react";
 import { Text, useTheme } from "hyper-native-ui";
-import { TouchableOpacity, View } from "react-native";
+import { Linking, PermissionsAndroid, Platform, ToastAndroid, TouchableOpacity, View } from "react-native";
 import { Avatar, Icon } from "@/components/skysolo-ui";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
@@ -8,14 +8,12 @@ import { StackActions, useNavigation } from "@react-navigation/native";
 import { hapticVibrate } from "@/lib/RN-vibration";
 import { Session } from "@supabase/supabase-js";
 import { SocketContext } from "@/provider/SocketConnections";
-import { useCameraPermissions } from "expo-camera";
 
 const InComingCall = memo(function InComingCall({
     route
 }: {
     route: { params: Session["user"] }
 }) {
-    const [permission, requestPermission] = useCameraPermissions();
     const { currentTheme } = useTheme();
     const navigation = useNavigation();
     const { socket } = useContext(SocketContext);
@@ -27,16 +25,38 @@ const InComingCall = memo(function InComingCall({
         hapticVibrate()
     }, []);
 
-    const getMediaPermission = useCallback(async () => {
-        if (!permission) return
-        const rePermission = await requestPermission();
-        if (!rePermission.granted) {
-            return;
+    const checkAndRequestPermissions = async () => {
+        if (Platform.OS === 'android') {
+            try {
+                const granted = await PermissionsAndroid.requestMultiple([
+                    PermissionsAndroid.PERMISSIONS.CAMERA,
+                    PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+                ]);
+
+                const cameraGranted = granted[PermissionsAndroid.PERMISSIONS.CAMERA] === PermissionsAndroid.RESULTS.GRANTED;
+                const micGranted = granted[PermissionsAndroid.PERMISSIONS.RECORD_AUDIO] === PermissionsAndroid.RESULTS.GRANTED;
+
+                if (cameraGranted && micGranted) {
+                    return true
+                } else {
+                    return false
+                }
+            } catch (err) {
+                return false
+            }
+        } else {
+            return false
         }
-        return rePermission;
-    }, [permission]);
+    };
 
     const Accept = useCallback(async () => {
+        const hasPermission = await checkAndRequestPermissions();
+        if (!hasPermission) {
+            ToastAndroid.show("Please allow camera and microphone permissions", ToastAndroid.SHORT)
+            // open app settings
+            Linking.openSettings()
+            return
+        }
         if (!userData) return
         hapticVibrate()
         navigation.dispatch(StackActions.replace("Video", {
@@ -47,7 +67,7 @@ const InComingCall = memo(function InComingCall({
     }, [userData?.id]);
 
     const Decline = useCallback(async () => {
-        if (!userData?.id) return
+        if (!userData) return
         hapticVibrate()
         socket?.emit("answer-call", {
             ...session,
@@ -66,7 +86,7 @@ const InComingCall = memo(function InComingCall({
     useEffect(() => {
         if (callStatus === "DISCONNECTED") {
             if (navigation.canGoBack()) {
-                navigation.goBack()
+                navigation.goBack();
             }
         }
     }, [callStatus])

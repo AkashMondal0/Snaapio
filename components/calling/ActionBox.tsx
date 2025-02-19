@@ -59,7 +59,7 @@ const ActionBoxComponent = ({
 			justifyContent: "center",
 			alignItems: "center",
 		}}>
-			<Button onPress={checkAvailableAudioRoutes}>checkAvailableAudioRoutes</Button>
+			{/* <Button onPress={checkAvailableAudioRoutes}>checkAvailableAudioRoutes</Button> */}
 			<View style={{
 				padding: 14,
 				borderRadius: 30,
