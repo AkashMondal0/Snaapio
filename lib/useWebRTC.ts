@@ -14,6 +14,13 @@ type SocketRes<T> = {
   members: string[];
   data: T;
 };
+
+type ChannelData = {
+  type: "MICROPHONE" | "CAMERA" | "MESSAGE" | "PEER_LEFT";
+  value: boolean;
+  sessionId: string;
+};
+
 const configuration = {
   iceServers: [{
     urls: [
@@ -32,17 +39,19 @@ const useWebRTC = ({
   socket,
   onError,
   onCallState,
+  onChannelMessage
 }: {
   remoteUser: Session["user"],
   session: Session["user"],
   socket: Socket | null
   onCallState?: (value: "CONNECTED" | "DISCONNECTED" | "PENDING" | "IDLE" | "ERROR") => void,
   onError?: (message: string, err: any) => void
+  onChannelMessage?: (message: ChannelData) => void
 }) => {
   const [isMuted, setIsMuted] = useState(false);
   const [isCameraOn, setIsCameraOn] = useState(true);
   const [isFrontCam, setIsFrontCam] = useState(true);
-  const [isSpeakerOn, setIsSpeakerOn] = useState(false);
+  const [isSpeakerOn, setIsSpeakerOn] = useState(true);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
 
@@ -50,7 +59,6 @@ const useWebRTC = ({
   const peerConnectionRef = useRef<RTCPeerConnection | null>(
     new RTCPeerConnection(configuration)
   );
-  const datachannelRef = useRef(peerConnectionRef.current?.createDataChannel("my_channel"))
 
   // 📌 **Start Local User Stream**
   const startLocalUserStream = async () => {
@@ -88,7 +96,7 @@ const useWebRTC = ({
     try {
       const offerDescription = await peerConnectionRef.current?.createOffer({
         OfferToReceiveAudio: true,
-        OfferToReceiveVideo: true,
+        OfferToReceiveVideo: true
       });
       if (!offerDescription) return;
 
@@ -179,6 +187,7 @@ const useWebRTC = ({
       });
       setIsMuted((prev) => !prev);
       hapticVibrate()
+      // datachannelRef.current?.send("Microphone"); // send to remote user
       console.log("📌 Microphone toggled.");
     }
   };
@@ -191,6 +200,7 @@ const useWebRTC = ({
       });
       setIsCameraOn((prev) => !prev);
       hapticVibrate()
+      // datachannelRef.current?.send("CAMERA"); // send to remote user
       console.log("📌 Camera toggled.");
     }
   };
@@ -226,8 +236,6 @@ const useWebRTC = ({
     peerConnectionRef.current = new RTCPeerConnection({
       iceServers: [{ urls: ["stun:stun.l.google.com:19302"] }],
     });
-    datachannelRef.current?.close();
-    datachannelRef.current = null as any;
 
     setLocalStream(null);
     setRemoteStream(null);
@@ -253,8 +261,6 @@ const useWebRTC = ({
     peerConnectionRef.current = new RTCPeerConnection({
       iceServers: [{ urls: ["stun:stun.l.google.com:19302"] }],
     });
-    datachannelRef.current?.close();
-    datachannelRef.current = null as any;
     setLocalStream(null);
     setRemoteStream(null);
   };
@@ -262,24 +268,33 @@ const useWebRTC = ({
   const PeerLeft = () => {
     onCallState?.("DISCONNECTED");
   }
+  // 📌 **callAnswer**
+  const callAnswer = (data: any) => {
+    if (data.call === "ACCEPT") {
+      createOffer();
+    }
+    if (data.call === "DECLINE") {
+      stopStream();
+      onCallState?.("DISCONNECTED");
+    }
+  }
+  // 📌 **channel**
+  const handleChannelMessages = (message: any) => {
+    console.log("📌 Data Channel Message:", message);
+    onChannelMessage?.(message);
+  }
+
 
   // 📌 **WebRTC Event Listeners**
   useEffect(() => {
     startLocalUserStream();
+    // socket
     socket?.on("offer", createAnswer);
     socket?.on("answer", handleAnswer);
     socket?.on("candidate", handleRemoteICECandidate);
     socket?.on("peerLeft", PeerLeft);
-    socket?.on("answer-call", (data) => {
-      if (data.call === "ACCEPT") {
-        createOffer();
-      }
-      if (data.call === "DECLINE") {
-        stopStream();
-        onCallState?.("DISCONNECTED");
-      }
-    });
-
+    socket?.on("answer-call", callAnswer);
+    // peerConnection
     peerConnectionRef.current?.addEventListener("track", handleTrackEvent);
     peerConnectionRef.current?.addEventListener("icecandidate", handleICECandidateEvent);
 
@@ -287,7 +302,7 @@ const useWebRTC = ({
       socket?.off("offer", createAnswer);
       socket?.off("answer", handleAnswer);
       socket?.off("candidate", handleRemoteICECandidate);
-      socket?.off("answer-call");
+      socket?.off("answer-call", callAnswer);
       socket?.off("peerLeft", PeerLeft);
       peerConnectionRef.current?.removeEventListener("track", handleTrackEvent);
       peerConnectionRef.current?.removeEventListener("icecandidate", handleICECandidateEvent);
