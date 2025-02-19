@@ -1,5 +1,8 @@
 import { TouchableOpacity, View } from "react-native";
 import { IconButtonWithoutThemed } from "../skysolo-ui/Icon";
+import InCallManager from "react-native-incall-manager";
+import { Button } from "hyper-native-ui";
+import { useEffect } from "react";
 
 const ActionBoxComponent = ({
 	toggleCamera,
@@ -24,6 +27,29 @@ const ActionBoxComponent = ({
 	isMuted: boolean
 	isFrontCam: boolean
 }) => {
+	// Get available audio routes (e.g., Bluetooth, Speaker, Earpiece)
+	const checkAvailableAudioRoutes = async () => {
+		const availableRoutes = await InCallManager.getIsWiredHeadsetPluggedIn();
+		console.log("📌 Available Audio Routes:", availableRoutes);
+	};
+	// 🔊 Enable Loudspeaker (Primary Speaker)
+	const enableLoudSpeaker = () => {
+		InCallManager.setForceSpeakerphoneOn(true); // Forces speakerphone ON
+		console.log("📌 Using Main Loudspeaker");
+	};
+
+	// 🔊 Enable Second Speaker (Bluetooth/External)
+	const enableSecondSpeaker = () => {
+		InCallManager.setForceSpeakerphoneOn(false); // Disables speakerphone
+		InCallManager.setSpeakerphoneOn(true); // Tries to use second speaker
+		console.log("📌 Trying to Use Second Speaker (External/Bluetooth)");
+	};
+
+	// 🎧 Use Bluetooth or Wired Headset (if connected)
+	const enableBluetoothOrWired = () => {
+		InCallManager.chooseAudioRoute("BLUETOOTH"); // Switch to Bluetooth/Wired Headset
+		console.log("📌 Using Bluetooth/Wired Headset");
+	};
 
 	return (
 		<View style={{
@@ -33,6 +59,7 @@ const ActionBoxComponent = ({
 			justifyContent: "center",
 			alignItems: "center",
 		}}>
+			<Button onPress={checkAvailableAudioRoutes}>checkAvailableAudioRoutes</Button>
 			<View style={{
 				padding: 14,
 				borderRadius: 30,
@@ -47,6 +74,21 @@ const ActionBoxComponent = ({
 				borderColor: currentTheme.input,
 				marginVertical: 10,
 			}}>
+				{/* volume */}
+				<TouchableOpacity onPress={toggleSpeaker}
+					activeOpacity={0.6}
+					style={{
+						padding: 15,
+						borderRadius: 50,
+						backgroundColor: !isSpeakerOn ? currentTheme.background : currentTheme.foreground,
+						borderWidth: 1,
+						borderColor: currentTheme.border
+					}}>
+					<IconButtonWithoutThemed
+						iconName={isSpeakerOn ? "Volume2" : "Volume1"}
+						size={24} onPress={toggleSpeaker}
+						color={isSpeakerOn ? currentTheme.background : currentTheme.foreground} />
+				</TouchableOpacity>
 				{/* video */}
 				<TouchableOpacity onPress={toggleCamera}
 					activeOpacity={0.6}

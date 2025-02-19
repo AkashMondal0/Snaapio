@@ -6,6 +6,7 @@ import {
   RTCSessionDescription,
   RTCIceCandidate,
 } from "react-native-webrtc";
+import InCallManager from "react-native-incall-manager";
 import { Socket } from "socket.io-client";
 import { hapticVibrate } from "@/lib/RN-vibration";
 type SocketRes<T> = {
@@ -13,6 +14,17 @@ type SocketRes<T> = {
   members: string[];
   data: T;
 };
+const configuration = {
+  iceServers: [{
+    urls: [
+      'stun:stun.l.google.com:19302',
+      'stun:stun1.l.google.com:19302',
+      'stun:stun2.l.google.com:19302',
+      'stun:stun3.l.google.com:19302',
+      'stun:stun4.l.google.com:19302'
+    ]
+  }],
+}
 
 const useWebRTC = ({
   remoteUser,
@@ -36,11 +48,8 @@ const useWebRTC = ({
 
   // WebRTC PeerConnection Reference
   const peerConnectionRef = useRef<RTCPeerConnection | null>(
-    new RTCPeerConnection({
-      iceServers: [{ urls: ["stun:stun.l.google.com:19302"] }],
-    })
+    new RTCPeerConnection(configuration)
   );
-
   const datachannelRef = useRef(peerConnectionRef.current?.createDataChannel("my_channel"))
 
   // 📌 **Start Local User Stream**
@@ -64,6 +73,7 @@ const useWebRTC = ({
       );
 
       setLocalStream(mediaStream as any);
+      InCallManager.start({ media: "audio" });
       onCallState?.("PENDING");
       console.log("📌 Local stream started.");
     } catch (err) {
@@ -160,6 +170,7 @@ const useWebRTC = ({
   };
 
   /// ------------- system camera ---------------
+
   // 📌 **Toggle Microphone**
   const toggleMicrophone = () => {
     if (localStream) {
@@ -199,13 +210,8 @@ const useWebRTC = ({
 
   //  📌 **AudioToSpeaker**
   const toggleSpeaker = () => {
-    if (isSpeakerOn) {
-      setIsSpeakerOn(false);
-    } else {
-      setIsSpeakerOn(true);
-    }
-    hapticVibrate()
-    console.log("📌 Audio To Speaker");
+    InCallManager.setSpeakerphoneOn(!isSpeakerOn); // Enable loudspeaker
+    setIsSpeakerOn((prev) => !prev);
   };
 
   // 📌 **Stop Stream & Cleanup**
