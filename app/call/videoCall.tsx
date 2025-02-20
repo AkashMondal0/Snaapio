@@ -13,7 +13,12 @@ import VideoCallCounter from "@/components/calling/videoCallCounter";
 import ActionBoxComponent from "@/components/calling/ActionBox";
 import CallDeclined from "./callDeclined";
 import { hapticVibrate } from "@/lib/RN-vibration";
-
+import { Socket } from "socket.io-client";
+type ChannelData<T> = {
+	type: "MICROPHONE" | "CAMERA" | "MESSAGE" | "INITIAL";
+	value: T;
+	remoteId: string;
+};
 const CallScreen = ({
 	route
 }: {
@@ -29,7 +34,6 @@ const CallScreen = ({
 	const { currentTheme, themeScheme } = useTheme();
 	const navigation = useNavigation();
 	const loaded = useRef(true);
-	const [isSwapped, setIsSwapped] = useState(true);
 	const session = useSelector((state: RootState) => state.AuthState.session.user);
 	const [callState, setCallState] = useState<"CONNECTED" | "DISCONNECTED" | "PENDING" | "IDLE" | "ERROR">("IDLE");
 	const {
@@ -52,11 +56,6 @@ const CallScreen = ({
 			setCallState(value);
 		},
 	});
-
-	const screenSwapping = () => {
-		hapticVibrate();
-		setIsSwapped((prev) => !prev);
-	}
 
 	const hangUp = useCallback(async () => {
 		if (!remoteUserData) { return ToastAndroid.show('user id not found', ToastAndroid.SHORT); }
@@ -109,34 +108,16 @@ const CallScreen = ({
 			{callState === "CONNECTED" ? <VideoCallCounter /> : <></>}
 			<StatusBar translucent backgroundColor={"transparent"}
 				barStyle={themeScheme === "dark" ? "light-content" : "dark-content"} />
-
-			{isSwapped ?
-				// local 
-				<ScreenComponent
-					StatusBarTop={StatusBar.currentHeight || 0}
-					// session is local user
-					smallStream={localStream}
-					smallStreamUser={session}
-					smallStreamActions={{ isCameraOn, isMuted }}
-					// remote user
-					largeStream={remoteStream}
-					largeStreamUser={remoteUserData}
-					largeStreamActions={{ isCameraOn, isMuted }}
-					currentTheme={currentTheme}
-					screenSwapping={screenSwapping}
-				/> :
-				// remote
-				<ScreenComponent StatusBarTop={StatusBar.currentHeight || 0}
-					// remote user
-					smallStream={remoteStream}
-					smallStreamUser={remoteUserData}
-					smallStreamActions={{ isCameraOn, isMuted }}
-					// session is local user
-					largeStream={localStream}
-					largeStreamUser={session}
-					currentTheme={currentTheme}
-					largeStreamActions={{ isCameraOn, isMuted }}
-					screenSwapping={screenSwapping} />}
+			<Components
+				localStream={localStream}
+				remoteStream={remoteStream}
+				session={session}
+				remoteUserData={remoteUserData}
+				currentTheme={currentTheme}
+				isCameraOn={isCameraOn}
+				isMuted={isMuted}
+				socket={socket}
+			/>
 			<ActionBoxComponent
 				currentTheme={currentTheme}
 				isCameraOn={isCameraOn}
@@ -154,21 +135,80 @@ const CallScreen = ({
 
 export default CallScreen;
 
-const UserCameraEmpty = ({ remoteUserData }: { remoteUserData: Session["user"] }) => {
-	const { currentTheme } = useTheme();
-	return (
-		<View style={{
-			backgroundColor: currentTheme.muted,
-			width: "100%",
-			height: "100%",
-			flex: 1,
-			alignItems: "center",
-			justifyContent: "center"
-		}}>
-			<Avatar url={remoteUserData?.profilePicture} size={220} />
-		</View>
-	)
-}
+
+const Components = ({
+	localStream,
+	remoteStream,
+	session,
+	remoteUserData,
+	currentTheme,
+	isCameraOn,
+	isMuted,
+	socket
+}: {
+	localStream: MediaStream | null;
+	remoteStream: MediaStream | null;
+	session: Session["user"];
+	remoteUserData: Session["user"];
+	currentTheme: any;
+	isCameraOn: boolean;
+	isMuted: boolean;
+	socket: Socket | null
+}) => {
+	const [isSwapped, setIsSwapped] = useState(true);
+	const [remoteAction, setRemoteAction] = useState({
+		isCameraOn: false,
+		isMuted: false
+	});
+
+	const screenSwapping = () => {
+		hapticVibrate();
+		setIsSwapped((prev) => !prev);
+	}
+
+	useEffect(() => {
+		socket?.on("call-action", (data: ChannelData<{ isCameraOn: boolean, isMuted: boolean }>) => {
+			setRemoteAction((prev) => ({ ...prev, ...data.value }));
+		});
+
+		return () => {
+			socket?.off("call-action");
+		};
+	}, []);
+
+
+	return <>
+		{
+			isSwapped ?
+				// local 
+				<ScreenComponent
+					StatusBarTop={StatusBar.currentHeight || 0}
+					// session is local user
+					smallStream={localStream}
+					smallStreamUser={session}
+					smallStreamActions={{ isCameraOn, isMuted }}
+					// remote user
+					largeStream={remoteStream}
+					largeStreamUser={remoteUserData}
+					largeStreamActions={remoteAction}
+					currentTheme={currentTheme}
+					screenSwapping={screenSwapping}
+				/> :
+				// remote
+				<ScreenComponent StatusBarTop={StatusBar.currentHeight || 0}
+					// remote user
+					smallStream={remoteStream}
+					smallStreamUser={remoteUserData}
+					smallStreamActions={remoteAction}
+					// session is local user
+					largeStream={localStream}
+					largeStreamUser={session}
+					currentTheme={currentTheme}
+					largeStreamActions={{ isCameraOn, isMuted }}
+					screenSwapping={screenSwapping} />
+		}
+	</>
+};
 
 const ScreenComponent = ({
 	screenSwapping,
@@ -242,4 +282,20 @@ const ScreenComponent = ({
 				</View>}
 		</TouchableOpacity>
 	</>
-}
+};
+
+const UserCameraEmpty = ({ remoteUserData }: { remoteUserData: Session["user"] }) => {
+	const { currentTheme } = useTheme();
+	return (
+		<View style={{
+			backgroundColor: currentTheme.muted,
+			width: "100%",
+			height: "100%",
+			flex: 1,
+			alignItems: "center",
+			justifyContent: "center"
+		}}>
+			<Avatar url={remoteUserData?.profilePicture} size={220} />
+		</View>
+	)
+};

@@ -19,11 +19,11 @@ export const SocketContext = React.createContext<{
     socket: null,
 });
 
-const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
+const SocketConnectionsProvider = ({
     children
 }: {
     children: React.ReactNode
-}) {
+}) => {
     const dispatch = useDispatch();
     const session = useSelector((state: RootState) => state.AuthState.session.user);
     const currentConversation = useSelector((state: RootState) => state.ConversationState.conversation);
@@ -109,24 +109,24 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
     useEffect(() => {
         SocketConnection();
         if (socketRef.current && session?.id) {
-            socketRef.current?.on("test", systemMessageFromServerSocket);
-            socketRef.current?.on("connect", () => {
-                ToastAndroid.show("Connected to socket server", ToastAndroid.SHORT)
-            });
-            socketRef.current?.on("disconnect", () => {
-                socketRef.current = null
-                ToastAndroid.show("Disconnected from socket server", ToastAndroid.SHORT)
-            });
+            // socketRef.current?.on("test", systemMessageFromServerSocket);
+            // socketRef.current?.on("connect", () => {
+            //     ToastAndroid.show("Connected to socket server", ToastAndroid.SHORT)
+            // });
+            // socketRef.current?.on("disconnect", () => {
+            //     socketRef.current = null
+            //     ToastAndroid.show("Disconnected from socket server", ToastAndroid.SHORT)
+            // });
             socketRef.current?.on(configs.eventNames.conversation.message, checkFunction);
             socketRef.current?.on(configs.eventNames.conversation.seen, userSeenMessages);
             socketRef.current?.on(configs.eventNames.conversation.typing, typingRealtime);
             socketRef.current?.on(configs.eventNames.notification.post, notification);
             socketRef.current?.on("send-call", incomingCall);
-           
+
             return () => {
-                socketRef.current?.off('connect')
-                socketRef.current?.off('disconnect')
-                socketRef.current?.off('test', systemMessageFromServerSocket)
+                // socketRef.current?.off('connect')
+                // socketRef.current?.off('disconnect')
+                // socketRef.current?.off('test', systemMessageFromServerSocket)
                 socketRef.current?.off(configs.eventNames.conversation.message, checkFunction)
                 socketRef.current?.off(configs.eventNames.conversation.seen, userSeenMessages)
                 socketRef.current?.off(configs.eventNames.conversation.typing, typingRealtime)
@@ -141,7 +141,7 @@ const SocketConnectionsProvider = memo(function SocketConnectionsProvider({
     }}>
         {children}
     </SocketContext.Provider>
-}, () => true)
+}
 
 
 export default memo(SocketConnectionsProvider);

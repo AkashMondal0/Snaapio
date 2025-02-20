@@ -15,12 +15,6 @@ type SocketRes<T> = {
   data: T;
 };
 
-type ChannelData = {
-  type: "MICROPHONE" | "CAMERA" | "MESSAGE" | "PEER_LEFT";
-  value: boolean;
-  sessionId: string;
-};
-
 const configuration = {
   iceServers: [{
     urls: [
@@ -39,14 +33,12 @@ const useWebRTC = ({
   socket,
   onError,
   onCallState,
-  onChannelMessage
 }: {
   remoteUser: Session["user"],
   session: Session["user"],
   socket: Socket | null
   onCallState?: (value: "CONNECTED" | "DISCONNECTED" | "PENDING" | "IDLE" | "ERROR") => void,
   onError?: (message: string, err: any) => void
-  onChannelMessage?: (message: ChannelData) => void
 }) => {
   const [isMuted, setIsMuted] = useState(false);
   const [isCameraOn, setIsCameraOn] = useState(true);
@@ -83,7 +75,7 @@ const useWebRTC = ({
       setLocalStream(mediaStream as any);
       InCallManager.start({ media: "audio" });
       onCallState?.("PENDING");
-      console.log("📌 Local stream started.");
+      // console.log("📌 Local stream started.");
     } catch (err) {
       onError?.("❌ Error starting local stream:", err);
       console.error("❌ Error starting local stream:", err);
@@ -107,8 +99,8 @@ const useWebRTC = ({
         data: offerDescription,
       });
 
-      console.log("📌 Offer created and sent.");
       onCallState?.("PENDING");
+      // console.log("📌 Offer created and sent.");
     } catch (err) {
       onError?.("❌ Error creating offer:", err)
       console.error("❌ Error creating offer:", err);
@@ -131,7 +123,7 @@ const useWebRTC = ({
         data: answer,
       });
 
-      console.log("📌 Answer created and sent.");
+      // console.log("📌 Answer created and sent.");
     } catch (err) {
       onError?.("❌ Error creating answer:", err);
       console.error("❌ Error creating answer:", err);
@@ -144,8 +136,8 @@ const useWebRTC = ({
     try {
       if (!res.data) return;
       await peerConnectionRef.current?.addIceCandidate(new RTCIceCandidate(res.data));
-      console.log("📌 Remote ICE candidate added.");
       onCallState?.("CONNECTED");
+      // console.log("📌 Remote ICE candidate added.");
     } catch (err) {
       onError?.("❌ Error adding ICE candidate:", err);
       console.error("❌ Error adding ICE candidate:", err);
@@ -161,7 +153,7 @@ const useWebRTC = ({
         remoteId: remoteUser?.id,
         data: event.candidate,
       });
-      console.log("📌 ICE candidate sent.");
+      // console.log("📌 ICE candidate sent.");
     }
   };
 
@@ -173,7 +165,17 @@ const useWebRTC = ({
   const handleTrackEvent = (event: any) => {
     if (event.streams && event.streams[0]) {
       setRemoteStream(event.streams[0]);
-      console.log("📌 Remote stream received.");
+      if (event.streams[0]?.getVideoTracks()[0]?.enabled || event.streams[0]?.getAudioTracks()[0]?.enabled) {
+        socket?.emit("call-action", {
+          remoteId: remoteUser?.id,
+          type: "INITIAL",
+          value: {
+            isCameraOn: event.streams[0]?.getVideoTracks()[0]?.enabled,
+            isMuted: event.streams[0]?.getAudioTracks()[0]?.enabled
+          },
+        });
+      }
+      // console.log("📌 Remote stream received.");
     }
   };
 
@@ -186,9 +188,15 @@ const useWebRTC = ({
         track.enabled = !track.enabled;
       });
       setIsMuted((prev) => !prev);
-      hapticVibrate()
-      // datachannelRef.current?.send("Microphone"); // send to remote user
-      console.log("📌 Microphone toggled.");
+      socket?.emit("call-action", {
+        remoteId: remoteUser?.id,
+        type: "MICROPHONE",
+        value: {
+          isMuted: !isMuted
+        },
+      });
+      hapticVibrate();
+      // console.log("📌 Microphone toggled.");
     }
   };
 
@@ -198,10 +206,16 @@ const useWebRTC = ({
       localStream.getVideoTracks().forEach((track) => {
         track.enabled = !track.enabled;
       });
+      socket?.emit("call-action", {
+        remoteId: remoteUser?.id,
+        type: "CAMERA",
+        value: {
+          isCameraOn: !isCameraOn
+        },
+      });
       setIsCameraOn((prev) => !prev);
-      hapticVibrate()
-      // datachannelRef.current?.send("CAMERA"); // send to remote user
-      console.log("📌 Camera toggled.");
+      hapticVibrate();
+      // console.log("📌 Camera toggled.");
     }
   };
 
@@ -239,7 +253,6 @@ const useWebRTC = ({
 
     setLocalStream(null);
     setRemoteStream(null);
-    console.log("📌 Streams stopped and cleaned up.");
     if (!session || !remoteUser) return console.error("not found !session | !remoteUser")
     socket?.emit("peerLeft", {
       userId: session.id,
@@ -278,12 +291,6 @@ const useWebRTC = ({
       onCallState?.("DISCONNECTED");
     }
   }
-  // 📌 **channel**
-  const handleChannelMessages = (message: any) => {
-    console.log("📌 Data Channel Message:", message);
-    onChannelMessage?.(message);
-  }
-
 
   // 📌 **WebRTC Event Listeners**
   useEffect(() => {
