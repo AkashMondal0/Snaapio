@@ -57,7 +57,7 @@ const CallScreen = ({
 			setCallState(value);
 		},
 	});
-
+	// console.log("📌 useWebRTC -> remoteUser", remoteUserData?.stream, session?.name)
 	const hangUp = useCallback(async () => {
 		if (!remoteUserData) { return ToastAndroid.show('user id not found', ToastAndroid.SHORT); }
 		stopStream();
@@ -83,7 +83,7 @@ const CallScreen = ({
 				name: session?.name,
 				profilePicture: session?.profilePicture,
 				status: "CALLING",
-				stream: "video",
+				stream: remoteUserData?.stream,
 				remoteId: remoteUserData?.id
 			})
 		}
@@ -96,7 +96,7 @@ const CallScreen = ({
 				name: session?.name,
 				profilePicture: session?.profilePicture,
 				status: "calling",
-				stream: "video",
+				stream: remoteUserData?.stream,
 				call: "ACCEPT",
 				remoteId: remoteUserData?.id
 			})
@@ -109,12 +109,13 @@ const CallScreen = ({
 		return <CallDeclined remoteUserData={remoteUserData} stopStream={stopStream} />
 	}
 
+
 	return (
 		<View style={{
 			flex: 1,
 			backgroundColor: currentTheme.background,
 		}}>
-			{callState === "CONNECTED" ? <VideoCallCounter name={remoteUserData?.name} /> : <></>}
+			<VideoCallCounter name={remoteUserData?.name} start={callState === "CONNECTED"} />
 			<StatusBar translucent backgroundColor={"transparent"}
 				barStyle={themeScheme === "dark" ? "light-content" : "dark-content"} />
 			<Components
@@ -126,6 +127,7 @@ const CallScreen = ({
 				isCameraOn={isCameraOn}
 				isMuted={isMuted}
 				socket={socket}
+				streamType={remoteUserData?.stream || "audio"}
 			/>
 			<ActionBoxComponent
 				currentTheme={currentTheme}
@@ -137,6 +139,7 @@ const CallScreen = ({
 				endCall={hangUp}
 				toggleCamera={toggleCamera}
 				switchCamera={switchCamera}
+				streamType={remoteUserData?.stream || "audio"}
 				toggleMicrophone={toggleMicrophone} />
 		</View>
 	);
@@ -154,6 +157,7 @@ const Components = ({
 	isCameraOn,
 	isMuted,
 	socket,
+	streamType
 }: {
 	localStream: MediaStream | null;
 	remoteStream: MediaStream | null;
@@ -163,6 +167,7 @@ const Components = ({
 	isCameraOn: boolean;
 	isMuted: boolean;
 	socket: Socket | null;
+	streamType: "audio" | "video";
 }) => {
 	const [isSwapped, setIsSwapped] = useState(true);
 	const [remoteAction, setRemoteAction] = useState({
@@ -190,6 +195,7 @@ const Components = ({
 			isSwapped ?
 				// local 
 				<ScreenComponent
+					streamType={streamType}
 					StatusBarTop={StatusBar.currentHeight || 0}
 					// session is local user
 					smallStream={localStream}
@@ -205,6 +211,7 @@ const Components = ({
 				// remote
 				<ScreenComponent StatusBarTop={StatusBar.currentHeight || 0}
 					// remote user
+					streamType={streamType}
 					smallStream={remoteStream}
 					smallStreamUser={remoteUserData}
 					smallStreamActions={remoteAction}
@@ -228,6 +235,7 @@ const ScreenComponent = ({
 	smallStreamUser,
 	smallStreamActions,
 	largeStreamActions,
+	streamType
 }: {
 	largeStream: MediaStream | null;
 	smallStream: MediaStream | null;
@@ -238,6 +246,7 @@ const ScreenComponent = ({
 	StatusBarTop: number;
 	smallStreamActions: { isCameraOn: boolean, isMuted: boolean };
 	largeStreamActions: { isCameraOn: boolean, isMuted: boolean };
+	streamType: "audio" | "video";
 }) => {
 	return <>
 		<TouchableOpacity
@@ -290,7 +299,8 @@ const ScreenComponent = ({
 				aspectRatio: 2.5 / 4,
 				borderWidth: 6,
 				borderColor: currentTheme.background,
-				top: Number(StatusBarTop) + 2
+				top: Number(StatusBarTop) + 2,
+				display: streamType === "audio" ? "none" : "flex"
 			}}>
 			{smallStream && smallStreamActions.isCameraOn ? <RTCView
 				zOrder={1}

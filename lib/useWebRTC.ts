@@ -34,7 +34,10 @@ const useWebRTC = ({
   onError,
   onCallState,
 }: {
-  remoteUser: Session["user"],
+  remoteUser: Session["user"] & {
+    stream: "video" | "audio";
+    userType: "REMOTE" | "LOCAL"
+  } | any,
   session: Session["user"],
   socket: Socket | null
   onCallState?: (value: "CONNECTED" | "DISCONNECTED" | "PENDING" | "IDLE" | "ERROR") => void,
@@ -46,7 +49,7 @@ const useWebRTC = ({
   const [isSpeakerOn, setIsSpeakerOn] = useState(true);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
-
+  const streamType = remoteUser?.stream === "video" ? true : false;
   // WebRTC PeerConnection Reference
   const peerConnectionRef = useRef<RTCPeerConnection | null>(
     new RTCPeerConnection(configuration)
@@ -56,17 +59,11 @@ const useWebRTC = ({
   const startLocalUserStream = async () => {
     try {
       const mediaConstraints = {
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-          sampleRate: 48000,
-          channelCount: 2,
-        },
-        video: { frameRate: 30, facingMode: "user" },
+        audio: true,
+        video: streamType
       };
 
-      const mediaStream = await mediaDevices.getUserMedia(mediaConstraints as any);
+      const mediaStream = await mediaDevices.getUserMedia(mediaConstraints);
 
       mediaStream.getTracks().forEach((track) =>
         peerConnectionRef.current?.addTrack(track, mediaStream)

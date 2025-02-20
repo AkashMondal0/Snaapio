@@ -12,7 +12,8 @@ const ActionBoxComponent = ({
 	isCameraOn,
 	isMuted,
 	isFrontCam,
-	currentTheme
+	currentTheme,
+	streamType
 }: {
 	currentTheme: any,
 	toggleCamera: () => void;
@@ -24,6 +25,7 @@ const ActionBoxComponent = ({
 	isCameraOn: boolean;
 	isMuted: boolean
 	isFrontCam: boolean
+	streamType: "audio" | "video";
 }) => {
 	// Get available audio routes (e.g., Bluetooth, Speaker, Earpiece)
 	// const checkAvailableAudioRoutes = async () => {
@@ -87,35 +89,39 @@ const ActionBoxComponent = ({
 						size={24} onPress={toggleSpeaker}
 						color={isSpeakerOn ? currentTheme.background : currentTheme.foreground} />
 				</TouchableOpacity>
-				{/* video */}
-				<TouchableOpacity onPress={toggleCamera}
-					activeOpacity={0.6}
-					style={{
-						padding: 15,
-						borderRadius: 50,
-						backgroundColor: isCameraOn ? currentTheme.background : currentTheme.foreground,
-						borderWidth: 1,
-						borderColor: currentTheme.border
-					}}>
-					<IconButtonWithoutThemed
-						iconName={isCameraOn ? "Video" : "VideoOff"}
-						size={24} onPress={toggleCamera}
-						color={!isCameraOn ? currentTheme.background : currentTheme.foreground} />
-				</TouchableOpacity>
-				{/* SwitchCamera */}
-				<TouchableOpacity onPress={switchCamera}
-					activeOpacity={0.6} style={{
-						padding: 15,
-						borderRadius: 50,
-						backgroundColor: isFrontCam ? currentTheme.background : currentTheme.foreground,
-						borderWidth: 1,
-						borderColor: currentTheme.border
-					}}>
-					<IconButtonWithoutThemed
-						iconName={isFrontCam ? "SwitchCamera" : "Camera"}
-						size={24} onPress={switchCamera}
-						color={!isFrontCam ? currentTheme.background : currentTheme.foreground} />
-				</TouchableOpacity>
+				{streamType === "video" ?
+					<>
+						{/*  */}
+						<TouchableOpacity onPress={toggleCamera}
+							activeOpacity={0.6}
+							style={{
+								padding: 15,
+								borderRadius: 50,
+								backgroundColor: isCameraOn ? currentTheme.background : currentTheme.foreground,
+								borderWidth: 1,
+								borderColor: currentTheme.border
+							}}>
+							<IconButtonWithoutThemed
+								iconName={isCameraOn ? "Video" : "VideoOff"}
+								size={24} onPress={toggleCamera}
+								color={!isCameraOn ? currentTheme.background : currentTheme.foreground} />
+						</TouchableOpacity>
+						{/*  */}
+						<TouchableOpacity onPress={switchCamera}
+							activeOpacity={0.6} style={{
+								padding: 15,
+								borderRadius: 50,
+								backgroundColor: isFrontCam ? currentTheme.background : currentTheme.foreground,
+								borderWidth: 1,
+								borderColor: currentTheme.border
+							}}>
+							<IconButtonWithoutThemed
+								iconName={isFrontCam ? "SwitchCamera" : "Camera"}
+								size={24} onPress={switchCamera}
+								color={!isFrontCam ? currentTheme.background : currentTheme.foreground} />
+						</TouchableOpacity>
+					</> :
+					<></>}
 				{/* mic */}
 				<TouchableOpacity onPress={toggleMicrophone} activeOpacity={0.6} style={{
 					padding: 15,

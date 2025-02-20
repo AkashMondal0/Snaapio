@@ -85,8 +85,8 @@ const ChatScreenNavbar = memo(function ChatScreenNavbar({
                 </View>
             </View>
             <View style={{ paddingRight: 16, gap: 12, display: "flex", flexDirection: "row" }}>
-                <Icon iconName="Video" isButton variant="secondary" size={30} style={{ elevation: 2 }} onPress={() => onPress(true)} />
-                <Icon iconName="Phone" isButton variant="secondary" size={30} style={{ elevation: 2 }} onPress={() => onPress(false)} />
+                <Icon iconName="Phone" isButton variant="secondary" size={24} style={{ elevation: 2 }} onPress={() => onPress(false)} />
+                <Icon iconName="Video" isButton variant="secondary" size={24} style={{ elevation: 2 }} onPress={() => onPress(true)} />
             </View>
         </View>
     )

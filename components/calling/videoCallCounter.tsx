@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { View, Text } from 'react-native';
 const VideoCallCounter = ({
 	name = 'User',
-	visible = true
+	start = false,
 }: {
 	name: string | undefined;
-	visible?: boolean;
+	start: boolean;
 }) => {
 	const [seconds, setSeconds] = useState(0);
 	const [isRunning, setIsRunning] = useState(true);
 
 	useEffect(() => {
 		let timer: any;
-		if (isRunning) {
+		if (start) {
 			timer = setInterval(() => {
 				setSeconds(prevSeconds => prevSeconds + 1);
 			}, 1000);
@@ -20,7 +20,7 @@ const VideoCallCounter = ({
 			clearInterval(timer);
 		}
 		return () => clearInterval(timer);
-	}, [isRunning]);
+	}, [isRunning, start]);
 
 	const formatTime = (secs: any) => {
 		const minutes = Math.floor(secs / 60);
@@ -46,13 +46,20 @@ const VideoCallCounter = ({
 				}}>{name}
 				</Text>
 			</View>
-			<Text style={{
+			{start ? <Text style={{
 				fontSize: 20,
 				fontWeight: 'bold',
 				color: 'white',
-			}}>{formatTime(seconds)}</Text>
+			}}>{formatTime(seconds)}</Text> :
+				<Text style={{
+					fontSize: 18,
+					fontWeight: "semibold",
+					color: 'white',
+				}}>
+					calling
+				</Text>}
 		</View>
 	);
 };
 
-export default VideoCallCounter;
+export default memo(VideoCallCounter, (prevProps, nextProps) => prevProps.start === nextProps.start && prevProps.name === nextProps.name);
