@@ -1,8 +1,8 @@
-import React, { memo, useRef, useState, useMemo, useEffect } from 'react';
-import { TouchableOpacityProps, TouchableOpacity, View, StyleSheet } from 'react-native';
+import React, { memo, useMemo, useEffect } from 'react';
+import { TouchableOpacityProps, TouchableOpacity } from 'react-native';
 import { Image, type ImageProps } from 'expo-image';
 import { configs } from '@/configs';
-import { loadingType, variantType } from '@/types';
+import { variantType } from '@/types';
 import { useTheme } from 'hyper-native-ui';
 
 export type Props = ImageProps & {
@@ -37,9 +37,6 @@ const Avatar = memo(function Avatar({
     ...otherProps
 }: Props) {
     const { currentTheme } = useTheme();
-    const [state, setState] = useState<loadingType>("idle");
-    const error = useRef(false);
-
     const imageSize = Number(size);
 
     const imageUrl = useMemo(() => {
@@ -48,13 +45,9 @@ const Avatar = memo(function Avatar({
     }, [url, serverImage]);
 
     useEffect(() => {
-        if (typeof imageUrl === "string" && fastLoad) {
+        if (typeof imageUrl === "string") {
+            if (!fastLoad) return
             Image.prefetch(imageUrl)
-                .then(() => setState("normal"))
-                .catch(() => {
-                    error.current = true;
-                    setState("normal");
-                });
         }
     }, [imageUrl]);
 
@@ -92,8 +85,9 @@ const Avatar = memo(function Avatar({
         <TouchableOpacity
             {...TouchableOpacityOptions}
             style={[
-                styles.touchable,
                 {
+                    borderRadius: 500,
+                    padding: 0.5,
                     borderWidth: isBorder ? borderWidth : 0,
                     borderColor: isBorder ? colorVariant.borderColor : "transparent",
                 },
@@ -108,14 +102,11 @@ const Avatar = memo(function Avatar({
                 contentFit="cover"
                 contentPosition={"top center"}
                 priority={"high"}
-                onLoadStart={() => setState("pending")}
-                onError={() => {
-                    error.current = true;
-                }}
-                onLoadEnd={() => setState("normal")}
                 style={[
-                    styles.image,
                     {
+                        resizeMode: "cover",
+                        borderRadius: 500,
+                        aspectRatio: 1,
                         width: imageSize,
                         height: imageSize,
                         backgroundColor: currentTheme?.muted,
@@ -126,18 +117,6 @@ const Avatar = memo(function Avatar({
             />
         </TouchableOpacity>
     );
-});
-
-const styles = StyleSheet.create({
-    touchable: {
-        borderRadius: 500,
-        padding: 0.5,
-    },
-    image: {
-        resizeMode: "cover",
-        borderRadius: 500,
-        aspectRatio: 1,
-    },
 });
 
 export default Avatar;

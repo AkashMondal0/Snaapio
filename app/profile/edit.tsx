@@ -233,11 +233,16 @@ const ProfileEditScreen = memo(function ProfileEditScreen({
                             onBlur={onBlur}
                             onChangeText={value => onChange(value)}
                             value={value}
-                            multiline
-                            placeholder='bio'
                             textContentType="none"
                             keyboardType="default"
+                            placeholder='bio'
                             returnKeyType="done"
+                            multiline
+                            numberOfLines={10}
+                            style={{
+                                minHeight: 140,
+                                textAlignVertical: 'top'
+                            }}
                         />
                     )}
                     name="bio"

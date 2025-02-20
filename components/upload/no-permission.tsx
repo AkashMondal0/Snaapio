@@ -17,7 +17,7 @@ function PhotosPermissionRequester({ permission }: {
         animation.current?.play();
     }, []);
 
-    if (permission.granted) return <view />;
+    if (permission.granted) return <View />;
 
     return (
         <View

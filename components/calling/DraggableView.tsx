@@ -1,9 +1,7 @@
-import React from "react";
-import { View, Dimensions, Text, StyleSheet, TouchableOpacity, Vibration } from "react-native";
+import React, { ReactNode } from "react";
+import { View, Dimensions, Text, StyleSheet } from "react-native";
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from "react-native-reanimated";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
-import RNvibrate, { hapticVibrate } from "@/lib/RN-vibration";
-import vibrate from "@/lib/RN-vibration";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -12,7 +10,7 @@ const VIDEO_HEIGHT = (VIDEO_WIDTH * 9) / 16; // 16:9 Aspect Ratio
 const PADDING = 20; // Space from edges
 const SNAP_BOTTOM = SCREEN_HEIGHT - VIDEO_HEIGHT - PADDING; // Bottom snap position
 
-const DraggableVideo = () => {
+const DraggableView = ({components}:{components:ReactNode}) => {
   // 🟢 Reanimated Shared Values for smooth animation
   const translateX = useSharedValue(SCREEN_WIDTH - VIDEO_WIDTH - PADDING);
   const translateY = useSharedValue(PADDING);
@@ -53,11 +51,9 @@ const DraggableVideo = () => {
     <View style={styles.container}>
       <GestureDetector gesture={panGesture}>
         <Animated.View style={[styles.video, animatedStyle]}>
-          <TouchableOpacity style={styles.videoContent} onPressIn={hapticVibrate}>
-            <View >
-              <Text style={styles.videoText}>🎥 Video Player</Text>
-            </View>
-          </TouchableOpacity>
+          <View style={styles.Content}>
+            {components}
+          </View>
         </Animated.View>
       </GestureDetector>
     </View>
@@ -67,25 +63,19 @@ const DraggableVideo = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#222",
   },
   video: {
     position: "absolute",
     width: VIDEO_WIDTH,
     height: VIDEO_HEIGHT,
-    backgroundColor: "black",
     borderRadius: 10,
     overflow: "hidden",
   },
-  videoContent: {
+  Content: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
-  videoText: {
-    color: "white",
-    fontSize: 16,
-  },
 });
 
-export default DraggableVideo;
+export default DraggableView;

@@ -1,6 +1,7 @@
 import { configs } from "@/configs"
 import { getSecureStorage } from "./SecureStore";
 import { Session } from "@/types";
+import { ToastAndroid } from "react-native";
 interface GraphqlResponse<T> {
     data: T;
     errors: GraphqlError[];
@@ -28,23 +29,25 @@ export const graphqlQuery = async <T>({
     url?: string;
     withCredentials?: boolean;
     errorCallBack?: (error: GraphqlError[]) => void;
-}): Promise<T | Error> => {
+}): Promise<T | any> => {
     try {
         const BearerToken = await getSecureStorage<Session["user"]>(configs.sessionName);
         if (!BearerToken?.accessToken) {
-            throw new Error('Error retrieving token from SecureStorage');
+            console.error("Error retrieving token from SecureStorage")
+            ToastAndroid.showWithGravity("Internal Error", ToastAndroid.SHORT, ToastAndroid.CENTER);
+            return;
         };
 
         const response = await fetch(url, {
             method: 'POST',
             credentials: "include",
             headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${BearerToken.accessToken}`,
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${BearerToken.accessToken}`,
             },
             body: JSON.stringify({
-            query,
-            variables,
+                query,
+                variables,
             }),
             cache: 'no-cache',
         });

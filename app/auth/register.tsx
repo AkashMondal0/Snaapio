@@ -1,6 +1,6 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { ScrollView, ToastAndroid, TouchableOpacity, View } from 'react-native';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from "zod"
@@ -10,6 +10,7 @@ import { registerApi } from '@/redux-stores/slice/auth/api.service';
 import { ApiResponse, Session } from '@/types';
 import { setSession } from '@/redux-stores/slice/auth';
 import { StackActions, useNavigation } from '@react-navigation/native';
+import { RootState } from '@/redux-stores/store';
 
 const schema = z.object({
     username: z.string().min(2, {
@@ -31,15 +32,9 @@ const schema = z.object({
 
 const RegisterScreen = () => {
     const navigation = useNavigation();
-    const [state, setStats] = React.useState<{
-        showPassword: boolean,
-        loading: boolean,
-        errorMessage: string | null
-    }>({
-        showPassword: false,
-        loading: false,
-        errorMessage: null
-    });
+    const loading = useSelector((state: RootState) => state.AuthState.registerLoading);
+    const error = useSelector((state: RootState) => state.AuthState.registerError);
+    const [showPassword, setShowPassword] = useState(false)
     const dispatch = useDispatch();
     const input1Ref = useRef<any>(null);
     const input2Ref = useRef<any>(null);
@@ -61,24 +56,12 @@ const RegisterScreen = () => {
         name: string,
         username: string,
     }) => {
-        setStats((pre) => ({ ...pre, loading: true }))
-        try {
-            const _data = await registerApi({
-                email: data.email,
-                password: data.password,
-                name: data.name,
-                username: data.username,
-            }) as ApiResponse<Session["user"]>
-            if (_data.code === 1) {
-                dispatch(setSession(_data.data))
-                return
-            }
-            setStats((pre) => ({ ...pre, errorMessage: _data.message }))
-            ToastAndroid.show(_data.message, ToastAndroid.SHORT)
-            return
-        } finally {
-            setStats((pre) => ({ ...pre, loading: false }))
-        }
+        dispatch(registerApi({
+            email: data.email,
+            password: data.password,
+            name: data.name,
+            username: data.username,
+        }) as any)
     }, [])
 
     return (
@@ -96,7 +79,7 @@ const RegisterScreen = () => {
                     width: "100%",
                 }}>
                 {navigation.canGoBack() ? <Icon
-                    disabled={state.loading}
+                    disabled={loading}
                     iconName="ArrowLeft"
                     size={30}
                     onPress={() => {
@@ -135,13 +118,13 @@ const RegisterScreen = () => {
                             margin: 4,
                             marginBottom: 20,
                         }}>
-                        {state.errorMessage}
+                        {error}
                     </Text>
                     <Controller
                         control={control}
                         render={({ field: { onChange, onBlur, value } }) => (
                             <Input
-                                disabled={state.loading}
+                                disabled={loading}
                                 style={{
                                     width: "90%",
                                 }}
@@ -175,7 +158,7 @@ const RegisterScreen = () => {
                         control={control}
                         render={({ field: { onChange, onBlur, value } }) => (
                             <Input
-                                disabled={state.loading}
+                                disabled={loading}
                                 style={{
                                     width: "90%",
                                 }}
@@ -208,7 +191,7 @@ const RegisterScreen = () => {
                         control={control}
                         render={({ field: { onChange, onBlur, value } }) => (
                             <Input
-                                disabled={state.loading}
+                                disabled={loading}
                                 style={{
                                     width: "90%",
                                 }}
@@ -242,9 +225,9 @@ const RegisterScreen = () => {
                         control={control}
                         render={({ field: { onChange, onBlur, value } }) => (
                             <Input
-                                disabled={state.loading}
+                                disabled={loading}
                                 style={{ width: "82%" }}
-                                secureTextEntry={!state.showPassword}
+                                secureTextEntry={showPassword}
                                 isErrorBorder={errors.password}
                                 placeholder='Password'
                                 textContentType='password'
@@ -258,8 +241,8 @@ const RegisterScreen = () => {
                                 rightSideComponent={<View style={{
                                     width: "8%"
                                 }}>
-                                    {state.showPassword ? <Icon iconName="Eye" size={26} onPress={() => setStats({ ...state, showPassword: false })} /> :
-                                        <Icon iconName="EyeOff" size={26} onPress={() => setStats({ ...state, showPassword: true })} />}
+                                    {showPassword ? <Icon iconName="Eye" size={26} onPress={() => setShowPassword(false)} /> :
+                                        <Icon iconName="EyeOff" size={26} onPress={() => setShowPassword(true)} />}
                                 </View>} />
                         )}
                         name="password"
@@ -281,8 +264,8 @@ const RegisterScreen = () => {
                         width: "90%",
                         marginVertical: 20,
                     }}
-                        loading={state.loading}
-                        disabled={state.loading}>
+                        loading={loading}
+                        disabled={loading}>
                         Register
                     </Button>
                 </View>

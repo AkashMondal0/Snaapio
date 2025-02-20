@@ -12,15 +12,16 @@ import { ThemeProvider, useTheme } from 'hyper-native-ui';
 import { AuthNavigation, Navigation } from '@/app/navigation';
 import * as Linking from 'expo-linking';
 import { PersistGate } from 'redux-persist/integration/react';
-
+import { registerGlobals } from 'react-native-webrtc';
+// Register global WebRTC API for better compatibility
 SplashScreen.preventAutoHideAsync();
+registerGlobals();
 const prefix = Linking.createURL('/');
 const prefixes = [prefix, 'snaapio://', 'https://snaapio.vercel.app'];
 
 function Root() {
   const { currentTheme } = useTheme();
   const session = useSelector((state: RootState) => state.AuthState.session, (pre, next) => pre.user === next.user);
-  const appLoading = useSelector((state: RootState) => state.AuthState.loaded, (pre, next) => pre === next);
 
   const background = currentTheme.background;
   const theme: any = {
@@ -36,23 +37,26 @@ function Root() {
   };
 
   return (<>
+    <PreConfiguration />
     <GestureHandlerRootView style={{
       flex: 1,
       backgroundColor: background,
     }}>
       <SafeAreaProvider style={{
         flex: 1,
-        backgroundColor: background,
+        backgroundColor: background
       }}>
-        <PreConfiguration />
-        <SocketConnections />
-        <BottomSheetProvider>
-          {appLoading === "normal" ? session.user ? <Navigation
-            onReady={() => { SplashScreen.hideAsync() }}
-            theme={theme} linking={{ prefixes }} /> : <AuthNavigation
-            onReady={() => { SplashScreen.hideAsync() }}
-            theme={theme} linking={{ prefixes }} /> : <></>}
-        </BottomSheetProvider>
+        {session.user ? <>
+          <BottomSheetProvider>
+            <SocketConnections>
+              <Navigation
+                onReady={() => { SplashScreen.hideAsync() }}
+                theme={theme} linking={{ prefixes }} />
+            </SocketConnections>
+          </BottomSheetProvider>
+        </> : <AuthNavigation
+          onReady={() => { SplashScreen.hideAsync() }}
+          theme={theme} linking={{ prefixes }} />}
       </SafeAreaProvider>
     </GestureHandlerRootView>
   </>)

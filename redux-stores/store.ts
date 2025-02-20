@@ -10,6 +10,8 @@ import UsersReducer from './slice/users'
 import NotificationReducer from './slice/notification'
 import DialogsReducer from './slice/dialog'
 import CounterReducer from './slice/counterState'
+import CallReducer from './slice/call'
+
 
 
 const persistConfig = {
@@ -17,16 +19,16 @@ const persistConfig = {
   storage: AsyncStorage,
   whitelist: [
     'AuthState',
-    'AccountState',
-    'ConversationState',
-    'PostState',
-    'ProfileState',
-    'UsersState',
-    'NotificationState',
   ],
   blacklist: [
-    'CounterState',
-    'DialogsState',
+    // 'CounterState',
+    // 'DialogsState',
+    // 'AccountState',
+    // 'ConversationState',
+    // 'PostState',
+    // 'ProfileState',
+    // 'UsersState',
+    // 'NotificationState',
   ]
 };
 // Combine reducers
@@ -39,7 +41,8 @@ const rootReducer = combineReducers({
   UsersState: UsersReducer,
   NotificationState: NotificationReducer,
   DialogsState: DialogsReducer,
-  CounterState: CounterReducer
+  CounterState: CounterReducer,
+  CallState: CallReducer
 });
 
 // Persisted Reducer
@@ -49,7 +52,8 @@ const store = configureStore({
   reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      serializableCheck: false, // Ignore warnings
+      serializableCheck: false,
+      immutableCheck: false,
     }),
 });
 

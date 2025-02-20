@@ -1,3 +1,4 @@
+import React, { useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import {
     createStaticNavigation,
@@ -30,7 +31,8 @@ import { HighlightPageScreen, HighlightSelectingScreen, HighlightUploadScreen } 
 import { FeedsScreen, AccountScreen, ReelsScreen, SearchScreen } from '@/app/HomeTab';
 import { NotificationScreen } from '@/app/notification';
 import { NotFound } from './NotFound';
-import React, { useEffect } from 'react';
+import { CallingScreen, IncomingCallScreen, CallDeclinedScreen, CallRoomScreen } from './call';
+import RoomScreen from './call/videoCall';
 
 export const HomeTabs = createBottomTabNavigator({
     screenOptions: {
@@ -96,6 +98,7 @@ export const RedirectHome = () => {
     }, [])
     return <></>
 }
+
 const AuthStack = createNativeStackNavigator({
     screenOptions: {
         headerShown: false,
@@ -400,6 +403,47 @@ const RootStack = createNativeStackNavigator({
                     screen: RedirectHome,
                     linking: {
                         path: "/register"
+                    }
+                }
+            }
+        },
+        call: {
+            screens: {
+                CallDeclined: {
+                    screen: CallDeclinedScreen,
+                    linking: {
+                        path: "/CallDeclined"
+                    }
+                },
+                Video: {
+                    screen: RoomScreen,
+                    linking: {
+                        path: "/video"
+                    }
+                },
+                InComingCall: {
+                    screen: IncomingCallScreen,
+                    linking: {
+                        path: "/incoming_call",
+                        parse: {
+                            username: (username) => username || '',
+                            email: (email) => decodeURIComponent(email || ''),
+                            id: (id) => id || '',
+                            name: (name) => name || '',
+                            profilePicture: (profilePicture) => decodeURIComponent(profilePicture || ''),
+                        },
+                    }
+                },
+                Calling: {
+                    screen: CallingScreen,
+                    linking: {
+                        path: "/calling"
+                    }
+                },
+                CallRoom: {
+                    screen: CallRoomScreen,
+                    linking: {
+                        path: "/CallRoom"
                     }
                 }
             }

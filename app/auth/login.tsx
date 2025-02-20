@@ -1,15 +1,14 @@
-import React, { useCallback, useRef } from 'react';
-import { ScrollView, ToastAndroid, TouchableOpacity, View } from 'react-native';
-import { useDispatch } from 'react-redux';
+import React, { useCallback, useRef, useState } from 'react';
+import { ScrollView, TouchableOpacity, View } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from "zod"
 import { Icon } from '@/components/skysolo-ui';
 import { Text, Button, Input } from 'hyper-native-ui'
 import { loginApi } from '@/redux-stores/slice/auth/api.service';
-import { ApiResponse, Session } from '@/types';
-import { setSession } from '@/redux-stores/slice/auth';
 import { StackActions, useNavigation } from '@react-navigation/native';
+import { RootState } from '@/redux-stores/store';
 
 const schema = z.object({
     email: z.string().email({ message: "Invalid email" })
@@ -20,15 +19,9 @@ const schema = z.object({
 
 const LoginScreen = () => {
     const navigation = useNavigation();
-    const [state, setStats] = React.useState<{
-        showPassword: boolean,
-        loading: boolean,
-        errorMessage: string | null
-    }>({
-        showPassword: false,
-        loading: false,
-        errorMessage: null
-    });
+    const loading = useSelector((state: RootState) => state.AuthState.loginLoading);
+    const error = useSelector((state: RootState) => state.AuthState.loginError);
+    const [showPassword, setShowPassword] = useState(false)
     const dispatch = useDispatch();
     const inputRef = useRef<any>(null);
 
@@ -44,22 +37,10 @@ const LoginScreen = () => {
         email: string,
         password: string,
     }) => {
-        setStats((pre) => ({ ...pre, loading: true }))
-        try {
-            const _data = await loginApi({
-                email: data.email,
-                password: data.password,
-            }) as ApiResponse<Session["user"]>
-            if (_data.code === 1) {
-                dispatch(setSession(_data.data))
-                return
-            }
-            setStats((pre) => ({ ...pre, errorMessage: _data.message }))
-            ToastAndroid.show(_data.message, ToastAndroid.SHORT)
-            return
-        } finally {
-            setStats((pre) => ({ ...pre, loading: false }))
-        }
+        dispatch(loginApi({
+            email: data.email,
+            password: data.password,
+        }) as any)
     }, [])
 
     return (
@@ -77,7 +58,7 @@ const LoginScreen = () => {
                     width: "100%",
                 }}>
                 {navigation.canGoBack() ? <Icon
-                    disabled={state.loading}
+                    disabled={loading}
                     iconName="ArrowLeft"
                     size={30}
                     onPress={() => {
@@ -115,13 +96,13 @@ const LoginScreen = () => {
                             margin: 4,
                             marginBottom: 20,
                         }}>
-                        {state.errorMessage}
+                        {error}
                     </Text>
                     <Controller
                         control={control}
                         render={({ field: { onChange, onBlur, value } }) => (
                             <Input
-                                disabled={state.loading}
+                                disabled={loading}
                                 style={{ width: "90%" }}
                                 isErrorBorder={errors.email}
                                 onBlur={onBlur}
@@ -155,9 +136,9 @@ const LoginScreen = () => {
                                 ref={inputRef}
                                 onSubmitEditing={handleSubmit(handleLogin)}
                                 blurOnSubmit={false}
-                                disabled={state.loading}
+                                disabled={loading}
                                 style={{ width: "82%" }}
-                                secureTextEntry={!state.showPassword}
+                                secureTextEntry={showPassword}
                                 isErrorBorder={errors.password}
                                 placeholder='Password'
                                 textContentType='password'
@@ -168,8 +149,8 @@ const LoginScreen = () => {
                                 rightSideComponent={<View style={{
                                     width: "8%"
                                 }}>
-                                    {state.showPassword ? <Icon iconName="Eye" size={26} onPress={() => setStats({ ...state, showPassword: false })} /> :
-                                        <Icon iconName="EyeOff" size={26} onPress={() => setStats({ ...state, showPassword: true })} />}
+                                    {showPassword ? <Icon iconName="Eye" size={26} onPress={() => setShowPassword(false)} /> :
+                                        <Icon iconName="EyeOff" size={26} onPress={() => setShowPassword(true)} />}
                                 </View>}
                             />
                         )}
@@ -194,8 +175,8 @@ const LoginScreen = () => {
                         style={{
                             marginVertical: 10,
                         }}
-                        loading={state.loading}
-                        disabled={state.loading}>
+                        loading={loading}
+                        disabled={loading}>
                         Login
                     </Button>
                 </View>
