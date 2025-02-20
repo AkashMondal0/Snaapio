@@ -61,6 +61,10 @@ const LoginScreen = () => {
                     disabled={loading}
                     iconName="ArrowLeft"
                     size={30}
+                    style={{
+                        aspectRatio: 1,
+                        width: 40,
+                    }}
                     onPress={() => {
                         navigation.goBack()
                     }}

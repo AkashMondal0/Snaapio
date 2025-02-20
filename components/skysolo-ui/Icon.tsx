@@ -34,7 +34,6 @@ const IconButton = ({
     ...otherProps }: Props) => {
     const { currentTheme } = useTheme();
     const IconComponent = (Icons[iconName as IconName] || <></>) as React.ComponentType<any>;
-    const [isPress, setIsPress] = useState(false)
 
     const buttonVariant = () => {
         if (!currentTheme) return {}
@@ -123,12 +122,6 @@ const IconButton = ({
     if (isButton) {
         return <View>
             <TouchableOpacity
-                onPressIn={() => {
-                    setIsPress(true)
-                }}
-                onPressOut={() => {
-                    setIsPress(false)
-                }}
                 activeOpacity={0.9}
                 disabled={disabled}
                 style={[{
@@ -144,7 +137,7 @@ const IconButton = ({
                 }, style]}
                 {...otherProps}>
                 <IconComponent size={size} strokeWidth={strokeWidth}
-                    color={color ?? isPress ? currentTheme.muted_foreground : buttonVariant().color}
+                    color={buttonVariant().color}
                     key={iconName} />
             </TouchableOpacity>
         </View>
@@ -206,6 +199,6 @@ export const IconButtonWithoutThemed = ({
         style={{ opacity: disabled ? 0.5 : 1 }}
         disabled={disabled}
         {...otherProps}>
-        <IconComponent size={size} key={iconName} strokeWidth={strokeWidth} color={color}/>
+        <IconComponent size={size} key={iconName} strokeWidth={strokeWidth} color={color} />
     </TouchableOpacity>)
 }

@@ -180,6 +180,8 @@ export const AddStories = ({
                     style={{
                         borderWidth: 2,
                         borderColor: currentTheme?.background,
+                        width: 30,
+                        aspectRatio: 1,
                     }}
                     isButton variant="primary" onPress={addStory} />
             </View>

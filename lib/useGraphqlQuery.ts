@@ -80,32 +80,21 @@ export const useGraphqlQuery = <T>({
 } => {
     const [state, dispatch] = useReducer(dataFetchReducer, initialState as State<T>);
 
-    const getBearerToken = useCallback(async () => {
-        try {
-            const token = await getSecureStorage<Session["user"]>(configs.sessionName);
-            if (!token) return null
-            console.error("Error retrieving token from SecureStorage 1");
-            return token?.accessToken;
-        } catch (err) {
-            console.error("Error retrieving token from SecureStorage 2", err);
-            return null;
-        }
-    }, []);
-
     const fetchData = useCallback(async () => {
         dispatch({ type: 'FETCH_INIT' });
         try {
-            const token = await getBearerToken();
-            if (!token) {
-                throw new Error("No Bearer Token available");
-            }
+            const BearerToken = await getSecureStorage<Session["user"]>(configs.sessionName);
+            if (!BearerToken?.accessToken) {
+                console.error("Error retrieving token from SecureStorage");
+                return;
+            };
 
             const response = await fetch(url, {
                 method: 'POST',
-                credentials: withCredentials ? "include" : "same-origin",
+                credentials: "include",
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
+                    'Authorization': `Bearer ${BearerToken.accessToken}`,
                 },
                 body: JSON.stringify({
                     query,
@@ -118,7 +107,7 @@ export const useGraphqlQuery = <T>({
                 const responseBody: GraphqlResponse<any> = await response.json();
                 console.error(responseBody);
                 throw new Error('Network response was not ok');
-            }
+            };
 
             const responseBody: GraphqlResponse<any> = await response.json();
 
@@ -128,7 +117,7 @@ export const useGraphqlQuery = <T>({
                     errorCallBack(errors);
                 }
                 throw new Error(errors[0]?.message || "GraphQL Error");
-            }
+            };
 
             dispatch({ type: 'FETCH_SUCCESS', payload: responseBody.data[Object.keys(responseBody.data)[0]] });
         } catch (err: any) {
