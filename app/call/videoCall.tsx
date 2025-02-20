@@ -1,8 +1,8 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { View, StatusBar, ToastAndroid, TouchableOpacity } from "react-native";
 import { Avatar } from "@/components/skysolo-ui";
 import useWebRTC from "@/lib/useWebRTC";
 import { useTheme } from "hyper-native-ui";
-import { View, StatusBar, ToastAndroid, TouchableOpacity } from "react-native";
 import { useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 import { Session } from "@/types";
@@ -14,6 +14,7 @@ import ActionBoxComponent from "@/components/calling/ActionBox";
 import CallDeclined from "./callDeclined";
 import { hapticVibrate } from "@/lib/RN-vibration";
 import { Socket } from "socket.io-client";
+import { IconButtonWithoutThemed } from "@/components/skysolo-ui/Icon";
 type ChannelData<T> = {
 	type: "MICROPHONE" | "CAMERA" | "MESSAGE" | "INITIAL";
 	value: T;
@@ -24,7 +25,7 @@ const CallScreen = ({
 }: {
 	route: {
 		params: Session["user"] & {
-			isVideo: boolean;
+			stream: "video" | "audio";
 			userType: "REMOTE" | "LOCAL"
 		} | null
 	}
@@ -69,14 +70,18 @@ const CallScreen = ({
 		if (navigation.canGoBack()) {
 			navigation.goBack();
 		}
-	}, [stopStream])
+	}, [stopStream]);
 
 	const InitFunc = async () => {
 		if (remoteUserData?.userType === "LOCAL" && loaded) {
 			loaded.current = false;
 
 			socket?.emit("send-call", {
-				...session,
+				id: session?.id,
+				username: session?.username,
+				email: session?.email,
+				name: session?.name,
+				profilePicture: session?.profilePicture,
 				status: "CALLING",
 				stream: "video",
 				remoteId: remoteUserData?.id
@@ -85,16 +90,20 @@ const CallScreen = ({
 		if (remoteUserData?.userType === "REMOTE" && session && loaded) {
 			loaded.current = false;
 			socket?.emit("answer-call", {
-				...session,
+				id: session?.id,
+				username: session?.username,
+				email: session?.email,
+				name: session?.name,
+				profilePicture: session?.profilePicture,
 				status: "calling",
 				stream: "video",
 				call: "ACCEPT",
 				remoteId: remoteUserData?.id
 			})
 		}
-	}
+	};
 
-	useEffect(() => { InitFunc(); }, [])
+	useEffect(() => { InitFunc(); }, []);
 
 	if (callState === "DISCONNECTED") {
 		return <CallDeclined remoteUserData={remoteUserData} stopStream={stopStream} />
@@ -103,9 +112,9 @@ const CallScreen = ({
 	return (
 		<View style={{
 			flex: 1,
-			backgroundColor: currentTheme.accent,
+			backgroundColor: currentTheme.background,
 		}}>
-			{callState === "CONNECTED" ? <VideoCallCounter /> : <></>}
+			{callState === "CONNECTED" ? <VideoCallCounter name={remoteUserData?.name} /> : <></>}
 			<StatusBar translucent backgroundColor={"transparent"}
 				barStyle={themeScheme === "dark" ? "light-content" : "dark-content"} />
 			<Components
@@ -144,7 +153,7 @@ const Components = ({
 	currentTheme,
 	isCameraOn,
 	isMuted,
-	socket
+	socket,
 }: {
 	localStream: MediaStream | null;
 	remoteStream: MediaStream | null;
@@ -153,7 +162,7 @@ const Components = ({
 	currentTheme: any;
 	isCameraOn: boolean;
 	isMuted: boolean;
-	socket: Socket | null
+	socket: Socket | null;
 }) => {
 	const [isSwapped, setIsSwapped] = useState(true);
 	const [remoteAction, setRemoteAction] = useState({
@@ -165,7 +174,6 @@ const Components = ({
 		hapticVibrate();
 		setIsSwapped((prev) => !prev);
 	}
-
 	useEffect(() => {
 		socket?.on("call-action", (data: ChannelData<{ isCameraOn: boolean, isMuted: boolean }>) => {
 			setRemoteAction((prev) => ({ ...prev, ...data.value }));
@@ -219,7 +227,7 @@ const ScreenComponent = ({
 	smallStream,
 	smallStreamUser,
 	smallStreamActions,
-	largeStreamActions
+	largeStreamActions,
 }: {
 	largeStream: MediaStream | null;
 	smallStream: MediaStream | null;
@@ -232,7 +240,18 @@ const ScreenComponent = ({
 	largeStreamActions: { isCameraOn: boolean, isMuted: boolean };
 }) => {
 	return <>
-		<>
+		<TouchableOpacity
+			activeOpacity={1}
+			// onPress={onPress}
+			style={{
+				backgroundColor: currentTheme.muted,
+				width: "100%",
+				height: "100%",
+				flex: 1,
+				alignItems: "center",
+				justifyContent: "center",
+				gap: 10
+			}}>
 			{largeStream && largeStreamActions.isCameraOn ? <RTCView
 				// mirror={true}
 				objectFit={'cover'}
@@ -244,8 +263,20 @@ const ScreenComponent = ({
 				// @ts-ignore
 				streamURL={largeStream?.toURL()}
 			/>
-				: <UserCameraEmpty remoteUserData={largeStreamUser} />}
-		</>
+				: <Avatar url={largeStreamUser?.profilePicture} size={220} isBorder borderWidth={2.4} />}
+			{largeStreamActions.isMuted ? <View style={{
+				backgroundColor: 'rgba(0,0,0,0.5)',
+				padding: 10,
+				borderRadius: 50,
+				position: "absolute",
+			}}>
+				<IconButtonWithoutThemed
+					iconName={"MicOff"}
+					size={30}
+					color={"white"} />
+			</View> : <></>}
+		</TouchableOpacity>
+		{/* small */}
 		<TouchableOpacity
 			activeOpacity={0.9}
 			onPress={screenSwapping}
@@ -278,24 +309,28 @@ const ScreenComponent = ({
 					alignItems: "center",
 					justifyContent: "center"
 				}} >
-					<Avatar url={smallStreamUser?.profilePicture} size={80} onPress={screenSwapping} />
+					<Avatar
+						url={smallStreamUser?.profilePicture}
+						size={80} onPress={screenSwapping} />
 				</View>}
+			<TouchableOpacity
+				onPress={screenSwapping}
+				style={{
+					padding: 10,
+					justifyContent: "flex-end",
+					alignItems: "center",
+					width: "100%",
+					height: "100%",
+					flex: 1,
+					position: "absolute",
+				}}>
+				{smallStreamActions.isMuted ?
+					<IconButtonWithoutThemed
+						iconName={"MicOff"}
+						size={30}
+						color={currentTheme.foreground} />
+					: <></>}
+			</TouchableOpacity>
 		</TouchableOpacity>
 	</>
-};
-
-const UserCameraEmpty = ({ remoteUserData }: { remoteUserData: Session["user"] }) => {
-	const { currentTheme } = useTheme();
-	return (
-		<View style={{
-			backgroundColor: currentTheme.muted,
-			width: "100%",
-			height: "100%",
-			flex: 1,
-			alignItems: "center",
-			justifyContent: "center"
-		}}>
-			<Avatar url={remoteUserData?.profilePicture} size={220} />
-		</View>
-	)
 };

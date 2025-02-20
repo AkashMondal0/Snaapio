@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text } from 'react-native';
-const VideoCallCounter = () => {
+const VideoCallCounter = ({
+	name = 'User',
+	visible = true
+}: {
+	name: string | undefined;
+	visible?: boolean;
+}) => {
 	const [seconds, setSeconds] = useState(0);
 	const [isRunning, setIsRunning] = useState(true);
 
@@ -32,6 +38,14 @@ const VideoCallCounter = () => {
 			zIndex: 1,
 			width: '100%',
 		}}>
+			<View>
+				<Text style={{
+					fontSize: 20,
+					fontWeight: 'bold',
+					color: 'white',
+				}}>{name}
+				</Text>
+			</View>
 			<Text style={{
 				fontSize: 20,
 				fontWeight: 'bold',

@@ -171,7 +171,7 @@ const useWebRTC = ({
           type: "INITIAL",
           value: {
             isCameraOn: event.streams[0]?.getVideoTracks()[0]?.enabled,
-            isMuted: event.streams[0]?.getAudioTracks()[0]?.enabled
+            isMuted: isMuted
           },
         });
       }
@@ -247,19 +247,17 @@ const useWebRTC = ({
       remoteStream.getTracks().forEach((track) => track.stop());
     }
     peerConnectionRef.current?.close();
-    peerConnectionRef.current = new RTCPeerConnection({
-      iceServers: [{ urls: ["stun:stun.l.google.com:19302"] }],
-    });
+    peerConnectionRef.current = new RTCPeerConnection(configuration);
 
     setLocalStream(null);
     setRemoteStream(null);
     if (!session || !remoteUser) return console.error("not found !session | !remoteUser")
     socket?.emit("peerLeft", {
-      userId: session.id,
+      id: session.id,
       remoteId: remoteUser?.id,
-      data: "END",
+      data: null,
     });
-    hapticVibrate()
+    hapticVibrate();
     onCallState?.("DISCONNECTED");
   };
 

@@ -1,8 +1,6 @@
 import { TouchableOpacity, View } from "react-native";
 import { IconButtonWithoutThemed } from "../skysolo-ui/Icon";
-import InCallManager from "react-native-incall-manager";
-import { Button } from "hyper-native-ui";
-import { useEffect } from "react";
+// import InCallManager from "react-native-incall-manager";
 
 const ActionBoxComponent = ({
 	toggleCamera,
@@ -28,28 +26,28 @@ const ActionBoxComponent = ({
 	isFrontCam: boolean
 }) => {
 	// Get available audio routes (e.g., Bluetooth, Speaker, Earpiece)
-	const checkAvailableAudioRoutes = async () => {
-		const availableRoutes = await InCallManager.getIsWiredHeadsetPluggedIn();
-		console.log("📌 Available Audio Routes:", availableRoutes);
-	};
-	// 🔊 Enable Loudspeaker (Primary Speaker)
-	const enableLoudSpeaker = () => {
-		InCallManager.setForceSpeakerphoneOn(true); // Forces speakerphone ON
-		console.log("📌 Using Main Loudspeaker");
-	};
+	// const checkAvailableAudioRoutes = async () => {
+	// 	const availableRoutes = await InCallManager.getIsWiredHeadsetPluggedIn();
+	// 	console.log("📌 Available Audio Routes:", availableRoutes);
+	// };
+	// // 🔊 Enable Loudspeaker (Primary Speaker)
+	// const enableLoudSpeaker = () => {
+	// 	InCallManager.setForceSpeakerphoneOn(true); // Forces speakerphone ON
+	// 	console.log("📌 Using Main Loudspeaker");
+	// };
 
-	// 🔊 Enable Second Speaker (Bluetooth/External)
-	const enableSecondSpeaker = () => {
-		InCallManager.setForceSpeakerphoneOn(false); // Disables speakerphone
-		InCallManager.setSpeakerphoneOn(true); // Tries to use second speaker
-		console.log("📌 Trying to Use Second Speaker (External/Bluetooth)");
-	};
+	// // 🔊 Enable Second Speaker (Bluetooth/External)
+	// const enableSecondSpeaker = () => {
+	// 	InCallManager.setForceSpeakerphoneOn(false); // Disables speakerphone
+	// 	InCallManager.setSpeakerphoneOn(true); // Tries to use second speaker
+	// 	console.log("📌 Trying to Use Second Speaker (External/Bluetooth)");
+	// };
 
-	// 🎧 Use Bluetooth or Wired Headset (if connected)
-	const enableBluetoothOrWired = () => {
-		InCallManager.chooseAudioRoute("BLUETOOTH"); // Switch to Bluetooth/Wired Headset
-		console.log("📌 Using Bluetooth/Wired Headset");
-	};
+	// // 🎧 Use Bluetooth or Wired Headset (if connected)
+	// const enableBluetoothOrWired = () => {
+	// 	InCallManager.chooseAudioRoute("BLUETOOTH"); // Switch to Bluetooth/Wired Headset
+	// 	console.log("📌 Using Bluetooth/Wired Headset");
+	// };
 
 	return (
 		<View style={{
@@ -68,10 +66,10 @@ const ActionBoxComponent = ({
 				gap: 12,
 				alignItems: "center",
 				justifyContent: "center",
-				backgroundColor: currentTheme.accent,
+				backgroundColor: currentTheme.input,
 				marginBottom: 20,
 				borderWidth: 0.5,
-				borderColor: currentTheme.input,
+				borderColor: currentTheme.border,
 				marginVertical: 10,
 			}}>
 				{/* volume */}
