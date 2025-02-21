@@ -44,7 +44,7 @@ const FollowersScreen = memo(function FollowersScreen({
                 data={data}
                 renderItem={({ item }) => (<FollowingItem data={item}
                     isFollowing={isFollowing} />)}
-                keyExtractor={(item, index) => index.toString()}
+                keyExtractor={(item, index) => item.id}
                 bounces={false}
                 onEndReachedThreshold={0.5}
                 onEndReached={onEndReached}

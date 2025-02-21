@@ -27,7 +27,7 @@ const PostScreen = memo(function PostScreen({ route }: Props) {
         }}>
             <AppHeader title="Post" titleCenter />
             <ScrollView>
-                {loading ? <FeedLoader size={1} />
+                {loading !== "normal" ? <FeedLoader size={1} />
                     : error ? <ErrorScreen message="Not Found" /> :
                         data ? <FeedItem data={data} /> : <View />}
             </ScrollView>

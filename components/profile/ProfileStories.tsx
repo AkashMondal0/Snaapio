@@ -1,12 +1,12 @@
 import React from "react";
-import { memo, useCallback, useEffect, useRef, useState } from "react";
-import { FlatList, ToastAndroid, TouchableOpacity, View } from "react-native";
+import { memo, useCallback } from "react";
+import { FlatList, TouchableOpacity, View } from "react-native";
 import { Icon, Avatar } from "@/components/skysolo-ui";
-import { disPatchResponse, loadingType, User, Highlight } from "@/types";
-import { useDispatch } from "react-redux";
-import { fetchUserHighlightApi } from "@/redux-stores/slice/profile/api.service";
+import { User, Highlight } from "@/types";
 import { Text, useTheme } from "hyper-native-ui"
 import { StackActions, useNavigation } from "@react-navigation/native";
+import { useGQArray } from "@/lib/useGraphqlQuery";
+import { QProfile } from "@/redux-stores/slice/profile/profile.queries";
 const ITEM_HEIGHT = 120;
 const StoriesComponent = memo(function StoriesComponent({
     user,
@@ -17,53 +17,10 @@ const StoriesComponent = memo(function StoriesComponent({
 }) {
     const navigation = useNavigation();
     const { currentTheme } = useTheme();
-
-    const [state, setState] = useState<{
-        loading: loadingType,
-        error: boolean,
-        data: Highlight[]
-    }>({
-        data: [],
-        error: false,
-        loading: "idle",
-    })
-    const totalFetchedItemCount = useRef(0)
-    const dispatch = useDispatch()
-
-    const fetchApi = useCallback(async () => {
-        setState((prev) => ({ ...prev, loading: "pending" }))
-        if (totalFetchedItemCount.current === -1) return
-        if (!user?.id) return ToastAndroid.show("User id not found", ToastAndroid.SHORT)
-        const res = await dispatch(fetchUserHighlightApi({
-            limit: 12,
-            offset: totalFetchedItemCount.current,
-            id: user?.id
-        }) as any) as disPatchResponse<Highlight[]>
-        if (res.error) {
-            totalFetchedItemCount.current = -1
-            setState((prev) => ({ ...prev, loading: "normal", error: true }))
-            return
-        }
-        setState((prev) => ({
-            ...prev,
-            loading: "normal",
-            data: [...prev.data, ...res.payload]
-        }))
-        if (res.payload.length >= 12) {
-            totalFetchedItemCount.current += res.payload.length
-            return
-        }
-        totalFetchedItemCount.current = -1
-    }, [user?.id, totalFetchedItemCount.current])
-
-    useEffect(() => {
-        fetchApi()
-    }, [])
-
-    const onEndReached = useCallback(() => {
-        if (totalFetchedItemCount.current < 10 || state.loading === "pending") return
-        fetchApi()
-    }, [state.loading, totalFetchedItemCount.current])
+    const { data, error, loadMoreData, loading, reload } = useGQArray<Highlight>({
+        query: QProfile.findAllHighlight,
+        variables: { id: user?.id }
+    });
 
     const navigateToHighlight = useCallback((item: Highlight) => {
         navigation.dispatch(StackActions.push("Highlight" as any, {
@@ -82,12 +39,12 @@ const StoriesComponent = memo(function StoriesComponent({
             paddingTop: 8,
         }}>
             <FlatList
-                data={state.data}
+                data={data}
                 renderItem={({ item }) => <StoriesItem data={item} onPress={navigateToHighlight} />}
                 keyExtractor={(item, index) => index.toString()}
                 horizontal
                 scrollEventThrottle={16}
-                onEndReached={onEndReached}
+                onEndReached={loadMoreData}
                 onEndReachedThreshold={0.5}
                 bounces={false}
                 removeClippedSubviews={true}
@@ -137,10 +94,10 @@ const StoriesComponent = memo(function StoriesComponent({
                 </View>}
                 ListHeaderComponent={<View style={{ width: 6 }} />}
                 ListEmptyComponent={() => {
-                    if (state.loading === "idle" || state.loading === "pending") {
+                    if (loading === "idle" || loading === "pending") {
                         return <StoryLoader />
                     }
-                    if (state.error && state.loading === "normal") return <View />
+                    if (error && loading === "normal") return <View />
                     return <View />
                 }}
                 showsHorizontalScrollIndicator={false} />
@@ -178,18 +135,19 @@ export const StoriesItem = memo(function StoriesItem({
 }, () => true)
 
 
-const StoryLoader = () => {
+export const StoryLoader = () => {
     const { currentTheme } = useTheme();
     return <View style={{
         display: "flex",
         flexDirection: "row",
         gap: 10,
-        height: 90,
+        height: 120,
         alignItems: "center"
     }}>
         {Array(10).fill(0).map((_, i) => <View key={i} style={{
             width: 80,
-            height: 80,
+            height: 100,
+            aspectRatio: 1,
             borderRadius: 100,
             backgroundColor: currentTheme.muted
         }} />)}

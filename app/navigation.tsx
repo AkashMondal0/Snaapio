@@ -79,7 +79,7 @@ export const HomeTabs = createBottomTabNavigator({
                     <AccountIcon
                         size={size}
                         focused={focused}
-                        onPress={() => navigation.navigate(route.name, route.params)} />
+                        onPress={(name) => navigation.navigate(route.name, { ...route.params, id: name })} />
                 ),
             }),
         },
@@ -474,13 +474,13 @@ const AccountIcon = ({
     size,
     focused
 }: {
-    onPress: () => void,
+    onPress: (name: string) => void,
     size?: number,
     focused: boolean
 }) => {
-    const sessionAvatarUrl = useSelector((state: RootState) => state.AuthState.session.user?.profilePicture, (prev, next) => prev === next);
-
+    const session = useSelector((state: RootState) => state.AuthState.session.user, (prev, next) => prev === next);
+    if (!session) return <></>
     return (
-        <Avatar size={28} url={sessionAvatarUrl} onPress={onPress} isBorder={focused} />
+        <Avatar size={28} url={session?.profilePicture} onPress={() => onPress(session?.username)} isBorder={focused} />
     );
 };

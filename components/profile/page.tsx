@@ -1,0 +1,97 @@
+import React, { useCallback } from "react";
+import { Loader } from "hyper-native-ui";
+import { RootState } from "@/redux-stores/store";
+import { View, FlatList, Dimensions } from "react-native";
+import { useSelector } from "react-redux";
+import ErrorScreen from "@/components/error/page";
+import { ProfileEmptyPosts, ProfileGridItem, ProfileHeader, ProfileNavbar } from "@/components/profile";
+import { Post, User } from "@/types";
+import { useGQArray, useGQObject } from "@/lib/useGraphqlQuery";
+import { QProfile } from "@/redux-stores/slice/profile/profile.queries";
+import { ProfileHeaderLoader } from "@/components/profile/ProfileHeader";
+
+const screenWidth = Dimensions.get("screen").width;
+const ITEM_HEIGHT = screenWidth * 0.33;
+
+const ProfilePage = ({ username }: { username: string }) => {
+	const session = useSelector((state: RootState) => state.AuthState.session.user);
+	const isProfile = session?.username === username;
+	const {
+		data: dataUser,
+		error: errorUser,
+		loading: loadingUser,
+		reload: reloadUser
+	} = useGQObject<User>({
+		query: QProfile.findUserProfile,
+		variables: { id: username }
+	});
+	const {
+		data: dataPost,
+		error: errorPost,
+		loadMoreData: loadMoreDataPost,
+		loading: loadingPost,
+		reload: reloadPost } = useGQArray<Post>({
+			query: QProfile.findAllPosts,
+			variables: { id: dataUser?.id, limit: 12 }
+		});
+
+	const onRefresh = useCallback(() => {
+		reloadUser();
+		reloadPost();
+	}, [dataUser?.id])
+
+
+	if (errorUser) return <ErrorScreen />
+
+	return (
+		<View style={{
+			flex: 1,
+			width: '100%',
+			height: '100%',
+		}}>
+			<ProfileNavbar
+				isProfile={isProfile} username={username} />
+			<FlatList
+				data={dataPost}
+				keyExtractor={(item, index) => item.id}
+				numColumns={3}
+				bounces={false}
+				bouncesZoom={false}
+				alwaysBounceHorizontal={false}
+				alwaysBounceVertical={false}
+				refreshing={false}
+				onEndReachedThreshold={0.5}
+				onEndReached={loadMoreDataPost}
+				onRefresh={onRefresh}
+				removeClippedSubviews={true}
+				windowSize={12}
+				getItemLayout={(data, index) => ({
+					index,
+					length: ITEM_HEIGHT,
+					offset: ITEM_HEIGHT * index
+				})}
+				columnWrapperStyle={{
+					gap: 2,
+					paddingVertical: 1,
+				}}
+				renderItem={({ item, index }) => (
+					<ProfileGridItem item={item} index={index} />
+				)}
+				ListHeaderComponent={loadingUser !== "normal" ? <ProfileHeaderLoader /> : <ProfileHeader
+					userData={dataUser}
+					isProfile={isProfile} />}
+				ListFooterComponent={loadingPost !== "normal" ? <View style={{
+					width: '100%',
+					height: 50,
+					justifyContent: 'center',
+					alignItems: 'center',
+				}}>
+					<Loader size={40} />
+				</View> : <View style={{ height: 50 }} />}
+				ListEmptyComponent={loadingPost === "normal" ? <ProfileEmptyPosts /> : <></>}
+			/>
+		</View>
+	)
+}
+
+export default ProfilePage;

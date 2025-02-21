@@ -4,7 +4,7 @@ import { FlatList, View, ToastAndroid } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { Avatar } from "@/components/skysolo-ui";
 import { RootState } from "@/redux-stores/store";
-import { AuthorData, Conversation, disPatchResponse, loadingType, NavigationProps } from "@/types";
+import { AuthorData, Conversation, disPatchResponse, loadingType } from "@/types";
 import { memo } from "react";
 import ErrorScreen from "@/components/error/page";
 import ListEmpty from "@/components/ListEmpty";
@@ -44,7 +44,7 @@ const FollowersScreen = memo(function FollowersScreen({
                 data={data}
                 renderItem={({ item }) => (<FollowingItem data={item}
                     isFollowing={isFollowing} />)}
-                keyExtractor={(item, index) => index.toString()}
+                keyExtractor={(item, index) => item.id}
                 bounces={false}
                 onEndReachedThreshold={0.5}
                 onEndReached={onEndReached}

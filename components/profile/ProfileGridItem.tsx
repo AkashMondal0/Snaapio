@@ -5,8 +5,10 @@ import { useNavigation } from "@react-navigation/native";
 import { Post } from '@/types'
 
 const ProfileGridItem = memo(function ProfileGridItem({ item, index,
+    aspectRatio = 4 / 5
 }: {
     item: Post, index: number,
+    aspectRatio?: number
 }) {
     const navigation = useNavigation();
     if (!item.fileUrl[0].urls?.high) return <></>
@@ -19,7 +21,7 @@ const ProfileGridItem = memo(function ProfileGridItem({ item, index,
             style={{
                 width: "33%",
                 height: "100%",
-                aspectRatio: 1,
+                aspectRatio: aspectRatio,
             }}>
             <View style={{
                 position: 'absolute',
@@ -39,7 +41,7 @@ const ProfileGridItem = memo(function ProfileGridItem({ item, index,
                 style={{
                     width: '100%',
                     height: "100%",
-                    aspectRatio: 1 / 1,
+                    aspectRatio: aspectRatio,
                 }} />
         </TouchableOpacity>
     )

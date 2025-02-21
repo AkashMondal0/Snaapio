@@ -31,7 +31,7 @@ type Action<T> =
 // Define the state structure
 interface State<T> {
     data: T | null | any;
-    loading: boolean;
+    loading: loadingType
     error: string | null;
 }
 
@@ -49,7 +49,7 @@ export const useGQObject = <T>({
     errorCallBack?: (error: GraphqlError[]) => void;
 }): {
     data: T | null;
-    loading: boolean;
+    loading: loadingType;
     error: string | null;
     fetch: () => void;
     reset: () => void;
@@ -58,29 +58,28 @@ export const useGQObject = <T>({
     const [state, dispatch] = useReducer((state: State<T>, action: Action<T>): State<T> => {
         switch (action.type) {
             case 'FETCH_INIT':
-                return { ...state, loading: true, error: null };
+                return { ...state, loading: "pending", error: null };
             case 'FETCH_SUCCESS':
-                return { ...state, loading: false, data: action.payload };
+                return { ...state, loading: "normal", data: action.payload };
             case 'FETCH_FAILURE':
-                return { ...state, loading: false, error: action.error };
+                return { ...state, loading: "normal", error: action.error };
             case 'RESET':
-                return { ...state, loading: false, data: null, error: null };
+                return { ...state, loading: "normal", data: null, error: null };
             default:
                 throw new Error();
         }
     }, {
         data: null,
-        loading: false,
+        loading: "idle",
         error: null,
     } as State<T>);
-    const isFetching = useRef(false); // Track ongoing requests
-    const fetchingCount = useRef(0); // Track ongoing requests
+    const isFetching = useRef(false);
 
     const fetchData = useCallback(async () => {
         if (isFetching.current) return;
         isFetching.current = true;
         dispatch({ type: 'FETCH_INIT' });
-        await new Promise((resolve) => setTimeout(resolve, 3000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         try {
             const BearerToken = await getSecureStorage<Session["user"]>(configs.sessionName);
             if (!BearerToken?.accessToken) {
@@ -97,7 +96,11 @@ export const useGQObject = <T>({
                 },
                 body: JSON.stringify({
                     query,
-                    variables,
+                    variables: {
+                        graphQlPageQuery: {
+                            ...variables,
+                        },
+                    },
                 }),
                 cache: 'no-cache',
             });
@@ -117,10 +120,8 @@ export const useGQObject = <T>({
                 }
                 throw new Error(errors[0]?.message || "GraphQL Error");
             };
-            fetchingCount.current++;
             dispatch({ type: 'FETCH_SUCCESS', payload: responseBody.data[Object.keys(responseBody.data)[0]] });
         } catch (err: any) {
-            fetchingCount.current++;
             dispatch({ type: 'FETCH_FAILURE', error: err.message || "An error occurred" });
         } finally {
             isFetching.current = false;
@@ -128,11 +129,13 @@ export const useGQObject = <T>({
     }, [query, url, variables, withCredentials]);
 
     const reloadData = useCallback(() => {
+        isFetching.current = false;
         dispatch({ type: "RESET" });
         fetchData();
     }, []);
 
     const resetData = useCallback(() => {
+        isFetching.current = false;
         dispatch({ type: "RESET" });
     }, []);
 
@@ -209,7 +212,7 @@ export const useGQArray = <T>({
     const stopFetch = useRef(false); //  Track if there are more data to fetch
     const isFetching = useRef(false); // Track ongoing requests
     const fetchingCount = useRef(0); // count of requests made
-    const limit = variables?.limit || 10; 
+    const limit = variables?.limit || 10;
     // Fetch Data
     const fetchData = useCallback(async () => {
         try {

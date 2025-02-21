@@ -7,7 +7,7 @@ import { useNavigation } from "@react-navigation/native";
 
 
 const AppHeader = memo(function HomeScreen({
-    title,
+    title = "user",
     titleCenter = false,
     rightSideComponent,
     containerStyle,

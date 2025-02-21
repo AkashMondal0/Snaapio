@@ -46,7 +46,7 @@ const LikeScreen = memo(function LikeScreen({ route }: Props) {
                     windowSize={10}
                     data={data}
                     renderItem={({ item }) => (<LikeItem data={item} onPress={onPress} />)}
-                    keyExtractor={(item, index) => index.toString()}
+                    keyExtractor={(item, index) => item.id}
                     bounces={false}
                     onEndReachedThreshold={0.5}
                     refreshing={false}
