@@ -31,69 +31,69 @@ let Postdata: Post;
 
 const CommentScreen = memo(function CommentScreen({ route }: Props) {
     const _postId = route?.params?.id;
-    const Comments = useSelector((Root: RootState) => Root.PostState.comments)
-    const commentsLoading = useSelector((Root: RootState) => Root.PostState.commentsLoading)
-    const commentsError = useSelector((Root: RootState) => Root.PostState.commentsError)
-    const stopRef = useRef(false)
-    const dispatch = useDispatch()
-    const [state, setState] = useState<{
-        loading: loadingType,
-        error: boolean,
-        data: Post | null
-    }>({
-        data: null,
-        error: false,
-        loading: "idle"
-    })
+    // const Comments = useSelector((Root: RootState) => Root.PostState.comments)
+    // const commentsLoading = useSelector((Root: RootState) => Root.PostState.commentsLoading)
+    // const commentsError = useSelector((Root: RootState) => Root.PostState.commentsError)
+    // const stopRef = useRef(false)
+    // const dispatch = useDispatch()
+    // const [state, setState] = useState<{
+    //     loading: loadingType,
+    //     error: boolean,
+    //     data: Post | null
+    // }>({
+    //     data: null,
+    //     error: false,
+    //     loading: "idle"
+    // })
 
-    const fetchApi = useCallback(async () => {
-        if (stopRef.current || totalFetchedItemCount === -1) return
-        stopRef.current = true
-        try {
-            const postRes = await dispatch(fetchOnePostApi(postId) as any) as disPatchResponse<Post>
-            if (postRes.error) return setState({ ...state, loading: "normal", error: true })
-            if (!postRes.payload.id) {
-                setState((pre) => ({ ...pre, error: true, loading: "normal" }))
-                return
-            }
-            setState({ ...state, loading: "normal", data: postRes.payload })
-            Postdata = postRes.payload
-            const res = await dispatch(fetchPostCommentsApi({
-                id: _postId,
-                offset: totalFetchedItemCount,
-                limit: 12
-            }) as any) as disPatchResponse<Comment[]>
-            if (res.payload.length >= 12) {
-                totalFetchedItemCount += res.payload.length
-                return
-            }
-            totalFetchedItemCount = -1
-        } finally {
-            stopRef.current = false
-        }
-    }, [_postId])
+    // const fetchApi = useCallback(async () => {
+    //     if (stopRef.current || totalFetchedItemCount === -1) return
+    //     stopRef.current = true
+    //     try {
+    //         const postRes = await dispatch(fetchOnePostApi(postId) as any) as disPatchResponse<Post>
+    //         if (postRes.error) return setState({ ...state, loading: "normal", error: true })
+    //         if (!postRes.payload.id) {
+    //             setState((pre) => ({ ...pre, error: true, loading: "normal" }))
+    //             return
+    //         }
+    //         setState({ ...state, loading: "normal", data: postRes.payload })
+    //         Postdata = postRes.payload
+    //         const res = await dispatch(fetchPostCommentsApi({
+    //             id: _postId,
+    //             offset: totalFetchedItemCount,
+    //             limit: 12
+    //         }) as any) as disPatchResponse<Comment[]>
+    //         if (res.payload.length >= 12) {
+    //             totalFetchedItemCount += res.payload.length
+    //             return
+    //         }
+    //         totalFetchedItemCount = -1
+    //     } finally {
+    //         stopRef.current = false
+    //     }
+    // }, [_postId])
 
-    useEffect(() => {
-        if (postId !== _postId) {
-            postId = _postId
-            totalFetchedItemCount = 0
-            dispatch(resetComments())
-            fetchApi()
-        } else {
-            setState({ ...state, loading: "normal", data: Postdata })
-        }
-    }, [_postId, postId])
+    // useEffect(() => {
+    //     if (postId !== _postId) {
+    //         postId = _postId
+    //         totalFetchedItemCount = 0
+    //         dispatch(resetComments())
+    //         fetchApi()
+    //     } else {
+    //         setState({ ...state, loading: "normal", data: Postdata })
+    //     }
+    // }, [_postId, postId])
 
-    const onEndReached = useCallback(() => {
-        if (stopRef.current || totalFetchedItemCount < 10) return
-        fetchApi()
-    }, [])
+    // const onEndReached = useCallback(() => {
+    //     if (stopRef.current || totalFetchedItemCount < 10) return
+    //     fetchApi()
+    // }, [])
 
-    const onRefresh = useCallback(() => {
-        totalFetchedItemCount = 0
-        dispatch(resetComments())
-        fetchApi()
-    }, [])
+    // const onRefresh = useCallback(() => {
+    //     totalFetchedItemCount = 0
+    //     dispatch(resetComments())
+    //     fetchApi()
+    // }, [])
 
     return (
         <View style={{

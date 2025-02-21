@@ -1,46 +1,23 @@
-import { memo, useCallback, useEffect, useState } from "react";
-import { disPatchResponse, loadingType, Post } from "@/types";
+import { memo } from "react";
+import { Post } from "@/types";
 import AppHeader from "@/components/AppHeader";
 import { FeedItem } from "@/components/home";
-import { useDispatch } from "react-redux";
-import { fetchOnePostApi } from "@/redux-stores/slice/post/api.service";
 import ErrorScreen from "@/components/error/page";
 import { ScrollView, View } from "react-native";
 import { StaticScreenProps } from "@react-navigation/native";
 import { FeedLoader } from "@/components/home/feedListItem";
+import { useGQObject } from "@/lib/useGraphqlQuery";
+import { QPost } from "@/redux-stores/slice/post/post.queries";
 
 type Props = StaticScreenProps<{
     id: string;
 }>;
 const PostScreen = memo(function PostScreen({ route }: Props) {
     const postId = route.params.id;
-    const [state, setState] = useState<{
-        loading: loadingType,
-        error: boolean,
-        data: Post | null
-    }>({
-        data: null,
-        error: false,
-        loading: "idle"
+    const { data, error, loading, } = useGQObject<Post>({
+        query: QPost.findOnePost,
+        variables: { findOnePostId: postId }
     })
-
-    const dispatch = useDispatch()
-
-    const fetchApi = useCallback(async () => {
-        const res = await dispatch(fetchOnePostApi(postId) as any) as disPatchResponse<Post>
-        if (res.error) return setState({ ...state, loading: "normal", error: true })
-        if (res.payload.id) {
-            setState({ ...state, loading: "normal", data: res.payload })
-        }
-    }, [postId])
-
-    useEffect(() => {
-        fetchApi()
-    }, [postId])
-
-    const onRefresh = useCallback(() => {
-        fetchApi()
-    }, [])
 
     return (
         <View style={{
@@ -50,9 +27,9 @@ const PostScreen = memo(function PostScreen({ route }: Props) {
         }}>
             <AppHeader title="Post" titleCenter />
             <ScrollView>
-                {state.loading !== 'normal' ? <FeedLoader size={1} />
-                    : state.error ? <ErrorScreen message="Not Found" /> :
-                        state.data?.id ? <FeedItem data={state.data} /> : <View />}
+                {loading ? <FeedLoader size={1} />
+                    : error ? <ErrorScreen message="Not Found" /> :
+                        data ? <FeedItem data={data} /> : <View />}
             </ScrollView>
         </View>
     )

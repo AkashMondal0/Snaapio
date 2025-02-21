@@ -1,47 +1,23 @@
-import { memo, useCallback, useEffect, useRef } from "react";
+import { memo, useCallback, useEffect } from "react";
 import { FlatList, TouchableOpacity, View } from "react-native";
 import { Avatar, Icon } from "@/components/skysolo-ui";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
-import { fetchAccountStoryTimelineApi, fetchAccountStoryApi } from "@/redux-stores/slice/account/api.service";
+import { fetchAccountStoryApi } from "@/redux-stores/slice/account/api.service";
 import { AuthorData, Session } from "@/types";
 import { useTheme, Text } from 'hyper-native-ui';
 import { StackActions, useNavigation } from "@react-navigation/native";
+import { useGQArray } from "@/lib/useGraphqlQuery";
+import { AQ } from "@/redux-stores/slice/account/account.queries";
 const ITEM_HEIGHT = 120;
 
 const StoriesComponent = memo(function StoriesComponent() {
     const navigation = useNavigation();
-    const storyList = useSelector((state: RootState) => state.AccountState.storyAvatars)
-    const storyListLoading = useSelector((state: RootState) => state.AccountState.storyAvatarsLoading)
-    const storyError = useSelector((state: RootState) => state.AccountState.storyAvatarsError)
-    const totalFetchedItemCount = useSelector((state: RootState) => state.AccountState.storiesFetchedItemCount)
-    const stopRef = useRef(false)
-    const dispatch = useDispatch()
-
-    const fetchApi = useCallback(async () => {
-        if (stopRef.current || totalFetchedItemCount === -1) return
-        stopRef.current = true
-        try {
-            await dispatch(fetchAccountStoryTimelineApi({
-                limit: 12,
-                offset: totalFetchedItemCount
-            }) as any)
-        } finally {
-            stopRef.current = false
-        }
-    }, [totalFetchedItemCount])
-
-    useEffect(() => {
-        fetchApi()
-    }, [])
-
-    const onEndReached = useCallback(() => {
-        if (totalFetchedItemCount < 10) return
-        fetchApi()
-    }, [totalFetchedItemCount])
+    const { data, error, loadMoreData, loading } = useGQArray<AuthorData>({
+        query: AQ.storyTimelineConnection,
+    });
 
     const onPress = useCallback((item: AuthorData | Session) => {
-        // navigation.navigate("Story", { user: item }) 
         navigation.dispatch(StackActions.push("Story", { user: item }));
     }, [])
 
@@ -55,12 +31,12 @@ const StoriesComponent = memo(function StoriesComponent() {
             paddingTop: 8,
         }}>
             <FlatList
-                data={storyList}
+                data={data}
                 renderItem={({ item }) => <StoriesItem data={item} onPress={onPress} />}
                 keyExtractor={(item) => item.id}
                 horizontal
                 scrollEventThrottle={16}
-                onEndReached={onEndReached}
+                onEndReached={loadMoreData}
                 onEndReachedThreshold={0.5}
                 bounces={false}
                 removeClippedSubviews={true}
@@ -80,10 +56,10 @@ const StoriesComponent = memo(function StoriesComponent() {
                 </View>}
                 ListFooterComponent={<View style={{ width: 6 }} />}
                 ListEmptyComponent={() => {
-                    if (storyListLoading === "idle" || storyListLoading === "pending") {
+                    if (loading === "idle" || loading === "pending") {
                         return <StoryLoader />
                     }
-                    if (storyError && storyListLoading === "normal") return <View />
+                    if (error && loading === "normal") return <View />
                     return <View />
                 }}
                 showsHorizontalScrollIndicator={false} />

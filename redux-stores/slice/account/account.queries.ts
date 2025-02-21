@@ -1,6 +1,6 @@
 export const AQ = {
-  feedTimelineConnection: `query FeedTimelineConnection($limitAndOffset: GraphQLPageQuery!) {
-    feedTimelineConnection(limitAndOffset: $limitAndOffset) {
+  feedTimelineConnection: `query FeedTimelineConnection($graphQlPageQuery: GraphQLPageQuery!) {
+    feedTimelineConnection(graphQLPageQuery: $graphQlPageQuery) {
       id
       content
       title
@@ -63,8 +63,8 @@ export const AQ = {
   createStory(createStoryInput: $createStoryInput) {
     __typename
   }}`,
-  findStory: `query FindStory($findStoryId: String!) {
-  findStory(id: $findStoryId) {
+  findStory: `query FindStory($graphQlPageQuery: GraphQLPageQuery!) {
+  findStory(graphQLPageQuery: $graphQlPageQuery) {
     id
     song
     expiresAt
@@ -82,16 +82,16 @@ export const AQ = {
       caption
     }
   }}`,
-  storyTimelineConnection: `query StoryTimelineConnection($limitAndOffset: GraphQLPageQuery!) {
-  storyTimelineConnection(limitAndOffset: $limitAndOffset) {
+  storyTimelineConnection: `query StoryTimelineConnection($graphQlPageQuery: GraphQLPageQuery!) {
+  storyTimelineConnection(graphQLPageQuery: $graphQlPageQuery) {
     id
     name
     lastStatusUpdate
     profilePicture
     username
   }}`,
-  findAllStory: `query FindAllStory($limitAndOffset: GraphQLPageQuery!) {
-  findAllStory(limitAndOffset: $limitAndOffset) {
+  findAllStory: `query FindAllStory($graphQlPageQuery: GraphQLPageQuery!) {
+  findAllStory(graphQLPageQuery: $graphQlPageQuery) {
     content
     authorId
       createdAt

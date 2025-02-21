@@ -46,7 +46,13 @@ export const graphqlQuery = async <T>({
             },
             body: JSON.stringify({
                 query,
-                variables,
+                variables:{
+                    graphQlPageQuery: {
+                        id: null,
+                        limit:  12,
+                        offset: 0,
+                    }
+                },
             }),
             cache: 'no-cache',
         });

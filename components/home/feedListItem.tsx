@@ -14,7 +14,6 @@ import { useTheme, Text } from 'hyper-native-ui';
 import { Avatar, Image, Icon } from '@/components/skysolo-ui';
 import React from 'react';
 import { StackActions, useNavigation } from '@react-navigation/native';
-import { configs } from '@/configs';
 
 const FeedItem = memo(function FeedItem({
     data
@@ -28,7 +27,9 @@ const FeedItem = memo(function FeedItem({
     const navigateToProfile = useCallback(() => {
         if (!data.user) return ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT);
         navigation.dispatch(StackActions.push("Profile", { id: data.user.username }));
-    }, [data.user]);
+    }, [data?.user]);
+
+    if (!data?.user || !data.id) return <></>
 
     return <View style={{
         width: "100%",

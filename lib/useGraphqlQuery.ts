@@ -1,8 +1,8 @@
-import { useCallback, useReducer } from 'react';
+import { useCallback, useEffect, useReducer, useRef } from 'react';
 import { configs } from "@/configs";
-import { loadingType, Session } from '@/types';
+import { Session, loadingType } from '@/types';
 import { getSecureStorage } from './SecureStore';
-
+const _url = `${configs.serverApi.baseUrl}/graphql`.replace("/v1", "");
 interface GraphqlResponse<T> {
     data: T;
     errors: GraphqlError[];
@@ -31,37 +31,14 @@ type Action<T> =
 // Define the state structure
 interface State<T> {
     data: T | null | any;
-    loading: loadingType;
+    loading: boolean;
     error: string | null;
 }
 
-// Create a reducer function
-const dataFetchReducer = <T>(state: State<T>, action: Action<T>): State<T> => {
-    switch (action.type) {
-        case 'FETCH_INIT':
-            return { ...state, loading: "pending", error: null };
-        case 'FETCH_SUCCESS':
-            return { ...state, loading: "normal", data: action.payload };
-        case 'FETCH_FAILURE':
-            return { ...state, loading: "normal", error: action.error };
-        case 'RESET':
-            return { ...state, loading: "idle", data: null, error: null };
-        default:
-            throw new Error();
-    }
-};
-
-// Define the initial state
-const initialState = {
-    data: null,
-    loading: "idle",
-    error: null,
-};
-
-export const useGraphqlQuery = <T>({
+export const useGQObject = <T>({
     query,
     variables,
-    url = `${configs.serverApi.baseUrl}/graphql`.replace("/v1", ""),
+    url = _url,
     withCredentials = true,
     errorCallBack,
 }: {
@@ -72,16 +49,38 @@ export const useGraphqlQuery = <T>({
     errorCallBack?: (error: GraphqlError[]) => void;
 }): {
     data: T | null;
-    loading: loadingType;
+    loading: boolean;
     error: string | null;
     fetch: () => void;
     reset: () => void;
     reload: () => void;
 } => {
-    const [state, dispatch] = useReducer(dataFetchReducer, initialState as State<T>);
+    const [state, dispatch] = useReducer((state: State<T>, action: Action<T>): State<T> => {
+        switch (action.type) {
+            case 'FETCH_INIT':
+                return { ...state, loading: true, error: null };
+            case 'FETCH_SUCCESS':
+                return { ...state, loading: false, data: action.payload };
+            case 'FETCH_FAILURE':
+                return { ...state, loading: false, error: action.error };
+            case 'RESET':
+                return { ...state, loading: false, data: null, error: null };
+            default:
+                throw new Error();
+        }
+    }, {
+        data: null,
+        loading: false,
+        error: null,
+    } as State<T>);
+    const isFetching = useRef(false); // Track ongoing requests
+    const fetchingCount = useRef(0); // Track ongoing requests
 
     const fetchData = useCallback(async () => {
+        if (isFetching.current) return;
+        isFetching.current = true;
         dispatch({ type: 'FETCH_INIT' });
+        await new Promise((resolve) => setTimeout(resolve, 3000));
         try {
             const BearerToken = await getSecureStorage<Session["user"]>(configs.sessionName);
             if (!BearerToken?.accessToken) {
@@ -118,10 +117,13 @@ export const useGraphqlQuery = <T>({
                 }
                 throw new Error(errors[0]?.message || "GraphQL Error");
             };
-
+            fetchingCount.current++;
             dispatch({ type: 'FETCH_SUCCESS', payload: responseBody.data[Object.keys(responseBody.data)[0]] });
         } catch (err: any) {
+            fetchingCount.current++;
             dispatch({ type: 'FETCH_FAILURE', error: err.message || "An error occurred" });
+        } finally {
+            isFetching.current = false;
         }
     }, [query, url, variables, withCredentials]);
 
@@ -134,6 +136,10 @@ export const useGraphqlQuery = <T>({
         dispatch({ type: "RESET" });
     }, []);
 
+    useEffect(() => {
+        fetchData();
+    }, []);
+
     return {
         data: state.data,
         loading: state.loading,
@@ -141,5 +147,150 @@ export const useGraphqlQuery = <T>({
         fetch: fetchData,
         reset: resetData,
         reload: reloadData,
+    };
+};
+
+// ================== ========================
+
+// Define the state structure
+interface Array_State<T> {
+    data: T[];
+    loading: loadingType
+    error: string | null;
+}
+
+// Define actions
+type Array_Action<T> =
+    | { type: "FETCH_INIT" }
+    | { type: "FETCH_SUCCESS"; payload: T[] }
+    | { type: "FETCH_FAILURE"; error: string }
+    | { type: "RESET" };
+
+export const useGQArray = <T>({
+    query,
+    variables,
+    url = _url,
+    withCredentials = true,
+    errorCallBack,
+}: {
+    query: string;
+    variables?: { limit?: number; id?: string; offset?: number };
+    url?: string;
+    withCredentials?: boolean;
+    errorCallBack?: (error: GraphqlError[]) => void;
+    requestCount?: number;
+}) => {
+    const [state, dispatch] = useReducer((state: Array_State<T>, action: Array_Action<T>): Array_State<T> => {
+        switch (action.type) {
+            case "FETCH_INIT":
+                return { ...state, loading: "pending", error: null };
+            case "FETCH_SUCCESS":
+                if (action.payload.length <= 0) {
+                    return { ...state, loading: "normal" };
+                }
+                return {
+                    ...state,
+                    loading: "normal",
+                    data: state.data.concat(action.payload),
+                };
+            case "FETCH_FAILURE":
+                return { ...state, loading: "normal", error: action.error };
+            case "RESET":
+                return { ...state, loading: "idle", data: [], error: null };
+            default:
+                throw new Error("Unknown action type");
+        }
+    }, {
+        data: [],
+        loading: "idle",
+        error: null,
+    });
+    const totalItemCount = useRef(state.data.length);
+    const stopFetch = useRef(false); //  Track if there are more data to fetch
+    const isFetching = useRef(false); // Track ongoing requests
+    const fetchingCount = useRef(0); // count of requests made
+    const limit = variables?.limit || 10; 
+    // Fetch Data
+    const fetchData = useCallback(async () => {
+        try {
+            if (stopFetch.current || isFetching.current) return;
+            isFetching.current = true;
+            dispatch({ type: "FETCH_INIT" });
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            const BearerToken = await getSecureStorage<Session["user"]>(configs.sessionName);
+            if (!BearerToken?.accessToken) throw new Error("No token available");
+
+            const response = await fetch(url, {
+                method: "POST",
+                credentials: withCredentials ? "include" : "omit",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${BearerToken.accessToken}`,
+                },
+                body: JSON.stringify({
+                    query,
+                    variables: {
+                        graphQlPageQuery: {
+                            ...variables,
+                            limit: limit,
+                            offset: totalItemCount.current,
+                        },
+                    },
+                }),
+                cache: "no-cache",
+            });
+
+            const responseBody: GraphqlResponse<any> = await response.json();
+
+            if (!response.ok || responseBody.errors) {
+                const errorMsg = responseBody.errors?.[0]?.message || "Unknown GraphQL error";
+                if (errorCallBack) errorCallBack(responseBody.errors || []);
+                throw new Error(errorMsg);
+            }
+            const data = responseBody.data[Object.keys(responseBody.data)[0]];
+            if (data.length < limit) {
+                stopFetch.current = true;
+            }
+            fetchingCount.current++;
+            dispatch({ type: "FETCH_SUCCESS", payload: data });
+        } catch (err: any) {
+            fetchingCount.current++;
+            dispatch({ type: "FETCH_FAILURE", error: err.message || "An error occurred" });
+        } finally {
+            isFetching.current = false;
+        }
+    }, [query, url, variables, withCredentials]);
+
+    // Reset and fetch fresh data
+    const reloadData = useCallback(() => {
+        stopFetch.current = false;
+        totalItemCount.current = 0;
+        dispatch({ type: "RESET" });
+        fetchData();
+    }, [fetchData]);
+
+    // Load more data (pagination)
+    const loadMoreData = useCallback(() => {
+        if (stopFetch.current || isFetching.current) return;
+        // Update the total item count before fetching
+        totalItemCount.current = state.data.length;
+        fetchData();
+    }, [fetchData, state.data.length]);
+
+    // Initial data load
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    return {
+        data: state.data,
+        loading: state.loading,
+        error: state.error,
+        fetch: fetchData,
+        reload: reloadData,
+        loadMoreData,
+        requestCount: fetchingCount.current,
+        totalItemCount,
+        isFetching,
     };
 };

@@ -1,6 +1,6 @@
 export const QPost = {
-  findOnePost: `query findOnePostQuery($findOnePostId: String!) {
-    findOnePost(id: $findOnePostId) {
+  findOnePost: `query findOnePostQuery($graphQlPageQuery: GraphQLPageQuery!) {
+    findOnePost(graphQLPageQuery: $graphQlPageQuery) {
       id
       content
       fileUrl {
@@ -59,8 +59,8 @@ export const QPost = {
       authorId
     }
   }`,
-  findAllLikes: `query FindAllLikes($findAllLikesInput: GraphQLPageQuery!) {
-    findAllLikes(findAllLikesInput: $findAllLikesInput) {
+  findAllLikes: `query FindAllLikes($graphQlPageQuery: GraphQLPageQuery!) {
+    findAllLikes(graphQLPageQuery: $graphQlPageQuery) {
       following
       followed_by
       id
@@ -70,8 +70,8 @@ export const QPost = {
       profilePicture
     }
   }`,
-  findAllComments: `query FindAllComments($createCommentInput: GraphQLPageQuery!) {
-    findAllComments(createCommentInput: $createCommentInput) {
+  findAllComments: `query FindAllComments($graphQlPageQuery: GraphQLPageQuery!) {
+    findAllComments(graphQLPageQuery: $graphQlPageQuery) {
       id
       content
       authorId
