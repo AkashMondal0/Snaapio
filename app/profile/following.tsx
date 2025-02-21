@@ -51,11 +51,23 @@ const FollowersScreen = memo(function FollowersScreen({
                 refreshing={false}
                 onRefresh={onRefresh}
                 ListEmptyComponent={() => {
-                    if (loading === "idle" || loading === "pending") return <UserItemLoader />
-                    if (error) return <ErrorScreen message={error} />
-                    if (!error && loading === "normal") return <ListEmpty text="No followers yet" />
+                    if (error && loading === "normal") {
+                        return <ErrorScreen message={error} />;
+                    }
+                    if (data.length <= 0 && loading === "normal") {
+                        return <ListEmpty text="No followers yet"  />;
+                    }
+                    return <View />
                 }}
-                ListFooterComponent={loading === "pending" ? <Loader size={50} /> : <></>}
+                ListFooterComponent={() => {
+                    if (loading !== "normal" && data.length === 0) {
+                        return <UserItemLoader />;
+                    }
+                    if (loading === "pending") {
+                        return <Loader size={50} />
+                    }
+                    return <View />;
+                }}
             />
         </View>
     )

@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { Loader } from "hyper-native-ui";
 import { RootState } from "@/redux-stores/store";
 import { View, FlatList, Dimensions } from "react-native";
@@ -32,7 +32,8 @@ const ProfilePage = ({ username }: { username: string }) => {
 		loading: loadingPost,
 		reload: reloadPost } = useGQArray<Post>({
 			query: QProfile.findAllPosts,
-			variables: { id: dataUser?.id, limit: 12 }
+			variables: { id: dataUser?.id, limit: 12 },
+			initialFetch: false
 		});
 
 	const onRefresh = useCallback(() => {
@@ -40,6 +41,10 @@ const ProfilePage = ({ username }: { username: string }) => {
 		reloadPost();
 	}, [dataUser?.id])
 
+	useEffect(() => {
+		if (!dataUser?.id) return;
+		reloadPost();
+	}, [dataUser?.id])
 
 	if (errorUser) return <ErrorScreen />
 
@@ -80,15 +85,30 @@ const ProfilePage = ({ username }: { username: string }) => {
 				ListHeaderComponent={loadingUser !== "normal" ? <ProfileHeaderLoader /> : <ProfileHeader
 					userData={dataUser}
 					isProfile={isProfile} />}
-				ListFooterComponent={loadingPost !== "normal" ? <View style={{
-					width: '100%',
-					height: 50,
-					justifyContent: 'center',
-					alignItems: 'center',
-				}}>
-					<Loader size={40} />
-				</View> : <View style={{ height: 50 }} />}
-				ListEmptyComponent={loadingPost === "normal" ? <ProfileEmptyPosts /> : <></>}
+
+				ListEmptyComponent={() => {
+					if (errorUser || errorPost && loadingUser === "normal") {
+						return <ErrorScreen message={errorUser} />;
+					}
+					if (loadingPost.length <= 0 && loadingPost === "normal") {
+						return <ProfileEmptyPosts />;
+					}
+					return <View />
+				}}
+				ListFooterComponent={() => {
+					if (loadingUser !== "normal") {
+						return <View style={{
+							width: '100%',
+							height: 50,
+							justifyContent: 'center',
+							alignItems: 'center',
+						}}>
+							<Loader size={40} />
+						</View>
+					}
+
+					return <View />;
+				}}
 			/>
 		</View>
 	)

@@ -41,12 +41,14 @@ export const useGQObject = <T>({
     url = _url,
     withCredentials = true,
     errorCallBack,
+    initialFetch = true
 }: {
     query: string;
     variables: any;
     url?: string;
     withCredentials?: boolean;
     errorCallBack?: (error: GraphqlError[]) => void;
+    initialFetch?: boolean;
 }): {
     data: T | null;
     loading: loadingType;
@@ -140,8 +142,9 @@ export const useGQObject = <T>({
     }, []);
 
     useEffect(() => {
+        if (!initialFetch) return;
         fetchData();
-    }, []);
+    }, [initialFetch]);
 
     return {
         data: state.data,
@@ -175,6 +178,7 @@ export const useGQArray = <T>({
     url = _url,
     withCredentials = true,
     errorCallBack,
+    initialFetch = true
 }: {
     query: string;
     variables?: { limit?: number; id?: string; offset?: number };
@@ -182,6 +186,7 @@ export const useGQArray = <T>({
     withCredentials?: boolean;
     errorCallBack?: (error: GraphqlError[]) => void;
     requestCount?: number;
+    initialFetch?: boolean;
 }) => {
     const [state, dispatch] = useReducer((state: Array_State<T>, action: Array_Action<T>): Array_State<T> => {
         switch (action.type) {
@@ -234,8 +239,9 @@ export const useGQArray = <T>({
                     query,
                     variables: {
                         graphQlPageQuery: {
-                            ...variables,
+                            id: variables?.id ?? null,
                             limit: limit,
+                            // oi:"as",
                             offset: totalItemCount.current,
                         },
                     },
@@ -257,8 +263,10 @@ export const useGQArray = <T>({
             fetchingCount.current++;
             dispatch({ type: "FETCH_SUCCESS", payload: data });
         } catch (err: any) {
+            stopFetch.current = true
             fetchingCount.current++;
             dispatch({ type: "FETCH_FAILURE", error: err.message || "An error occurred" });
+            console.error("Internal Error", err)
         } finally {
             isFetching.current = false;
         }
@@ -282,8 +290,9 @@ export const useGQArray = <T>({
 
     // Initial data load
     useEffect(() => {
+        if (!initialFetch) return;
         fetchData();
-    }, []);
+    }, [initialFetch]);
 
     return {
         data: state.data,

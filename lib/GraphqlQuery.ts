@@ -1,6 +1,7 @@
 import { configs } from "@/configs"
 import { getSecureStorage } from "./SecureStore";
 import { Session } from "@/types";
+import { ToastAndroid } from "react-native";
 interface GraphqlResponse<T> {
     data: T;
     errors: GraphqlError[];
@@ -33,7 +34,7 @@ export const graphqlQuery = async <T>({
         const BearerToken = await getSecureStorage<Session["user"]>(configs.sessionName);
         if (!BearerToken?.accessToken) {
             console.error("Error retrieving token from SecureStorage")
-            // ToastAndroid.showWithGravity("Internal Error", ToastAndroid.SHORT, ToastAndroid.CENTER);
+            ToastAndroid.showWithGravity("Internal Error", ToastAndroid.SHORT, ToastAndroid.CENTER);
             return;
         };
 
@@ -46,13 +47,7 @@ export const graphqlQuery = async <T>({
             },
             body: JSON.stringify({
                 query,
-                variables:{
-                    graphQlPageQuery: {
-                        id: null,
-                        limit:  12,
-                        offset: 0,
-                    }
-                },
+                variables,
             }),
             cache: 'no-cache',
         });

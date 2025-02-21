@@ -16,9 +16,9 @@ const PostScreen = memo(function PostScreen({ route }: Props) {
     const postId = route.params.id;
     const { data, error, loading, } = useGQObject<Post>({
         query: QPost.findOnePost,
-        variables: { findOnePostId: postId }
-    })
-
+        variables: { id: postId }
+    });
+    
     return (
         <View style={{
             flex: 1,

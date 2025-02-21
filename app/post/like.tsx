@@ -38,24 +38,37 @@ const LikeScreen = memo(function LikeScreen({ route }: Props) {
             height: '100%',
         }}>
             <AppHeader title="Likes" />
-            {error ?
-                <ErrorScreen /> :
-                <FlatList
-                    removeClippedSubviews={true}
-                    scrollEventThrottle={16}
-                    windowSize={10}
-                    data={data}
-                    renderItem={({ item }) => (<LikeItem data={item} onPress={onPress} />)}
-                    keyExtractor={(item, index) => item.id}
-                    bounces={false}
-                    onEndReachedThreshold={0.5}
-                    refreshing={false}
-                    onEndReached={loadMoreData}
-                    onRefresh={reload}
-                    ListEmptyComponent={loading !== "normal" ? <View /> : <ListEmpty text="No likes yet" />}
-                    ListFooterComponent={loading !== "normal" ? <>
-                        {loading === "pending" && requestCount === 0 ? <UserItemLoader size={10} /> : <Loader size={50} />}
-                    </> : <View />} />}
+
+            <FlatList
+                removeClippedSubviews={true}
+                scrollEventThrottle={16}
+                windowSize={10}
+                data={data}
+                renderItem={({ item }) => (<LikeItem data={item} onPress={onPress} />)}
+                keyExtractor={(item) => item.id}
+                bounces={false}
+                onEndReachedThreshold={0.5}
+                refreshing={false}
+                onEndReached={loadMoreData}
+                onRefresh={reload}
+                ListEmptyComponent={() => {
+                    if (error && loading === "normal") {
+                        return <ErrorScreen message={error} />;
+                    }
+                    if (data.length <= 0 && loading === "normal") {
+                        return <ListEmpty text="No likes yet" />;
+                    }
+                    return <View />
+                }}
+                ListFooterComponent={() => {
+                    if (loading !== "normal" && requestCount === 0) {
+                        return <UserItemLoader />;
+                    }
+                    if (loading === "pending") {
+                        return <Loader size={50} />
+                    }
+                    return <View />;
+                }} />
         </View>
     )
 });

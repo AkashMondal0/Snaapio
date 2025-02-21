@@ -28,7 +28,7 @@ type Props = StaticScreenProps<{
 
 const CommentScreen = memo(function CommentScreen({ route }: Props) {
     const postId = route?.params?.id;
-    const { data, error, loadMoreData, loading, reload } = useGQArray<Comment>({
+    const { data, error, loadMoreData, loading, reload, requestCount } = useGQArray<Comment>({
         query: QPost.findAllComments,
         variables: { id: postId }
     });
@@ -53,11 +53,23 @@ const CommentScreen = memo(function CommentScreen({ route }: Props) {
                 onEndReached={loadMoreData}
                 onRefresh={reload}
                 ListEmptyComponent={() => {
-                    if (loading === "idle" || loading === "pending") return <UserItemLoader size={10} />
-                    if (error) return <ErrorScreen message={error} />
-                    if (!error && loading === "normal" && loading === "normal") return <ListEmpty text="No Comments yet" />
+                    if (error && loading === "normal") {
+                        return <ErrorScreen message={error} />;
+                    }
+                    if (data.length <= 0 && loading === "normal") {
+                        return <ListEmpty text="No Comments yet" />;
+                    }
+                    return <View />
                 }}
-                ListFooterComponent={loading === "pending" ? <Loader size={50} /> : <></>} />
+                ListFooterComponent={() => {
+                    if (loading !== "normal" && requestCount === 0) {
+                        return <UserItemLoader />;
+                    }
+                    if (loading === "pending") {
+                        return <Loader size={50} />
+                    }
+                    return <View />;
+                }} />
             <CommentInput postId={postId} />
         </View>
     )

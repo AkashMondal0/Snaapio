@@ -12,7 +12,7 @@ import { AQ } from "@/redux-stores/slice/account/account.queries";
 import StoriesComponent from "@/components/home/story";
 
 const FeedsScreen = memo(function FeedsScreen() {
-    const { data, error, loadMoreData, loading, reload } = useGQArray<Post>({
+    const { data, error, loadMoreData, loading, reload, requestCount } = useGQArray<Post>({
         query: AQ.feedTimelineConnection,
     });
     // animation 
@@ -50,13 +50,23 @@ const FeedsScreen = memo(function FeedsScreen() {
                 onRefresh={reload}
                 onEndReached={loadMoreData}
                 ListEmptyComponent={() => {
-                    if (loading === "idle" || loading === "pending") {
-                        return <FeedLoader />
+                    if (error && loading === "normal") {
+                        return <ErrorScreen message={error} />;
                     }
-                    if (error) return <ErrorScreen message={error} />
-                    if (!error && loading === "normal") return <ListEmpty text="No feeds available" />
+                    if (data.length <= 0 && loading === "normal") {
+                        return <ListEmpty text="No feeds yet" />;
+                    }
+                    return <View />
                 }}
-                ListFooterComponent={() => loading === "pending" ? <Loader size={40} /> : <></>}
+                ListFooterComponent={() => {
+                    if (loading !== "normal" && requestCount === 0) {
+                        return <FeedLoader />;
+                    }
+                    if (loading === "pending") {
+                        return <Loader size={50} />
+                    }
+                    return <View />;
+                }}
             />
         </View>
     )

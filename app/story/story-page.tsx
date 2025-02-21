@@ -1,15 +1,15 @@
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { Avatar, Icon, Image } from "@/components/skysolo-ui";
 import { Text, Loader } from "hyper-native-ui";
-import { useDispatch } from "react-redux";
-import { fetchStoryApi } from "@/redux-stores/slice/account/api.service";
-import { AuthorData, disPatchResponse, loadingType, Story } from "@/types";
+import { AuthorData, Story } from "@/types";
 import ErrorScreen from "@/components/error/page";
 import { timeAgoFormat } from "@/lib/timeFormat";
 import { useTheme } from 'hyper-native-ui';
 import React from "react";
 import { useNavigation } from "@react-navigation/native";
+import { useGQObject } from "@/lib/useGraphqlQuery";
+import { AQ } from "@/redux-stores/slice/account/account.queries";
 
 interface ScreenProps {
     route: {
@@ -22,38 +22,14 @@ const StoryScreen = memo(function StoryScreen({
 }: ScreenProps) {
     const { user } = route.params;
     const { currentTheme } = useTheme();
-    const [state, setState] = useState<{
-        loading: loadingType,
-        error: boolean,
-        data: Story[]
-    }>({
-        data: [],
-        error: false,
-        loading: "idle",
-    })
-    const totalImages = state.data.length - 1
+    const { data: story, error, loading } = useGQObject<Story[]>({
+        query: AQ.findStory,
+        variables: { id: user.id },
+    });
     const [currentImageIndex, setCurrentImageIndex] = useState(0)
-    const dispatch = useDispatch()
     const navigation = useNavigation()
-    const data = state.data[currentImageIndex]
-
-    const fetchApi = useCallback(async () => {
-        const res = await dispatch(fetchStoryApi(user.id) as any) as disPatchResponse<any[]>
-        if (res.error) return setState({ ...state, loading: "normal", error: true })
-        if (res.payload.length > 0) {
-            setState({
-                ...state,
-                loading: "normal",
-                data: res.payload,
-            })
-            return
-        }
-        setState({ ...state, loading: "normal", error: true })
-    }, [user.id])
-
-    useEffect(() => {
-        fetchApi()
-    }, [user.id])
+    const totalImages = Array.isArray(story) ? story?.length - 1 : 0
+    const data = Array.isArray(story) ? story[currentImageIndex] : null as Story | null
 
     const PressBack = useCallback(() => { navigation?.goBack() }, [])
 
@@ -64,7 +40,7 @@ const StoryScreen = memo(function StoryScreen({
             }
         }
         setCurrentImageIndex((prev) => prev + 1)
-    }, [currentImageIndex, navigation, totalImages])
+    }, [currentImageIndex, totalImages])
 
     const handlePrevImage = useCallback(() => {
         if (currentImageIndex === 0) {
@@ -73,12 +49,12 @@ const StoryScreen = memo(function StoryScreen({
         setCurrentImageIndex((prev) => prev - 1)
     }, [currentImageIndex])
 
-    if (state.loading === "idle" || state.loading === "pending") {
+    if (loading === "idle" || loading === "pending") {
         return <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
             <Loader size={50} />
         </View>
     }
-    if (state.loading === "normal" && state.error) {
+    if (loading === "normal" && error) {
         return <ErrorScreen />
     }
 
@@ -99,11 +75,11 @@ const StoryScreen = memo(function StoryScreen({
                 zIndex: 5,
                 paddingHorizontal: 8,
             }}>
-                {state.data.length > 1 ? state.data.map((_, index) => (
+                {totalImages > 1 ? story?.map((_, index) => (
                     <View
                         key={index}
                         style={{
-                            width: `${100 / state.data.length}%`,
+                            width: `${100 / story?.length}%`,
                             height: 2,
                             borderRadius: 4,
                             backgroundColor: currentImageIndex === index ? currentTheme?.primary : currentTheme?.accent,

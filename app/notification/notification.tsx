@@ -1,57 +1,20 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import React, { memo, useCallback, useEffect, useRef, useState } from "react";
+import React, { memo, useState } from "react";
 import { Avatar, Image } from "@/components/skysolo-ui";
 import { FlatList, ToastAndroid, TouchableWithoutFeedback, View } from "react-native";
-import { useDispatch, useSelector } from "react-redux";
 import AppHeader from "@/components/AppHeader";
-import { RootState } from "@/redux-stores/store";
-import { Notification, disPatchResponse, NotificationType } from "@/types";
-import { fetchAccountNotificationApi } from "@/redux-stores/slice/notification/api.service";
-import { resetNotificationState } from "@/redux-stores/slice/notification";
+import { Notification, NotificationType } from "@/types";
 import { timeAgoFormat } from "@/lib/timeFormat";
 import ErrorScreen from "@/components/error/page";
 import ListEmpty from "@/components/ListEmpty";
 import { Loader, Text, TouchableOpacity, useTheme, } from "hyper-native-ui";
 import { useNavigation } from "@react-navigation/native";
-let totalFetchedItemCount = 0;
+import { NQ } from "@/redux-stores/slice/notification/notification.queries";
+import { useGQArray } from "@/lib/useGraphqlQuery";
 
 const NotificationScreen = memo(function NotificationScreen() {
-    const notifications = useSelector((state: RootState) => state.NotificationState.notifications)
-    const notificationsLoading = useSelector((state: RootState) => state.NotificationState.loading)
-    const notificationsError = useSelector((state: RootState) => state.NotificationState.error)
-    const stopRef = useRef(false)
-    const dispatch = useDispatch()
-
-    const fetchApi = useCallback(async () => {
-        if (stopRef.current || totalFetchedItemCount === -1) return
-        stopRef.current = true
-        try {
-            const res = await dispatch(fetchAccountNotificationApi({
-                limit: 12,
-                offset: totalFetchedItemCount,
-            }) as any) as disPatchResponse<Notification[]>
-            if (res.payload.length >= 12) {
-                totalFetchedItemCount += res.payload.length
-                return
-            }
-            totalFetchedItemCount = -1
-        } finally { stopRef.current = false }
-    }, [])
-
-    const onEndReached = useCallback(() => {
-        if (stopRef.current || totalFetchedItemCount < 10) return
-        fetchApi()
-    }, [])
-
-    const onRefresh = useCallback(() => {
-        totalFetchedItemCount = 0
-        dispatch(resetNotificationState())
-        fetchApi()
-    }, [])
-
-    useEffect(() => {
-        onRefresh()
-    }, [])
+    const { data, error, loadMoreData, loading, reload, requestCount } = useGQArray<Notification>({
+        query: NQ.findAllNotifications
+    });
 
     return (
         <View style={{
@@ -61,7 +24,7 @@ const NotificationScreen = memo(function NotificationScreen() {
         }}>
             <AppHeader title="Notifications" />
             <FlatList
-                data={notifications}
+                data={data}
                 renderItem={({ item }) => (<NotificationItem data={item} />)}
                 keyExtractor={(item, index) => index.toString()}
                 removeClippedSubviews={true}
@@ -69,17 +32,27 @@ const NotificationScreen = memo(function NotificationScreen() {
                 windowSize={10}
                 bounces={false}
                 onEndReachedThreshold={0.5}
-                onEndReached={onEndReached}
+                onEndReached={loadMoreData}
                 refreshing={false}
-                onRefresh={onRefresh}
+                onRefresh={reload}
                 ListEmptyComponent={() => {
-                    if (notificationsLoading === "idle" || notificationsLoading === "pending") {
-                        return <NotificationLoader />
+                    if (error && loading === "normal") {
+                        return <ErrorScreen message={error} />;
                     }
-                    if (notificationsError) return <ErrorScreen message={notificationsError} />
-                    if (!notificationsError && notificationsLoading === "normal") return <ListEmpty text="No Notification yet" />
+                    if (data.length <= 0 && loading === "normal") {
+                        return <ListEmpty text="No Notification yet" />;
+                    }
+                    return <View />
                 }}
-                ListFooterComponent={notificationsLoading === "pending" ? <Loader size={50} /> : <></>}
+                ListFooterComponent={() => {
+                    if (loading !== "normal" && requestCount === 0) {
+                        return <NotificationLoader />;
+                    }
+                    if (loading === "pending") {
+                        return <Loader size={50} />
+                    }
+                    return <View />;
+                }}
             />
         </View>
     )
