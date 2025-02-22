@@ -183,7 +183,10 @@ export const useGQArray = <T>({
     url = _url,
     withCredentials = true,
     errorCallBack,
-    initialFetch = true
+    initialFetch = true,
+    defaultValue = null,
+    onDataChange,
+    onError
 }: {
     query: string;
     variables?: { limit?: number; id?: string; offset?: number };
@@ -192,6 +195,9 @@ export const useGQArray = <T>({
     errorCallBack?: (error: GraphqlError[]) => void;
     requestCount?: number;
     initialFetch?: boolean;
+    defaultValue?: T | null
+    onDataChange?: (data: T) => void
+    onError?: (data: any) => void
 }) => {
     const [state, dispatch] = useReducer((state: Array_State<T>, action: Array_Action<T>): Array_State<T> => {
         switch (action.type) {
@@ -269,10 +275,12 @@ export const useGQArray = <T>({
                 stopFetch.current = true;
             }
             fetchingCount.current++;
+            onDataChange?.(data)
             dispatch({ type: "FETCH_SUCCESS", payload: data });
         } catch (err: any) {
             stopFetch.current = true
             fetchingCount.current++;
+            onError?.(err)
             dispatch({ type: "FETCH_FAILURE", error: err.message || "An error occurred" });
             console.error("Internal Error", err)
         } finally {

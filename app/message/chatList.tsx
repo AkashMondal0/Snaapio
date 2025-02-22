@@ -123,12 +123,12 @@ const ChatListScreen = memo(function ChatListScreen() {
             data={conversationList}
             ListEmptyComponent={() => {
                 if (listLoading === "idle" || listLoading === "pending") {
-                    return <ConversationLoader size={12}/>
+                    return <ConversationLoader size={12} />
                 }
                 if (listError) return <ErrorScreen message={listError} />
                 if (!listError && listLoading === "normal") return <ListEmpty text="No Messages" />
             }}
-            ListFooterComponent={listLoading === "pending" ? <Loader size={50} /> : <></>} />
+            ListFooterComponent={listLoading === "pending" ? <ConversationLoader size={5} /> : <></>} />
         <ActionSheet
             bottomSheetModalRef={bottomSheetModalRef}
             snapPoints={snapPoints}

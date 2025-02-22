@@ -13,12 +13,11 @@ import { useNavigation } from "@react-navigation/native";
 const ChatScreenNavbar = memo(function ChatScreenNavbar({
     conversation,
 }: {
-    conversation: Conversation,
+    conversation: Conversation | null,
 }) {
     const navigation = useNavigation();
     const { currentTheme } = useTheme();
     const currentTyping = useSelector((Root: RootState) => Root.ConversationState.currentTyping);
-
 
     const PressBack = useCallback(() => {
         if (navigation.canGoBack()) {
@@ -40,6 +39,9 @@ const ChatScreenNavbar = memo(function ChatScreenNavbar({
             userType: "LOCAL"
         } as any);
     }, [])
+
+
+    if (!conversation) return <></>
 
     return (
         <View style={{

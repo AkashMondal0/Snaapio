@@ -9,7 +9,13 @@ export const searchUsersProfileApi = createAsyncThunk(
         try {
             const res = await graphqlQuery({
                 query: QUsers.findUsersByKeyword,
-                variables: { graphQLPageQuery: { id } }
+                variables: {
+                    graphQlPageQuery: {
+                        limit: 20,
+                        offset: 0,
+                        id: id
+                    }
+                }
             })
             return res
         } catch (error: any) {

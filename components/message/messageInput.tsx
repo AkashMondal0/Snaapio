@@ -23,7 +23,7 @@ const schema = z.object({
 const ChatScreenInput = memo(function ChatScreenInput({
     conversation,
 }: {
-    conversation: Conversation
+    conversation: Conversation | null,
 }) {
     const dispatch = useDispatch()
     const navigation = useNavigation()
@@ -32,8 +32,8 @@ const ChatScreenInput = memo(function ChatScreenInput({
     const [loading, setLoading] = useState(false)
     const stopTypingRef = useRef(true)
     const members = useMemo(() => {
-        return conversation.members?.filter((i) => i !== session?.id) ?? []
-    }, [conversation.members, session?.id])
+        return conversation?.members?.filter((i) => i !== session?.id) ?? []
+    }, [conversation?.members, session?.id])
 
     const { control, reset, handleSubmit } = useForm({
         resolver: zodResolver(schema),
@@ -43,7 +43,7 @@ const ChatScreenInput = memo(function ChatScreenInput({
     });
 
     const typingSetter = useCallback(async (typing: boolean) => {
-        if (!session?.id || !conversation.id) return;
+        if (!session?.id || !conversation?.id) return;
         await dispatch(sendTyping({
             typing: typing,
             authorId: session?.id,
@@ -51,7 +51,7 @@ const ChatScreenInput = memo(function ChatScreenInput({
             conversationId: conversation.id,
             isGroup: conversation.isGroup ?? false
         }) as any)
-    }, [conversation.id, conversation.isGroup, members, session?.id]);
+    }, [conversation?.id, conversation?.isGroup, members, session?.id]);
 
     const onBlurTyping = debounce(() => {
         stopTypingRef.current = true
@@ -69,7 +69,7 @@ const ChatScreenInput = memo(function ChatScreenInput({
     const sendMessageHandle = useCallback(async (_data: { message: string }) => {
         setLoading((pre) => !pre)
         try {
-            if (!session?.id || !conversation.id) return ToastAndroid.show("Something went wrong CI", ToastAndroid.SHORT)
+            if (!session?.id || !conversation?.id) return ToastAndroid.show("Something went wrong CI", ToastAndroid.SHORT)
             // if (isFile.length > 6) return toast.error("You can only send 6 files at a time")
             await dispatch(CreateMessageApi({
                 conversationId: conversation?.id,
@@ -90,7 +90,7 @@ const ChatScreenInput = memo(function ChatScreenInput({
         } finally {
             setLoading((pre) => !pre)
         }
-    }, [conversation.id, members, session?.id])
+    }, [conversation?.id, members, session?.id])
 
     const navigateToSelectFile = useCallback(() => {
         navigation.navigate("MessageSelectFile" as any, { conversation })
