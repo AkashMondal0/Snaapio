@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { z } from "zod";
-import { memo, useCallback, useRef, useState } from "react";
+import { memo, useCallback, useState } from "react";
 import { FlatList, ToastAndroid, TouchableWithoutFeedback, View } from "react-native";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RootState } from "@/redux-stores/store";
@@ -10,12 +10,11 @@ import { Input, Text, TouchableOpacity, Separator, Loader } from "hyper-native-u
 import { StackActions, StaticScreenProps, useNavigation } from "@react-navigation/native";
 import { Avatar, Icon } from "@/components/skysolo-ui";
 import { timeAgoFormat } from "@/lib/timeFormat";
-import { createPostCommentApi } from "@/redux-stores/slice/post/api.service";
 import AppHeader from "@/components/AppHeader";
 import ErrorScreen from "@/components/error/page";
 import ListEmpty from "@/components/ListEmpty";
 import UserItemLoader from "@/components/loader/user-loader";
-import { useGQArray } from "@/lib/useGraphqlQuery";
+import { useGQArray, useGQMutation } from "@/lib/useGraphqlQuery";
 import { QPost } from "@/redux-stores/slice/post/post.queries";
 import { Comment } from "@/types";
 
@@ -28,7 +27,7 @@ type Props = StaticScreenProps<{
 
 const CommentScreen = memo(function CommentScreen({ route }: Props) {
     const postId = route?.params?.id;
-    const { data, error, loadMoreData, loading, reload, requestCount } = useGQArray<Comment>({
+    const { data, error, loadMoreData, loading, reload, requestCount, addItemUnshift } = useGQArray<Comment>({
         query: QPost.findAllComments,
         variables: { id: postId }
     });
@@ -43,12 +42,12 @@ const CommentScreen = memo(function CommentScreen({ route }: Props) {
             <FlatList
                 data={data}
                 renderItem={({ item }) => <CommentItem data={item} />}
-                keyExtractor={(item, index) => item.id}
+                keyExtractor={(item) => item.id}
                 removeClippedSubviews={true}
                 scrollEventThrottle={16}
                 windowSize={10}
                 bounces={false}
-                onEndReachedThreshold={0.5}
+                onEndReachedThreshold={1}
                 refreshing={false}
                 onEndReached={loadMoreData}
                 onRefresh={reload}
@@ -70,7 +69,7 @@ const CommentScreen = memo(function CommentScreen({ route }: Props) {
                     }
                     return <View />;
                 }} />
-            <CommentInput postId={postId} />
+            <CommentInput postId={postId} addItem={addItemUnshift} />
         </View>
     )
 })
@@ -83,6 +82,8 @@ const CommentItem = memo(function CommentItem({
 }) {
     const navigation = useNavigation()
     const [readMore, setReadMore] = useState(false)
+
+    if (!data.user) return <></>
     return (<TouchableOpacity
         onPress={() => setReadMore(!readMore)}
         style={{
@@ -152,42 +153,44 @@ const CommentItem = memo(function CommentItem({
 });
 
 const CommentInput = memo(function CommentInput({
-    postId
+    postId,
+    addItem
 }: {
-    postId: string
+    postId: string,
+    addItem: (value: Comment) => void
 }) {
-    const session = useSelector((Root: RootState) => Root.AuthState.session.user)
-    const loading = useSelector((Root: RootState) => Root.PostState.createCommentLoading)
+    const session = useSelector((Root: RootState) => Root.AuthState.session.user);
     const { control, reset, handleSubmit } = useForm({
         resolver: zodResolver(schema),
         defaultValues: { text: "" }
     });
-    const loadingRef = useRef(false)
-    const dispatch = useDispatch()
+    const {
+        data,
+        error,
+        loading,
+        mutate
+    } = useGQMutation<Comment>({
+        mutation: QPost.createComment,
+    });
 
     const handleComment = useCallback(async (_data: { text: string }) => {
-        if (_data.text.length <= 0 || loadingRef.current) return;
-        loadingRef.current = true
+        if (_data.text.length <= 0) return;
         if (!postId) return ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
         if (!session) return ToastAndroid.show("You need to login to comment", ToastAndroid.SHORT)
-        try {
-            await dispatch(createPostCommentApi({
+        await mutate({
+            input: {
                 postId: postId,
-                user: {
-                    username: session.username,
-                    name: session.name ?? session.username,
-                    profilePicture: session.profilePicture as string,
-                    id: session.id,
-                    email: session.email
-                },
                 content: _data.text,
-                authorId: session.id
-            }) as any);
-            return reset();
-        } finally {
-            loadingRef.current = false
-        }
+                authorId: session?.id
+            }
+        });
+        reset();
     }, [postId, session])
+
+    useEffect(() => {
+        if (!data || error) return;
+        addItem(data)
+    }, [data])
 
 
     return (
@@ -216,7 +219,7 @@ const CommentInput = memo(function CommentInput({
                             returnKeyType="send"
                             onSubmitEditing={handleSubmit(handleComment)}
                             style={{
-                                width: "84%",
+                                width: "82%",
                                 height: "100%",
                                 borderRadius: 18,
                                 borderWidth: 0,

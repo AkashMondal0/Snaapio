@@ -8,7 +8,6 @@ import { ProfileEmptyPosts, ProfileGridItem, ProfileHeader, ProfileNavbar } from
 import { Post, User } from "@/types";
 import { useGQArray, useGQObject } from "@/lib/useGraphqlQuery";
 import { QProfile } from "@/redux-stores/slice/profile/profile.queries";
-import { ProfileHeaderLoader } from "@/components/profile/ProfileHeader";
 
 const screenWidth = Dimensions.get("screen").width;
 const ITEM_HEIGHT = screenWidth * 0.33;
@@ -46,8 +45,6 @@ const ProfilePage = ({ username }: { username: string }) => {
 		reloadPost();
 	}, [dataUser?.id])
 
-	if (errorUser) return <ErrorScreen />
-
 	return (
 		<View style={{
 			flex: 1,
@@ -56,7 +53,14 @@ const ProfilePage = ({ username }: { username: string }) => {
 		}}>
 			<ProfileNavbar
 				isProfile={isProfile} username={username} />
-			<FlatList
+			{!dataUser?.id ? <View style={{
+				width: '100%',
+				flex: 1,
+				justifyContent: 'center',
+				alignItems: 'center',
+			}}>
+				<Loader size={40} />
+			</View> : <FlatList
 				data={dataPost}
 				keyExtractor={(item, index) => item.id}
 				numColumns={3}
@@ -82,7 +86,7 @@ const ProfilePage = ({ username }: { username: string }) => {
 				renderItem={({ item, index }) => (
 					<ProfileGridItem item={item} index={index} />
 				)}
-				ListHeaderComponent={loadingUser !== "normal" ? <ProfileHeaderLoader /> : <ProfileHeader
+				ListHeaderComponent={loadingUser !== "normal" ? <View /> : <ProfileHeader
 					userData={dataUser}
 					isProfile={isProfile} />}
 
@@ -90,13 +94,13 @@ const ProfilePage = ({ username }: { username: string }) => {
 					if (errorUser || errorPost && loadingUser === "normal") {
 						return <ErrorScreen message={errorUser} />;
 					}
-					if (loadingPost.length <= 0 && loadingPost === "normal") {
+					if (loadingPost === "normal" &&  loadingUser === "normal" ) {
 						return <ProfileEmptyPosts />;
 					}
 					return <View />
 				}}
 				ListFooterComponent={() => {
-					if (loadingUser !== "normal") {
+					if (loadingUser !== "normal" || loadingPost !== "normal") {
 						return <View style={{
 							width: '100%',
 							height: 50,
@@ -106,10 +110,9 @@ const ProfilePage = ({ username }: { username: string }) => {
 							<Loader size={40} />
 						</View>
 					}
-
 					return <View />;
 				}}
-			/>
+			/>}
 		</View>
 	)
 }

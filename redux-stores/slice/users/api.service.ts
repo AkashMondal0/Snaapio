@@ -5,11 +5,11 @@ import { QUsers } from "./users.queries";
 
 export const searchUsersProfileApi = createAsyncThunk(
     'searchUsersProfileApi/get',
-    async (keyword: string, thunkApi) => {
+    async (id: string, thunkApi) => {
         try {
             const res = await graphqlQuery({
                 query: QUsers.findUsersByKeyword,
-                variables: { keyword }
+                variables: { graphQLPageQuery: { id } }
             })
             return res
         } catch (error: any) {

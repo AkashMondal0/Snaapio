@@ -21,30 +21,6 @@ export const fetchOnePostApi = createAsyncThunk(
     }
 );
 
-export const createPostLikeApi = async (createLikeId: string): Promise<boolean> => {
-    try {
-        await graphqlQuery({
-            query: QPost.createLike,
-            variables: { createLikeId }
-        })
-        return true
-    } catch (error: any) {
-        return false
-    }
-}
-
-export const destroyPostLikeApi = async (destroyLikeId: string): Promise<boolean> => {
-    try {
-        await graphqlQuery({
-            query: QPost.destroyLike,
-            variables: { destroyLikeId }
-        })
-        return true
-    } catch (error: any) {
-        return false
-    }
-}
-
 export const createPostCommentApi = createAsyncThunk(
     'createPostCommentApi/post',
     async (data: {

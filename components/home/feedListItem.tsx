@@ -1,19 +1,15 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable react-hooks/exhaustive-deps */
-import { memo, useCallback, useRef, useState } from 'react';
+import { memo, useCallback, useState } from 'react';
 import { ToastAndroid, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
-import { createNotificationApi, destroyNotificationApi } from '@/redux-stores/slice/notification/api.service';
-import { createPostLikeApi, destroyPostLikeApi } from '@/redux-stores/slice/post/api.service';
-import { RootState } from '@/redux-stores/store';
-import { disPatchResponse, NotificationType, Post } from '@/types';
+import { Post } from '@/types';
 import { Heart } from 'lucide-react-native';
 import PagerView from 'react-native-pager-view';
-import { useDispatch, useSelector } from 'react-redux';
 import useDebounce from '@/lib/debouncing';
 import { useTheme, Text } from 'hyper-native-ui';
 import { Avatar, Image, Icon } from '@/components/skysolo-ui';
 import React from 'react';
 import { StackActions, useNavigation } from '@react-navigation/native';
+import { QPost } from '@/redux-stores/slice/post/post.queries';
+import { useGQMutation } from '@/lib/useGraphqlQuery';
 
 const FeedItem = memo(function FeedItem({
     data
@@ -151,101 +147,35 @@ const FeedItemActionsButtons = (
         post: Post
     }
 ) => {
-    const dispatch = useDispatch()
     const navigation = useNavigation();
-    const session = useSelector((state: RootState) => state.AuthState.session.user)
     const [like, setLike] = useState({
         isLike: post.is_Liked,
         likeCount: post.likeCount
     })
-    const loading = useRef(false)
 
-    const likeHandle = useCallback(async () => {
-        if (loading.current) return
-        try {
-            loading.current = true
-            if (!session) return ToastAndroid.show('You are not logged in', ToastAndroid.SHORT)
-            const res = await createPostLikeApi(post.id)
-            if (!res) {
-                return ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
-            }
-            if (post.user.id === session.id) return
-            await dispatch(createNotificationApi({
-                postId: post.id,
-                authorId: session.id,
-                type: NotificationType.Like,
-                recipientId: post.user.id,
-                author: {
-                    username: session?.username,
-                    profilePicture: session?.profilePicture
-                },
-                post: {
-                    id: post.id,
-                    fileUrl: post.fileUrl[0].urls?.low,
-                }
-            }) as any) as disPatchResponse<Notification>
-        } catch (error) {
-            ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
-        } finally {
-            loading.current = false
+    const { mutate } = useGQMutation<boolean>({
+        mutation: QPost.createAndDestroyLike,
+        onError: (err) => {
+            setLike((pre) => ({
+                isLike: !pre.isLike,
+                likeCount: !pre.isLike ? pre.likeCount + 1 : pre.likeCount - 1
+            }));
         }
-    }, [post.fileUrl.length, post.id, post.user.id, session])
+    });
 
-    const disLikeHandle = useCallback(async () => {
-        if (loading.current) return
-        try {
-            loading.current = true
-            if (!session) return ToastAndroid.show('You are not logged in', ToastAndroid.SHORT)
-            const res = await destroyPostLikeApi(post.id)
-            if (!res) {
-                return ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
-            }
-            if (post.user.id === session.id) return
-            await dispatch(destroyNotificationApi({
-                postId: post.id,
-                authorId: session.id,
-                type: NotificationType.Like,
-                recipientId: post.user.id,
-                author: {
-                    username: session?.username,
-                    profilePicture: session?.profilePicture
-                },
-                post: {
-                    id: post.id,
-                    fileUrl: post.fileUrl[0].urls?.low,
-                }
-            }) as any)
-        } catch (error: any) {
-            ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
-        } finally {
-            loading.current = false
-        }
-    }, [post.id, post.user.id, session])
-
-
-    const delayLike = useCallback(() => {
-        if (like.isLike) {
-            disLikeHandle()
-        } else {
-            likeHandle()
-        }
-    }, [like.isLike])
+    const delayLike = useCallback((value: boolean) => {
+        if (!post?.id) return;
+        mutate({ input: { id: post?.id, like: value } })
+    }, [post?.id])
 
     const debounceLike = useDebounce(delayLike, 500)
 
     const onLike = useCallback(() => {
-        if (like.isLike) {
-            setLike({
-                isLike: false,
-                likeCount: like.likeCount - 1
-            })
-        } else {
-            setLike({
-                isLike: true,
-                likeCount: like.likeCount + 1
-            })
-        }
-        debounceLike()
+        setLike((pre) => ({
+            isLike: !pre.isLike,
+            likeCount: !pre.isLike ? pre.likeCount + 1 : pre.likeCount - 1
+        }))
+        debounceLike(!like.isLike)
     }, [like.isLike, like.likeCount])
 
     const AData = [

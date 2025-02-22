@@ -64,11 +64,10 @@ export const destroyNotificationApi = createAsyncThunk(
 
 export const fetchAccountNotificationApi = createAsyncThunk(
   'fetchAccountNotificationApi/post',
-  async (findAllNotificationInput: findDataInput, thunkAPI) => {
+  async (graphQlPageQuery: findDataInput, thunkAPI) => {
     try {
       const res = await graphqlQuery({
         query: NQ.findAllNotifications,
-        variables: { findAllNotificationInput }
       })
       return res
     } catch (error: any) {

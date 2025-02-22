@@ -98,7 +98,7 @@ const StoriesComponent = memo(function StoriesComponent({
                         return <StoryLoader />
                     }
                     if (error && loading === "normal") return <View />
-                    return <View />
+                    return <View style={{ height: 120, width: "100%" }} />
                 }}
                 showsHorizontalScrollIndicator={false} />
         </View>)

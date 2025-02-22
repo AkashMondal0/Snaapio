@@ -55,7 +55,7 @@ const FollowersScreen = memo(function FollowersScreen({
                         return <ErrorScreen message={error} />;
                     }
                     if (data.length <= 0 && loading === "normal") {
-                        return <ListEmpty text="No followers yet"  />;
+                        return <ListEmpty text="No following yet"  />;
                     }
                     return <View />
                 }}

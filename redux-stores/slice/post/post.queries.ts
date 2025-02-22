@@ -38,25 +38,25 @@ export const QPost = {
     }
   }`,
   // post like
-  createLike: `mutation CreateLike($createLikeId: String!) {
-    createLike(id: $createLikeId) {
-    __typename
-    }
-  }`,
-  destroyLike: `mutation DestroyLike($destroyLikeId: String!) {
-    destroyLike(id: $destroyLikeId) {
-    __typename
-    }
+  createAndDestroyLike: `mutation Like($input: CreateLikeInput!) {
+    Like(input: $input)
   }`,
   // post comment
-  createComment: `mutation CreateComment($createCommentInput: CreateCommentInput!) {
-    createComment(createCommentInput: $createCommentInput) {
-      updatedAt
-      postId
+  createComment: `mutation CreateComment($input: CreateCommentInput!) {
+    createComment(input: $input) {
       id
-      createdAt
       content
       authorId
+      postId
+      createdAt
+      updatedAt
+      user {
+        username
+        email
+        id
+        name
+        profilePicture
+      }
     }
   }`,
   findAllLikes: `query FindAllLikes($graphQlPageQuery: GraphQLPageQuery!) {

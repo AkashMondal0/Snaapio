@@ -122,11 +122,11 @@ export const fetchAccountStoryTimelineApi = createAsyncThunk(
 
 export const fetchStoryApi = createAsyncThunk(
     'fetchStoryApi/get',
-    async (findStoryId: string, thunkApi) => {
+    async (id: string, thunkApi) => {
         try {
             const res = await graphqlQuery({
                 query: AQ.findStory,
-                variables: { findStoryId }
+                variables: {  graphQlPageQuery: { id } }
             })
             return res
         } catch (error: any) {
@@ -139,11 +139,11 @@ export const fetchStoryApi = createAsyncThunk(
 
 export const fetchAccountStoryApi = createAsyncThunk(
     'fetchAccountStoryApi/get',
-    async (findStoryId: string, thunkApi) => {
+    async (id: string, thunkApi) => {
         try {
             const res = await graphqlQuery({
                 query: AQ.findStory,
-                variables: { findStoryId }
+                variables: { graphQlPageQuery: { id } }
             })
             return res
         } catch (error: any) {

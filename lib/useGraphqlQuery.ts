@@ -3,6 +3,9 @@ import { configs } from "@/configs";
 import { Session, loadingType } from '@/types';
 import { getSecureStorage } from './SecureStore';
 const _url = `${configs.serverApi.baseUrl}/graphql`.replace("/v1", "");
+
+// ================================================= Object Query ===========================================================================================================================================
+
 interface GraphqlResponse<T> {
     data: T;
     errors: GraphqlError[];
@@ -156,7 +159,7 @@ export const useGQObject = <T>({
     };
 };
 
-// ================== ========================
+// ================================================= Array Query ===========================================================================================================================================
 
 // Define the state structure
 interface Array_State<T> {
@@ -169,6 +172,8 @@ interface Array_State<T> {
 type Array_Action<T> =
     | { type: "FETCH_INIT" }
     | { type: "FETCH_SUCCESS"; payload: T[] }
+    | { type: "ADD_ITEM_PUSH"; payload: T }
+    | { type: "ADD_ITEM_UNSHIFT"; payload: T }
     | { type: "FETCH_FAILURE"; error: string }
     | { type: "RESET" };
 
@@ -203,6 +208,10 @@ export const useGQArray = <T>({
                 };
             case "FETCH_FAILURE":
                 return { ...state, loading: "normal", error: action.error };
+            case "ADD_ITEM_PUSH":
+                return { ...state, data: [...state.data, action.payload] };
+            case "ADD_ITEM_UNSHIFT":
+                return { ...state, data: [action.payload, ...state.data] };
             case "RESET":
                 return { ...state, loading: "idle", data: [], error: null };
             default:
@@ -217,7 +226,7 @@ export const useGQArray = <T>({
     const stopFetch = useRef(false); //  Track if there are more data to fetch
     const isFetching = useRef(false); // Track ongoing requests
     const fetchingCount = useRef(0); // count of requests made
-    const limit = variables?.limit || 10;
+    const limit = variables?.limit || 16;
     // Fetch Data
     const fetchData = useCallback(async () => {
         try {
@@ -241,7 +250,6 @@ export const useGQArray = <T>({
                         graphQlPageQuery: {
                             id: variables?.id ?? null,
                             limit: limit,
-                            // oi:"as",
                             offset: totalItemCount.current,
                         },
                     },
@@ -288,6 +296,14 @@ export const useGQArray = <T>({
         fetchData();
     }, [fetchData, state.data.length]);
 
+    const addItemPush = useCallback((item: T) => {
+        dispatch({ type: "ADD_ITEM_PUSH", payload: item });
+    }, [state.data.length])
+
+    const addItemUnshift = useCallback((item: T) => {
+        dispatch({ type: "ADD_ITEM_UNSHIFT", payload: item });
+    }, [state.data.length])
+
     // Initial data load
     useEffect(() => {
         if (!initialFetch) return;
@@ -304,5 +320,120 @@ export const useGQArray = <T>({
         requestCount: fetchingCount.current,
         totalItemCount,
         isFetching,
+        addItemPush,
+        addItemUnshift
+    };
+};
+
+// ================================================= Mutation ===========================================================================================================================================
+// Define action types for the reducer
+type MutationAction<T> =
+    | { type: 'MUTATION_INIT' }
+    | { type: 'MUTATION_SUCCESS'; payload: T }
+    | { type: 'MUTATION_FAILURE'; error: string }
+    | { type: 'RESET' };
+
+// Define the state structure
+interface MutationState<T> {
+    data: T | null;
+    loading: boolean;
+    error: string | null;
+}
+export const useGQMutation = <T>({
+    mutation,
+    url = _url,
+    withCredentials = true,
+    errorCallBack,
+    defaultValue = null,
+    onDataChange,
+    onError
+}: {
+    mutation: string;
+    url?: string;
+    withCredentials?: boolean;
+    errorCallBack?: (error: GraphqlError[]) => void;
+    defaultValue?: T | null
+    onDataChange?: (data: T) => void
+    onError?: (data: any) => void
+}) => {
+    const [state, dispatch] = useReducer((state: MutationState<T>, action: MutationAction<T>): MutationState<T> => {
+        switch (action.type) {
+            case 'MUTATION_INIT':
+                return { ...state, loading: true, error: null };
+            case 'MUTATION_SUCCESS':
+                return { ...state, loading: false, data: action.payload, error: null };
+            case 'MUTATION_FAILURE':
+                return { ...state, loading: false, error: action.error };
+            case 'RESET':
+                return { data: null, loading: false, error: null };
+            default:
+                throw new Error();
+        }
+    }, {
+        data: defaultValue,
+        loading: false,
+        error: null,
+    });
+
+    const isMutating = useRef(false);
+
+    const executeMutation = useCallback(async (variables: any) => {
+        if (isMutating.current) return;
+        isMutating.current = true;
+        dispatch({ type: 'MUTATION_INIT' });
+
+        try {
+            const BearerToken = await getSecureStorage<Session["user"]>(configs.sessionName);
+            if (!BearerToken?.accessToken) {
+                console.error("Error retrieving token from SecureStorage");
+                return;
+            }
+
+            const response = await fetch(url, {
+                method: 'POST',
+                credentials: withCredentials ? 'include' : 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${BearerToken.accessToken}`,
+                },
+                body: JSON.stringify({
+                    query: mutation,
+                    variables,
+                }),
+                cache: 'no-cache',
+            });
+
+            const responseBody: GraphqlResponse<any> = await response.json();
+
+            if (responseBody.errors) {
+                const errors = responseBody.errors || [{ message: 'Unknown error' }];
+                if (errorCallBack) {
+                    errorCallBack(errors);
+                }
+                onError?.("GraphQL Error")
+                throw new Error(errors[0]?.message || "GraphQL Error");
+            }
+
+            dispatch({ type: 'MUTATION_SUCCESS', payload: responseBody.data[Object.keys(responseBody.data)[0]] });
+            onDataChange?.(responseBody.data[Object.keys(responseBody.data)[0]])
+        } catch (err: any) {
+            onError?.(err?.message || "An error occurred")
+            dispatch({ type: 'MUTATION_FAILURE', error: err.message || "An error occurred" });
+        } finally {
+            isMutating.current = false;
+        }
+    }, [mutation, url, withCredentials]);
+
+    const resetMutation = useCallback(() => {
+        isMutating.current = false;
+        dispatch({ type: 'RESET' });
+    }, []);
+
+    return {
+        data: state.data,
+        loading: state.loading,
+        error: state.error,
+        mutate: executeMutation,
+        reset: resetMutation,
     };
 };
