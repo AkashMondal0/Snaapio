@@ -29,10 +29,10 @@ import { CommentScreen, LikeScreen, PostScreen, PostUploadScreen, PostSelectScre
 import { StoryScreen, StorySelectingScreen, StoryUploadScreen } from '@/app/story';
 import { HighlightPageScreen, HighlightSelectingScreen, HighlightUploadScreen } from '@/app/highlight';
 import { FeedsScreen, AccountScreen, ReelsScreen, SearchScreen } from '@/app/HomeTab';
-import { NotificationScreen } from '@/app/notification';
-import { NotFound } from './NotFound';
 import { CallingScreen, IncomingCallScreen, CallDeclinedScreen, CallRoomScreen } from './call';
 import RoomScreen from './call/videoCall';
+import { NotificationScreen } from '@/app/notification';
+import { NotFound } from './NotFound';
 
 export const HomeTabs = createBottomTabNavigator({
     screenOptions: {
@@ -261,6 +261,9 @@ const RootStack = createNativeStackNavigator({
                 },
                 PostsSelect: {
                     screen: PostSelectScreen,
+                    options: {
+                        animation: "slide_from_bottom"
+                    },
                     linking: {
                         path: 'post/select',
                     }
@@ -289,6 +292,9 @@ const RootStack = createNativeStackNavigator({
                 },
                 SelectStory: {
                     screen: StorySelectingScreen,
+                    options: {
+                        animation: "slide_from_bottom"
+                    },
                     linking: {
                         path: 'story/select'
                     }
@@ -317,6 +323,9 @@ const RootStack = createNativeStackNavigator({
                 },
                 HighlightSelect: {
                     screen: HighlightSelectingScreen,
+                    options: {
+                        animation: "slide_from_bottom"
+                    },
                     linking: {
                         path: 'highlight/select'
                     }
@@ -357,6 +366,9 @@ const RootStack = createNativeStackNavigator({
                 },
                 MessageSelectFile: {
                     screen: AssetSelectScreen,
+                    options: {
+                        animation: "slide_from_bottom"
+                    },
                     linking: {
                         path: 'message/asset/select'
                     }

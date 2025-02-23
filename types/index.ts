@@ -215,7 +215,6 @@ export type Story = {
     status?: "published" | "draft" | "deleted";
 }
 export type findDataInput = {
-    username?: string
     id?: string
     offset: number
     limit: number

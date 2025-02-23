@@ -60,8 +60,7 @@ const TabFollowingAndFollowers = memo(function TabFollowingAndFollowers({ route 
             loading={loadingFollower}
             onEndReached={loadMoreDataFollower}
             onRefresh={reloadFollower}
-            data={dataFollower}
-            isFollowing={AuthorId} />
+            data={dataFollower} />
     }, [loadingFollower, errorFollower, dataFollower, AuthorId])
 
     const FollowingTab = useCallback(() => {
@@ -71,7 +70,6 @@ const TabFollowingAndFollowers = memo(function TabFollowingAndFollowers({ route 
             onEndReached={loadMoreDataFollowing}
             onRefresh={reloadFollowing}
             data={dataFollowing}
-            isFollowing={AuthorId}
         />
     }, [loadingFollowing, errorFollowing, dataFollowing, AuthorId])
 

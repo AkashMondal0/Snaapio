@@ -16,7 +16,7 @@ export function NotFound() {
         alignItems: "center",
         padding: 10
       }}>
-        <Text variant="H4">Conversation not found</Text>
+        <Text variant="H4">Page not found</Text>
         <Button onPress={() => { 
           if(navigation.canGoBack()){
             navigation.goBack()

@@ -130,6 +130,7 @@ const IconButton = ({
                     elevation: 1,
                     opacity: disabled ? 0.5 : 1,
                     padding: 8,
+                    aspectRatio: 1,
                     borderRadius: 100,
                     borderWidth: variant === "normal" ? 0 : 0.6,
                     borderColor: buttonVariant().borderColor,

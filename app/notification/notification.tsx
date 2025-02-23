@@ -118,14 +118,21 @@ const NotificationItem = memo(function NotificationItem({
                 </Text>
             </View>
         </View>
-        <Image url={data.post?.fileUrl[0].urls?.low}
-            showImageError
-            style={{
-                width: 60,
-                borderRadius: 10,
-                aspectRatio: 1 / 1,
-                flex: 0
-            }} />
+        <TouchableOpacity style={{
+            width: 60,
+            aspectRatio: 1 / 1,
+            flex: 0
+        }} activeOpacity={0.8} onPress={() => {
+            if (!data.postId) return ToastAndroid.show('Post not found', ToastAndroid.SHORT)
+            navigation.navigate("Post", { id: data.postId })
+        }} >
+            <Image url={data.post?.fileUrl[0].urls?.high}
+                showImageError
+                style={{
+                    width: "100%",
+                    borderRadius: 10,
+                }} />
+        </TouchableOpacity>
     </TouchableOpacity>)
 }, (prevProps, nextProps) => {
     return prevProps.data.id === nextProps.data.id

@@ -16,7 +16,6 @@ import UserItemLoader from "@/components/loader/user-loader";
 
 interface ScreenProps {
     data: AuthorData[],
-    isFollowing: boolean,
     onEndReached: VoidFunction
     onRefresh: VoidFunction
     loading: loadingType
@@ -25,7 +24,6 @@ interface ScreenProps {
 
 const FollowersScreen = memo(function FollowersScreen({
     data,
-    isFollowing,
     onEndReached,
     onRefresh,
     loading,
@@ -42,8 +40,7 @@ const FollowersScreen = memo(function FollowersScreen({
                 scrollEventThrottle={16}
                 windowSize={10}
                 data={data}
-                renderItem={({ item }) => (<FollowingItem data={item}
-                    isFollowing={isFollowing} />)}
+                renderItem={({ item }) => (<FollowingItem data={item} />)}
                 keyExtractor={(item, index) => item.id}
                 bounces={false}
                 onEndReachedThreshold={0.5}
@@ -55,7 +52,7 @@ const FollowersScreen = memo(function FollowersScreen({
                         return <ErrorScreen message={error} />;
                     }
                     if (data.length <= 0 && loading === "normal") {
-                        return <ListEmpty text="No follower yet"  />;
+                        return <ListEmpty text="No follower yet" />;
                     }
                     return <View />
                 }}
@@ -79,10 +76,8 @@ export default FollowersScreen;
 
 const FollowingItem = memo(function FollowingItem({
     data,
-    isFollowing,
 }: {
     data: AuthorData,
-    isFollowing: boolean,
 }) {
     const navigation = useNavigation();
     const dispatch = useDispatch();
@@ -138,7 +133,7 @@ const FollowingItem = memo(function FollowingItem({
                 </Text>
             </View>
         </View>
-        {isFollowing ? <Text>You</Text> : <Button
+        {session?.id === data.id ? <Text>You</Text> : <Button
             textStyle={{
                 fontSize: 14,
             }}

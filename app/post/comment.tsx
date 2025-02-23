@@ -196,21 +196,21 @@ const CommentInput = memo(function CommentInput({
     return (
         <>
             <Separator value={0.8} />
-            <View
-                style={{
-                    width: "100%",
-                    display: 'flex',
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "1.6%",
-                    gap: "1.2%"
-                }}>
+            <View style={{
+                width: "100%",
+                display: 'flex',
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "1.6%",
+                gap: 6,
+            }}>
                 <Controller
                     control={control}
                     render={({ field: { onChange, onBlur, value } }) => (
-                        <Input placeholder="Type a message"
-                            // variant="secondary"
+                        <Input
+                            keyboardType="default"
+                            placeholder="Type a message"
                             multiline
                             disabled={loading}
                             onBlur={onBlur}
@@ -219,24 +219,30 @@ const CommentInput = memo(function CommentInput({
                             returnKeyType="send"
                             onSubmitEditing={handleSubmit(handleComment)}
                             style={{
-                                width: "82%",
+                                flex: 1,
                                 height: "100%",
-                                borderRadius: 18,
+                                borderRadius: 20,
                                 borderWidth: 0,
-                                maxHeight: 100,
+                                maxHeight: 100
+                            }}
+                            containerStyle={{
+                                flexShrink: 1
                             }} />
                     )}
                     name="text"
                     rules={{ required: true }} />
-                <Icon iconName={"Send"}
-                    isButton size={26}
-                    disabled={loading}
-                    onPress={handleSubmit(handleComment)}
-                    style={{
-                        padding: "4%",
-                        width: "auto",
-                        height: 45,
-                    }} />
+                <View style={{ height: 45 }}>
+                    <Icon
+                        iconName="Send"
+                        isButton
+                        size={26}
+                        disabled={loading}
+                        onPress={handleSubmit(handleComment)}
+                        style={{
+                            height: 45,
+                            aspectRatio: 1 / 1,
+                        }} />
+                </View>
             </View>
         </>
     )

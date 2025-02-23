@@ -126,7 +126,7 @@ export const fetchStoryApi = createAsyncThunk(
         try {
             const res = await graphqlQuery({
                 query: AQ.findStory,
-                variables: {  graphQlPageQuery: { id } }
+                variables: { graphQlPageQuery: { id } }
             })
             return res
         } catch (error: any) {
@@ -156,11 +156,16 @@ export const fetchAccountStoryApi = createAsyncThunk(
 
 export const fetchAccountAllStroyApi = createAsyncThunk(
     'fetchAccountAllStroyApi/get',
-    async (limitAndOffset: findDataInput, thunkApi) => {
+    async (data: findDataInput, thunkApi) => {
         try {
             const res = await graphqlQuery({
                 query: AQ.findAllStory,
-                variables: { limitAndOffset }
+                variables: {
+                    graphQlPageQuery: {
+                        limit: data.limit,
+                        offset: data.offset,
+                    },
+                }
             })
             return res
         } catch (error: any) {

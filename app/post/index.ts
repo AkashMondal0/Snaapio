@@ -1,8 +1,8 @@
 import CommentScreen from "./comment";
 import LikeScreen from "./like";
 import PostScreen from "./post";
-import PostSelectScreen from "./post_select";
-import PostUploadScreen from "./post_upload";
+import PostSelectScreen from "./post-selecting";
+import PostUploadScreen from "./post-upload";
 
 
 export {
