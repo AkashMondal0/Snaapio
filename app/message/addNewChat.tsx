@@ -4,7 +4,6 @@ import { ListEmptyComponent } from "@/components/home";
 import { Avatar } from "@/components/skysolo-ui";
 import { Input, TouchableOpacity, Text } from 'hyper-native-ui';
 import debounce from "@/lib/debouncing";
-import { setConversation } from "@/redux-stores/slice/conversation";
 import { CreateConversationApi } from "@/redux-stores/slice/conversation/api.service";
 import { searchUsersProfileApi } from "@/redux-stores/slice/users/api.service";
 import { RootState } from "@/redux-stores/store";
@@ -42,13 +41,7 @@ const NewChatScreen = memo(function NewChatScreen() {
         if (session?.id === userData.id) return ToastAndroid.show("You can't chat with yourself", ToastAndroid.SHORT)
         const res = await dispatch(CreateConversationApi([userData.id]) as any) as disPatchResponse<Conversation>
         if (res.error) return ToastAndroid.show("Something went wrong, please try again", ToastAndroid.SHORT)
-        dispatch(setConversation({
-            id: res.payload.id,
-            isGroup: false,
-            user: userData,
-        } as Conversation))
-        navigation?.navigate("MessageRoom", { id: res.payload.id })
-
+        navigation?.navigate("MessageRoom", { id: res.payload.id });
     }, [])
 
     return (

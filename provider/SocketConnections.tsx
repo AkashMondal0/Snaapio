@@ -26,7 +26,6 @@ const SocketConnectionsProvider = ({
 }) => {
     const dispatch = useDispatch();
     const session = useSelector((state: RootState) => state.AuthState.session.user);
-    const currentConversation = useSelector((state: RootState) => state.ConversationState.conversation);
     const list = useSelector((state: RootState) => state.ConversationState.conversationList)
     const socketRef = useRef<Socket | null>(null)
     const [socketConnected, setSocketConnected] = useState(false)
@@ -134,7 +133,7 @@ const SocketConnectionsProvider = ({
                 socketRef.current?.off("send-call", incomingCall)
             }
         }
-    }, [session, currentConversation, list.length])
+    }, [session, list.length])
 
     return <SocketContext.Provider value={{
         socket: socketRef.current
