@@ -208,7 +208,6 @@ export const ConversationSlice = createSlice({
         builder.addCase(fetchConversationApi.pending, (state) => {
             state.loading = "pending";
             state.error = null;
-            state.messages = [];
         });
         builder.addCase(
             fetchConversationApi.fulfilled,
@@ -220,7 +219,6 @@ export const ConversationSlice = createSlice({
         builder.addCase(fetchConversationApi.rejected, (state, action) => {
             state.loading = "normal";
             state.error = "error";
-            state.messages = [];
         });
         //fetchConversationAllMessagesApi
         builder.addCase(fetchConversationAllMessagesApi.pending, (state) => {
@@ -230,10 +228,22 @@ export const ConversationSlice = createSlice({
         builder.addCase(
             fetchConversationAllMessagesApi.fulfilled,
             (state, action: PayloadAction<Message[]>) => {
-                if (state.conversation) {
-                    state.messages.push(...action.payload.reverse());
+                if (action.payload.length === 0) return;
+
+                const conversationId = action.payload[0].conversationId;
+                const findIndex = state.conversationList.findIndex((item) => item.id === conversationId);
+
+                if (findIndex !== -1) {
+                    const existingMessages = state.conversationList[findIndex].messages;
+                    const newMessages = action.payload.filter(
+                        (newMsg) => !existingMessages.some((oldMsg) => oldMsg.id === newMsg.id)
+                    );
+
+                    if (newMessages.length > 0) {
+                        state.conversationList[findIndex].messages.push(...newMessages)
+                        state.conversationList[findIndex].messages.reverse()
+                    }
                 }
-                state.messageLoading = "normal";
             },
         );
         builder.addCase(
@@ -294,28 +304,28 @@ export const ConversationSlice = createSlice({
         builder.addCase(
             conversationSeenAllMessage.fulfilled,
             (state, action: PayloadAction<{ conversationId: string; authorId: string; memberLength?: number }>) => {
-              const { conversationId, authorId } = action.payload;
-          
-              const updateSeenBy = (messages?: Message[]) => {
-                if (!messages) return;
-                messages.forEach((message) => {
-                  if (!message.seenBy.includes(authorId)) {
-                    message.seenBy.push(authorId);
-                  }
-                });
-              };
-          
-              const conversation = state.conversationList.find((c) => c.id === conversationId);
-              if (conversation) {
-                conversation.totalUnreadMessagesCount = 0;
-                updateSeenBy(conversation.messages);
-              }
-          
-              if (state.conversation?.id === conversationId) {
-                updateSeenBy(state.conversation.messages);
-              }
+                const { conversationId, authorId } = action.payload;
+
+                const updateSeenBy = (messages?: Message[]) => {
+                    if (!messages) return;
+                    messages.forEach((message) => {
+                        if (!message.seenBy.includes(authorId)) {
+                            message.seenBy.push(authorId);
+                        }
+                    });
+                };
+
+                const conversation = state.conversationList.find((c) => c.id === conversationId);
+                if (conversation) {
+                    conversation.totalUnreadMessagesCount = 0;
+                    updateSeenBy(conversation.messages);
+                }
+
+                if (state.conversation?.id === conversationId) {
+                    updateSeenBy(state.conversation.messages);
+                }
             }
-          );          
+        );
         builder.addCase(
             conversationSeenAllMessage.rejected,
             (state, action) => {

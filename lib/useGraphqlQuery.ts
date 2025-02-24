@@ -84,7 +84,6 @@ export const useGQObject = <T>({
         if (isFetching.current) return;
         isFetching.current = true;
         dispatch({ type: 'FETCH_INIT' });
-        await new Promise((resolve) => setTimeout(resolve, 1000));
         try {
             const BearerToken = await getSecureStorage<Session["user"]>(configs.sessionName);
             if (!BearerToken?.accessToken) {
@@ -186,7 +185,8 @@ export const useGQArray = <T>({
     initialFetch = true,
     defaultValue = null,
     onDataChange,
-    onError
+    onError,
+    order = "normal"
 }: {
     query: string;
     variables?: { limit?: number; id?: string; offset?: number };
@@ -198,6 +198,7 @@ export const useGQArray = <T>({
     defaultValue?: T | null
     onDataChange?: (data: T) => void
     onError?: (data: any) => void
+    order?: "reverse" | "normal"
 }) => {
     const [state, dispatch] = useReducer((state: Array_State<T>, action: Array_Action<T>): Array_State<T> => {
         switch (action.type) {
@@ -239,7 +240,6 @@ export const useGQArray = <T>({
             if (stopFetch.current || isFetching.current) return;
             isFetching.current = true;
             dispatch({ type: "FETCH_INIT" });
-            await new Promise((resolve) => setTimeout(resolve, 1000));
             const BearerToken = await getSecureStorage<Session["user"]>(configs.sessionName);
             if (!BearerToken?.accessToken) throw new Error("No token available");
 
@@ -276,7 +276,7 @@ export const useGQArray = <T>({
             }
             fetchingCount.current++;
             onDataChange?.(data)
-            dispatch({ type: "FETCH_SUCCESS", payload: data });
+            dispatch({ type: "FETCH_SUCCESS", payload: order === "reverse" ? data.reverse() : data });
         } catch (err: any) {
             stopFetch.current = true
             fetchingCount.current++;

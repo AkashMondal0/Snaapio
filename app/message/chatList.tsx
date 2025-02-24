@@ -109,7 +109,7 @@ const ChatListScreen = memo(function ChatListScreen() {
                 data={item}
                 onClick={pushToPage}
                 onLongPress={handlePresentModalPress} />}
-            keyExtractor={(item, index) => index.toString()}
+            keyExtractor={(item) => item.id}
             onEndReachedThreshold={0.5}
             removeClippedSubviews={true}
             windowSize={10}
@@ -122,13 +122,14 @@ const ChatListScreen = memo(function ChatListScreen() {
                 InputOnChange={onChangeInput} />}
             data={conversationList}
             ListEmptyComponent={() => {
-                if (listLoading === "idle" || listLoading === "pending") {
+                if (conversationList.length === 0 && (listLoading === "idle" || listLoading === "pending")) {
                     return <ConversationLoader size={12} />
                 }
                 if (listError) return <ErrorScreen message={listError} />
                 if (!listError && listLoading === "normal") return <ListEmpty text="No Messages" />
             }}
-            ListFooterComponent={listLoading === "pending" ? <ConversationLoader size={5} /> : <></>} />
+            ListFooterComponent={listLoading === "pending" ? <Loader size={50} /> : <></>}
+        />
         <ActionSheet
             bottomSheetModalRef={bottomSheetModalRef}
             snapPoints={snapPoints}
