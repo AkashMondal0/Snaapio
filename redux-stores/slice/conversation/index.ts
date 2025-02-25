@@ -2,6 +2,7 @@ import {
     AiMessagePromptApi,
     conversationSeenAllMessage,
     CreateMessageApi,
+    fetchConversationAllMessagesApi,
     fetchConversationApi,
     fetchConversationsApi,
 } from "./api.service";
@@ -9,6 +10,7 @@ import { Conversation, Message, Typing } from "@/types";
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { Asset } from "expo-media-library";
+import { mergeConversations } from "./merge";
 
 const updateSeenBy = (messages?: Message[], authorId?: string) => {
     if (!messages || !authorId) return;
@@ -87,7 +89,7 @@ export const ConversationSlice = createSlice({
     reducers: {
         // conversations
         setConversations: (state, action: PayloadAction<Conversation[]>) => {
-            state.conversationList = action.payload
+            state.conversationList = mergeConversations(state.conversationList, action.payload)
         },
         // typing
         setTyping: (state, action: PayloadAction<Typing>) => {
@@ -162,10 +164,18 @@ export const ConversationSlice = createSlice({
             state.ai_messages.push(...action.payload.reverse());
         },
         resetConversationState: (state) => {
-            state.conversationList = [];
-            state.currentTyping = null;
-            state.conversationList = [];
-            state.ai_messages = []
+            state.conversationList = []
+            state.createLoading = false;
+            state.createError = null;
+            state.createMessageLoading = false;
+            state.createMessageError = null;
+            state.uploadFiles = [];
+            state.uploadFilesLoading = false;
+            state.uploadFilesError = null;
+            state.ai_messages = [];
+            state.ai_messageLoading = false;
+            state.ai_messageError = null;
+            state.ai_messageCreateLoading = false;
             state.ai_CurrentMessageId = null;
         },
     },
@@ -178,7 +188,7 @@ export const ConversationSlice = createSlice({
         builder.addCase(
             fetchConversationsApi.fulfilled,
             (state, action: PayloadAction<Conversation[]>) => {
-                state.conversationList = action.payload
+                state.conversationList = mergeConversations(state.conversationList, action.payload)
                 state.listLoading = "normal";
             },
         );
@@ -199,39 +209,39 @@ export const ConversationSlice = createSlice({
         builder.addCase(fetchConversationApi.rejected, (state, action) => {
 
         });
-        //fetchConversationAllMessagesApi
-        // builder.addCase(fetchConversationAllMessagesApi.pending, (state) => {
-        //     state.messageLoading = "pending";
-        //     state.messageError = null;
-        // });
-        // builder.addCase(
-        //     fetchConversationAllMessagesApi.fulfilled,
-        //     (state, action: PayloadAction<Message[]>) => {
-        //         if (action.payload.length === 0) return;
+        fetchConversationAllMessagesApi
+        builder.addCase(fetchConversationAllMessagesApi.pending, (state) => {
 
-        //         const conversationId = action.payload[0].conversationId;
-        //         const findIndex = state.conversationList.findIndex((item) => item.id === conversationId);
+        });
+        builder.addCase(
+            fetchConversationAllMessagesApi.fulfilled,
+            (state, action: PayloadAction<Message[]>) => {
+                if (action.payload.length === 0) {
+                    return;
+                }
 
-        //         if (findIndex !== -1) {
-        //             const existingMessages = state.conversationList[findIndex].messages;
-        //             const newMessages = action.payload.filter(
-        //                 (newMsg) => !existingMessages.some((oldMsg) => oldMsg.id === newMsg.id)
-        //             );
+                const conversationId = action.payload[0].conversationId;
+                const findIndex = state.conversationList.findIndex((item) => item.id === conversationId);
 
-        //             if (newMessages.length > 0) {
-        //                 state.conversationList[findIndex].messages.push(...newMessages)
-        //                 state.conversationList[findIndex].messages.reverse()
-        //             }
-        //         }
-        //     },
-        // );
-        // builder.addCase(
-        //     fetchConversationAllMessagesApi.rejected,
-        //     (state, action) => {
-        //         state.messageLoading = "normal";
-        //         state.messageError = "error";
-        //     },
-        // );
+                if (findIndex !== -1) {
+                    const existingMessages = state.conversationList[findIndex].messages;
+                    const newMessages = action.payload.filter((message) => {
+                        const existingMessage = existingMessages.find((m) => m.id === message.id);
+                        return !existingMessage;
+                    });
+
+                    state.conversationList[findIndex].messages.push(...newMessages);
+                    // @ts-ignore
+                    state.conversationList[findIndex].messages.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                }
+            },
+        );
+        builder.addCase(
+            fetchConversationAllMessagesApi.rejected,
+            (state, action) => {
+
+            },
+        );
         // CreateMessageApi
         builder.addCase(CreateMessageApi.pending, (state) => {
             state.createMessageLoading = true;
@@ -244,7 +254,7 @@ export const ConversationSlice = createSlice({
                     i.id === action.payload.conversationId
                 );
                 if (index !== -1) {
-                    state.conversationList[index].messages?.push(
+                    state.conversationList[index].messages?.unshift(
                         action.payload,
                     );
                     state.conversationList[index].lastMessageContent =

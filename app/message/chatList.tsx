@@ -1,13 +1,11 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useMemo, useRef, memo, useState, useEffect } from 'react';
 import { View, Vibration, FlatList } from 'react-native';
-import { Conversation, disPatchResponse } from '@/types';
+import { Conversation } from '@/types';
 import { ActionSheet, Avatar } from '@/components/skysolo-ui';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
-import { fetchConversationsApi } from '@/redux-stores/slice/conversation/api.service';
-import { resetConversation, resetConversationState } from '@/redux-stores/slice/conversation';
+import { resetConversationState, setConversations } from '@/redux-stores/slice/conversation';
 import debounce from '@/lib/debouncing';
 import searchText from '@/lib/TextSearch';
 import ErrorScreen from '@/components/error/page';
@@ -16,22 +14,34 @@ import ListEmpty from '@/components/ListEmpty';
 import { Loader, useTheme } from "hyper-native-ui";
 import { useNavigation } from '@react-navigation/native';
 import { ConversationLoader } from '@/components/message/conversationItem';
-
-let totalFetchedItemCount: number = 0;
+import { useGQArray } from '@/lib/useGraphqlQuery';
+import { CQ } from '@/redux-stores/slice/conversation/conversation.queries';
+import { fetchConversationsApi } from '@/redux-stores/slice/conversation/api.service';
 let pageLoaded = false;
 
 const ChatListScreen = memo(function ChatListScreen() {
     const navigation = useNavigation();
-    const stopRef = useRef(false);
     const list = useSelector((Root: RootState) => Root.ConversationState.conversationList);
     const listLoading = useSelector((Root: RootState) => Root.ConversationState.listLoading);
     const listError = useSelector((Root: RootState) => Root.ConversationState.listError);
-
     const [BottomSheetData, setBottomSheetData] = useState<Conversation | null>(null)
     const bottomSheetModalRef = useRef<BottomSheetModal>(null);
     const snapPoints = useMemo(() => ["50%", '50%', "70%"], []);
     const [inputText, setInputText] = useState("");
     const dispatch = useDispatch();
+
+    const { error, loadMoreData, loading, fetch, reload } = useGQArray<Conversation>({
+        query: CQ.findAllConversation,
+        order: "reverse",
+        variables: {
+            limit: 20,
+            offset: list.length,
+        },
+        initialFetch: false,
+        onDataChange(data) {
+            dispatch(setConversations(data as any))
+        },
+    });
 
     const conversationList = useMemo(() => {
         return [...list].sort((a, b) => {
@@ -61,39 +71,20 @@ const ChatListScreen = memo(function ChatListScreen() {
         navigation?.navigate("MessageRoom", { id: data.id });
     }, [])
 
-    // fetch -------------------------------------------------------------------------------------
-
     const fetchApi = useCallback(async () => {
-        if (stopRef.current || totalFetchedItemCount === -1) return
-        stopRef.current = true
-        try {
-            const res = await dispatch(fetchConversationsApi({
-                limit: 12,
-                offset: totalFetchedItemCount
-            }) as any) as disPatchResponse<Conversation[]>
-            if (res.payload.length >= 12) {
-                totalFetchedItemCount += res.payload.length
-                return
-            }
-            totalFetchedItemCount = -1
-        } finally { stopRef.current = false }
-    }, [])
-
-    const onEndReached = useCallback(() => {
-        if (stopRef.current || totalFetchedItemCount < 10) return
-        fetchApi()
-    }, [])
-
-    const onRefresh = useCallback(() => {
-        totalFetchedItemCount = 0
-        dispatch(resetConversationState())
-        fetchApi()
+        const res = await dispatch(fetchConversationsApi({
+            limit: 18,
+            offset: 0
+        }) as any);
+        if (res.payload) {
+            dispatch(setConversations(res.payload))
+        };
     }, [])
 
     useEffect(() => {
         if (!pageLoaded) {
-            pageLoaded = true
-            onRefresh()
+            pageLoaded = true;
+            fetchApi()
         }
     }, [])
 
@@ -115,8 +106,8 @@ const ChatListScreen = memo(function ChatListScreen() {
             windowSize={10}
             bounces={false}
             refreshing={false}
-            onRefresh={onRefresh}
-            onEndReached={onEndReached}
+            // onRefresh={onRefresh}
+            onEndReached={loadMoreData}
             ListHeaderComponent={<ListHeader
                 pageToNewChat={() => { navigation?.navigate("FindMessage") }}
                 InputOnChange={onChangeInput} />}

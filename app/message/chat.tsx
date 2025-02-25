@@ -1,18 +1,15 @@
-import { memo, useCallback, useEffect } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Navbar, Input } from "@/components/message";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { StaticScreenProps, useNavigation } from "@react-navigation/native";
 import { NotFound } from "../NotFound";
 import { FlatList, View } from "react-native";
-import { useGQArray } from "@/lib/useGraphqlQuery";
 import { Message } from "@/types";
-import { CQ } from "@/redux-stores/slice/conversation/conversation.queries";
 import MessageItem from "@/components/message/messageItem";
 import { Loader } from "hyper-native-ui";
-import { setMessages } from "@/redux-stores/slice/conversation";
-import { conversationSeenAllMessage, fetchConversationApi } from "@/redux-stores/slice/conversation/api.service";
-import useDebounce from "@/lib/debouncing";
+import { conversationSeenAllMessage, fetchConversationAllMessagesApi, fetchConversationApi } from "@/redux-stores/slice/conversation/api.service";
+import useDebounce, { useThrottle } from "@/lib/debouncing";
 
 type Props = StaticScreenProps<{
     id: string;
@@ -20,26 +17,27 @@ type Props = StaticScreenProps<{
 
 const ChatScreen = memo(function ChatScreen({ route }: Props) {
     const id = route.params.id;
-    // console.log(id)
     const navigation = useNavigation();
     const dispatch = useDispatch();
     const session = useSelector((Root: RootState) => Root.AuthState.session.user);
     const conversation = useSelector((Root: RootState) => Root.ConversationState.conversationList?.find((item) => item?.id === id), ((pre, next) => pre === next));
     const cMembers = conversation?.members?.map((m) => m).length;
+    const totalFetchedItemCount = conversation?.messages?.length || 0;
+    const [loading, setLoading] = useState(false);
 
-    const { error, loadMoreData, loading, fetch } = useGQArray<Message>({
-        query: CQ.findAllMessages,
-        order: "reverse",
-        variables: {
-            limit: 16,
-            offset: conversation?.messages.length,
-            id: conversation?.id
-        },
-        initialFetch: false,
-        onDataChange(data) {
-            dispatch(setMessages(data as any))
-        },
-    });
+    const loadMoreMessages = useCallback(async (offset: number) => {
+        if (!conversation?.id || loading) return;
+        setLoading(true)
+        try {
+            await dispatch(fetchConversationAllMessagesApi({
+                id: conversation?.id,
+                offset: offset,
+                limit: 20
+            }) as any)
+        } finally {
+            setLoading(false)
+        }
+    }, [conversation?.id, loading])
 
     const navigateToImagePreview = useCallback((data: Message) => {
         navigation.navigate("MessageImagePreview" as any, { data });
@@ -54,17 +52,34 @@ const ChatScreen = memo(function ChatScreen({ route }: Props) {
         }) as any);
     }, 1000);
 
-    useEffect(() => {
-        if (conversation?.messages?.length === 0 && conversation?.id) {
-            fetch()
+    const fetchInitialMessage = useCallback(async (conversationId?: string) => {
+        const resM = await dispatch(fetchConversationAllMessagesApi({
+            id: conversation?.id,
+            offset: 0,
+            limit: 20
+        }) as any)
+        if (resM.payload) {
         }
-        if (conversation?.id) {
-            seenAllMessage()
-        } else {
+    }, [conversation?.id])
+
+    useEffect(() => {
+        fetchInitialMessage()
+        if (!conversation?.id) {
             dispatch(fetchConversationApi(id) as any)
         }
     }, [conversation?.id])
 
+    useEffect(() => {
+        if (conversation?.id) {
+            seenAllMessage()
+        }
+    }, [conversation?.id, conversation?.messages?.length])
+
+    const onEndReached = useThrottle(() => {
+        if (conversation) {
+            loadMoreMessages(totalFetchedItemCount)
+        }
+    }, 1000)
 
     if (!conversation) return <NotFound />;
 
@@ -86,22 +101,13 @@ const ChatScreen = memo(function ChatScreen({ route }: Props) {
                 refreshing={false}
                 keyExtractor={(item) => item.id}
                 showsVerticalScrollIndicator={false}
-                onEndReached={loadMoreData}
+                onEndReached={onEndReached}
                 renderItem={({ item }) => <MessageItem
                     navigateToImagePreview={navigateToImagePreview}
                     data={item} seenMessage={cMembers === item.seenBy?.length}
                     key={item.id} myself={session?.id === item.authorId} />}
-                ListEmptyComponent={() => {
-                    // if (error && loading === "normal") {
-                    //     return <ErrorScreen message={error} />;
-                    // }
-                    // if (conversation.messages.length <= 0 && loading === "normal") {
-                    //     return <ListEmpty text="No Message" />;
-                    // }
-                    return <View />
-                }}
                 ListFooterComponent={() => {
-                    if (loading !== "normal") {
+                    if (loading) {
                         return <Loader size={50} />
                     }
                     return <View />;

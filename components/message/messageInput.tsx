@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable react-hooks/exhaustive-deps */
 import { Icon } from "@/components/skysolo-ui";
-import { memo, useCallback, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useContext, useRef, useState } from "react";
 import { Conversation, disPatchResponse, Message } from "@/types";
 import { ToastAndroid, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
@@ -13,10 +11,11 @@ import debounce from "@/lib/debouncing";
 import {
     CreateMessageApi,
     fetchConversationsApi,
-    sendTyping
 } from "@/redux-stores/slice/conversation/api.service";
 import { Input } from "hyper-native-ui";
 import { useNavigation } from "@react-navigation/native";
+import { SocketContext } from "@/provider/SocketConnections";
+import { configs } from "@/configs";
 const schema = z.object({
     message: z.string().min(1)
 })
@@ -27,14 +26,12 @@ const ChatScreenInput = memo(function ChatScreenInput({
 }) {
     const dispatch = useDispatch()
     const navigation = useNavigation()
+    const { socket } = useContext(SocketContext);
     const ConversationList = useSelector((state: RootState) => state.ConversationState.conversationList, (prev, next) => prev.length === next.length)
     const session = useSelector((state: RootState) => state.AuthState.session.user)
     const [loading, setLoading] = useState(false)
     const stopTypingRef = useRef(true)
-    const members = useMemo(() => {
-        return conversation?.members?.filter((i) => i !== session?.id) ?? []
-    }, [conversation?.members, session?.id])
-
+    const members = useRef(conversation?.members?.filter((i) => i !== session?.id) ?? [])
     const { control, reset, handleSubmit } = useForm({
         resolver: zodResolver(schema),
         defaultValues: {
@@ -44,13 +41,13 @@ const ChatScreenInput = memo(function ChatScreenInput({
 
     const typingSetter = useCallback(async (typing: boolean) => {
         if (!session?.id || !conversation?.id) return;
-        await dispatch(sendTyping({
+        socket?.emit(configs.eventNames.conversation.typing, {
             typing: typing,
             authorId: session?.id,
-            members: members,
+            members: members.current,
             conversationId: conversation.id,
             isGroup: conversation.isGroup ?? false
-        }) as any)
+        })
     }, [conversation?.id, conversation?.isGroup, members, session?.id]);
 
     const onBlurTyping = debounce(() => {
@@ -76,11 +73,11 @@ const ChatScreenInput = memo(function ChatScreenInput({
                 authorId: session?.id,
                 content: _data.message,
                 fileUrl: [],
-                members: members,
+                members: members.current,
             }) as any) as disPatchResponse<Message>
             if (ConversationList.findIndex((i) => i.id === conversation?.id) === -1) {
                 dispatch(fetchConversationsApi({
-                    limit: 12,
+                    limit: 10,
                     offset: 0,
                 }) as any)
             }
@@ -90,7 +87,7 @@ const ChatScreenInput = memo(function ChatScreenInput({
         } finally {
             setLoading((pre) => !pre)
         }
-    }, [conversation?.id, members, session?.id])
+    }, [conversation?.id, session?.id])
 
     const navigateToSelectFile = useCallback(() => {
         navigation.navigate("MessageSelectFile" as any, { conversation })
