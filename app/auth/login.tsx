@@ -19,11 +19,11 @@ const schema = z.object({
 
 const LoginScreen = () => {
     const navigation = useNavigation();
-    const loading = useSelector((state: RootState) => state.AuthState.loginLoading);
     const error = useSelector((state: RootState) => state.AuthState.loginError);
     const [showPassword, setShowPassword] = useState(false)
     const dispatch = useDispatch();
     const inputRef = useRef<any>(null);
+    const [loading, setLoading] = useState(false)
 
     const { control, handleSubmit, formState: { errors } } = useForm({
         defaultValues: {
@@ -37,10 +37,12 @@ const LoginScreen = () => {
         email: string,
         password: string,
     }) => {
-        dispatch(loginApi({
+        setLoading(true)
+        await dispatch(loginApi({
             email: data.email,
             password: data.password,
         }) as any)
+        setLoading(false)
     }, [])
 
     return (
