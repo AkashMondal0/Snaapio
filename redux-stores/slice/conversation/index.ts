@@ -100,21 +100,12 @@ export const ConversationSlice = createSlice({
                 i.id === action.payload.conversationId
             );
             if (index !== -1) {
-                state.conversationList[index].messages?.push(action.payload);
+                state.conversationList[index].messages?.unshift(action.payload);
                 state.conversationList[index].lastMessageContent =
                     action.payload.content;
                 state.conversationList[index].lastMessageCreatedAt =
                     action.payload.createdAt;
                 state.conversationList[index].totalUnreadMessagesCount += 1;
-            }
-        },
-        // messages
-        setMessages: (state, action: PayloadAction<Message[]>) => {
-            const index = state.conversationList.findIndex((i) =>
-                i.id === action.payload[0].conversationId
-            );
-            if (index !== -1) {
-                state.conversationList[index].messages?.push(...action.payload.reverse())
             }
         },
         setMessageSeen: (
@@ -312,7 +303,6 @@ export const {
     saveMyPrompt,
     loadMyPrompt,
     completeAiMessageGenerate,
-    setMessages,
     setConversations,
     resetConversationState
 } = ConversationSlice.actions;

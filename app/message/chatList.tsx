@@ -50,7 +50,7 @@ const ChatListScreen = memo(function ChatListScreen() {
             }
             return 0
         })
-            .filter((item) => item.lastMessageCreatedAt !== null)
+            .filter((item) => item.lastMessageCreatedAt)
             .filter((item) => searchText(item?.user?.name, inputText))
     }, [list, inputText])
 

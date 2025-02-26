@@ -24,6 +24,7 @@ const ChatScreen = memo(function ChatScreen({ route }: Props) {
     const cMembers = conversation?.members?.map((m) => m).length;
     const totalFetchedItemCount = conversation?.messages?.length || 0;
     const [loading, setLoading] = useState(false);
+    const [loadingC, setLoadingC] = useState(true);
 
     const loadMoreMessages = useCallback(async (offset: number) => {
         if (!conversation?.id || loading) return;
@@ -43,30 +44,37 @@ const ChatScreen = memo(function ChatScreen({ route }: Props) {
         navigation.navigate("MessageImagePreview" as any, { data });
     }, []);
 
-    const seenAllMessage = useDebounce(() => {
+    const seenAllMessage = useDebounce(async () => {
         if (!conversation?.id || !session?.id) return;
-        dispatch(conversationSeenAllMessage({
+        await dispatch(conversationSeenAllMessage({
             conversationId: conversation?.id,
             authorId: session?.id,
             members: conversation?.members?.filter((member) => member !== session?.id),
         }) as any);
     }, 1000);
 
-    const fetchInitialMessage = useCallback(async (conversationId?: string) => {
-        const resM = await dispatch(fetchConversationAllMessagesApi({
+    const fetchInitialMessage = useCallback(async () => {
+        if (!conversation?.id) return;
+        await dispatch(fetchConversationAllMessagesApi({
             id: conversation?.id,
             offset: 0,
             limit: 20
         }) as any)
-        if (resM.payload) {
+    }, [conversation?.id])
+
+    const fetchInitial = useCallback(async () => {
+        if (!conversation?.id) {
+            setLoadingC(true)
+            await dispatch(fetchConversationApi(id) as any)
+            setLoadingC(false)
+        } else {
+            setLoadingC(false)
         }
     }, [conversation?.id])
 
     useEffect(() => {
         fetchInitialMessage()
-        if (!conversation?.id) {
-            dispatch(fetchConversationApi(id) as any)
-        }
+        fetchInitial()
     }, [conversation?.id])
 
     useEffect(() => {
@@ -81,8 +89,9 @@ const ChatScreen = memo(function ChatScreen({ route }: Props) {
         }
     }, 1000)
 
-    if (!conversation) return <NotFound />;
-
+    if (!conversation && !loadingC) return <NotFound />;
+    if (!conversation) return <></>
+    
     return (
         <View style={{
             flex: 1,

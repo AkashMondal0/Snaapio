@@ -3,7 +3,7 @@ import { Message } from '@/types';
 import { memo } from 'react';
 import { View, Text } from 'react-native';
 import { Icon, Image } from '@/components/skysolo-ui';
-import { TouchableOpacity, useTheme } from 'hyper-native-ui';   
+import { TouchableOpacity, useTheme } from 'hyper-native-ui';
 import React from 'react';
 const MessageItem = memo(function Item({
     data, myself, seenMessage,
@@ -162,28 +162,36 @@ const ImageComponent = ({
                                 }} />
                         </View>)
                     }
-                    return <Image
-                        key={index}
-                        isBorder
-                        url={file.urls?.low}
-                        style={{
-                            width: "49%",
-                            height: "49%",
-                            aspectRatio: 1 / 1,
-                            borderRadius: 16,
-                        }} />
+                    return <View style={{
+                        width: "49%",
+                        height: "49%",
+                        aspectRatio: 1 / 1,
+                        borderRadius: 16,
+                    }}>
+                        <Image
+                            key={index}
+                            isBorder
+                            url={file.urls?.low}
+                            style={{
+                                borderRadius: 16,
+                            }} />
+                    </View>
                 })}
-                <View style={{
-                    position: 'absolute',
-                    bottom: 0,
-                    right: 0,
-                    marginVertical: 8,
-                    marginHorizontal: 12,
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    gap: 5,
-                }}>
+                <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => { navigateToImagePreview(data) }}
+                    style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        right: 0,
+                        marginVertical: 8,
+                        marginHorizontal: 12,
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        gap: 5,
+                        backgroundColor:"transparent"
+                    }}>
                     <Text style={{
                         color: 'white',
                         fontSize: 14,
@@ -193,7 +201,7 @@ const ImageComponent = ({
                     </Text>
                     {myself ? <Icon iconName="CheckCheck" size={20} color="white" />
                         : <View />}
-                </View>
+                </TouchableOpacity>
             </View>
         </TouchableOpacity>
     }
