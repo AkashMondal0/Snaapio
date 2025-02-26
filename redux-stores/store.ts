@@ -19,12 +19,12 @@ const persistConfig = {
   storage: AsyncStorage,
   whitelist: [
     'AuthState',
+    'ConversationState',
   ],
   blacklist: [
     // 'CounterState',
     // 'DialogsState',
     // 'AccountState',
-    // 'ConversationState',
     // 'PostState',
     // 'ProfileState',
     // 'UsersState',

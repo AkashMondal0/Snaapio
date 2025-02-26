@@ -16,8 +16,14 @@ export function NotFound() {
         alignItems: "center",
         padding: 10
       }}>
-        <Text variant="H4">Conversation not found</Text>
-        <Button onPress={() => { navigation.dispatch(StackActions.replace('HomeTabs')) }}>Go To Home</Button>
+        <Text variant="H4">Page not found</Text>
+        <Button onPress={() => { 
+          if(navigation.canGoBack()){
+            navigation.goBack()
+            return
+          }
+          navigation.dispatch(StackActions.replace('HomeTabs'))
+         }}>Go To Home</Button>
       </View>
     </View>
   );

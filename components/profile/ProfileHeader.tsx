@@ -3,9 +3,9 @@ import { View } from "react-native";
 import { User } from "@/types";
 import ProfileInfoCount from "./ProfileInfoCount";
 import ProfileActionsButton from "./ProfileActionsButton";
-import ProfileStories from "./ProfileStories";
+import ProfileStories, { StoryLoader } from "./ProfileStories";
 import ProfilePicView from "./ProfilePicView";
-import { Separator, Skeleton, Text } from "hyper-native-ui";
+import { Separator, Skeleton, Text, useTheme } from "hyper-native-ui";
 
 const ProfileHeader = memo(function HomeScreen({
     userData,
@@ -99,6 +99,7 @@ export default ProfileHeader;
 
 
 export const ProfileHeaderLoader = () => {
+    const { currentTheme } = useTheme();
     return (<>
         <View style={{
             width: '100%',
@@ -114,7 +115,13 @@ export const ProfileHeaderLoader = () => {
                 width: '100%',
                 marginBottom: 8,
             }}>
-                <Skeleton width={120} height={120} borderRadius={200} />
+                <View style={{
+                    width: 120,
+                    height: 120,
+                    aspectRatio: 1,
+                    borderRadius: 100,
+                    backgroundColor: currentTheme.muted
+                }} />
                 <View style={{
                     flex: 1,
                     flexDirection: 'row',
@@ -123,7 +130,12 @@ export const ProfileHeaderLoader = () => {
                 }}>
                     {Array(3).fill(0).map((item, index) => (
                         <View key={index} style={{ alignItems: 'center' }}>
-                            <Skeleton width={50} height={50} borderRadius={10} />
+                            <View style={{
+                                width: 50,
+                                height: 50,
+                                borderRadius: 10,
+                                backgroundColor: currentTheme.muted
+                            }} />
                         </View>
                     ))}
                 </View>
@@ -132,28 +144,44 @@ export const ProfileHeaderLoader = () => {
                 gap: 6,
                 marginTop: 20
             }}>
-                <Skeleton width={230} height={12} borderRadius={10} />
-                <Skeleton width={100} height={10} borderRadius={10} />
+                <View style={{
+                    width: 230,
+                    height: 12,
+                    borderRadius: 10,
+                    backgroundColor: currentTheme.muted
+                }} />
+                <View style={{
+                    width: 100,
+                    height: 10,
+                    borderRadius: 10,
+                    backgroundColor: currentTheme.muted
+                }} />
             </View>
             <View style={{
                 flexDirection: 'row',
                 justifyContent: 'space-around',
-                paddingTop: 20,
+                paddingTop: 30,
                 gap: 10,
             }}>
-                <Skeleton
-                    height={40}
-                    width={"49%"}
+                <View
                     style={{
+                        width: "49%",
+                        height: 40,
+                        borderRadius: 10,
                         flex: 1,
-                    }} />
-                <Skeleton
-                    height={40}
-                    width={"49%"}
+                        backgroundColor: currentTheme.muted
+                    }}
+                />
+                <View
                     style={{
+                        width: "49%",
+                        height: 40,
+                        borderRadius: 10,
                         flex: 1,
+                        backgroundColor: currentTheme.muted
                     }} />
             </View>
+            <StoryLoader/>
         </View>
     </>)
 }

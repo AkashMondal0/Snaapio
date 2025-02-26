@@ -116,6 +116,7 @@ const SelectAssets = memo(function SelectAssets({
                 title={selectedCount > 0 ? `Selected ${selectedCount} ` : 'Select Photos'}
                 rightSideComponent={selectedCount > 0 ? <Icon
                     iconName='Check' isButton
+                    style={{ width: 36 }}
                     onPress={navigateToPostReview}
                     variant="primary" /> : <></>} />
             <View style={{ flex: 1 }}>

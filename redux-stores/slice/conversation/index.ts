@@ -10,6 +10,16 @@ import { Conversation, Message, Typing } from "@/types";
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { Asset } from "expo-media-library";
+import { mergeConversations } from "./merge";
+
+const updateSeenBy = (messages?: Message[], authorId?: string) => {
+    if (!messages || !authorId) return;
+    messages.forEach((message) => {
+        if (!message.seenBy.includes(authorId)) {
+            message.seenBy.push(authorId);
+        }
+    });
+};
 
 export type loadingType = "idle" | "pending" | "normal";
 export type AiMessage = {
@@ -24,14 +34,6 @@ interface ConversationStateType {
     conversationList: Conversation[];
     listLoading: loadingType;
     listError: string | null;
-
-    conversation: Conversation | null;
-    loading: loadingType;
-    error: string | null;
-
-    messages: Message[];
-    messageLoading: loadingType;
-    messageError: string | null;
 
     currentTyping: Typing | null;
 
@@ -61,13 +63,6 @@ const ConversationState: ConversationStateType = {
     listLoading: "idle",
     listError: null,
 
-    conversation: null,
-    loading: "idle",
-    error: null,
-    messages: [],
-    messageLoading: "idle",
-    messageError: null,
-
     currentTyping: null,
 
     createLoading: false,
@@ -92,64 +87,41 @@ export const ConversationSlice = createSlice({
     name: "conversation",
     initialState: ConversationState,
     reducers: {
+        // conversations
+        setConversations: (state, action: PayloadAction<Conversation[]>) => {
+            state.conversationList = mergeConversations(state.conversationList, action.payload)
+        },
         // typing
         setTyping: (state, action: PayloadAction<Typing>) => {
             state.currentTyping = action.payload;
         },
-        // messages
         setMessage: (state, action: PayloadAction<Message>) => {
             const index = state.conversationList.findIndex((i) =>
                 i.id === action.payload.conversationId
             );
             if (index !== -1) {
-                state.conversationList[index].messages?.push(action.payload);
+                state.conversationList[index].messages?.unshift(action.payload);
                 state.conversationList[index].lastMessageContent =
                     action.payload.content;
                 state.conversationList[index].lastMessageCreatedAt =
                     action.payload.createdAt;
                 state.conversationList[index].totalUnreadMessagesCount += 1;
             }
-            if (
-                state?.conversation &&
-                action.payload.conversationId === state?.conversation.id
-            ) {
-                state.messages.unshift(action.payload);
-            }
         },
         setMessageSeen: (
             state,
             action: PayloadAction<{ conversationId: string; authorId: string }>,
         ) => {
-            if (action.payload.conversationId === state?.conversation?.id) {
-                state.messages.forEach((message) => {
-                    if (
-                        message.seenBy.findIndex((i) =>
-                            i === action.payload.authorId
-                        ) === -1
-                    ) {
-                        message.seenBy.push(action.payload.authorId);
-                    }
-                });
+            const { conversationId, authorId } = action.payload;
+            const conversation = state.conversationList.find((c) => c.id === conversationId);
+            if (conversation) {
+                updateSeenBy(conversation.messages, authorId);
             }
-        },
-        resetConversation: (state) => {
-            state.conversation = null;
-            state.messages = [];
-            state.loading = "idle"
-        },
-        resetConversationState: (state) => {
-            state.conversationList = [];
-            state.conversation = null;
-            state.messages = [];
-            state.currentTyping = null;
         },
         setUploadImageInMessage: (state, action: PayloadAction<Message>) => {
             const index = state.conversationList.findIndex((i) =>
                 i.id === action.payload.conversationId
             );
-            if (state.conversation) {
-                state.messages.push(action.payload);
-            }
             if (index !== -1) {
                 state.conversationList[index].messages?.push(action.payload);
                 state.conversationList[index].lastMessageContent =
@@ -165,10 +137,6 @@ export const ConversationSlice = createSlice({
                 error?: string;
             }>,
         ) => {
-        },
-        setConversation: (state, action: PayloadAction<Conversation>) => {
-            state.conversation = action.payload;
-            state.messages = [];
         },
         //
         setUploadFiles: (state, action: PayloadAction<Asset[] | []>) => {
@@ -186,6 +154,21 @@ export const ConversationSlice = createSlice({
         loadMyPrompt: (state, action: PayloadAction<AiMessage[]>) => {
             state.ai_messages.push(...action.payload.reverse());
         },
+        resetConversationState: (state) => {
+            state.conversationList = []
+            state.createLoading = false;
+            state.createError = null;
+            state.createMessageLoading = false;
+            state.createMessageError = null;
+            state.uploadFiles = [];
+            state.uploadFilesLoading = false;
+            state.uploadFilesError = null;
+            state.ai_messages = [];
+            state.ai_messageLoading = false;
+            state.ai_messageError = null;
+            state.ai_messageCreateLoading = false;
+            state.ai_CurrentMessageId = null;
+        },
     },
     extraReducers: (builder) => {
         // fetchConversationsApi
@@ -196,7 +179,7 @@ export const ConversationSlice = createSlice({
         builder.addCase(
             fetchConversationsApi.fulfilled,
             (state, action: PayloadAction<Conversation[]>) => {
-                state.conversationList = action.payload;
+                state.conversationList = mergeConversations(state.conversationList, action.payload)
                 state.listLoading = "normal";
             },
         );
@@ -206,41 +189,48 @@ export const ConversationSlice = createSlice({
         });
         // fetchConversationApi
         builder.addCase(fetchConversationApi.pending, (state) => {
-            state.loading = "pending";
-            state.error = null;
-            state.messages = [];
+
         });
         builder.addCase(
             fetchConversationApi.fulfilled,
             (state, action: PayloadAction<Conversation>) => {
-                state.conversation = action.payload;
-                state.loading = "normal";
+                state.conversationList = [...state.conversationList, action.payload]
             },
         );
         builder.addCase(fetchConversationApi.rejected, (state, action) => {
-            state.loading = "normal";
-            state.error = "error";
-            state.messages = [];
+
         });
-        //fetchConversationAllMessagesApi
+        fetchConversationAllMessagesApi
         builder.addCase(fetchConversationAllMessagesApi.pending, (state) => {
-            state.messageLoading = "pending";
-            state.messageError = null;
+
         });
         builder.addCase(
             fetchConversationAllMessagesApi.fulfilled,
             (state, action: PayloadAction<Message[]>) => {
-                if (state.conversation) {
-                    state.messages.push(...action.payload.reverse());
+                if (action.payload.length === 0) {
+                    return;
                 }
-                state.messageLoading = "normal";
+
+                const conversationId = action.payload[0].conversationId;
+                const findIndex = state.conversationList.findIndex((item) => item.id === conversationId);
+
+                if (findIndex !== -1) {
+                    const existingMessages = state.conversationList[findIndex].messages;
+                    const newMessages = action.payload.filter((message) => {
+                        const existingMessage = existingMessages.find((m) => m.id === message.id);
+                        return !existingMessage;
+                    });
+
+                    state.conversationList[findIndex].messages.push(...newMessages);
+                    // @ts-ignore
+                    state.conversationList[findIndex].messages.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                }
             },
         );
         builder.addCase(
             fetchConversationAllMessagesApi.rejected,
             (state, action) => {
-                state.messageLoading = "normal";
-                state.messageError = "error";
+
             },
         );
         // CreateMessageApi
@@ -254,33 +244,14 @@ export const ConversationSlice = createSlice({
                 const index = state.conversationList.findIndex((i) =>
                     i.id === action.payload.conversationId
                 );
-                // tempMessageId is used to update the message in the conversation list
-                if (state.conversation && action.payload.tempMessageId) {
-                    const mIndex = state.conversation.messages.findIndex((i) =>
-                        i.id === action.payload.tempMessageId
+                if (index !== -1) {
+                    state.conversationList[index].messages?.unshift(
+                        action.payload,
                     );
-                    state.conversation.messages[mIndex] = action.payload;
-                    if (index !== -1) {
-                        state.conversationList[index].messages[mIndex] =
-                            action.payload;
-                        state.conversationList[index].lastMessageContent =
-                            action.payload.content;
-                        state.conversationList[index].lastMessageCreatedAt =
-                            action.payload.createdAt;
-                    }
-                } else {
-                    if (index !== -1) {
-                        state.conversationList[index].messages?.push(
-                            action.payload,
-                        );
-                        state.conversationList[index].lastMessageContent =
-                            action.payload.content;
-                        state.conversationList[index].lastMessageCreatedAt =
-                            action.payload.createdAt;
-                    }
-                    if (state.conversation) {
-                        state.messages.unshift(action.payload);
-                    }
+                    state.conversationList[index].lastMessageContent =
+                        action.payload.content;
+                    state.conversationList[index].lastMessageCreatedAt =
+                        action.payload.createdAt;
                 }
             },
         );
@@ -294,28 +265,14 @@ export const ConversationSlice = createSlice({
         builder.addCase(
             conversationSeenAllMessage.fulfilled,
             (state, action: PayloadAction<{ conversationId: string; authorId: string; memberLength?: number }>) => {
-              const { conversationId, authorId } = action.payload;
-          
-              const updateSeenBy = (messages?: Message[]) => {
-                if (!messages) return;
-                messages.forEach((message) => {
-                  if (!message.seenBy.includes(authorId)) {
-                    message.seenBy.push(authorId);
-                  }
-                });
-              };
-          
-              const conversation = state.conversationList.find((c) => c.id === conversationId);
-              if (conversation) {
-                conversation.totalUnreadMessagesCount = 0;
-                updateSeenBy(conversation.messages);
-              }
-          
-              if (state.conversation?.id === conversationId) {
-                updateSeenBy(state.conversation.messages);
-              }
+                const { conversationId, authorId } = action.payload;
+                const conversation = state.conversationList.find((c) => c.id === conversationId);
+                if (conversation) {
+                    conversation.totalUnreadMessagesCount = 0;
+                    updateSeenBy(conversation.messages, authorId);
+                }
             }
-          );          
+        );
         builder.addCase(
             conversationSeenAllMessage.rejected,
             (state, action) => {
@@ -340,15 +297,14 @@ export const {
     setMessage,
     setMessageSeen,
     setTyping,
-    resetConversation,
-    setConversation,
     showUploadImageInMessage,
     setUploadImageInMessage,
-    resetConversationState,
     setUploadFiles,
     saveMyPrompt,
     loadMyPrompt,
-    completeAiMessageGenerate
+    completeAiMessageGenerate,
+    setConversations,
+    resetConversationState
 } = ConversationSlice.actions;
 
 export default ConversationSlice.reducer;

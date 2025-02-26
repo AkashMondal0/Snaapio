@@ -1,75 +1,35 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { memo, useCallback, useEffect, useRef } from "react";
+import React, { memo, useCallback } from "react";
 import AppHeader from "@/components/AppHeader";
 import { Avatar } from "@/components/skysolo-ui";
 import { Text, Loader, TouchableOpacity } from "hyper-native-ui";
-import { resetLike } from "@/redux-stores/slice/post";
-import { fetchPostLikesApi } from "@/redux-stores/slice/post/api.service";
-import { RootState } from "@/redux-stores/store";
-import { AuthorData, Comment, disPatchResponse } from "@/types";
+import { AuthorData } from "@/types";
 import { FlatList, View } from "react-native";
-import { useDispatch, useSelector } from "react-redux";
 import ErrorScreen from "@/components/error/page";
 import ListEmpty from "@/components/ListEmpty";
-import { StackActions, StaticScreenProps, useNavigation } from "@react-navigation/native";
 import UserItemLoader from "@/components/loader/user-loader";
+import { useGQArray } from "@/lib/useGraphqlQuery";
+import { QPost } from "@/redux-stores/slice/post/post.queries";
+import { StackActions, StaticScreenProps, useNavigation } from "@react-navigation/native";
+
 type Props = StaticScreenProps<{
     id: string;
 }>;
 
-let totalFetchedItemCount = 0
-let postId = "NO_ID"
-
 const LikeScreen = memo(function LikeScreen({ route }: Props) {
-    const _postId = route?.params?.id
-    const likes = useSelector((Root: RootState) => Root.PostState.likesUserList)
-    const likeLoading = useSelector((Root: RootState) => Root.PostState.likesLoading)
-    const likesError = useSelector((Root: RootState) => Root.PostState.likesError)
-    const stopRef = useRef(false)
-    const dispatch = useDispatch()
+    const _postId = route?.params?.id;
     const navigation = useNavigation()
-
-    const fetchApi = useCallback(async () => {
-        if (stopRef.current || totalFetchedItemCount === -1) return
-        stopRef.current = true
-        try {
-            const res = await dispatch(fetchPostLikesApi({
-                id: _postId,
-                offset: totalFetchedItemCount,
-                limit: 12
-            }) as any) as disPatchResponse<Comment[]>
-            if (res.payload.length >= 12) {
-                totalFetchedItemCount += res.payload.length
-                return
-            }
-            totalFetchedItemCount = -1
-        } finally { stopRef.current = false }
-    }, [_postId])
-
-    useEffect(() => {
-        if (postId !== _postId) {
-            postId = _postId
-            totalFetchedItemCount = 0
-            dispatch(resetLike())
-            fetchApi()
-        }
-    }, [_postId])
-
-    const onEndReached = useCallback(() => {
-        if (stopRef.current || totalFetchedItemCount < 10) return
-        fetchApi()
-    }, [])
-
-    const onRefresh = useCallback(() => {
-        totalFetchedItemCount = 0
-        dispatch(resetLike())
-        fetchApi()
-    }, [])
+    const { data, error, loadMoreData, loading, reload, requestCount } = useGQArray<AuthorData>({
+        query: QPost.findAllLikes,
+        variables: {
+            limit: 12,
+            id: _postId
+        },
+    });
 
     const onPress = useCallback((username: string) => {
-        // navigation.navigate("Profile", { id: username })
-        navigation.dispatch(StackActions.replace("Profile", { id:  username}))
-    }, [])
+        navigation.dispatch(StackActions.replace("Profile", { id: username }))
+    }, []);
 
     return (
         <View style={{
@@ -78,27 +38,40 @@ const LikeScreen = memo(function LikeScreen({ route }: Props) {
             height: '100%',
         }}>
             <AppHeader title="Likes" />
+
             <FlatList
                 removeClippedSubviews={true}
                 scrollEventThrottle={16}
                 windowSize={10}
-                data={likes}
+                data={data}
                 renderItem={({ item }) => (<LikeItem data={item} onPress={onPress} />)}
-                keyExtractor={(item, index) => index.toString()}
+                keyExtractor={(item) => item.id}
                 bounces={false}
                 onEndReachedThreshold={0.5}
-                onEndReached={onEndReached}
                 refreshing={false}
+                onEndReached={loadMoreData}
+                onRefresh={reload}
                 ListEmptyComponent={() => {
-                    if (likeLoading === "idle" || likeLoading === "pending") return <UserItemLoader size={10}/>
-                    if (likesError) return <ErrorScreen message={likesError} />
-                    if (!likesError && likeLoading === "normal") return <ListEmpty text="No likes yet" />
+                    if (error && loading === "normal") {
+                        return <ErrorScreen message={error} />;
+                    }
+                    if (data.length <= 0 && loading === "normal") {
+                        return <ListEmpty text="No likes yet" />;
+                    }
+                    return <View />
                 }}
-                ListFooterComponent={likeLoading === "pending" ? <Loader size={50} /> : <></>}
-                onRefresh={onRefresh} />
+                ListFooterComponent={() => {
+                    if (loading !== "normal" && requestCount === 0) {
+                        return <UserItemLoader />;
+                    }
+                    if (loading === "pending") {
+                        return <Loader size={50} />
+                    }
+                    return <View />;
+                }} />
         </View>
     )
-})
+});
 export default LikeScreen;
 
 const LikeItem = memo(function CommentItem({

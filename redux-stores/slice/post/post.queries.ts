@@ -1,6 +1,6 @@
 export const QPost = {
-  findOnePost: `query findOnePostQuery($findOnePostId: String!) {
-    findOnePost(id: $findOnePostId) {
+  findOnePost: `query findOnePostQuery($graphQlPageQuery: GraphQLPageQuery!) {
+    findOnePost(graphQLPageQuery: $graphQlPageQuery) {
       id
       content
       fileUrl {
@@ -38,29 +38,29 @@ export const QPost = {
     }
   }`,
   // post like
-  createLike: `mutation CreateLike($createLikeId: String!) {
-    createLike(id: $createLikeId) {
-    __typename
-    }
-  }`,
-  destroyLike: `mutation DestroyLike($destroyLikeId: String!) {
-    destroyLike(id: $destroyLikeId) {
-    __typename
-    }
+  createAndDestroyLike: `mutation Like($input: CreateLikeInput!) {
+    Like(input: $input)
   }`,
   // post comment
-  createComment: `mutation CreateComment($createCommentInput: CreateCommentInput!) {
-    createComment(createCommentInput: $createCommentInput) {
-      updatedAt
-      postId
+  createComment: `mutation CreateComment($input: CreateCommentInput!) {
+    createComment(input: $input) {
       id
-      createdAt
       content
       authorId
+      postId
+      createdAt
+      updatedAt
+      user {
+        username
+        email
+        id
+        name
+        profilePicture
+      }
     }
   }`,
-  findAllLikes: `query FindAllLikes($findAllLikesInput: GraphQLPageQuery!) {
-    findAllLikes(findAllLikesInput: $findAllLikesInput) {
+  findAllLikes: `query FindAllLikes($graphQlPageQuery: GraphQLPageQuery!) {
+    findAllLikes(graphQLPageQuery: $graphQlPageQuery) {
       following
       followed_by
       id
@@ -70,8 +70,8 @@ export const QPost = {
       profilePicture
     }
   }`,
-  findAllComments: `query FindAllComments($createCommentInput: GraphQLPageQuery!) {
-    findAllComments(createCommentInput: $createCommentInput) {
+  findAllComments: `query FindAllComments($graphQlPageQuery: GraphQLPageQuery!) {
+    findAllComments(graphQLPageQuery: $graphQlPageQuery) {
       id
       content
       authorId

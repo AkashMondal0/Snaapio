@@ -75,7 +75,7 @@ const SearchScreen = memo(function SearchScreen() {
                 keyboardShouldPersistTaps='handled'
                 data={users}
                 renderItem={({ item }) => <UserItem data={item} onRemove={onRemove} />}
-                keyExtractor={(item, index) => index.toString()}
+                keyExtractor={(item, index) => item.id}
                 removeClippedSubviews={true}
                 scrollEventThrottle={16}
                 windowSize={10}

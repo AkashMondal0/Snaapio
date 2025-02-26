@@ -29,10 +29,10 @@ import { CommentScreen, LikeScreen, PostScreen, PostUploadScreen, PostSelectScre
 import { StoryScreen, StorySelectingScreen, StoryUploadScreen } from '@/app/story';
 import { HighlightPageScreen, HighlightSelectingScreen, HighlightUploadScreen } from '@/app/highlight';
 import { FeedsScreen, AccountScreen, ReelsScreen, SearchScreen } from '@/app/HomeTab';
-import { NotificationScreen } from '@/app/notification';
-import { NotFound } from './NotFound';
 import { CallingScreen, IncomingCallScreen, CallDeclinedScreen, CallRoomScreen } from './call';
 import RoomScreen from './call/videoCall';
+import { NotificationScreen } from '@/app/notification';
+import { NotFound } from './NotFound';
 
 export const HomeTabs = createBottomTabNavigator({
     screenOptions: {
@@ -79,7 +79,7 @@ export const HomeTabs = createBottomTabNavigator({
                     <AccountIcon
                         size={size}
                         focused={focused}
-                        onPress={() => navigation.navigate(route.name, route.params)} />
+                        onPress={(name) => navigation.navigate(route.name, { ...route.params, id: name })} />
                 ),
             }),
         },
@@ -261,6 +261,9 @@ const RootStack = createNativeStackNavigator({
                 },
                 PostsSelect: {
                     screen: PostSelectScreen,
+                    options: {
+                        animation: "slide_from_bottom"
+                    },
                     linking: {
                         path: 'post/select',
                     }
@@ -289,6 +292,9 @@ const RootStack = createNativeStackNavigator({
                 },
                 SelectStory: {
                     screen: StorySelectingScreen,
+                    options: {
+                        animation: "slide_from_bottom"
+                    },
                     linking: {
                         path: 'story/select'
                     }
@@ -317,6 +323,9 @@ const RootStack = createNativeStackNavigator({
                 },
                 HighlightSelect: {
                     screen: HighlightSelectingScreen,
+                    options: {
+                        animation: "slide_from_bottom"
+                    },
                     linking: {
                         path: 'highlight/select'
                     }
@@ -357,6 +366,9 @@ const RootStack = createNativeStackNavigator({
                 },
                 MessageSelectFile: {
                     screen: AssetSelectScreen,
+                    options: {
+                        animation: "slide_from_bottom"
+                    },
                     linking: {
                         path: 'message/asset/select'
                     }
@@ -474,13 +486,13 @@ const AccountIcon = ({
     size,
     focused
 }: {
-    onPress: () => void,
+    onPress: (name: string) => void,
     size?: number,
     focused: boolean
 }) => {
-    const sessionAvatarUrl = useSelector((state: RootState) => state.AuthState.session.user?.profilePicture, (prev, next) => prev === next);
-
+    const session = useSelector((state: RootState) => state.AuthState.session.user, (prev, next) => prev === next);
+    if (!session) return <></>
     return (
-        <Avatar size={28} url={sessionAvatarUrl} onPress={onPress} isBorder={focused} />
+        <Avatar size={28} url={session?.profilePicture} onPress={() => onPress(session?.username)} isBorder={focused} />
     );
 };

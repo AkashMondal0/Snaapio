@@ -102,19 +102,11 @@ export const logoutApi = createAsyncThunk(
             await deleteSecureStorage(configs.sessionName);
             thunkAPI.dispatch(resetAccountState());
             thunkAPI.dispatch(resetConversationState());
-            thunkAPI.dispatch(resetPostState());
-            thunkAPI.dispatch(resetProfileState());
-            thunkAPI.dispatch(resetUserState());
-            thunkAPI.dispatch(resetNotificationState());
-            await fetch(`${configs.serverApi.baseUrl}/auth/logout`, {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                method: "POST",
-                redirect: "follow",
-                credentials: "include",
-                body: JSON.stringify({}),
-            });
+
+            // thunkAPI.dispatch(resetPostState());
+            // thunkAPI.dispatch(resetProfileState());
+            // thunkAPI.dispatch(resetUserState());
+            // thunkAPI.dispatch(resetNotificationState());
             return true;
         } catch (error) {
             console.error("Error in logging out", error);

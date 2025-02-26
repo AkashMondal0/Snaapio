@@ -5,13 +5,12 @@ import { Button, Text } from 'hyper-native-ui';
 import LottieView from 'lottie-react-native';
 import { logoutApi } from '@/redux-stores/slice/auth/api.service';
 import LogOutDialog from '@/components/dialogs/logout';
-import { useTheme } from 'hyper-native-ui';    
-
+import { useTheme } from 'hyper-native-ui';
 
 const ErrorScreen = ({
     message = "PAGE_NOT_FOUND"
 }: {
-    message?: ErrorType | string
+    message?: ErrorType |any
 }) => {
     const animation = useRef<LottieView>(null);
     const [modalVisible, setModalVisible] = useState(false)
@@ -81,7 +80,7 @@ const ErrorScreen = ({
                 alignItems: 'center',
                 padding: 20,
                 backgroundColor: currentTheme?.background,
-                height: 450,
+                height: 500,
             }}>
                 <>
                     <Text style={{

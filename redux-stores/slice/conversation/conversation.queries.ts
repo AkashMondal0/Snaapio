@@ -1,6 +1,6 @@
 const conversationQueries = {
   findAllConversation: `query FindAllConversation($graphQlPageQuery: GraphQLPageQuery!) {
-    findAllConversation(GraphQLPageQuery: $graphQlPageQuery) {
+    findAllConversation(graphQLPageQuery: $graphQlPageQuery) {  
       id
       members
       authorId
@@ -29,7 +29,7 @@ const conversationQueries = {
     }
   }`,
   findOneConversation: `query FindOneConversation($graphQlPageQuery: GraphQLPageQuery!) {
-    findOneConversation(GraphQLPageQuery: $graphQlPageQuery) {
+    findOneConversation(graphQLPageQuery: $graphQlPageQuery) {  
       id
       members
       authorId

@@ -16,8 +16,8 @@ const QueryN = {
      __typename
     }
   }`,
-  findAllNotifications: `query FindAllNotifications($findAllNotificationInput: GraphQLPageQuery!) {
-    findAllNotifications(findAllNotificationInput: $findAllNotificationInput) {
+  findAllNotifications: `query FindAllNotifications($graphQlPageQuery: GraphQLPageQuery!) {
+    findAllNotifications(graphQLPageQuery: $graphQlPageQuery) {
       id
       type
       authorId

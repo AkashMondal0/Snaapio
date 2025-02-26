@@ -1,25 +1,20 @@
-import { fetchAccountFeedApi, fetchAccountStoryTimelineApi, fetchStoryApi } from "@/redux-stores/slice/account/api.service";
-import { RootState } from "@/redux-stores/store";
-import { Post, disPatchResponse } from "@/types";
-import React, { useCallback, useRef, memo, useEffect } from "react";
+
+import { Post } from "@/types";
+import React, { useCallback, useRef, memo } from "react";
 import { Animated, View } from "react-native";
-import { useDispatch, useSelector } from "react-redux";
-import { resetFeeds } from '@/redux-stores/slice/account';
 import { FeedItem, HomeHeader } from '@/components/home';
 import ErrorScreen from '@/components/error/page';
 import ListEmpty from '@/components/ListEmpty';
 import { Loader } from 'hyper-native-ui';
-import StoriesComponent from "@/components/home/story";
 import { FeedLoader } from "@/components/home/feedListItem";
-let totalFetchedItemCount: number = 0;
+import { useGQArray } from "@/lib/useGraphqlQuery";
+import { AQ } from "@/redux-stores/slice/account/account.queries";
+import StoriesComponent from "@/components/home/story";
 
 const FeedsScreen = memo(function FeedsScreen() {
-    const feedList = useSelector((state: RootState) => state.AccountState.feeds);
-    const feedListLoading = useSelector((state: RootState) => state.AccountState.feedsLoading);
-    const feedsError = useSelector((state: RootState) => state.AccountState.feedsError);
-    const session = useSelector((state: RootState) => state.AuthState.session.user);
-    const stopRef = useRef(false);
-    const dispatch = useDispatch();
+    const { data, error, loadMoreData, loading, reload, requestCount } = useGQArray<Post>({
+        query: AQ.feedTimelineConnection,
+    });
     // animation 
     const scrollY = useRef(new Animated.Value(0));
     const handleScroll = Animated.event([{ nativeEvent: { contentOffset: { y: scrollY.current } } }], { useNativeDriver: true });
@@ -32,44 +27,6 @@ const FeedsScreen = memo(function FeedsScreen() {
         outputRange: [0, -(130 / 2)],
     });
 
-    const fetchApi = useCallback(async () => {
-        if (stopRef.current || totalFetchedItemCount === -1) return;
-        stopRef.current = true;
-        try {
-            const res = await dispatch(fetchAccountFeedApi({
-                limit: 12,
-                offset: totalFetchedItemCount
-            }) as any) as disPatchResponse<Post[]>
-            if (res.payload.length >= 12) {
-                totalFetchedItemCount += res.payload.length
-                return
-            }
-            totalFetchedItemCount = -1
-        } finally { stopRef.current = false }
-    }, [])
-
-    useEffect(() => {
-        fetchApi()
-    }, [])
-
-    const onEndReached = useCallback(() => {
-        if (stopRef.current || totalFetchedItemCount < 10) return
-        fetchApi()
-    }, [])
-
-    const onRefresh = useCallback(async () => {
-        totalFetchedItemCount = 0
-        dispatch(resetFeeds())
-        fetchApi()
-        await dispatch(fetchAccountStoryTimelineApi({
-            limit: 12,
-            offset: 0
-        }) as any)
-        if (session?.id) {
-            await dispatch(fetchStoryApi(session?.id) as any)
-        }
-    }, [session?.id])
-
     return (
         <View style={{
             flex: 1,
@@ -81,25 +38,35 @@ const FeedsScreen = memo(function FeedsScreen() {
                 ListHeaderComponent={useCallback(() => <StoriesComponent />, [])}
                 contentContainerStyle={{ paddingTop: 60 }}
                 scrollEventThrottle={16}
-                data={feedList}
+                data={data}
                 renderItem={({ item }) => <FeedItem data={item} />}
-                keyExtractor={(item) => item.id}
-                onEndReached={onEndReached}
+                keyExtractor={(item) => item?.id}
                 onEndReachedThreshold={0.5}
                 bounces={false}
                 refreshing={false}
-                onRefresh={onRefresh}
                 onScroll={handleScroll}
                 removeClippedSubviews={true}
-                windowSize={12}
+                windowSize={16}
+                onRefresh={reload}
+                onEndReached={loadMoreData}
                 ListEmptyComponent={() => {
-                    if (feedListLoading === "idle" || feedListLoading === "pending") {
-                        return <FeedLoader />
+                    if (error && loading === "normal") {
+                        return <ErrorScreen message={error} />;
                     }
-                    if (feedsError) return <ErrorScreen message={feedsError} />
-                    if (!feedsError && feedListLoading === "normal") return <ListEmpty text="No feeds available" />
+                    if (data.length <= 0 && loading === "normal") {
+                        return <ListEmpty text="No feeds yet" />;
+                    }
+                    return <View />
                 }}
-                ListFooterComponent={() => feedListLoading === "pending" ? <Loader size={40} /> : <></>}
+                ListFooterComponent={() => {
+                    if (loading !== "normal" && requestCount === 0) {
+                        return <FeedLoader />;
+                    }
+                    if (loading === "pending") {
+                        return <Loader size={50} />
+                    }
+                    return <View />;
+                }}
             />
         </View>
     )

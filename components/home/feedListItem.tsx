@@ -1,20 +1,25 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable react-hooks/exhaustive-deps */
-import { memo, useCallback, useRef, useState } from 'react';
+import { memo, useCallback, useState } from 'react';
 import { ToastAndroid, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
-import { createNotificationApi, destroyNotificationApi } from '@/redux-stores/slice/notification/api.service';
-import { createPostLikeApi, destroyPostLikeApi } from '@/redux-stores/slice/post/api.service';
-import { RootState } from '@/redux-stores/store';
-import { disPatchResponse, NotificationType, Post } from '@/types';
+import { Post } from '@/types';
 import { Heart } from 'lucide-react-native';
 import PagerView from 'react-native-pager-view';
-import { useDispatch, useSelector } from 'react-redux';
 import useDebounce from '@/lib/debouncing';
 import { useTheme, Text } from 'hyper-native-ui';
 import { Avatar, Image, Icon } from '@/components/skysolo-ui';
 import React from 'react';
 import { StackActions, useNavigation } from '@react-navigation/native';
-import { configs } from '@/configs';
+import { QPost } from '@/redux-stores/slice/post/post.queries';
+import { useGQMutation } from '@/lib/useGraphqlQuery';
+import Animated, {
+    useSharedValue,
+    useAnimatedGestureHandler,
+    useAnimatedStyle,
+    withSpring,
+} from 'react-native-reanimated';
+import {
+    GestureHandlerRootView,
+    PinchGestureHandler,
+} from 'react-native-gesture-handler';
 
 const FeedItem = memo(function FeedItem({
     data
@@ -25,10 +30,30 @@ const FeedItem = memo(function FeedItem({
     const { currentTheme } = useTheme();
     const [tabIndex, setTabIndex] = useState(0);
     const imageLength = data.fileUrl.length;
+
+    const scale = useSharedValue(1); // Scale state
+
+    // Gesture Handler
+    const pinchHandler: any = useAnimatedGestureHandler({
+        onActive: (event: any) => {
+            scale.value = Math.max(1, Math.min(event.scale, 3)); // Restrict scale
+        },
+        onEnd: () => {
+            scale.value = withSpring(1); // Reset smoothly
+        },
+    });
+
+    // Animated Style
+    const animatedStyle = useAnimatedStyle(() => ({
+        transform: [{ scale: scale.value }],
+    }));
+
     const navigateToProfile = useCallback(() => {
         if (!data.user) return ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT);
         navigation.dispatch(StackActions.push("Profile", { id: data.user.username }));
-    }, [data.user]);
+    }, [data?.user]);
+
+    if (!data?.user || !data.id) return <></>
 
     return <View style={{
         width: "100%",
@@ -61,43 +86,50 @@ const FeedItem = memo(function FeedItem({
             </View>
         </View>
         {/* view image */}
-        <View style={{
-            width: "100%",
-            height: "auto",
-            aspectRatio: 4 / 5,
+        <GestureHandlerRootView style={{
+            flex: 1
         }}>
-            {/* indicator */}
-            {imageLength > 1 ? <View style={{
-                position: "absolute",
-                top: 0,
-                right: 0,
-                width: "auto",
-                backgroundColor: "rgba(0,0,0,0.6)",
-                zIndex: 10,
-                borderRadius: 10,
-                margin: 10,
-                paddingHorizontal: 4,
-            }}>
-                <Text variant="H6" style={{
-                    fontWeight: "400",
-                    color: "white",
-                    padding: 5,
-                    fontSize: 16
-                }}>
-                    {tabIndex + 1}/{imageLength}
-                </Text>
-            </View> : <View />}
-            {/* image */}
-            <PagerView
-                initialPage={tabIndex}
-                onPageSelected={(e) => setTabIndex(e.nativeEvent.position)}
-                style={{
+            <PinchGestureHandler onGestureEvent={pinchHandler}>
+                <Animated.View style={[{
                     width: "100%",
-                    height: "100%",
-                }}>
-                {data.fileUrl.map((item, index) => (<ImageItem key={index} item={item} index={index} />))}
-            </PagerView>
-        </View>
+                    aspectRatio: 4 / 5
+                }, animatedStyle]}>
+                    {/* indicator */}
+                    {imageLength > 1 ? <View style={{
+                        position: "absolute",
+                        top: 0,
+                        right: 0,
+                        width: "auto",
+                        backgroundColor: "rgba(0,0,0,0.6)",
+                        zIndex: 10,
+                        borderRadius: 10,
+                        margin: 10,
+                        paddingHorizontal: 4,
+                    }}>
+                        <Text variant="H6" style={{
+                            fontWeight: "400",
+                            color: "white",
+                            padding: 5,
+                            fontSize: 16
+                        }}>
+                            {tabIndex + 1}/{imageLength}
+                        </Text>
+                    </View> : <View />}
+                    {/* image */}
+                    <PagerView
+                        initialPage={tabIndex}
+                        onPageSelected={(e) => setTabIndex(e.nativeEvent.position)}
+                        style={{
+                            width: "100%",
+                            height: "100%",
+                        }}>
+                        {data.fileUrl.map((item, index) => (<ImageItem key={index} item={item} index={index} />))}
+                    </PagerView>
+                </Animated.View>
+            </PinchGestureHandler>
+        </GestureHandlerRootView>
+
+        {/* indicator */}
         {imageLength > 1 ? <View style={{
             width: "100%",
             zIndex: 10,
@@ -150,101 +182,35 @@ const FeedItemActionsButtons = (
         post: Post
     }
 ) => {
-    const dispatch = useDispatch()
     const navigation = useNavigation();
-    const session = useSelector((state: RootState) => state.AuthState.session.user)
     const [like, setLike] = useState({
         isLike: post.is_Liked,
         likeCount: post.likeCount
     })
-    const loading = useRef(false)
 
-    const likeHandle = useCallback(async () => {
-        if (loading.current) return
-        try {
-            loading.current = true
-            if (!session) return ToastAndroid.show('You are not logged in', ToastAndroid.SHORT)
-            const res = await createPostLikeApi(post.id)
-            if (!res) {
-                return ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
-            }
-            if (post.user.id === session.id) return
-            await dispatch(createNotificationApi({
-                postId: post.id,
-                authorId: session.id,
-                type: NotificationType.Like,
-                recipientId: post.user.id,
-                author: {
-                    username: session?.username,
-                    profilePicture: session?.profilePicture
-                },
-                post: {
-                    id: post.id,
-                    fileUrl: post.fileUrl[0].urls?.low,
-                }
-            }) as any) as disPatchResponse<Notification>
-        } catch (error) {
-            ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
-        } finally {
-            loading.current = false
+    const { mutate } = useGQMutation<boolean>({
+        mutation: QPost.createAndDestroyLike,
+        onError: (err) => {
+            setLike((pre) => ({
+                isLike: !pre.isLike,
+                likeCount: !pre.isLike ? pre.likeCount + 1 : pre.likeCount - 1
+            }));
         }
-    }, [post.fileUrl.length, post.id, post.user.id, session])
+    });
 
-    const disLikeHandle = useCallback(async () => {
-        if (loading.current) return
-        try {
-            loading.current = true
-            if (!session) return ToastAndroid.show('You are not logged in', ToastAndroid.SHORT)
-            const res = await destroyPostLikeApi(post.id)
-            if (!res) {
-                return ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
-            }
-            if (post.user.id === session.id) return
-            await dispatch(destroyNotificationApi({
-                postId: post.id,
-                authorId: session.id,
-                type: NotificationType.Like,
-                recipientId: post.user.id,
-                author: {
-                    username: session?.username,
-                    profilePicture: session?.profilePicture
-                },
-                post: {
-                    id: post.id,
-                    fileUrl: post.fileUrl[0].urls?.low,
-                }
-            }) as any)
-        } catch (error: any) {
-            ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
-        } finally {
-            loading.current = false
-        }
-    }, [post.id, post.user.id, session])
-
-
-    const delayLike = useCallback(() => {
-        if (like.isLike) {
-            disLikeHandle()
-        } else {
-            likeHandle()
-        }
-    }, [like.isLike])
+    const delayLike = useCallback((value: boolean) => {
+        if (!post?.id) return;
+        mutate({ input: { id: post?.id, like: value } })
+    }, [post?.id])
 
     const debounceLike = useDebounce(delayLike, 500)
 
     const onLike = useCallback(() => {
-        if (like.isLike) {
-            setLike({
-                isLike: false,
-                likeCount: like.likeCount - 1
-            })
-        } else {
-            setLike({
-                isLike: true,
-                likeCount: like.likeCount + 1
-            })
-        }
-        debounceLike()
+        setLike((pre) => ({
+            isLike: !pre.isLike,
+            likeCount: !pre.isLike ? pre.likeCount + 1 : pre.likeCount - 1
+        }))
+        debounceLike(!like.isLike)
     }, [like.isLike, like.likeCount])
 
     const AData = [
@@ -330,6 +296,7 @@ const ImageItem = memo(function ImageItem({ item, index }: { item: any, index: n
 }, (prev, next) => {
     return prev.item.id === next.item.id
 })
+
 const FeedItemContent = memo(function FeedItemContent({ data
 }: {
     data: Post,

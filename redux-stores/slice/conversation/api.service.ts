@@ -11,11 +11,11 @@ import { uploadFileToSupabase } from "@/lib/SupaBase-uploadFile";
 
 export const fetchConversationsApi = createAsyncThunk(
     "fetchConversationsApi/get",
-    async (limitAndOffset: findDataInput, thunkAPI) => {
+    async (graphQlPageQuery: findDataInput, thunkAPI) => {
         try {
             const res = await graphqlQuery({
                 query: CQ.findAllConversation,
-                variables: { graphQlPageQuery: limitAndOffset },
+                variables: { graphQlPageQuery },
             });
             return res as any;
         } catch (error: any) {

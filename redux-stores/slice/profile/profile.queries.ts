@@ -1,6 +1,6 @@
 export const QProfile = {
-  findUserProfile: `query FindUserProfile($username: String!) {
-    findUserProfile(username: $username) {
+  findUserProfile: `query FindUserProfile($graphQlPageQuery: GraphQLPageQuery!) {
+    findUserProfile(graphQLPageQuery: $graphQlPageQuery) {
       id
       username
       email
@@ -17,8 +17,8 @@ export const QProfile = {
       }
     }
   }`,
-  findAllPosts: `query FindUserProfile($findAllPosts: GraphQLPageQuery!) {
-    findAllPosts(findAllPosts: $findAllPosts) {
+  findAllPosts: `query FindUserProfile($graphQlPageQuery: GraphQLPageQuery!) {
+    findAllPosts(graphQLPageQuery: $graphQlPageQuery) {
       id
       fileUrl {
       id
@@ -48,8 +48,8 @@ export const QProfile = {
     __typename
     }
   }`,
-  findAllFollowing: `query FindAllFollowing($viewFollowingInput: GraphQLPageQuery!) {
-    findAllFollowing(viewFollowingInput: $viewFollowingInput) {
+  findAllFollowing: `query FindAllFollowing($graphQlPageQuery: GraphQLPageQuery!) {
+    findAllFollowing(graphQLPageQuery: $graphQlPageQuery) {
       id
       username
       email
@@ -59,8 +59,8 @@ export const QProfile = {
       following
     }
   }`,
-  findAllFollower: `query FindAllFollower($viewFollowerInput: GraphQLPageQuery!) {
-    findAllFollower(viewFollowerInput: $viewFollowerInput) {
+  findAllFollower: `query FindAllFollower($graphQlPageQuery: GraphQLPageQuery!) {
+    findAllFollower(graphQLPageQuery: $graphQlPageQuery) {
        id
        username
        email
@@ -70,8 +70,8 @@ export const QProfile = {
        following
     }
   }`,
-  findAllHighlight:`query FindAllHighlight($limitAndOffset: GraphQLPageQuery!) {
-  findAllHighlight(limitAndOffset: $limitAndOffset) {
+  findAllHighlight:`query FindAllHighlight($graphQlPageQuery: GraphQLPageQuery!) {
+  findAllHighlight(graphQLPageQuery: $graphQlPageQuery) {
     authorId
     content
     createdAt
