@@ -10,6 +10,16 @@ import React from 'react';
 import { StackActions, useNavigation } from '@react-navigation/native';
 import { QPost } from '@/redux-stores/slice/post/post.queries';
 import { useGQMutation } from '@/lib/useGraphqlQuery';
+import Animated, {
+    useSharedValue,
+    useAnimatedGestureHandler,
+    useAnimatedStyle,
+    withSpring,
+} from 'react-native-reanimated';
+import {
+    GestureHandlerRootView,
+    PinchGestureHandler,
+} from 'react-native-gesture-handler';
 
 const FeedItem = memo(function FeedItem({
     data
@@ -20,6 +30,24 @@ const FeedItem = memo(function FeedItem({
     const { currentTheme } = useTheme();
     const [tabIndex, setTabIndex] = useState(0);
     const imageLength = data.fileUrl.length;
+
+    const scale = useSharedValue(1); // Scale state
+
+    // Gesture Handler
+    const pinchHandler: any = useAnimatedGestureHandler({
+        onActive: (event: any) => {
+            scale.value = Math.max(1, Math.min(event.scale, 3)); // Restrict scale
+        },
+        onEnd: () => {
+            scale.value = withSpring(1); // Reset smoothly
+        },
+    });
+
+    // Animated Style
+    const animatedStyle = useAnimatedStyle(() => ({
+        transform: [{ scale: scale.value }],
+    }));
+
     const navigateToProfile = useCallback(() => {
         if (!data.user) return ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT);
         navigation.dispatch(StackActions.push("Profile", { id: data.user.username }));
@@ -58,43 +86,50 @@ const FeedItem = memo(function FeedItem({
             </View>
         </View>
         {/* view image */}
-        <View style={{
-            width: "100%",
-            height: "auto",
-            aspectRatio: 4 / 5,
+        <GestureHandlerRootView style={{
+            flex: 1
         }}>
-            {/* indicator */}
-            {imageLength > 1 ? <View style={{
-                position: "absolute",
-                top: 0,
-                right: 0,
-                width: "auto",
-                backgroundColor: "rgba(0,0,0,0.6)",
-                zIndex: 10,
-                borderRadius: 10,
-                margin: 10,
-                paddingHorizontal: 4,
-            }}>
-                <Text variant="H6" style={{
-                    fontWeight: "400",
-                    color: "white",
-                    padding: 5,
-                    fontSize: 16
-                }}>
-                    {tabIndex + 1}/{imageLength}
-                </Text>
-            </View> : <View />}
-            {/* image */}
-            <PagerView
-                initialPage={tabIndex}
-                onPageSelected={(e) => setTabIndex(e.nativeEvent.position)}
-                style={{
+            <PinchGestureHandler onGestureEvent={pinchHandler}>
+                <Animated.View style={[{
                     width: "100%",
-                    height: "100%",
-                }}>
-                {data.fileUrl.map((item, index) => (<ImageItem key={index} item={item} index={index} />))}
-            </PagerView>
-        </View>
+                    aspectRatio: 4 / 5
+                }, animatedStyle]}>
+                    {/* indicator */}
+                    {imageLength > 1 ? <View style={{
+                        position: "absolute",
+                        top: 0,
+                        right: 0,
+                        width: "auto",
+                        backgroundColor: "rgba(0,0,0,0.6)",
+                        zIndex: 10,
+                        borderRadius: 10,
+                        margin: 10,
+                        paddingHorizontal: 4,
+                    }}>
+                        <Text variant="H6" style={{
+                            fontWeight: "400",
+                            color: "white",
+                            padding: 5,
+                            fontSize: 16
+                        }}>
+                            {tabIndex + 1}/{imageLength}
+                        </Text>
+                    </View> : <View />}
+                    {/* image */}
+                    <PagerView
+                        initialPage={tabIndex}
+                        onPageSelected={(e) => setTabIndex(e.nativeEvent.position)}
+                        style={{
+                            width: "100%",
+                            height: "100%",
+                        }}>
+                        {data.fileUrl.map((item, index) => (<ImageItem key={index} item={item} index={index} />))}
+                    </PagerView>
+                </Animated.View>
+            </PinchGestureHandler>
+        </GestureHandlerRootView>
+
+        {/* indicator */}
         {imageLength > 1 ? <View style={{
             width: "100%",
             zIndex: 10,
@@ -261,6 +296,7 @@ const ImageItem = memo(function ImageItem({ item, index }: { item: any, index: n
 }, (prev, next) => {
     return prev.item.id === next.item.id
 })
+
 const FeedItemContent = memo(function FeedItemContent({ data
 }: {
     data: Post,
