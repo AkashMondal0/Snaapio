@@ -15,6 +15,7 @@ import CallDeclined from "./callDeclined";
 import { hapticVibrate } from "@/lib/RN-vibration";
 import { Socket } from "socket.io-client";
 import { IconButtonWithoutThemed } from "@/components/skysolo-ui/Icon";
+import DraggableView from "@/components/calling/DraggableView";
 type ChannelData<T> = {
 	type: "MICROPHONE" | "CAMERA" | "MESSAGE" | "INITIAL";
 	value: T;
@@ -248,7 +249,9 @@ const ScreenComponent = ({
 	largeStreamActions: { isCameraOn: boolean, isMuted: boolean };
 	streamType: "audio" | "video";
 }) => {
-	return <>
+	return <View style={{
+		flex: 1
+	}}>
 		<TouchableOpacity
 			activeOpacity={1}
 			// onPress={onPress}
@@ -286,61 +289,64 @@ const ScreenComponent = ({
 			</View> : <></>}
 		</TouchableOpacity>
 		{/* small */}
-		<TouchableOpacity
-			activeOpacity={0.9}
-			onPress={screenSwapping}
-			style={{
-				position: "absolute",
-				backgroundColor: currentTheme.accent,
-				borderRadius: 20,
-				overflow: "hidden",
-				width: "30%",
-				right: 10,
-				aspectRatio: 2.5 / 4,
-				borderWidth: 6,
-				borderColor: currentTheme.background,
-				top: Number(StatusBarTop) + 2,
-				display: streamType === "audio" ? "none" : "flex"
-			}}>
-			{smallStream && smallStreamActions.isCameraOn ? <RTCView
-				zOrder={1}
-				style={{
-					width: "100%",
-					height: "100%",
-				}}
-				// @ts-ignore
-				streamURL={smallStream?.toURL()}
-				objectFit="cover" /> :
-				<View style={{
-					backgroundColor: currentTheme.accent,
-					width: "100%",
-					height: "100%",
-					flex: 1,
-					alignItems: "center",
-					justifyContent: "center"
-				}} >
-					<Avatar
-						url={smallStreamUser?.profilePicture}
-						size={80} onPress={screenSwapping} />
-				</View>}
+		<DraggableView position="topRight">
 			<TouchableOpacity
+				activeOpacity={0.9}
 				onPress={screenSwapping}
 				style={{
-					padding: 10,
-					justifyContent: "flex-end",
-					alignItems: "center",
-					width: "100%",
-					height: "100%",
-					flex: 1,
 					position: "absolute",
+					backgroundColor: currentTheme.accent,
+					borderRadius: 20,
+					overflow: "hidden",
+					width: "80%",
+					aspectRatio: 3 / 5,
+					right: 2,
+					borderWidth: 6,
+					borderColor: "#fff",
+					top: Number(StatusBarTop) + 2,
+					display: streamType === "audio" ? "none" : "flex"
 				}}>
-				{smallStreamActions.isMuted ?
-					<IconButtonWithoutThemed
-						iconName={"MicOff"}
-						size={30}
-						color={currentTheme.foreground} />
-					: <></>}
+				{smallStream && smallStreamActions.isCameraOn ? <RTCView
+					zOrder={1}
+					style={{
+						width: "100%",
+						height: "100%"
+					}}
+					// @ts-ignore
+					streamURL={smallStream?.toURL()}
+					objectFit="cover" /> :
+					<View style={{
+						backgroundColor: currentTheme.accent,
+						width: "100%",
+						height: "100%",
+						flex: 1,
+						alignItems: "center",
+						justifyContent: "center"
+					}} >
+						<Avatar
+							url={smallStreamUser?.profilePicture}
+							size={80} onPress={screenSwapping} />
+					</View>
+				}
+				<View
+					style={{
+						padding: 10,
+						justifyContent: "flex-end",
+						alignItems: "center",
+						width: "100%",
+						height: "100%",
+						flex: 1,
+						position: "absolute",
+					}}>
+					{smallStreamActions.isMuted ?
+						<IconButtonWithoutThemed
+							iconName={"MicOff"}
+							size={30}
+							color={currentTheme.foreground} />
+						: <></>}
+				</View>
 			</TouchableOpacity>
-		</TouchableOpacity>
-	</>
+		</DraggableView>
+
+	</View>
 };

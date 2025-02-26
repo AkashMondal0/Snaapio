@@ -5,6 +5,7 @@ import { Avatar, Icon } from "@/components/skysolo-ui";
 import { useNavigation } from "@react-navigation/native";
 import { Session } from "@/types";
 import { hapticVibrate } from "@/lib/RN-vibration";
+import InCallManager from "react-native-incall-manager";
 
 const CallDeclined = memo(function CallDeclined({
 	stopStream,
@@ -19,6 +20,7 @@ const CallDeclined = memo(function CallDeclined({
 	const Back = useCallback(() => {
 		hapticVibrate()
 		stopStream()
+		InCallManager.stop();
 		if (navigation.canGoBack()) {
 			navigation.goBack()
 			return
