@@ -254,6 +254,7 @@ const useWebRTC = ({
       remoteId: remoteUser?.id,
       data: null,
     });
+    InCallManager.stop();
     hapticVibrate();
     onCallState?.("DISCONNECTED");
   };
@@ -265,6 +266,7 @@ const useWebRTC = ({
     if (remoteStream) {
       remoteStream.getTracks().forEach((track) => track.stop());
     }
+    InCallManager.stop();
     peerConnectionRef.current?.close();
     peerConnectionRef.current = new RTCPeerConnection({
       iceServers: [{ urls: ["stun:stun.l.google.com:19302"] }],

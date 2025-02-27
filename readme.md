@@ -99,6 +99,8 @@ docker compose up
 
 ![App Screenshot](/public/1.jpg)
 
+![App Screenshot](/public/3.jpg)
+
 ## Themes
 
-![App Screenshot](/public/skylight%20theme.jpg)
+![App Screenshot](/public/4.jpg)
