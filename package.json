@@ -55,7 +55,11 @@
     "react-redux": "^9.1.0",
     "redux-persist": "^6.0.0",
     "socket.io-client": "^4.8.0",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "expo-clipboard": "~7.0.1",
+    "expo-linear-gradient": "~14.0.2",
+    "expo-audio": "~0.3.5",
+    "expo-video": "~2.0.5"
   },
   "devDependencies": {
     "@babel/core": "^7.24.0",
@@ -73,5 +77,13 @@
   "resolutions": {
     "react-refresh": "~0.14.0"
   },
-  "private": true
+  "private": true,
+  "expo": {
+    "install": {
+      "exclude": [
+        "expo-updates",
+        "expo-splash-screen"
+      ]
+    }
+  }
 }
