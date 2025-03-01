@@ -182,6 +182,7 @@ const CallScreen = ({
 		remoteStream.current?.getTracks().forEach((track) => track.stop());
 		InCallManager.stop();
 		peerConnectionRef.current?.close();
+		hapticVibrate();
 		if (!session?.id || !remoteUserData?.id) return;
 		socket?.emit("peerLeft", {
 			id: session?.id,
@@ -288,7 +289,7 @@ const CallScreen = ({
 		}}>
 			<VideoCallCounter name={remoteUserData?.name} start={callState === "CONNECTED"} />
 			<StatusBar translucent backgroundColor={"transparent"}
-				barStyle={themeScheme === "dark" ? "light-content" : "dark-content"} />
+				barStyle={"light-content"} />
 			<Components
 				hangUp={hangUp}
 				localStream={localStream.current}
@@ -326,6 +327,7 @@ const Components = ({
 	streamType: "audio" | "video";
 }) => {
 	const [isSwapped, setIsSwapped] = useState(true);
+	const [isShow, setIsShow] = useState(true);
 	const [remoteAction, setRemoteAction] = useState({
 		isCameraOn: false,
 		isMuted: false
@@ -337,8 +339,13 @@ const Components = ({
 		isSpeakerOn: true
 	});
 
+	const onPress = useCallback(() => {
+		// hapticVibrate();
+		setIsShow((prev) => !prev);
+	}, [])
+
 	const screenSwapping = useCallback(() => {
-		hapticVibrate();
+		// hapticVibrate();
 		setIsSwapped((prev) => !prev);
 	}, [])
 
@@ -415,6 +422,7 @@ const Components = ({
 		{isSwapped ?
 			// local 
 			<ScreenComponent
+				onPress={onPress}
 				currentTheme={currentTheme}
 				screenSwapping={screenSwapping}
 				streamType={streamType}
@@ -431,6 +439,7 @@ const Components = ({
 			// remote
 			<ScreenComponent StatusBarTop={StatusBar.currentHeight || 0}
 				streamType={streamType}
+				onPress={onPress}
 				currentTheme={currentTheme}
 				screenSwapping={screenSwapping}
 				// remote user
@@ -443,7 +452,7 @@ const Components = ({
 				largeStreamActions={authorAction}
 			/>
 		}
-		<ActionBoxComponent
+		{isShow ? <ActionBoxComponent
 			endCall={hangUp}
 			toggleCamera={toggleCamera}
 			switchCamera={switchCamera}
@@ -455,7 +464,7 @@ const Components = ({
 			isCameraOn={authorAction.isCameraOn}
 			isFrontCam={authorAction.isFrontCam}
 			isSpeakerOn={authorAction.isSpeakerOn}
-		/>
+		/> : <></>}
 	</View>
 };
 
@@ -469,7 +478,8 @@ const ScreenComponent = ({
 	smallStreamUser,
 	smallStreamActions,
 	largeStreamActions,
-	streamType
+	streamType,
+	onPress
 }: {
 	largeStream: MediaStream | null;
 	smallStream: MediaStream | null;
@@ -481,13 +491,14 @@ const ScreenComponent = ({
 	smallStreamActions: { isCameraOn: boolean, isMuted: boolean };
 	largeStreamActions: { isCameraOn: boolean, isMuted: boolean };
 	streamType: "audio" | "video";
+	onPress: () => void;
 }) => {
 	return <View style={{
 		flex: 1
 	}}>
 		<TouchableOpacity
 			activeOpacity={1}
-			// onPress={onPress}
+			onPress={onPress}
 			style={{
 				backgroundColor: currentTheme.muted,
 				width: "100%",
@@ -497,7 +508,7 @@ const ScreenComponent = ({
 				justifyContent: "center",
 				gap: 10
 			}}>
-			{largeStream && largeStreamActions.isCameraOn ? <RTCView
+			{largeStream && largeStreamActions.isCameraOn ? <RTCView key={largeStream?.id}
 				mirror={true}
 				objectFit={'cover'}
 				style={{
@@ -525,15 +536,18 @@ const ScreenComponent = ({
 		<DraggableView position="topRight">
 			<TouchableOpacity
 				activeOpacity={0.9}
+				onPressIn={() => hapticVibrate()}
 				onPress={screenSwapping}
 				style={{
 					position: "absolute",
 					backgroundColor: currentTheme.accent,
-					borderRadius: 20,
+					borderRadius: 10,
 					overflow: "hidden",
-					width: "100%",
-					aspectRatio: 3 / 5,
-					borderWidth: 4,
+					width: "86%",
+					flex: 1,
+					right: 2,
+					aspectRatio: 3 / 4,
+					borderWidth: 2.8,
 					borderColor: "#fff",
 					shadowColor: "#000",
 					shadowOffset: {
@@ -543,15 +557,17 @@ const ScreenComponent = ({
 					shadowOpacity: 0.25,
 					shadowRadius: 3.84,
 					elevation: 5,
-					top: Number(StatusBarTop) + 2,
+					top: Number(StatusBarTop),
 					display: streamType === "audio" ? "none" : "flex"
 				}}>
 				{smallStream && smallStreamActions.isCameraOn ? <RTCView
 					zOrder={1}
 					style={{
 						width: "100%",
-						height: "100%"
+						height: "100%",
+						backgroundColor: "transparent"
 					}}
+					key={smallStream?.id}
 					mirror={true}
 					// @ts-ignore
 					streamURL={smallStream?.toURL()}
@@ -566,7 +582,7 @@ const ScreenComponent = ({
 					}} >
 						<Avatar
 							url={smallStreamUser?.profilePicture}
-							size={80} onPress={screenSwapping} />
+							size={60} onPress={screenSwapping} />
 					</View>
 				}
 				<View

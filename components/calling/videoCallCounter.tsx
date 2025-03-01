@@ -30,13 +30,13 @@ const VideoCallCounter = ({
 
 	return (
 		<View style={{
+			alignSelf: 'center',
 			alignItems: 'center',
 			justifyContent: 'center',
-			padding: 20,
 			position: 'absolute',
 			top: 60,
 			zIndex: 1,
-			width: '100%',
+			width: '40%',
 		}}>
 			<View>
 				<Text style={{
