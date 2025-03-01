@@ -79,70 +79,12 @@ const CallScreen = ({
 				peerConnectionRef.current?.addTrack(track, mediaStream)
 			);
 			InCallManager.start({ auto: true });
+			// @ts-ignore
 			localStream.current = mediaStream;
 			setCallState("PENDING")
 		} catch (err) {
 			console.error("❌ Error starting local stream:", err);
 		}
-	};
-
-	// 📌 **Toggle Microphone**
-	const toggleMicrophone = () => {
-		if (localStream.current) {
-			localStream.current?.getAudioTracks().forEach((track) => {
-				track.enabled = !track.enabled;
-			});
-			// setIsMuted((prev) => !prev);
-			socket?.emit("call-action", {
-				remoteId: remoteUserData?.id,
-				type: "MICROPHONE",
-				value: {
-					isMuted: true
-				},
-			});
-			hapticVibrate();
-			// console.log("📌 Microphone toggled.");
-		}
-	};
-
-	// 📌 **Toggle Camera**
-	const toggleCamera = ({ isCameraOn, isFrontCam }: {
-		isCameraOn: boolean;
-		isFrontCam: "environment" | "user";
-	}) => {
-		if (localStream.current) {
-			localStream.current?.getVideoTracks().forEach((track) => {
-				track.enabled = !track.enabled;
-			});
-			socket?.emit("call-action", {
-				remoteId: remoteUserData?.id,
-				type: "CAMERA",
-				value: {
-					isCameraOn: !isCameraOn
-				},
-			});
-			// setIsCameraOn((prev) => !prev);
-			hapticVibrate();
-			// console.log("📌 Camera toggled.");
-		}
-	};
-
-	// 📌 **Switch Front/Back Camera**
-	const switchCamera = ({ isCameraOn, isFrontCam }: {
-		isCameraOn: boolean;
-		isFrontCam: "environment" | "user";
-	}) => {
-		if (!localStream || !isFrontCam || !isFrontCam) return console.error("📌 Camera switchCamera.");
-		const videoTrack = localStream.current?.getVideoTracks()[0];
-		videoTrack?.applyConstraints({ facingMode: isFrontCam });
-		// setIsFrontCam((prev) => !prev);
-		hapticVibrate()
-	};
-
-	//  📌 **AudioToSpeaker**
-	const toggleSpeaker = (data: boolean) => {
-		InCallManager.setSpeakerphoneOn(data); // Enable loudspeaker
-		// setIsSpeakerOn((prev) => !prev);
 	};
 
 	// ------------------------ peer -----------------
@@ -163,11 +105,7 @@ const CallScreen = ({
 				remoteId: remoteUserData?.id,
 				data: offerDescription,
 			});
-
-			// onCallState?.("PENDING");
-			// console.log("📌 Offer created and sent.");
 		} catch (err) {
-			// onError?.("❌ Error creating offer:", err)
 			console.error("❌ Error creating offer:", err);
 		}
 	};
@@ -187,10 +125,7 @@ const CallScreen = ({
 				remoteId: remoteUserData?.id,
 				data: answer,
 			});
-
-			// console.log("📌 Answer created and sent.");
 		} catch (err) {
-			// onError?.("❌ Error creating answer:", err);
 			console.error("❌ Error creating answer:", err);
 		}
 	};
@@ -202,9 +137,7 @@ const CallScreen = ({
 			if (!res.data) return;
 			await peerConnectionRef.current?.addIceCandidate(new RTCIceCandidate(res.data));
 			setCallState("CONNECTED")
-			//   // console.log("📌 Remote ICE candidate added.");
 		} catch (err) {
-			//   onError?.("❌ Error adding ICE candidate:", err);
 			console.error("❌ Error adding ICE candidate:", err);
 		}
 	};
@@ -218,7 +151,6 @@ const CallScreen = ({
 				remoteId: remoteUserData?.id,
 				data: event.candidate,
 			});
-			// console.log("📌 ICE candidate sent.");
 		}
 	};
 
@@ -236,7 +168,7 @@ const CallScreen = ({
 					type: "INITIAL",
 					value: {
 						isCameraOn: event.streams[0]?.getVideoTracks()[0]?.enabled,
-						isMuted: true
+						isMuted: false
 					},
 				});
 			}
@@ -331,7 +263,10 @@ const CallScreen = ({
 			peerConnectionRef.current?.removeEventListener("track", handleTrackEvent);
 			peerConnectionRef.current?.removeEventListener("icecandidate", handleICECandidateEvent);
 			// 
-			stopStream()
+			localStream.current?.getTracks().forEach((track) => track.stop());
+			remoteStream.current?.getTracks().forEach((track) => track.stop());
+			InCallManager.stop();
+			peerConnectionRef.current?.close();
 		};
 	}, []);
 
@@ -355,27 +290,13 @@ const CallScreen = ({
 			<StatusBar translucent backgroundColor={"transparent"}
 				barStyle={themeScheme === "dark" ? "light-content" : "dark-content"} />
 			<Components
+				hangUp={hangUp}
 				localStream={localStream.current}
 				remoteStream={remoteStream.current}
 				session={session}
 				remoteUserData={remoteUserData}
 				currentTheme={currentTheme}
-				isCameraOn={true}
-				isMuted={true}
 				socket={socket}
-				streamType={remoteUserData?.stream || "audio"}
-			/>
-			<ActionBoxComponent
-				currentTheme={currentTheme}
-				isCameraOn={true}
-				isMuted={true}
-				isSpeakerOn={true}
-				isFrontCam={true}
-				endCall={hangUp}
-				toggleSpeaker={toggleSpeaker}
-				toggleCamera={toggleCamera}
-				switchCamera={switchCamera}
-				toggleMicrophone={toggleMicrophone}
 				streamType={remoteUserData?.stream || "audio"}
 			/>
 		</View>
@@ -391,18 +312,16 @@ const Components = ({
 	session,
 	remoteUserData,
 	currentTheme,
-	isCameraOn,
-	isMuted,
 	socket,
-	streamType
+	streamType,
+	hangUp
 }: {
+	hangUp: () => void;
 	localStream: MediaStream | null;
 	remoteStream: MediaStream | null;
 	session: Session["user"];
 	remoteUserData: Session["user"];
 	currentTheme: any;
-	isCameraOn: boolean;
-	isMuted: boolean;
 	socket: Socket | null;
 	streamType: "audio" | "video";
 }) => {
@@ -411,55 +330,133 @@ const Components = ({
 		isCameraOn: false,
 		isMuted: false
 	});
+	const [authorAction, setAuthorAction] = useState({
+		isCameraOn: true,
+		isMuted: false,
+		isFrontCam: true,
+		isSpeakerOn: true
+	});
 
-	const screenSwapping = () => {
+	const screenSwapping = useCallback(() => {
 		hapticVibrate();
 		setIsSwapped((prev) => !prev);
-	}
+	}, [])
+
+	// 📌 **Toggle Microphone**
+	const toggleMicrophone = () => {
+		if (localStream && remoteUserData) {
+			localStream.getAudioTracks().forEach((track) => {
+				track.enabled = !track.enabled;
+			});
+			setAuthorAction((prev) => ({ ...prev, isMuted: !prev.isMuted }))
+			socket?.emit("call-action", {
+				remoteId: remoteUserData?.id,
+				type: "MICROPHONE",
+				value: {
+					isMuted: !authorAction.isMuted
+				},
+			});
+			hapticVibrate();
+		}
+	};
+
+	// 📌 **Toggle Camera**
+	const toggleCamera = () => {
+		if (localStream && remoteUserData) {
+			localStream.getVideoTracks().forEach((track) => {
+				track.enabled = !track.enabled;
+			});
+			socket?.emit("call-action", {
+				remoteId: remoteUserData?.id,
+				type: "CAMERA",
+				value: {
+					isCameraOn: !authorAction.isCameraOn
+				},
+			});
+			setAuthorAction((prev) => ({ ...prev, isCameraOn: !prev.isCameraOn }));
+			hapticVibrate();
+			// console.log("📌 Camera toggled.");
+		}
+	};
+
+	// 📌 **Switch Front/Back Camera**
+	const switchCamera = () => {
+		if (!localStream || !authorAction.isCameraOn) return;
+
+		const videoTrack = localStream.getVideoTracks()[0];
+		const constraints = { facingMode: authorAction.isFrontCam ? "environment" : "user" };
+
+		videoTrack.applyConstraints(constraints);
+		setAuthorAction((prev) => ({ ...prev, isFrontCam: !prev.isFrontCam }));
+		hapticVibrate()
+		console.log("📌 Camera switched.");
+	};
+
+	//  📌 **AudioToSpeaker**
+	const toggleSpeaker = () => {
+		InCallManager.setSpeakerphoneOn(!authorAction.isSpeakerOn); // Enable loudspeaker
+		setAuthorAction((prev) => ({ ...prev, isSpeakerOn: !prev.isSpeakerOn }));
+	};
+
 	useEffect(() => {
 		socket?.on("call-action", (data: ChannelData<{ isCameraOn: boolean, isMuted: boolean }>) => {
 			setRemoteAction((prev) => ({ ...prev, ...data.value }));
 		});
-
 		return () => {
 			socket?.off("call-action");
 		};
 	}, []);
 
 
-	return <>
-		{
-			isSwapped ?
-				// local 
-				<ScreenComponent
-					streamType={streamType}
-					StatusBarTop={StatusBar.currentHeight || 0}
-					// session is local user
-					smallStream={localStream}
-					smallStreamUser={session}
-					smallStreamActions={{ isCameraOn, isMuted }}
-					// remote user
-					largeStream={remoteStream}
-					largeStreamUser={remoteUserData}
-					largeStreamActions={remoteAction}
-					currentTheme={currentTheme}
-					screenSwapping={screenSwapping}
-				/> :
-				// remote
-				<ScreenComponent StatusBarTop={StatusBar.currentHeight || 0}
-					// remote user
-					streamType={streamType}
-					smallStream={remoteStream}
-					smallStreamUser={remoteUserData}
-					smallStreamActions={remoteAction}
-					// session is local user
-					largeStream={localStream}
-					largeStreamUser={session}
-					currentTheme={currentTheme}
-					largeStreamActions={{ isCameraOn, isMuted }}
-					screenSwapping={screenSwapping} />
+	return <View style={{
+		flex: 1,
+		width: "100%"
+	}}>
+		{isSwapped ?
+			// local 
+			<ScreenComponent
+				currentTheme={currentTheme}
+				screenSwapping={screenSwapping}
+				streamType={streamType}
+				StatusBarTop={StatusBar.currentHeight || 0}
+				// session is local user
+				smallStream={localStream}
+				smallStreamUser={session}
+				smallStreamActions={authorAction}
+				// remote user
+				largeStream={remoteStream}
+				largeStreamUser={remoteUserData}
+				largeStreamActions={remoteAction}
+			/> :
+			// remote
+			<ScreenComponent StatusBarTop={StatusBar.currentHeight || 0}
+				streamType={streamType}
+				currentTheme={currentTheme}
+				screenSwapping={screenSwapping}
+				// remote user
+				smallStream={remoteStream}
+				smallStreamUser={remoteUserData}
+				smallStreamActions={remoteAction}
+				// session is local user
+				largeStream={localStream}
+				largeStreamUser={session}
+				largeStreamActions={authorAction}
+			/>
 		}
-	</>
+		<ActionBoxComponent
+			endCall={hangUp}
+			toggleCamera={toggleCamera}
+			switchCamera={switchCamera}
+			toggleSpeaker={toggleSpeaker}
+			toggleMicrophone={toggleMicrophone}
+			streamType={streamType}
+			currentTheme={currentTheme}
+			isMuted={authorAction.isMuted}
+			isCameraOn={authorAction.isCameraOn}
+			isFrontCam={authorAction.isFrontCam}
+			isSpeakerOn={authorAction.isSpeakerOn}
+		/>
+	</View>
 };
 
 const ScreenComponent = ({
@@ -534,11 +531,18 @@ const ScreenComponent = ({
 					backgroundColor: currentTheme.accent,
 					borderRadius: 20,
 					overflow: "hidden",
-					width: "80%",
+					width: "100%",
 					aspectRatio: 3 / 5,
-					right: 2,
-					borderWidth: 6,
+					borderWidth: 4,
 					borderColor: "#fff",
+					shadowColor: "#000",
+					shadowOffset: {
+						width: 0,
+						height: 2,
+					},
+					shadowOpacity: 0.25,
+					shadowRadius: 3.84,
+					elevation: 5,
 					top: Number(StatusBarTop) + 2,
 					display: streamType === "audio" ? "none" : "flex"
 				}}>
