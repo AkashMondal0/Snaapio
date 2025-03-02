@@ -57,8 +57,8 @@ const CallScreen = ({
 	}
 }) => {
 	const remoteUserData = route?.params;
-	const { socket } = useContext(SocketContext);
-	const { currentTheme, themeScheme } = useTheme();
+	const { socket, callSound } = useContext(SocketContext);
+	const { currentTheme } = useTheme();
 	const navigation = useNavigation();
 	const session = useSelector((state: RootState) => state.AuthState.session.user);
 	const [callState, setCallState] = useState<"CONNECTED" | "DISCONNECTED" | "PENDING" | "IDLE" | "ERROR">("IDLE");
@@ -70,6 +70,7 @@ const CallScreen = ({
 
 	const startLocalUserStream = async () => {
 		try {
+			callSound("START")
 			const mediaStream = await mediaDevices.getUserMedia({
 				audio: true,
 				video: remoteUserData?.stream === "video"
@@ -78,9 +79,9 @@ const CallScreen = ({
 			mediaStream.getTracks().forEach((track) =>
 				peerConnectionRef.current?.addTrack(track, mediaStream)
 			);
-			InCallManager.start({ auto: true });
 			// @ts-ignore
 			localStream.current = mediaStream;
+			InCallManager.start({ media: "audio" });
 			setCallState("PENDING")
 		} catch (err) {
 			console.error("❌ Error starting local stream:", err);
@@ -137,6 +138,7 @@ const CallScreen = ({
 			if (!res.data) return;
 			await peerConnectionRef.current?.addIceCandidate(new RTCIceCandidate(res.data));
 			setCallState("CONNECTED")
+			callSound("START")
 		} catch (err) {
 			console.error("❌ Error adding ICE candidate:", err);
 		}
@@ -178,9 +180,10 @@ const CallScreen = ({
 
 	// 📌 **Stop Stream & Cleanup**
 	const stopStream = () => {
+		callSound("END")
+		InCallManager.stop()
 		localStream.current?.getTracks().forEach((track) => track.stop());
 		remoteStream.current?.getTracks().forEach((track) => track.stop());
-		InCallManager.stop();
 		peerConnectionRef.current?.close();
 		hapticVibrate();
 		if (!session?.id || !remoteUserData?.id) return;
@@ -266,16 +269,14 @@ const CallScreen = ({
 			// 
 			localStream.current?.getTracks().forEach((track) => track.stop());
 			remoteStream.current?.getTracks().forEach((track) => track.stop());
-			InCallManager.stop();
 			peerConnectionRef.current?.close();
 		};
 	}, []);
 
 	useFocusEffect(
 		useCallback(() => {
-			InitFunc()
+			InitFunc();
 			startLocalUserStream();
-			InCallManager.start({ media: "audio" });
 			return () => {
 				stopStream();
 			};
@@ -341,7 +342,7 @@ const Components = ({
 
 	const onPress = useCallback(() => {
 		// hapticVibrate();
-		setIsShow((prev) => !prev);
+		// setIsShow((prev) => !prev);
 	}, [])
 
 	const screenSwapping = useCallback(() => {
@@ -395,8 +396,7 @@ const Components = ({
 
 		videoTrack.applyConstraints(constraints);
 		setAuthorAction((prev) => ({ ...prev, isFrontCam: !prev.isFrontCam }));
-		hapticVibrate()
-		console.log("📌 Camera switched.");
+		hapticVibrate();
 	};
 
 	//  📌 **AudioToSpeaker**

@@ -90,7 +90,6 @@ const InComingCall = memo(function InComingCall({
 
             return () => {
                 InCallManager.stopRingtone();
-                InCallManager.stop();
             };
         }, [])
     );

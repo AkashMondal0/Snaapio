@@ -136,6 +136,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         supportsBackgroundPlayback: true,
         supportsPictureInPicture: true
       }
+    ],
+    [
+      "expo-av",
+      {
+        "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
+      }
     ]
   ],
   owner: "akashmondal0"

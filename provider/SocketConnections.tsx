@@ -12,11 +12,14 @@ import { setNotification } from "@/redux-stores/slice/notification";
 import { fetchUnreadMessageNotificationCountApi } from "@/redux-stores/slice/notification/api.service";
 import React from "react";
 import { setCallStatus } from "@/redux-stores/slice/call";
+import { Audio } from 'expo-av';
 // create socket context 
 export const SocketContext = React.createContext<{
     socket: Socket | null,
+    callSound: (data: "END" | "START") => void
 }>({
     socket: null,
+    callSound: (data: "END" | "START") => { }
 });
 
 const SocketConnectionsProvider = ({
@@ -80,6 +83,20 @@ const SocketConnectionsProvider = ({
         ToastAndroid.show("Test from socket server", ToastAndroid.SHORT)
     }, [])
 
+    const callSound = useCallback(async (data: "END" | "START") => {
+        if (data === "END") {
+            const { sound: End } = await Audio.Sound.createAsync(
+                require('../assets/audios/callleave.wav')
+            )
+            await End.playAsync();
+            return;
+        }
+        const { sound: Start } = await Audio.Sound.createAsync(
+            require('../assets/audios/connect.wav')
+        )
+        await Start.playAsync();
+    }, [])
+
     const incomingCall = useCallback(async (data: {
         username: string;
         email: string
@@ -136,7 +153,8 @@ const SocketConnectionsProvider = ({
     }, [session, list.length])
 
     return <SocketContext.Provider value={{
-        socket: socketRef.current
+        socket: socketRef.current,
+        callSound
     }}>
         {children}
     </SocketContext.Provider>
