@@ -124,25 +124,25 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         isAccessMediaLocationEnabled: true
       }
     ],
-    // [
-    //   "expo-secure-store",
-    //   {
-    //     faceIDPermission: "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
-    //   }
-    // ],
-    // [
-    //   "expo-audio",
-    //   {
-    //     microphonePermission: "Allow $(PRODUCT_NAME) to access your microphone."
-    //   }
-    // ],
-    // [
-    //   "expo-video",
-    //   {
-    //     supportsBackgroundPlayback: true,
-    //     supportsPictureInPicture: true
-    //   }
-    // ]
+    [
+      "expo-audio",
+      {
+        microphonePermission: "Allow $(PRODUCT_NAME) to access your microphone."
+      }
+    ],
+    [
+      "expo-video",
+      {
+        supportsBackgroundPlayback: true,
+        supportsPictureInPicture: true
+      }
+    ],
+    [
+      "expo-av",
+      {
+        "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
+      }
+    ]
   ],
   owner: "akashmondal0"
 });

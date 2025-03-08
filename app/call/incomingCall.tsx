@@ -4,10 +4,11 @@ import { Linking, PermissionsAndroid, Platform, ToastAndroid, TouchableOpacity, 
 import { Avatar, Icon } from "@/components/skysolo-ui";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
-import { StackActions, useNavigation } from "@react-navigation/native";
+import { StackActions, useFocusEffect, useNavigation } from "@react-navigation/native";
 import { hapticVibrate } from "@/lib/RN-vibration";
 import { Session } from "@supabase/supabase-js";
 import { SocketContext } from "@/provider/SocketConnections";
+import InCallManager from 'react-native-incall-manager';
 
 const InComingCall = memo(function InComingCall({
     route
@@ -82,6 +83,17 @@ const InComingCall = memo(function InComingCall({
         }
         navigation.dispatch(StackActions.replace("HomeTabs"))
     }, [userData?.id]);
+
+    useFocusEffect(
+        useCallback(() => {
+            InCallManager.startRingtone("_DEFAULT_", 100, "", 0);
+
+            return () => {
+                InCallManager.stopRingtone();
+            };
+        }, [])
+    );
+
 
     useEffect(() => {
         if (callStatus === "DISCONNECTED") {

@@ -16,6 +16,8 @@ import { Input } from "hyper-native-ui";
 import { useNavigation } from "@react-navigation/native";
 import { SocketContext } from "@/provider/SocketConnections";
 import { configs } from "@/configs";
+import { Audio } from 'expo-av';
+
 const schema = z.object({
     message: z.string().min(1)
 })
@@ -82,6 +84,10 @@ const ChatScreenInput = memo(function ChatScreenInput({
                 }) as any)
             }
             reset();
+            const { sound: Start } = await Audio.Sound.createAsync(
+                require('../../assets/audios/message.mp3')
+            )
+            await Start.playAsync();
         } catch (error: any) {
             ToastAndroid.show("Something went wrong", ToastAndroid.SHORT)
         } finally {
