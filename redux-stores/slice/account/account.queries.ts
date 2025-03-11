@@ -5,14 +5,17 @@ export const AQ = {
       content
       title
       fileUrl {
-      id
-      urls {
-        low
-        high
+        width
+        height
+        square
+        square_sm
+        blur_square
+        original
+        original_sm
+        blur_original
+        type
+        id
       }
-      type
-      caption
-    }
       createdAt
       updatedAt
       authorId
@@ -27,7 +30,8 @@ export const AQ = {
         profilePicture
       }
     }
-  }`,
+  }
+  `,
   updateUserProfile: `mutation UpdateUserProfile($updateUsersInput: UpdateUsersInput!) {
     updateUserProfile(UpdateUsersInput: $updateUsersInput) {
       profilePicture
@@ -45,13 +49,16 @@ export const AQ = {
       title
       id
       fileUrl {
-      id
-      urls {
-        low
-        high
-      }
-      type
-      caption
+        width
+        height
+        square
+        square_sm
+        blur_square
+        original
+        original_sm
+        blur_original
+        type
+        id
     }
       createdAt
       content
@@ -72,14 +79,16 @@ export const AQ = {
     createdAt
     content
     fileUrl {
-      id
-      urls {
-        low
-        medium
-        high
-      }
+      width
+      height
+      square
+      square_sm
+      blur_square
+      original
+      original_sm
+      blur_original
       type
-      caption
+      id
     }
   }}`,
   storyTimelineConnection: `query StoryTimelineConnection($graphQlPageQuery: GraphQLPageQuery!) {
@@ -96,13 +105,16 @@ export const AQ = {
     authorId
       createdAt
       fileUrl {
-        id
-        urls {
-          high
-          medium
-        }
-        type
-        caption
+        width
+      height
+      square
+      square_sm
+      blur_square
+      original
+      original_sm
+      blur_original
+      type
+      id
       }
       id
       song

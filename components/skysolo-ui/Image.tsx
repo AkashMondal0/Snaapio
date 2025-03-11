@@ -63,6 +63,7 @@ const ImageComponent = ({
         <View style={[styles.container, style as any]}>
             <Image
                 source={{ uri: imageUrl }}
+                placeholder={blurUrl}
                 contentFit="cover"
                 priority={"high"}
                 style={[styles.image, { backgroundColor: currentTheme?.muted }, style]}

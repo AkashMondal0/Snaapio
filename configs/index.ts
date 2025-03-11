@@ -57,7 +57,7 @@ const _configs = {
         }
     },
     AppDetails: {
-        version: "0.1.0",
+        version: "0.1.1",
         name: "Snaapio",
         description: "Snaapio is a social media platform that allows users to share their thoughts and ideas with the world.",
         appUrl: '',

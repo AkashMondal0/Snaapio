@@ -1,13 +1,13 @@
 import React, { memo, useCallback } from 'react';
 import SelectAssets from '@/components/upload/select-assets';
 import * as MediaLibrary from 'expo-media-library';
-import { useNavigation } from '@react-navigation/native';
+import { StackActions, useNavigation } from '@react-navigation/native';
 import { View } from 'react-native';
 
 const PostSelectScreen = memo(function PostSelectScreen() {
     const navigation = useNavigation();
     const nextAction = useCallback((selectedAssets: MediaLibrary.Asset[]) => {
-        navigation?.navigate("PostUpload" as any, { assets: selectedAssets });
+        navigation?.dispatch(StackActions.replace("PostUpload" as any, { assets: selectedAssets }));
     }, []);
 
     return (

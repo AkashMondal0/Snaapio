@@ -11,7 +11,7 @@ const ProfileGridItem = memo(function ProfileGridItem({ item, index,
     aspectRatio?: number
 }) {
     const navigation = useNavigation();
-    if (!item.fileUrl[0].urls?.high) return <></>
+    if (!item.fileUrl[0].original_sm) return <></>
     return (
         <TouchableOpacity
             activeOpacity={0.8}
@@ -37,7 +37,7 @@ const ProfileGridItem = memo(function ProfileGridItem({ item, index,
                 {item.fileUrl.length > 1 ? <Icon iconName="Copy" size={26} color="white" /> : <View />}
             </View>
             <Image
-                url={item.fileUrl[0].urls?.high}
+                url={item.fileUrl[0].original_sm}
                 style={{
                     width: '100%',
                     height: "100%",

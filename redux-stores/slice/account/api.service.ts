@@ -1,9 +1,12 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { graphqlQuery } from "@/lib/GraphqlQuery";
-import { ImageCompressorAllQuality } from "@/lib/RN-ImageCompressor";
 import { Asset } from "expo-media-library";
-import { Assets, findDataInput, Story } from "@/types";
+import { findDataInput, Session, Story } from "@/types";
 import { AQ } from "./account.queries";
+import * as FileSystem from "expo-file-system";
+import { ToastAndroid } from "react-native";
+import { configs } from "@/configs";
+import { getSecureStorage } from "@/lib/SecureStore";
 
 export const fetchAccountFeedApi = createAsyncThunk(
     'fetchAccountFeedApi/get',
@@ -22,6 +25,120 @@ export const fetchAccountFeedApi = createAsyncThunk(
     }
 );
 
+export const uploadPost = async (data: {
+    files: Asset[]
+}): Promise<any | null> => {
+    if (!data?.files || !Array.isArray(data.files)) {
+        console.error("Invalid data.files:", data.files);
+        return;
+    }
+
+    const formData = new FormData();
+
+    const filePromises = data.files.map(async (file, index) => {
+        if (!file?.uri) {
+            console.error(`File at index ${index} is missing a URI:`, file);
+            return null;
+        }
+
+        const fileInfo = await FileSystem.getInfoAsync(file.uri);
+        if (!fileInfo.exists) {
+            console.error(`File not found: ${file.uri}`);
+            return null;
+        }
+
+        return {
+            uri: file.uri,
+            type: file.mediaType === "photo" ? "image/jpeg" : "video/mp4",
+            name: file.filename || `upload_${Date.now()}.jpg`,
+        };
+    });
+
+    const files = (await Promise.all(filePromises)).filter(Boolean); // Remove `null` values
+
+    files.forEach((file) => {
+        formData.append("files", file as any); // Change to "files" if needed
+    });
+
+    try {
+        const BearerToken = await getSecureStorage<Session["user"]>(configs.sessionName);
+        if (!BearerToken?.accessToken) {
+            console.error("Error retrieving token from SecureStorage")
+            ToastAndroid.showWithGravity("Internal Error", ToastAndroid.SHORT, ToastAndroid.CENTER);
+            return;
+        };
+        const response = await fetch(`${configs.serverApi.baseUrl}/image/upload_variant`, {
+            method: "POST",
+            body: formData,
+            credentials: "include",
+            cache: 'no-cache',
+            headers: {
+                'Authorization': `${BearerToken.accessToken}`,
+            },
+        });
+        if (!response.ok) {
+            const result = await response.json();
+            console.error("Upload failed:", result);
+            return null;
+        }
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.error("Upload failed:", error);
+        return null;
+    }
+};
+export const uploadOneFile = async (data: {
+    filesUrl: string
+}): Promise<any | null> => {
+    if (!data?.filesUrl || !Array.isArray(data.filesUrl)) {
+        console.error("Invalid data.files:", data.filesUrl);
+        return;
+    }
+
+    const formData = new FormData();
+
+    const fileInfo = await FileSystem.getInfoAsync(data?.filesUrl);
+    if (!fileInfo.exists) {
+        console.error(`File not found: ${data?.filesUrl}`);
+        return null;
+    }
+
+    formData.append("files", {
+        uri: data?.filesUrl,
+        type: "image/jpeg",
+        name: `avatar_${Date.now()}.jpg`,
+    } as any); // Change to "files" if needed
+
+    try {
+        const BearerToken = await getSecureStorage<Session["user"]>(configs.sessionName);
+        if (!BearerToken?.accessToken) {
+            console.error("Error retrieving token from SecureStorage")
+            ToastAndroid.showWithGravity("Internal Error", ToastAndroid.SHORT, ToastAndroid.CENTER);
+            return;
+        };
+        const response = await fetch(`${configs.serverApi.baseUrl}/image/upload_variant`, {
+            method: "POST",
+            body: formData,
+            credentials: "include",
+            cache: 'no-cache',
+            headers: {
+                'Authorization': `${BearerToken.accessToken}`,
+            },
+        });
+        if (!response.ok) {
+            const result = await response.json();
+            console.error("Upload failed:", result);
+            return null;
+        }
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.error("Upload failed:", error);
+        return null;
+    }
+};
+
 export const uploadFilesApi = createAsyncThunk(
     'uploadFilesApi/post',
     async (data: {
@@ -32,17 +149,12 @@ export const uploadFilesApi = createAsyncThunk(
         authorId: string
     }, thunkApi) => {
         try {
-            let fileUrls: Assets[] = []
-            await Promise.all(data.files.map(async (file) => {
-                await new Promise((resolve) => setTimeout(resolve, 300))
-                const compressedImages = await ImageCompressorAllQuality({ image: file.uri })
-                if (!compressedImages) return
-                fileUrls.push({
-                    id: file.id,
-                    urls: compressedImages,
-                    type: file.mediaType === "photo" ? "photo" : "video"
-                })
-            }))
+            const fileUrls = await uploadPost({ files: data.files });
+            if (!fileUrls) {
+                return thunkApi.rejectWithValue({
+                    message: "Server Error"
+                });
+            }
             const res = await graphqlQuery({
                 query: AQ.createPost,
                 variables: {
@@ -53,8 +165,8 @@ export const uploadFilesApi = createAsyncThunk(
                         authorId: data.authorId,
                     }
                 }
-            })
-            return res
+            });
+            return res;
         } catch (error: any) {
             return thunkApi.rejectWithValue({
                 message: error?.message
@@ -72,17 +184,7 @@ export const uploadStoryApi = createAsyncThunk(
         song?: any[]
     }, thunkApi) => {
         try {
-            let fileUrls: Assets[] = []
-            await Promise.all(data.files.map(async (file) => {
-                await new Promise((resolve) => setTimeout(resolve, 300))
-                const compressedImages = await ImageCompressorAllQuality({ image: file.uri })
-                if (!compressedImages) return
-                fileUrls.push({
-                    id: file.id,
-                    urls: compressedImages,
-                    type: file.mediaType === "photo" ? "photo" : "video"
-                })
-            }))
+            const fileUrls = await uploadPost({ files: data.files });
             const res = await graphqlQuery({
                 query: AQ.createStory,
                 variables: {
@@ -93,12 +195,12 @@ export const uploadStoryApi = createAsyncThunk(
                         authorId: data.authorId,
                     }
                 }
-            })
-            return res
+            });
+            return res;
         } catch (error: any) {
             return thunkApi.rejectWithValue({
                 message: error?.message
-            })
+            });
         }
     }
 );

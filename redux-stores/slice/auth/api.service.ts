@@ -3,15 +3,10 @@ import { deleteSecureStorage, getSecureStorage, setSecureStorage } from "@/lib/S
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { resetAccountState } from "../account";
 import { resetConversationState } from "../conversation";
-import { resetPostState } from "../post";
-import { resetProfileState } from "../profile";
-import { resetUserState } from "../users";
-import { resetNotificationState } from "../notification";
 import { graphqlQuery } from "@/lib/GraphqlQuery";
 import { AQ } from "../account/account.queries";
-import { uploadFileToSupabase } from "@/lib/SupaBase-uploadFile";
-import { ImageCompressor } from "@/lib/RN-ImageCompressor";
 import { Session } from "@/types";
+import { uploadOneFile } from "../account/api.service";
 
 export const loginApi = createAsyncThunk(
     'loginApi/post',
@@ -102,11 +97,6 @@ export const logoutApi = createAsyncThunk(
             await deleteSecureStorage(configs.sessionName);
             thunkAPI.dispatch(resetAccountState());
             thunkAPI.dispatch(resetConversationState());
-
-            // thunkAPI.dispatch(resetPostState());
-            // thunkAPI.dispatch(resetProfileState());
-            // thunkAPI.dispatch(resetUserState());
-            // thunkAPI.dispatch(resetNotificationState());
             return true;
         } catch (error) {
             console.error("Error in logging out", error);
@@ -129,25 +119,21 @@ export const profileUpdateApi = createAsyncThunk(
         fileUrl?: string | null
         profileId: string
     }, thunkApi) => {
-        const { fileUrl, profileId, updateUsersInput } = data;
+        const { fileUrl, profileId, ...updateUsersInput } = data;
         try {
             let data; // to store the response
             if (fileUrl) {
-                // Compress the image
-                const CImg = await ImageCompressor({
-                    image: fileUrl,
-                    quality: "low"
-                });
-                // Upload the image to supabase
-                const url = await uploadFileToSupabase(CImg, "image/jpeg", profileId);
-                if (!url) {
-                    return "";
+                const imgUrls = await uploadOneFile({ filesUrl: fileUrl });
+                if (!imgUrls) {
+                    return thunkApi.rejectWithValue({
+                        message: "Server Error"
+                    });
                 }
                 // Update the user profile with the new image
                 const res = await graphqlQuery({
                     query: AQ.updateUserProfile,
                     variables: {
-                        updateUsersInput: { profilePicture: url }
+                        updateUsersInput: { profilePicture: imgUrls[0], fileUrl }
                     }
                 });
                 data = res;

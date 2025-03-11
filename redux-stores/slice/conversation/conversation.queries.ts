@@ -39,13 +39,16 @@ const conversationQueries = {
         authorId
         content
         fileUrl {
-      id
-      urls {
-        low
-        high
-      }
-      type
-      caption
+          width
+          height
+          square
+          square_sm
+          blur_square
+          original
+          original_sm
+          blur_original
+          type
+          id
     }
         deleted
         seenBy
@@ -81,13 +84,16 @@ const conversationQueries = {
         profilePicture
       }
       fileUrl {
-      id
-      urls {
-        low
-        high
-      }
-      type
-      caption
+        width
+        height
+        square
+        square_sm
+        blur_square
+        original
+        original_sm
+        blur_original
+        type
+        id
     }
       deleted
       seenBy
@@ -109,13 +115,16 @@ const conversationQueries = {
       authorId
       content
       fileUrl {
-      id
-      urls {
-        low
-        high
-      }
-      type
-      caption
+        width
+        height
+        square
+        square_sm
+        blur_square
+        original
+        original_sm
+        blur_original
+        type
+        id
     }
       deleted
       seenBy

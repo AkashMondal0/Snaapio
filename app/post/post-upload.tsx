@@ -50,7 +50,11 @@ const PostUploadScreen = memo(function PostUploadScreen({
         }) as any)
         setAssets([])
         ToastAndroid.show("Post uploaded", ToastAndroid.SHORT)
-        navigation.dispatch(StackActions.replace("HomeTabs"));
+        if (!navigation.canGoBack()) {
+            navigation.dispatch(StackActions.replace("HomeTabs"));
+            return;
+        }
+        navigation.goBack();
     }, [assets.length, session?.id])
 
     return (

@@ -186,15 +186,18 @@ export interface Comment {
     }
 
 }
+
 export type Assets = {
     id?: string,
-    urls?: {
-        low?: string | null,
-        medium?: string | null,
-        high?: string | null,
-        blur?: string | null,
-        thumbnail?: string | null,
-    }
+    blur_square: string,
+    square: string,
+    square_sm: string,
+    blur_original: string,
+    original: string,
+    original_sm: string,
+    width: number,
+    height: number,
+    metadata: string
     type?: 'photo' | 'video' | 'audio' | "text"
     caption?: string;
 }

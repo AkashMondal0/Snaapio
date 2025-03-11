@@ -67,6 +67,8 @@ const ProfileEditScreen = memo(function ProfileEditScreen({
         resolver: zodResolver(schema)
     });
 
+    console.log(image)
+
     const handleLogin = useCallback(async (inputData: {
         email: string,
         name: string,

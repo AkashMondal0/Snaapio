@@ -1,6 +1,6 @@
 import { memo, useCallback, useState } from 'react';
 import { ToastAndroid, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
-import { Post } from '@/types';
+import { Assets, Post } from '@/types';
 import { Heart } from 'lucide-react-native';
 import PagerView from 'react-native-pager-view';
 import useDebounce from '@/lib/debouncing';
@@ -282,11 +282,12 @@ const FeedItemActionsButtons = (
         </View>
     )
 }
-const ImageItem = memo(function ImageItem({ item, index }: { item: any, index: number }) {
+const ImageItem = memo(function ImageItem({ item, index }: { item: Assets, index: number }) {
     return <Image
         key={index}
         isBorder
-        url={item.urls?.high}
+        url={item.original}
+        blurUrl={item.blur_original}
         fastLoad
         style={{
             width: "100%",
