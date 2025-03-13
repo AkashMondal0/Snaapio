@@ -10,7 +10,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm } from 'react-hook-form';
 import { profileUpdateApi } from '@/redux-stores/slice/auth/api.service';
-import * as ImagePicker from 'expo-image-picker';
+import { useNavigation } from '@react-navigation/native';
 
 const schema = z.object({
     username: z.string().min(2, {
@@ -28,10 +28,10 @@ const schema = z.object({
         message: "Bio must be at most 100 characters.",
     }).optional()
 });
-const ProfileEditScreen = memo(function ProfileEditScreen({
-    navigation,
-}: PageProps<any>) {
+const ProfileEditScreen = memo(function ProfileEditScreen() {
+    const navigation = useNavigation()
     const session = useSelector((state: RootState) => state.AuthState.session.user);
+    const globalAssets = useSelector((state: RootState) => state.AccountState.globalSelectedAssets);
     const [state, setStats] = useState<{
         showPassword: boolean,
         loading: boolean,
@@ -45,16 +45,7 @@ const ProfileEditScreen = memo(function ProfileEditScreen({
     const dispatch = useDispatch();
     const pickImage = async () => {
         if (!session || state.loading) return;
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 0.2,
-            base64: true,
-        });
-        if (!result.canceled) {
-            setImage(result.assets[0].uri);
-        }
+        navigation.navigate("PickupImages")
     };
 
     const { control, handleSubmit, reset, formState: { errors } } = useForm({
@@ -67,9 +58,7 @@ const ProfileEditScreen = memo(function ProfileEditScreen({
         resolver: zodResolver(schema)
     });
 
-    console.log(image)
-
-    const handleLogin = useCallback(async (inputData: {
+    const handleUpdate = useCallback(async (inputData: {
         email: string,
         name: string,
         username: string,
@@ -85,7 +74,7 @@ const ProfileEditScreen = memo(function ProfileEditScreen({
                     username: inputData.username,
                     bio: inputData.bio,
                 },
-                fileUrl: image
+                fileUrl: globalAssets[0]
             }) as any);
             ToastAndroid.show("Profile updated", ToastAndroid.SHORT);
         }
@@ -95,6 +84,9 @@ const ProfileEditScreen = memo(function ProfileEditScreen({
     }, [image, session?.id]);
 
     useEffect(() => {
+        if (globalAssets.length > 0) {
+            setImage(globalAssets[0]?.uri)
+        }
         if (session) {
             reset({
                 email: session.email,
@@ -103,7 +95,7 @@ const ProfileEditScreen = memo(function ProfileEditScreen({
                 bio: session.bio
             })
         }
-    }, [session]);
+    }, [session, globalAssets]);
 
 
     const ErrorMessage = ({ text }: any) => {
@@ -251,7 +243,7 @@ const ProfileEditScreen = memo(function ProfileEditScreen({
                     rules={{ required: false }} />
                 <ErrorMessage text={errors.bio?.message} />
                 <View style={{ height: 10 }} />
-                <Button onPress={handleSubmit(handleLogin)} disabled={state.loading}>
+                <Button onPress={handleSubmit(handleUpdate)} disabled={state.loading}>
                     Submit
                 </Button>
             </View>

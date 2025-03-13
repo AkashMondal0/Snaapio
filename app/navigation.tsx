@@ -33,6 +33,7 @@ import { CallingScreen, IncomingCallScreen, CallDeclinedScreen, CallRoomScreen }
 import RoomScreen from './call/videoCall';
 import { NotificationScreen } from '@/app/notification';
 import { NotFound } from './NotFound';
+import PickupImages from './SelectFiles/pickup-images';
 
 export const HomeTabs = createBottomTabNavigator({
     screenOptions: {
@@ -145,6 +146,15 @@ const RootStack = createNativeStackNavigator({
                     screen: HomeTabs,
                     linking: {
                         path: "/"
+                    }
+                },
+                PickupImages:{
+                    screen: PickupImages,
+                    options: {
+                        animation: "slide_from_bottom"
+                    },
+                    linking: {
+                        path: "/PickupImages"
                     }
                 },
                 Notification: {

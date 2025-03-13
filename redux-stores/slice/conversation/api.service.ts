@@ -3,11 +3,8 @@ import { findDataInput, Post } from "@/types";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { CQ } from "./conversation.queries";
 import { Asset } from "expo-media-library";
-import {
-    ImageCompressorAllQuality,
-} from "@/lib/RN-ImageCompressor";
 import { configs } from "@/configs";
-import { uploadFileToSupabase } from "@/lib/SupaBase-uploadFile";
+import { uploadPost } from "@/lib/uploadFiles";
 
 export const fetchConversationsApi = createAsyncThunk(
     "fetchConversationsApi/get",
@@ -93,30 +90,8 @@ export const CreateMessageApi = createAsyncThunk(
         fileUrl: Asset[];
     }, thunkAPI) => {
         try {
-            let fileUrls: Post["fileUrl"] = [];
-            if (createMessageInput.fileUrl.length > 0) {
-                await Promise.all(
-                    createMessageInput.fileUrl.map(async (file) => {
-                        // thunkApi.dispatch(currentUploadingFile(file.uri))
-                        await new Promise((resolve) =>
-                            setTimeout(resolve, 300)
-                        );
-                        const compressedImages =
-                            await ImageCompressorAllQuality({
-                                image: file.uri,
-                            });
-                        if (!compressedImages) return;
-                        fileUrls.push({
-                            id: file.id,
-                            urls: compressedImages,
-                            type: file.mediaType === "photo"
-                                ? "photo"
-                                : "video",
-                        });
-                    }),
-                );
-            }
 
+            const fileUrls = await uploadPost({ files: createMessageInput.fileUrl });
             createMessageInput.fileUrl = fileUrls as any;
             const res = await graphqlQuery({
                 query: CQ.createMessage,
@@ -174,15 +149,15 @@ export const AiMessagePromptApi = createAsyncThunk(
             myHeaders.append("Content-Type", "application/json");
             let raw;
             if (data.file) {
-                let fileUrl = await uploadFileToSupabase(
-                    data?.file,
-                    "image/jpeg",
-                    data.authorId,
-                );
-                raw = JSON.stringify({
-                    "image": configs.serverApi.supabaseStorageUrl + fileUrl,
-                    "query": data.content,
-                });
+                // let fileUrl = await uploadFileToSupabase(
+                //     data?.file,
+                //     "image/jpeg",
+                //     data.authorId,
+                // );
+                // raw = JSON.stringify({
+                //     "image": configs.serverApi.supabaseStorageUrl + fileUrl,
+                //     "query": data.content,
+                // });
             } else {
                 raw = JSON.stringify({
                     "query": data.content,

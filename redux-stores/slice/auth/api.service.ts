@@ -6,7 +6,8 @@ import { resetConversationState } from "../conversation";
 import { graphqlQuery } from "@/lib/GraphqlQuery";
 import { AQ } from "../account/account.queries";
 import { Session } from "@/types";
-import { uploadOneFile } from "../account/api.service";
+import { Asset } from "expo-media-library";
+import { uploadOneFile } from "@/lib/uploadFiles";
 
 export const loginApi = createAsyncThunk(
     'loginApi/post',
@@ -116,14 +117,14 @@ export const profileUpdateApi = createAsyncThunk(
             website?: string[]
             profilePicture?: string
         },
-        fileUrl?: string | null
+        fileUrl?:Asset,
         profileId: string
     }, thunkApi) => {
         const { fileUrl, profileId, ...updateUsersInput } = data;
         try {
             let data; // to store the response
             if (fileUrl) {
-                const imgUrls = await uploadOneFile({ filesUrl: fileUrl });
+                const imgUrls = await uploadOneFile({ file: fileUrl });
                 if (!imgUrls) {
                     return thunkApi.rejectWithValue({
                         message: "Server Error"

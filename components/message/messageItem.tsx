@@ -155,7 +155,7 @@ const ImageComponent = ({
                             <Image
                                 key={index}
                                 isBorder
-                                url={file.urls?.low}
+                                url={file.square}
                                 style={{
                                     flex: 1,
                                     borderRadius: 16,
@@ -171,7 +171,7 @@ const ImageComponent = ({
                         <Image
                             key={index}
                             isBorder
-                            url={file.urls?.low}
+                            url={file.square}
                             style={{
                                 borderRadius: 16,
                             }} />
@@ -190,7 +190,7 @@ const ImageComponent = ({
                         justifyContent: 'space-between',
                         alignItems: 'center',
                         gap: 5,
-                        backgroundColor:"transparent"
+                        backgroundColor: "transparent"
                     }}>
                     <Text style={{
                         color: 'white',
@@ -232,7 +232,7 @@ const ImageComponent = ({
                     <View>
                         <Image
                             isBorder
-                            url={file.urls?.high}
+                            url={file.square}
                             style={{
                                 width: "100%",
                                 height: 300,
