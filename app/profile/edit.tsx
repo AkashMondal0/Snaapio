@@ -5,7 +5,6 @@ import { Button, Input, Text } from "hyper-native-ui"
 import AppHeader from '@/components/AppHeader';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
-import { PageProps } from '@/types';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm } from 'react-hook-form';
@@ -74,7 +73,7 @@ const ProfileEditScreen = memo(function ProfileEditScreen() {
                     username: inputData.username,
                     bio: inputData.bio,
                 },
-                fileUrl: globalAssets[0]
+                fileUrl: globalAssets
             }) as any);
             ToastAndroid.show("Profile updated", ToastAndroid.SHORT);
         }

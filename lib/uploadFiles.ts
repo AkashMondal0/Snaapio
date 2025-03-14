@@ -68,53 +68,54 @@ export const uploadPost = async (data: {
         return null;
     }
 };
-export const uploadOneFile = async (data: {
-    file: Asset
-}): Promise<any | null> => {
-    if (!data?.file || !Array.isArray(data.file)) {
-        console.error("Invalid data.files:", data.file);
-        return;
-    }
 
-    const formData = new FormData();
+// export const uploadOneFile = async (data: {
+//     file: Asset
+// }): Promise<any | null> => {
+//     if (!data?.file || !Array.isArray(data.file)) {
+//         console.error("Invalid data.files:", data.file);
+//         return;
+//     }
 
-    const fileInfo = await FileSystem.getInfoAsync(data?.file.uri);
-    if (!fileInfo.exists) {
-        console.error(`File not found: ${data?.file}`);
-        return null;
-    }
+//     const formData = new FormData();
 
-    formData.append("files", {
-        uri: data?.file,
-        type: "image/jpeg",
-        name: `avatar_${Date.now()}.jpg`,
-    } as any); // Change to "files" if needed
+//     const fileInfo = await FileSystem.getInfoAsync(data?.file.uri);
+//     if (!fileInfo.exists) {
+//         console.error(`File not found: ${data?.file}`);
+//         return null;
+//     }
 
-    try {
-        const BearerToken = await getSecureStorage<Session["user"]>(configs.sessionName);
-        if (!BearerToken?.accessToken) {
-            console.error("Error retrieving token from SecureStorage")
-            ToastAndroid.showWithGravity("Internal Error", ToastAndroid.SHORT, ToastAndroid.CENTER);
-            return;
-        };
-        const response = await fetch(`${configs.serverApi.baseUrl}/image/upload_variant`, {
-            method: "POST",
-            body: formData,
-            credentials: "include",
-            cache: 'no-cache',
-            headers: {
-                'Authorization': `${BearerToken.accessToken}`,
-            },
-        });
-        if (!response.ok) {
-            const result = await response.json();
-            console.error("Upload failed:", result);
-            return null;
-        }
-        const result = await response.json();
-        return result;
-    } catch (error) {
-        console.error("Upload failed:", error);
-        return null;
-    }
-};
+//     formData.append("files", {
+//         uri: data?.file,
+//         type: "image/jpeg",
+//         name: `avatar_${Date.now()}.jpg`,
+//     } as any); // Change to "files" if needed
+
+//     try {
+//         const BearerToken = await getSecureStorage<Session["user"]>(configs.sessionName);
+//         if (!BearerToken?.accessToken) {
+//             console.error("Error retrieving token from SecureStorage")
+//             ToastAndroid.showWithGravity("Internal Error", ToastAndroid.SHORT, ToastAndroid.CENTER);
+//             return;
+//         };
+//         const response = await fetch(`${configs.serverApi.baseUrl}/image/upload_variant`, {
+//             method: "POST",
+//             body: formData,
+//             credentials: "include",
+//             cache: 'no-cache',
+//             headers: {
+//                 'Authorization': `${BearerToken.accessToken}`,
+//             },
+//         });
+//         if (!response.ok) {
+//             const result = await response.json();
+//             console.error("Upload failed:", result);
+//             return null;
+//         }
+//         const result = await response.json();
+//         return result;
+//     } catch (error) {
+//         console.error("Upload failed:", error);
+//         return null;
+//     }
+// };

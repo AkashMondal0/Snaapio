@@ -5,9 +5,9 @@ import { resetAccountState } from "../account";
 import { resetConversationState } from "../conversation";
 import { graphqlQuery } from "@/lib/GraphqlQuery";
 import { AQ } from "../account/account.queries";
-import { Session } from "@/types";
+import { Session, UploadFileRespond } from "@/types";
 import { Asset } from "expo-media-library";
-import { uploadOneFile } from "@/lib/uploadFiles";
+import { uploadPost } from "@/lib/uploadFiles";
 
 export const loginApi = createAsyncThunk(
     'loginApi/post',
@@ -117,14 +117,14 @@ export const profileUpdateApi = createAsyncThunk(
             website?: string[]
             profilePicture?: string
         },
-        fileUrl?:Asset,
+        fileUrl?: Asset[],
         profileId: string
     }, thunkApi) => {
         const { fileUrl, profileId, ...updateUsersInput } = data;
         try {
             let data; // to store the response
             if (fileUrl) {
-                const imgUrls = await uploadOneFile({ file: fileUrl });
+                const imgUrls = await uploadPost({ files: fileUrl }) as UploadFileRespond[]
                 if (!imgUrls) {
                     return thunkApi.rejectWithValue({
                         message: "Server Error"
@@ -134,7 +134,7 @@ export const profileUpdateApi = createAsyncThunk(
                 const res = await graphqlQuery({
                     query: AQ.updateUserProfile,
                     variables: {
-                        updateUsersInput: { profilePicture: imgUrls[0], fileUrl }
+                        updateUsersInput: { profilePicture: imgUrls[0].square, fileUrl: imgUrls }
                     }
                 });
                 data = res;

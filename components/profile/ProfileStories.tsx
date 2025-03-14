@@ -41,7 +41,7 @@ const StoriesComponent = memo(function StoriesComponent({
             <FlatList
                 data={data}
                 renderItem={({ item }) => <StoriesItem data={item} onPress={navigateToHighlight} />}
-                keyExtractor={(item, index) => index.toString()}
+                keyExtractor={(item) => item.id}
                 horizontal
                 scrollEventThrottle={16}
                 onEndReached={loadMoreData}
@@ -54,7 +54,8 @@ const StoriesComponent = memo(function StoriesComponent({
                     length: ITEM_HEIGHT,
                     offset: ITEM_HEIGHT * index
                 })}
-                ListFooterComponent={<View style={{
+                // ListFooterComponent={}
+                ListHeaderComponent={<View style={{
                     flexDirection: 'row',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -92,7 +93,6 @@ const StoriesComponent = memo(function StoriesComponent({
                             <Text variantColor="secondary">Highlight</Text>
                         </TouchableOpacity> : <></>}
                 </View>}
-                ListHeaderComponent={<View style={{ width: 6 }} />}
                 ListEmptyComponent={() => {
                     if (loading === "idle" || loading === "pending") {
                         return <StoryLoader />
@@ -126,7 +126,7 @@ export const StoriesItem = memo(function StoriesItem({
             isBorder
             size={80}
             borderColorVariant="secondary"
-            url={data?.stories[0]?.fileUrl[0] ? data?.stories[0].fileUrl[0].urls?.high : null}
+            url={data?.stories[0]?.fileUrl[0] ? data?.stories[0].fileUrl[0].square_sm : null}
             onPress={() => onPress?.(data)} />
         <Text variantColor="secondary" style={{ padding: 4 }} numberOfLines={1}>
             {data?.content}

@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { createFriendshipApi, destroyFriendshipApi } from "@/redux-stores/slice/profile/api.service";
 import { CreateConversationApi } from "@/redux-stores/slice/conversation/api.service";
-import { setConversation } from "@/redux-stores/slice/conversation";
+// import { setConversation } from "@/redux-stores/slice/conversation";
 import { Button } from "hyper-native-ui";
 import { useNavigation } from "@react-navigation/native";
 
@@ -80,11 +80,11 @@ const ProfileActionsButton = memo(function ProfileActionsButton({
             if (!userData || userData?.id === session?.id) return ToastAndroid.show("Something's went Wrong", ToastAndroid.SHORT)
             const res = await dispatch(CreateConversationApi([userData.id]) as any) as disPatchResponse<Conversation>
             if (res.error) return ToastAndroid.show("Something's went Wrong", ToastAndroid.SHORT)
-            dispatch(setConversation({
-                id: res.payload.id,
-                isGroup: false,
-                user: userData,
-            } as Conversation))
+            // dispatch(setConversation({
+            //     id: res.payload.id,
+            //     isGroup: false,
+            //     user: userData,
+            // } as Conversation))
             navigation?.navigate("MessageRoom", { id: res.payload.id })
         } catch (error) {
             ToastAndroid.show("Something's went Wrong", ToastAndroid.SHORT)

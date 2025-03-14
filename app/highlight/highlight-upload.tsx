@@ -67,7 +67,7 @@ const HighlightUploadScreen = memo(function HighlightUploadScreen({
                         renderItem={({ item, index }) => (
                             <PreviewImage
                                 isServerImage={true}
-                                assetUrl={item.fileUrl ? item.fileUrl[0].urls?.high : null}
+                                assetUrl={item.fileUrl ? item.fileUrl[0].original_sm : null}
                                 id={item.id}
                                 handleDelete={handleDelete} />)}
                         horizontal

@@ -260,6 +260,18 @@ export enum NotificationType {
     Story = 'story',
     Post = 'post',
 }
+export type UploadFileRespond = {
+    blur_square: string,
+    square: string,
+    square_sm: string,
+    blur_original: string,
+    original: string,
+    original_sm: string,
+    width: string,
+    height: string,
+    type: string,
+    id: string
+}
 export type Notification = {
     id: string;
     type: NotificationType;

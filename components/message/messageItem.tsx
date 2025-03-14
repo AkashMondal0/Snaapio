@@ -95,12 +95,12 @@ const ImageComponent = ({
     myself: boolean,
     footer?: React.ReactNode
     bg?: string
-    navigateToImagePreview: (data: Message) => void
+    navigateToImagePreview: (data: Message, index?: number) => void
 }) => {
     // 4+ images
     if (data.fileUrl.length > 3) {
         return <TouchableOpacity
-            onPress={() => { navigateToImagePreview(data) }}
+            onPress={() => { navigateToImagePreview(data, 0) }}
             activeOpacity={0.9}
             style={{
                 flexDirection: 'row',
@@ -179,7 +179,7 @@ const ImageComponent = ({
                 })}
                 <TouchableOpacity
                     activeOpacity={0.8}
-                    onPress={() => { navigateToImagePreview(data) }}
+                    onPress={() => { navigateToImagePreview(data, 0) }}
                     style={{
                         position: 'absolute',
                         bottom: 0,
@@ -206,9 +206,7 @@ const ImageComponent = ({
         </TouchableOpacity>
     }
     // 1-3 images
-    return <TouchableOpacity
-        onPress={() => { navigateToImagePreview(data) }}
-        activeOpacity={0.9}
+    return <View
         style={{
             flexDirection: 'row',
             justifyContent: myself ? 'flex-end' : 'flex-start',
@@ -220,8 +218,10 @@ const ImageComponent = ({
             maxWidth: '96%',
         }}>
             {data?.fileUrl.map((file, index) => {
-                return (<View
+                return (<TouchableOpacity
+                    activeOpacity={0.9}
                     key={index}
+                    onPress={() => { navigateToImagePreview(data, index) }}
                     style={{
                         backgroundColor: bg,
                         borderRadius: 16,
@@ -241,8 +241,8 @@ const ImageComponent = ({
                             }} />
                     </View>
                     {footer}
-                </View>)
+                </TouchableOpacity>)
             })}
         </View>
-    </TouchableOpacity>
+    </View>
 }

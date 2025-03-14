@@ -5,7 +5,7 @@ import ProfileInfoCount from "./ProfileInfoCount";
 import ProfileActionsButton from "./ProfileActionsButton";
 import ProfileStories, { StoryLoader } from "./ProfileStories";
 import ProfilePicView from "./ProfilePicView";
-import { Separator, Skeleton, Text, useTheme } from "hyper-native-ui";
+import { Separator, Text, useTheme } from "hyper-native-ui";
 
 const ProfileHeader = memo(function HomeScreen({
     userData,
