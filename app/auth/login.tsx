@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Controller, useForm } from 'react-hook-form';
@@ -9,6 +9,7 @@ import { Text, Button, Input } from 'hyper-native-ui'
 import { loginApi } from '@/redux-stores/slice/auth/api.service';
 import { StackActions, useNavigation } from '@react-navigation/native';
 import { RootState } from '@/redux-stores/store';
+import { clearLoginError } from '@/redux-stores/slice/auth';
 
 const schema = z.object({
     email: z.string().email({ message: "Invalid email" })
@@ -43,6 +44,10 @@ const LoginScreen = () => {
             password: data.password,
         }) as any)
         setLoading(false)
+    }, [])
+
+    useEffect(() => {
+        dispatch(clearLoginError())
     }, [])
 
     return (

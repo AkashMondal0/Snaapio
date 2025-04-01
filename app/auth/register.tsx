@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, ToastAndroid, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Controller, useForm } from 'react-hook-form';
@@ -8,7 +8,7 @@ import { Icon } from '@/components/skysolo-ui';
 import { Text, Button, Input } from 'hyper-native-ui'
 import { registerApi } from '@/redux-stores/slice/auth/api.service';
 import { ApiResponse, Session } from '@/types';
-import { setSession } from '@/redux-stores/slice/auth';
+import { clearLoginError, setSession } from '@/redux-stores/slice/auth';
 import { StackActions, useNavigation } from '@react-navigation/native';
 import { RootState } from '@/redux-stores/store';
 
@@ -63,6 +63,10 @@ const RegisterScreen = () => {
             username: data.username,
         }) as any)
         setLoading(false)
+    }, [])
+
+    useEffect(() => {
+        dispatch(clearLoginError())
     }, [])
 
     return (
