@@ -11,6 +11,7 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import { Video, ResizeMode } from 'expo-av';
 import { useTheme } from 'hyper-native-ui';
+import { Icon } from '@/components/skysolo-ui';
 
 const { height, width } = Dimensions.get('window');
 
@@ -18,6 +19,9 @@ const videos = [
   { id: '1', uri: 'https://srcsaekkccuublpzpsnb.supabase.co/storage/v1/object/public/videos/dua/360p/index.m3u8' },
   { id: '2', uri: 'https://srcsaekkccuublpzpsnb.supabase.co/storage/v1/object/public/videos/dua/360p/index.m3u8' },
   { id: '3', uri: 'https://srcsaekkccuublpzpsnb.supabase.co/storage/v1/object/public/videos/dua/360p/index.m3u8' },
+  { id: '4', uri: 'https://srcsaekkccuublpzpsnb.supabase.co/storage/v1/object/public/videos/dua/360p/index.m3u8' },
+  { id: '5', uri: 'https://srcsaekkccuublpzpsnb.supabase.co/storage/v1/object/public/videos/dua/360p/index.m3u8' },
+  { id: '6', uri: 'https://srcsaekkccuublpzpsnb.supabase.co/storage/v1/object/public/videos/dua/360p/index.m3u8' },
 ];
 
 const ReelsPage = () => {
@@ -53,6 +57,7 @@ const ReelsPage = () => {
   const renderItem = useCallback(
     ({ item, index }: { item: any, index: number }) => (
       <View style={styles.container}>
+
         <Video
           ref={(ref) => (videoRefs.current[index] = ref)}
           source={{ uri: item.uri }}
@@ -62,11 +67,104 @@ const ReelsPage = () => {
           isMuted={muted || index !== currentIndex} // Mute all except the visible one
           useNativeControls={false}
         />
+        {/* volume button */}
         {index === currentIndex && (
-          <TouchableOpacity style={styles.muteButton} onPress={() => setMuted(!muted)}>
-            <Text style={styles.muteText}>{muted ? '🔇' : '🔊'}</Text>
+          <TouchableOpacity style={{
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            borderRadius: 20,
+            justifyContent: 'center',
+            alignItems: 'center',
+            aspectRatio: 1,
+            width: 40,
+            height: 40,
+            position: 'absolute',
+            top: 50,
+            right: 20,
+          }} onPress={() => setMuted(!muted)}>
+            {muted ? <Icon iconName="VolumeOff"
+              size={24}
+              color="white"
+              style={{ padding: 5 }}
+              onPress={() => {
+                setMuted(!muted);
+              }} /> : <Icon iconName="Volume2"
+                size={24}
+                style={{ padding: 5 }}
+                onPress={() => {
+                  setMuted(!muted);
+                }} />}
           </TouchableOpacity>
         )}
+        <View style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          padding: 10,
+          width: '100%',
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: "flex-end"
+        }}>
+          <View style={{
+            // backgroundColor: 'rgba(0,0,0,0.5)',
+            padding: 10,
+            borderRadius: 10,
+            width: '80%',
+          }}>
+            <Text style={{ color: "white", fontSize: 24, fontWeight: "bold" }}>
+              This is a title
+            </Text>
+            <Text style={{ color: "white", fontSize: 16 }}>
+              This is a description of the video. It can be a bit longer to provide more context about the content.
+            </Text>
+          </View>
+
+          {/* left side buttons */}
+          <View style={{
+            position: 'absolute',
+            bottom: 0,
+            right: 0,
+            gap: 26,
+            padding: 16,
+            paddingVertical: 40,
+          }}>
+            <Icon iconName="Heart"
+              size={32}
+              color="white"
+              style={{ padding: 5 }}
+              onPress={() => {
+                setMuted(!muted);
+              }} />
+            <Icon iconName="MessageCircle"
+              size={32}
+              color="white"
+              style={{ padding: 5 }}
+              onPress={() => {
+                setMuted(!muted);
+              }} />
+            <Icon iconName="Send"
+              size={32}
+              color="white"
+              style={{ padding: 5 }}
+              onPress={() => {
+                setMuted(!muted);
+              }} />
+            <Icon iconName="Bookmark"
+              size={32}
+              color="white"
+              style={{ padding: 5 }}
+              onPress={() => {
+                setMuted(!muted);
+              }} />
+            <Icon iconName="MoreHorizontal"
+              size={32}
+              color="white"
+              style={{ padding: 5 }}
+              onPress={() => {
+                setMuted(!muted);
+              }} />
+          </View>
+        </View>
       </View>
     ),
     [muted, currentIndex]

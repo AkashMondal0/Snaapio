@@ -435,6 +435,7 @@ const Components = ({
 				largeStream={remoteStream}
 				largeStreamUser={remoteUserData}
 				largeStreamActions={remoteAction}
+				isFrontCam={authorAction.isFrontCam}
 			/> :
 			// remote
 			<ScreenComponent StatusBarTop={StatusBar.currentHeight || 0}
@@ -450,6 +451,7 @@ const Components = ({
 				largeStream={localStream}
 				largeStreamUser={session}
 				largeStreamActions={authorAction}
+				isFrontCam={authorAction.isFrontCam}
 			/>
 		}
 		{isShow ? <ActionBoxComponent
@@ -478,6 +480,7 @@ const ScreenComponent = ({
 	smallStreamUser,
 	smallStreamActions,
 	largeStreamActions,
+	isFrontCam,
 	streamType,
 	onPress
 }: {
@@ -485,6 +488,7 @@ const ScreenComponent = ({
 	smallStream: MediaStream | null;
 	smallStreamUser: Session["user"];
 	largeStreamUser: Session["user"];
+	isFrontCam: boolean;
 	screenSwapping: () => void;
 	currentTheme: any;
 	StatusBarTop: number;
@@ -509,7 +513,7 @@ const ScreenComponent = ({
 				gap: 10
 			}}>
 			{largeStream && largeStreamActions.isCameraOn ? <RTCView key={largeStream?.id}
-				mirror={true}
+				mirror={isFrontCam}
 				objectFit={'cover'}
 				style={{
 					width: "100%",
@@ -568,7 +572,7 @@ const ScreenComponent = ({
 						backgroundColor: "transparent"
 					}}
 					key={smallStream?.id}
-					mirror={true}
+					mirror={isFrontCam}
 					// @ts-ignore
 					streamURL={smallStream?.toURL()}
 					objectFit="cover" /> :

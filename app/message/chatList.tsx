@@ -5,13 +5,13 @@ import { ActionSheet, Avatar } from '@/components/skysolo-ui';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
-import { resetConversationState, setConversations } from '@/redux-stores/slice/conversation';
+import { setConversations } from '@/redux-stores/slice/conversation';
 import debounce from '@/lib/debouncing';
 import searchText from '@/lib/TextSearch';
 import ErrorScreen from '@/components/error/page';
 import { ConversationDetailsSheet, ConversationItem, ListHeader } from '@/components/message';
 import ListEmpty from '@/components/ListEmpty';
-import { Loader, useTheme } from "hyper-native-ui";
+import { Loader } from "hyper-native-ui";
 import { useNavigation } from '@react-navigation/native';
 import { ConversationLoader } from '@/components/message/conversationItem';
 import { useGQArray } from '@/lib/useGraphqlQuery';
@@ -133,31 +133,43 @@ const ChatListScreen = memo(function ChatListScreen() {
 export default ChatListScreen;
 
 const ActionButton = memo(function ActionButton({ onPress }: { onPress: () => void }) {
-    const { currentTheme } = useTheme();
     return <View style={{
         position: "absolute",
         bottom: 20,
         right: 20,
-        borderColor: currentTheme?.border,
-        borderWidth: 2,
-        borderRadius: 100,
         elevation: 5,
         justifyContent: "center",
         alignItems: "center",
-        padding: 8,
         backgroundColor: "white",
+        borderRadius: 100,
+        shadowColor: "black",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        zIndex: 100,
     }}>
-        <View style={{
-            width: 46,
-            height: 46,
-            backgroundColor: "white",
-            borderRadius: 100,
-        }}>
-            <Avatar
-                serverImage={false}
-                onPress={onPress}
-                url={require("../../assets/images/ai.png")}
-                size={42} />
-        </View>
+        <Avatar
+            serverImage={false}
+            onPress={onPress}
+            borderWidth={0}
+            style={{
+                backgroundColor: "white",
+                borderWidth: 0,
+                borderColor: "white",
+                borderRadius: 100,
+            }}
+            TouchableOpacityOptions={{
+                activeOpacity: 0.6,
+                style: {
+                    justifyContent: "center",
+                    alignItems: "center",
+                    padding: 8,
+                }
+            }}
+            url={require("../../assets/images/ai.png")}
+            size={42} />
     </View>
 }, () => true)

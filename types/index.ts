@@ -287,3 +287,9 @@ export type Notification = {
     post?: Post
     comment?: Comment
 }
+
+export type AIApiResponse = {
+    type: "image" | "text",
+    url: string | null,
+    content: string | null,
+}
