@@ -1,6 +1,6 @@
 import { configs } from '@/configs';
 import { RotateCcw } from 'lucide-react-native';
-import { useRef, useMemo, useEffect } from 'react';
+import { useRef, useMemo } from 'react';
 import { Text, TouchableOpacity, View, StyleSheet } from 'react-native';
 import { useTheme } from 'hyper-native-ui';
 import React from 'react';
@@ -39,12 +39,12 @@ const ImageComponent = ({
     }, [url, serverImage]);
 
     // Preload image for better performance
-    useEffect(() => {
-        if (typeof imageUrl === "string") {
-            if (!fastLoad) return
-            Image.prefetch(imageUrl)
-        }
-    }, [imageUrl]);
+    // useEffect(() => {
+    //     if (typeof imageUrl === "string") {
+    //         if (!fastLoad) return
+    //         Image.prefetch(imageUrl)
+    //     }
+    // }, [imageUrl]);
 
     if ((error.current && showImageError) || !url || !imageUrl) {
         return (
@@ -63,6 +63,7 @@ const ImageComponent = ({
         <View style={[styles.container, style as any]}>
             <Image
                 source={{ uri: imageUrl }}
+                placeholder={blurUrl}
                 contentFit="cover"
                 priority={"high"}
                 style={[styles.image, { backgroundColor: currentTheme?.muted }, style]}

@@ -8,6 +8,7 @@ import * as MediaLibrary from 'expo-media-library';
 export type AccountState = {
   //
   deviceAssets: MediaLibrary.Asset[]
+  globalSelectedAssets: MediaLibrary.Asset[]
   //
   accountStories: Story[]
   accountStoriesLoading: loadingType
@@ -39,6 +40,7 @@ export type AccountState = {
 
 const initialState: AccountState = {
   deviceAssets: [],
+  globalSelectedAssets: [],
 
   uploadFile: null,
   uploadFilesLoading: false,
@@ -86,13 +88,19 @@ export const AccountSlice = createSlice({
       state.storiesFetchedItemCount = 0
     },
     setDeviceAssets: (state, action: PayloadAction<MediaLibrary.Asset[]>) => {
-      state.deviceAssets = [...state.deviceAssets, ...action.payload]
+      state.deviceAssets = [...state.deviceAssets, ...action.payload];
     },
     currentUploadingFile: (state, action: PayloadAction<string | null>) => {
-      state.uploadFile = action.payload
+      state.uploadFile = action.payload;
+    },
+    selectGlobalAssets: (state, action: PayloadAction<MediaLibrary.Asset[]>) => {
+      state.globalSelectedAssets = action.payload;
+    },
+    resetSelectedAssets: (state) => {
+      state.globalSelectedAssets = [];
     },
     resetStories: (state) => {
-      state.stories = []
+      state.stories = [];
     }
   },
   extraReducers: (builder) => {
@@ -193,7 +201,9 @@ export const {
   resetFeeds,
   currentUploadingFile,
   setDeviceAssets,
-  resetStories
+  resetStories,
+  selectGlobalAssets,
+  resetSelectedAssets
 } = AccountSlice.actions
 
 export default AccountSlice.reducer

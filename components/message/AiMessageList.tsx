@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect } from 'react';
+import React, { memo, useCallback } from 'react';
 import { Message } from '@/types';
 import { FlatList, View, Text, StyleSheet, Clipboard, Image } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -7,39 +7,14 @@ import { Icon } from '@/components/skysolo-ui';
 import { useTheme } from 'hyper-native-ui';
 import { ToastAndroid } from "react-native";
 import { timeFormat } from '@/lib/timeFormat';
-import { AiMessage, completeAiMessageGenerate, loadMyPrompt } from '@/redux-stores/slice/conversation';
-
+import { AiMessage, completeAiMessageGenerate } from '@/redux-stores/slice/conversation';
 import Markdown, { MarkdownIt, stringToTokens, tokensToAST } from 'react-native-markdown-display';
-import { getSecureStorage } from '@/lib/SecureStore';
 import AITextLoader from '@/app/message/AITextLoader';
-let loaded = false
+import ImageComponent from '../skysolo-ui/Image';
 const AiMessageList = memo(function AiMessageList() {
-    // const stopFetch = useRef(false)
-    const dispatch = useDispatch()
-    // const totalFetchedItemCount = useRef<number>(0)
 
     const messages = useSelector((Root: RootState) => Root.ConversationState?.ai_messages)
     const currentGeneratingMessage = useSelector((Root: RootState) => Root.ConversationState?.ai_CurrentMessageId)
-    // const messagesLoading = useSelector((Root: RootState) => Root.ConversationState?.ai_messageCreateLoading)
-
-    const loadMoreMessages = useCallback(async () => {
-        if (loaded) return
-        try {
-            const fetchList = await getSecureStorage<AiMessage[]>("myPrompt", "json")
-            if (!fetchList) return
-            dispatch(loadMyPrompt(fetchList))
-        } catch (error) {
-            return ToastAndroid.show("Something went wrong", ToastAndroid.SHORT);
-        } finally {
-            loaded = true
-        }
-    }, [])
-
-    // const fetchMore = debounce(() => loadMoreMessages(), 1000)
-
-    useEffect(() => {
-        loadMoreMessages()
-    }, [])
 
     const navigateToImagePreview = useCallback((data: Message) => {
         // navigation.navigate('message/assets/preview', { data })
@@ -56,12 +31,30 @@ const AiMessageList = memo(function AiMessageList() {
             scrollEventThrottle={16}
             showsVerticalScrollIndicator={false}
             keyExtractor={(_, index) => index.toString()}
-            renderItem={({ item, index: i }) => <MessageItem
-                navigateToImagePreview={navigateToImagePreview}
-                data={item}
-                currentTyping={item.id === currentGeneratingMessage}
-                myself={!item.isAi}
-                key={item.id} />}
+            renderItem={({ item, index: i }) => {
+                if (!item.data) {
+                    return <></>
+                }
+                if (item.data?.type === "image" && item.data.url) {
+                    return <View key={item.id} style={{
+                        padding: 6,
+                    }}>
+                        <ImageComponent url={item.data.url}
+                            style={{
+                                width: 300,
+                                height: 300,
+                                aspectRatio: 1 / 1,
+                                borderRadius: 20,
+                            }} />
+                    </View>
+                }
+                return <MessageItem
+                    navigateToImagePreview={navigateToImagePreview}
+                    data={item}
+                    currentTyping={item.id === currentGeneratingMessage}
+                    myself={!item.isAi}
+                    key={item.id} />
+            }}
             ListHeaderComponent={<View style={{ width: "100%", height: 50 }}>
                 {/* {messagesLoading ? <Loader size={36} /> : <></>} */}
             </View>}
@@ -86,7 +79,7 @@ const MessageItem = memo(function Item({
 
     const markdownItInstance = MarkdownIt({ typographer: true });
 
-    const ast = tokensToAST(stringToTokens(data.content, markdownItInstance))
+    const ast = tokensToAST(stringToTokens(data.data.content ?? "Something went wrong", markdownItInstance))
 
     const styles = StyleSheet.create({
         heading1: {
@@ -163,8 +156,8 @@ const MessageItem = memo(function Item({
                     onComplete={() => {
                         dispatch(completeAiMessageGenerate())
                     }}
-                    text={data.content} 
-                    />
+                    text={data.data.content ?? "Something went wrong"}
+                />
 
                 {/* date and time */}
                 <View style={{
@@ -185,7 +178,7 @@ const MessageItem = memo(function Item({
             </View>
             {myself ? <></> : <Icon iconName='Copy'
                 size={24} onPress={() => {
-                    Clipboard.setString(data.content)
+                    Clipboard.setString(data.data.content ?? "Something went wrong")
                     ToastAndroid.show("Copied to clipboard", ToastAndroid.SHORT)
                 }} />}
         </View>
@@ -235,13 +228,8 @@ const MessageItem = memo(function Item({
         </View>
         {myself ? <></> : <Icon iconName='Copy'
             size={24} onPress={() => {
-                Clipboard.setString(data.content)
+                Clipboard.setString(data.data.content ?? "Something went wrong")
                 ToastAndroid.show("Copied to clipboard", ToastAndroid.SHORT)
             }} />}
     </View>
 }, (prev, next) => true)
-
-
-
-
-const aitex = "Lorem ipsum dolor sit amet consectetur adipisicing elit. Fuga natus perspiciatis commodi officiis, reprehenderit cumque totam molestias repellat ipsam quasi modi? Animi reiciendis beatae, inventore alias laudantium nemo quidem voluptates minus aspernatur repudiandae deserunt sed enim vero rerum provident necessitatibus accusamus esse, mollitia temporibus adipisci illum at omnis ea saepe! Nam asperiores, quod quo perspiciatis iure facilis quis iusto aperiam odit recusandae consequatur voluptatem, necessitatibus laudantium doloribus ullam excepturi, atque possimus est officiis autem minus! Voluptatem alias modi enim culpa ut doloremque soluta optio odio nesciunt a commodi architecto, ea, delectus fugit recusandae. Nobis, porro velit! Officiis ex dignissimos vero asperiores tenetur quasi et, dolores neque nam ea recusandae quo voluptates? Voluptatibus, cupiditate optio ullam, quo totam, illum quos numquam mollitia odit minima rerum deserunt obcaecati fugiat minus iste alias consequuntur enim modi. Tempora dolores a pariatur aliquid tenetur, officiis culpa rerum eius accusamus hic. Hic, sit. Architecto, suscipit? Dicta corrupti voluptatum cum neque omnis? Dignissimos fugiat aliquid reprehenderit dolores optio facilis alias officiis mollitia, obcaecati deserunt ad error unde quod omnis hic eveniet debitis eum nam placeat fugit necessitatibus earum ipsum consequatur? Eligendi cumque dolor optio, perspiciatis et nesciunt facilis corporis deleniti, perferendis dolorem ipsam asperiores, eum repudiandae esse."

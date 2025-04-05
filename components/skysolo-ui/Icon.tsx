@@ -60,8 +60,8 @@ const IconButton = ({
         }
         if (variant === "secondary") {
             return {
-                backgroundColor: currentTheme.secondary,
-                color: currentTheme.secondary_foreground,
+                backgroundColor: currentTheme.primary,
+                color: currentTheme.primary_foreground,
                 borderColor: currentTheme.secondary
             }
         }

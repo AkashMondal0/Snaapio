@@ -191,7 +191,7 @@ const ImageItem = memo(function ImageItem({
                 </View> : <></>}
             </TouchableOpacity>
             <Image
-                url={item?.fileUrl ? item?.fileUrl[0].urls?.high : null}
+                url={item?.fileUrl ? item?.fileUrl[0].original_sm : null}
                 style={{
                     width: '100%',
                     height: "100%",

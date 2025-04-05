@@ -7,7 +7,7 @@ import { View } from 'react-native';
 const PostSelectScreen = memo(function PostSelectScreen() {
     const navigation = useNavigation();
     const nextAction = useCallback((selectedAssets: MediaLibrary.Asset[]) => {
-        navigation?.navigate("PostUpload" as any, { assets: selectedAssets });
+        navigation?.navigate("PostUpload" as any, { assets: selectedAssets })
     }, []);
 
     return (

@@ -6,7 +6,7 @@ import {
     fetchConversationApi,
     fetchConversationsApi,
 } from "./api.service";
-import { Conversation, Message, Typing } from "@/types";
+import { AIApiResponse, Conversation, Message, Typing } from "@/types";
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { Asset } from "expo-media-library";
@@ -24,7 +24,7 @@ const updateSeenBy = (messages?: Message[], authorId?: string) => {
 export type loadingType = "idle" | "pending" | "normal";
 export type AiMessage = {
     id: string;
-    content: string;
+    data: AIApiResponse;
     createdAt: string;
     isAi: boolean;
     image: string | null;
@@ -146,6 +146,8 @@ export const ConversationSlice = createSlice({
         saveMyPrompt: (state, action: PayloadAction<AiMessage>) => {
             state.ai_messages.unshift(action.payload);
             state.ai_CurrentMessageId = action.payload.id;
+            state.ai_messageCreateLoading = false;
+            // state.ai_messages = []
         },
         completeAiMessageGenerate: (state) => {
             state.ai_CurrentMessageId = null
@@ -284,7 +286,7 @@ export const ConversationSlice = createSlice({
             state.ai_messageError = null;
         });
         builder.addCase(AiMessagePromptApi.fulfilled, (state) => {
-            // state.ai_messageCreateLoading = false;
+            state.ai_messageCreateLoading = false;
         });
         builder.addCase(AiMessagePromptApi.rejected, (state, action) => {
             state.ai_messageCreateLoading = false;

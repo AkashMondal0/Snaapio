@@ -1,6 +1,6 @@
 import { memo, useState } from "react";
 import { Image } from "@/components/skysolo-ui";
-import { Message, NavigationProps } from "@/types";
+import { Assets, Message, NavigationProps } from "@/types";
 import AppHeader from "@/components/AppHeader";
 import PagerView from "react-native-pager-view";
 import { View } from "react-native";
@@ -9,15 +9,16 @@ interface ScreenProps {
     navigation: NavigationProps;
     route: {
         params: {
-            data: Message
+            data: Message,
+            index: number
         }
     }
 }
 
 const ImagePreviewScreen = memo(function ImagePreviewScreen({ navigation, route }: ScreenProps) {
     const title = route.params?.data?.user?.username || "Image Preview"
-    const data = route.params.data
-    const [tabIndex, setTabIndex] = useState(0)
+    const data = route.params.data;
+    const [tabIndex, setTabIndex] = useState(route.params.index)
     // const imageLength = data.fileUrl.length
     // const navigateToProfile = useCallback(() => {
     //     if (!data.user) return ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT)
@@ -46,7 +47,7 @@ const ImagePreviewScreen = memo(function ImagePreviewScreen({ navigation, route 
 })
 export default ImagePreviewScreen;
 
-const ImageItem = memo(function ImageItem({ item, index }: { item: any, index: number }) {
+const ImageItem = memo(function ImageItem({ item, index }: { item: Assets, index: number }) {
     return <View
         style={{
             width: "100%",
@@ -58,12 +59,13 @@ const ImageItem = memo(function ImageItem({ item, index }: { item: any, index: n
         <Image
             key={index}
             isBorder
-            url={item.urls?.high}
+            url={item.original}
             contentFit="contain"
             style={{
                 width: "100%",
                 height: "100%",
                 borderRadius: 0,
+                backgroundColor: "#000"
             }} />
     </View>
 }, (prev, next) => {

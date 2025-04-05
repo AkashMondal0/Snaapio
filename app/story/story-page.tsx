@@ -111,7 +111,7 @@ const StoryScreen = memo(function StoryScreen({
                 </TouchableOpacity>
                 <Image
                     contentFit="contain"
-                    url={data?.fileUrl ? data?.fileUrl[0].urls?.high : null}
+                    url={data?.fileUrl ? data?.fileUrl[0].original : null}
                     style={{
                         width: "100%",
                         height: "100%",

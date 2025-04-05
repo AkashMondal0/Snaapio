@@ -94,7 +94,7 @@ const ProfilePage = ({ username }: { username: string }) => {
 					if (errorUser || errorPost && loadingUser === "normal") {
 						return <ErrorScreen message={errorUser} />;
 					}
-					if (loadingPost === "normal" &&  loadingUser === "normal" ) {
+					if (loadingPost === "normal" && loadingUser === "normal") {
 						return <ProfileEmptyPosts />;
 					}
 					return <View />

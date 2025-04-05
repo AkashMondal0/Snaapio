@@ -11,16 +11,11 @@ import { useNavigation } from "@react-navigation/native";
 
 const AskAiChatScreen = memo(function AskAiChatScreen() {
     const navigation = useNavigation()
-    // const ConversationData = useSelector((Root: RootState) => Root.ConversationState.conversation, (prev, next) => prev?.id === next?.id)
     const PressBack = useCallback(() => {
         if (navigation.canGoBack()) {
             navigation?.goBack()
-        }
-    }, [])
-
-    // if (!ConversationData) return <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-    //     <Text variant="heading3">No conversation found</Text>
-    // </View>
+        };
+    }, []);
 
     return (
         <View style={{
@@ -71,21 +66,31 @@ const AskAiChatScreenNavbar = memo(function AskAiChatScreenNavbar({
                     gap: 10,
                 }}>
                     <View style={{
-                        borderWidth: 2,
+                        borderWidth: 0,
                         borderColor: currentTheme?.border,
                         borderRadius: 100,
                         backgroundColor: "white",
                         padding: 6
                     }}>
-                        <View style={{
-                            borderColor: currentTheme?.border,
-                            borderRadius: 100,
-                        }}>
-                            <Avatar
-                                serverImage={false}
-                                url={require("../../assets/images/ai.png")}
-                                size={30} />
-                        </View>
+                        <Avatar
+                            serverImage={false}
+                            borderWidth={0}
+                            style={{
+                                backgroundColor: "white",
+                                borderWidth: 0,
+                                borderColor: "white",
+                                borderRadius: 100,
+                            }}
+                            TouchableOpacityOptions={{
+                                activeOpacity: 0.6,
+                                style: {
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    padding: 2,
+                                }
+                            }}
+                            url={require("../../assets/images/ai.png")}
+                            size={30} />
                     </View>
                     <View>
                         <Text
@@ -103,7 +108,7 @@ const AskAiChatScreenNavbar = memo(function AskAiChatScreenNavbar({
                 </View>
             </View>
             <View style={{ paddingRight: 10 }}>
-                <Icon iconName={"Info"} isButton variant="secondary" size={26} style={{ elevation: 2 }} />
+                <Icon iconName={"History"} isButton variant="secondary" size={26} style={{ elevation: 2 }} />
             </View>
         </View>
     )

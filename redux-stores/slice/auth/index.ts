@@ -66,7 +66,10 @@ export const AuthSlice = createSlice({
     },
     logout: (state) => {
       state.session.user = null
-    }
+    },
+    clearLoginError: (state) => {
+      state.loginError = null
+    },
   },
   extraReducers: (builder) => {
     // update profile
@@ -133,7 +136,8 @@ export const {
   updateSession,
   logout,
   setThemeSchema,
-  setThemeName
+  setThemeName,
+  clearLoginError,
 } = AuthSlice.actions
 
 export default AuthSlice.reducer

@@ -30,13 +30,16 @@ const QueryN = {
       post {
         id
          fileUrl {
-      id
-      urls {
-        low
-        high
-      }
-      type
-      caption
+          width
+          height
+          square
+          square_sm
+          blur_square
+          original
+          original_sm
+          blur_original
+          type
+          id
     }
       }
       comment {

@@ -31,7 +31,7 @@ const _configs = {
             // server
             requestForCall: "request-for-call",
             answerIncomingCall: "answer-incoming-call",
-            peerLeft:"peerLeft"
+            peerLeft: "peerLeft"
             // prepareSession: "prepare-session",
             // joinSession: "join-session",
             // currentRoom: "current-room",
@@ -57,7 +57,7 @@ const _configs = {
         }
     },
     AppDetails: {
-        version: "0.1.0",
+        version: "0.1.5",
         name: "Snaapio",
         description: "Snaapio is a social media platform that allows users to share their thoughts and ideas with the world.",
         appUrl: '',

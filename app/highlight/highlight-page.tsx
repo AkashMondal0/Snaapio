@@ -104,7 +104,7 @@ const HighlightPageScreen = memo(function HighlightPageScreen({
                 </TouchableOpacity>
                 <Image
                     contentFit="contain"
-                    url={story?.fileUrl ? story?.fileUrl[0].urls?.high : null}
+                    url={story?.fileUrl ? story?.fileUrl[0].original : null}
                     style={{
                         width: "100%",
                         height: "100%",

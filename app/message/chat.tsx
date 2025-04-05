@@ -10,6 +10,7 @@ import MessageItem from "@/components/message/messageItem";
 import { Loader } from "hyper-native-ui";
 import { conversationSeenAllMessage, fetchConversationAllMessagesApi, fetchConversationApi } from "@/redux-stores/slice/conversation/api.service";
 import useDebounce, { useThrottle } from "@/lib/debouncing";
+import React from "react";
 
 type Props = StaticScreenProps<{
     id: string;
@@ -40,8 +41,8 @@ const ChatScreen = memo(function ChatScreen({ route }: Props) {
         }
     }, [conversation?.id, loading])
 
-    const navigateToImagePreview = useCallback((data: Message) => {
-        navigation.navigate("MessageImagePreview" as any, { data });
+    const navigateToImagePreview = useCallback((data: Message, index?: number) => {
+        navigation.navigate("MessageImagePreview" as any, { data, index });
     }, []);
 
     const seenAllMessage = useDebounce(async () => {
@@ -91,7 +92,7 @@ const ChatScreen = memo(function ChatScreen({ route }: Props) {
 
     if (!conversation && !loadingC) return <NotFound />;
     if (!conversation) return <></>
-    
+
     return (
         <View style={{
             flex: 1,

@@ -186,15 +186,18 @@ export interface Comment {
     }
 
 }
+
 export type Assets = {
     id?: string,
-    urls?: {
-        low?: string | null,
-        medium?: string | null,
-        high?: string | null,
-        blur?: string | null,
-        thumbnail?: string | null,
-    }
+    blur_square: string,
+    square: string,
+    square_sm: string,
+    blur_original: string,
+    original: string,
+    original_sm: string,
+    width: number,
+    height: number,
+    metadata: string
     type?: 'photo' | 'video' | 'audio' | "text"
     caption?: string;
 }
@@ -257,6 +260,18 @@ export enum NotificationType {
     Story = 'story',
     Post = 'post',
 }
+export type UploadFileRespond = {
+    blur_square: string,
+    square: string,
+    square_sm: string,
+    blur_original: string,
+    original: string,
+    original_sm: string,
+    width: string,
+    height: string,
+    type: string,
+    id: string
+}
 export type Notification = {
     id: string;
     type: NotificationType;
@@ -271,4 +286,10 @@ export type Notification = {
     author?: AuthorData
     post?: Post
     comment?: Comment
+}
+
+export type AIApiResponse = {
+    type: "image" | "text",
+    url: string | null,
+    content: string | null,
 }

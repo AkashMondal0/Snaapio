@@ -25,8 +25,7 @@ export const fetchUserProfileDetailApi = createAsyncThunk(
 export const fetchUserProfilePostsApi = createAsyncThunk(
     'fetchUserProfilePostsApi/get',
     async (data: findDataInput, thunkApi) => {
-        const { username, ...findAllPosts } = data
-        findAllPosts.id = username
+        const { ...findAllPosts } = data;
         try {
             const res = await graphqlQuery({
                 query: QProfile.findAllPosts,
@@ -111,8 +110,7 @@ export const RemoveFriendshipApi = createAsyncThunk(
 export const fetchUserProfileFollowingUserApi = createAsyncThunk(
     'fetchUserProfileFollowingUserApi/get',
     async (data: findDataInput, thunkApi) => {
-        let { username, ...viewFollowingInput } = data
-        viewFollowingInput.id = username
+        let { ...viewFollowingInput } = data;
         try {
             const res = await graphqlQuery({
                 query: QProfile.findAllFollowing,
@@ -131,8 +129,7 @@ export const fetchUserProfileFollowingUserApi = createAsyncThunk(
 export const fetchUserProfileFollowerUserApi = createAsyncThunk(
     'fetchUserProfileFollowerUserApi/get',
     async (data: findDataInput, thunkApi) => {
-        let { username, ...viewFollowerInput } = data
-        viewFollowerInput.id = username
+        let { ...viewFollowerInput } = data;
         try {
             const res = await graphqlQuery({
                 query: QProfile.findAllFollower,

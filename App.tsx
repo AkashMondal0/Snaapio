@@ -5,6 +5,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Provider, useSelector } from 'react-redux';
 import { RootState, persistor, store } from '@/redux-stores/store';
 import PreConfiguration from '@/provider/PreConfiguration';
+// import ImagePickerProvider from '@/provider/ImagePickerProvider';
 import BottomSheetProvider from '@/provider/BottomSheetProvider';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import SocketConnections from '@/provider/SocketConnections';
@@ -13,8 +14,17 @@ import { AuthNavigation, Navigation } from '@/app/navigation';
 import * as Linking from 'expo-linking';
 import { PersistGate } from 'redux-persist/integration/react';
 import { registerGlobals } from 'react-native-webrtc';
-// Register global WebRTC API for better compatibility
+
+// Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
+
+// Set the animation options. This is optional.
+SplashScreen.setOptions({
+  duration: 300,
+  fade: true,
+});
+
+// Register global WebRTC API for better compatibility
 registerGlobals();
 const prefix = Linking.createURL('/');
 const prefixes = [prefix, 'snaapio://', 'https://snaapio.vercel.app'];
@@ -49,13 +59,15 @@ function Root() {
         {session.user ? <>
           <BottomSheetProvider>
             <SocketConnections>
+              {/* <ImagePickerProvider> */}
               <Navigation
-                onReady={() => { SplashScreen.hideAsync() }}
+                onReady={() => { SplashScreen.hide() }}
                 theme={theme} linking={{ prefixes }} />
+              {/* </ImagePickerProvider> */}
             </SocketConnections>
           </BottomSheetProvider>
         </> : <AuthNavigation
-          onReady={() => { SplashScreen.hideAsync() }}
+          onReady={() => { SplashScreen.hide() }}
           theme={theme} linking={{ prefixes }} />}
       </SafeAreaProvider>
     </GestureHandlerRootView>

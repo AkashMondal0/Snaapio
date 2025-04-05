@@ -17,17 +17,20 @@ export const QProfile = {
       }
     }
   }`,
-  findAllPosts: `query FindUserProfile($graphQlPageQuery: GraphQLPageQuery!) {
+  findAllPosts: `query FindAllPosts($graphQlPageQuery: GraphQLPageQuery!) {
     findAllPosts(graphQLPageQuery: $graphQlPageQuery) {
       id
       fileUrl {
-      id
-      urls {
-        low
-        high
-      }
+      width
+      height
+      square
+      square_sm
+      blur_square
+      original
+      original_sm
+      blur_original
       type
-      caption
+      id
     }
       commentCount
       likeCount
@@ -70,7 +73,7 @@ export const QProfile = {
        following
     }
   }`,
-  findAllHighlight:`query FindAllHighlight($graphQlPageQuery: GraphQLPageQuery!) {
+  findAllHighlight: `query FindAllHighlight($graphQlPageQuery: GraphQLPageQuery!) {
   findAllHighlight(graphQLPageQuery: $graphQlPageQuery) {
     authorId
     content
@@ -80,13 +83,16 @@ export const QProfile = {
       content
       createdAt
       fileUrl {
-        id
-        urls {
-          high
-          medium
-        }
-        type
-        caption
+        width
+      height
+      square
+      square_sm
+      blur_square
+      original
+      original_sm
+      blur_original
+      type
+      id
       }
       id
       song

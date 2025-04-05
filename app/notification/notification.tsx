@@ -126,7 +126,7 @@ const NotificationItem = memo(function NotificationItem({
             if (!data.postId) return ToastAndroid.show('Post not found', ToastAndroid.SHORT)
             navigation.navigate("Post", { id: data.postId })
         }} >
-            <Image url={data.post?.fileUrl[0].urls?.high}
+            <Image url={data.post?.fileUrl[0].square_sm}
                 showImageError
                 style={{
                     width: "100%",

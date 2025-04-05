@@ -4,14 +4,17 @@ export const QPost = {
       id
       content
       fileUrl {
-      id
-      urls {
-        low
-        high
+        width
+        height
+        square
+        square_sm
+        blur_square
+        original
+        original_sm
+        blur_original
+        type
+        id
       }
-      type
-      caption
-    }
       createdAt
       updatedAt
       commentCount
@@ -36,7 +39,8 @@ export const QPost = {
         profilePicture
       }
     }
-  }`,
+  }
+  `,
   // post like
   createAndDestroyLike: `mutation Like($input: CreateLikeInput!) {
     Like(input: $input)
