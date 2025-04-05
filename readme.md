@@ -34,7 +34,7 @@ client-side application offers a simple and responsive interface.
 
 ## Tech Stack
 
-React Native, Redux toolkit, react-hook-form, socket io, zod
+React Native, Redux toolkit, react-hook-form, socket io, zod, WebRTC, JWT, Expo, TypeScript, NestJS, Drizzle ORM, PostgreSQL, Supabase, Docker and more.
 
 ## Features
 
@@ -43,7 +43,8 @@ React Native, Redux toolkit, react-hook-form, socket io, zod
 - Image uploading feature.
 - Share Photo with your friends.
 - Light and dark modes Toggle and switch themes.
-- ChatBot: Ask Google Gemini AI anything.
+- ChatBot: Ask Google Gemini AI anything. and image generation.
+- Video calling feature. using WebRTC.
 
 ## Run Locally
 
@@ -104,3 +105,9 @@ docker compose up
 ## Themes
 
 ![App Screenshot](/public/4.jpg)
+ 
+## YouTube Videos Links
+
+[![App demo](https://youtu.be/FcFnNH7mynM?si=p0TtWq7NJgovSXll)](https://youtu.be/FcFnNH7mynM?si=p0TtWq7NJgovSXll)
+
+[![Video calling feature](https://youtu.be/FcFnNH7mynM?si=p0TtWq7NJgovSXll)](https://youtu.be/FcFnNH7mynM?si=p0TtWq7NJgovSXll)

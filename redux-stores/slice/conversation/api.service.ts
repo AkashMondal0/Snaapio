@@ -93,8 +93,7 @@ export const CreateMessageApi = createAsyncThunk(
         fileUrl: Asset[];
     }, thunkAPI) => {
         try {
-
-            const fileUrls = await uploadPost({ files: createMessageInput.fileUrl });
+            const fileUrls = createMessageInput?.fileUrl?.length > 0 ? await uploadPost({ files: createMessageInput.fileUrl }) : null;
             createMessageInput.fileUrl = fileUrls as any;
             const res = await graphqlQuery({
                 query: CQ.createMessage,
