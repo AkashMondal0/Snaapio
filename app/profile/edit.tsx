@@ -241,6 +241,11 @@ const ProfileEditScreen = memo(function ProfileEditScreen() {
                     name="bio"
                     rules={{ required: false }} />
                 <ErrorMessage text={errors.bio?.message} />
+                <Button onPress={()=>{
+                    navigation.navigate("AccountVerification")
+                }} disabled={state.loading}>
+                    Account verification
+                </Button>
                 <View style={{ height: 10 }} />
                 <Button onPress={handleSubmit(handleUpdate)} disabled={state.loading}>
                     Submit
