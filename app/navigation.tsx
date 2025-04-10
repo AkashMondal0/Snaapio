@@ -24,7 +24,7 @@ import {
     ImagePreviewScreen,
     NewChatScreen
 } from '@/app/message';
-import { AccountVerificationScreen, ProfileEditScreen, ProfileScreen, TabFollowingAndFollowers } from '@/app/profile';
+import { PremiumSignUpScreen, ProfileEditScreen, ProfileScreen, TabFollowingAndFollowers } from '@/app/profile';
 import { CommentScreen, LikeScreen, PostScreen, PostUploadScreen, PostSelectScreen } from '@/app/post';
 import { StoryScreen, StorySelectingScreen, StoryUploadScreen } from '@/app/story';
 import { HighlightPageScreen, HighlightSelectingScreen, HighlightUploadScreen } from '@/app/highlight';
@@ -173,10 +173,10 @@ const RootStack = createNativeStackNavigator({
                         path: "/account/edit"
                     }
                 },
-                AccountVerification: {
-                    screen: AccountVerificationScreen,
+                PremiumSignUpScreen: {
+                    screen: PremiumSignUpScreen,
                     linking: {
-                        path: "/account/account_verification"
+                        path: "/account/premium_sign_up"
                     }
                 }
             }

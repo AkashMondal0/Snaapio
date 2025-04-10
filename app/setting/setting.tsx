@@ -26,7 +26,9 @@ const SettingScreen = memo(function HomeScreen() {
             name: "Edit Profile",
             description: "Edit your profile",
             icon: "Pencil",
-            onPress: () => { }
+            onPress: () => {
+                navigation.navigate("AccountEdit")
+             }
         },
         {
             name: "About",

@@ -5,6 +5,7 @@ import ProfileHeader from "./ProfileHeader";
 import ProfileInfoCount from "./ProfileInfoCount";
 import ProfileEmptyPosts from "./ProfilePost";
 import ProfileStories from "./ProfileStories";
+import VerifiedAdComponent from "./VerifiedAd";
 
 export {
     ProfileNavbar,
@@ -13,5 +14,6 @@ export {
     ProfileInfoCount,
     ProfileActionsButton,
     ProfileEmptyPosts,
-    ProfileGridItem
+    ProfileGridItem,
+    VerifiedAdComponent
 }

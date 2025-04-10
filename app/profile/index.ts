@@ -1,11 +1,11 @@
 import ProfileEditScreen from "./edit";
 import ProfileScreen from "./profile";
 import TabFollowingAndFollowers from "./tab";
-import AccountVerificationScreen from "./profile_verification";
+import PremiumSignUpScreen from "./premium_sign_up";
 
 export {
     ProfileScreen,
     TabFollowingAndFollowers,
     ProfileEditScreen,
-    AccountVerificationScreen
+    PremiumSignUpScreen
 }

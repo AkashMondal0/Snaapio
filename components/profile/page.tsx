@@ -52,7 +52,7 @@ const ProfilePage = ({ username }: { username: string }) => {
 			height: '100%',
 		}}>
 			<ProfileNavbar
-				isProfile={isProfile} username={username} />
+				isProfile={isProfile} username={username} isVerified={dataUser?.isVerified} />
 			{!dataUser?.id ? <View style={{
 				width: '100%',
 				flex: 1,
