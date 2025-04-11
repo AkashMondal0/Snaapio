@@ -24,7 +24,7 @@ import {
     ImagePreviewScreen,
     NewChatScreen
 } from '@/app/message';
-import { ProfileEditScreen, ProfileScreen, TabFollowingAndFollowers } from '@/app/profile';
+import { PremiumSignUpScreen, ProfileEditScreen, ProfileScreen, TabFollowingAndFollowers } from '@/app/profile';
 import { CommentScreen, LikeScreen, PostScreen, PostUploadScreen, PostSelectScreen } from '@/app/post';
 import { StoryScreen, StorySelectingScreen, StoryUploadScreen } from '@/app/story';
 import { HighlightPageScreen, HighlightSelectingScreen, HighlightUploadScreen } from '@/app/highlight';
@@ -148,7 +148,7 @@ const RootStack = createNativeStackNavigator({
                         path: "/"
                     }
                 },
-                PickupImages:{
+                PickupImages: {
                     screen: PickupImages,
                     options: {
                         animation: "slide_from_bottom"
@@ -171,6 +171,12 @@ const RootStack = createNativeStackNavigator({
                     screen: ProfileEditScreen,
                     linking: {
                         path: "/account/edit"
+                    }
+                },
+                PremiumSignUpScreen: {
+                    screen: PremiumSignUpScreen,
+                    linking: {
+                        path: "/account/premium_sign_up"
                     }
                 }
             }

@@ -293,3 +293,12 @@ export type AIApiResponse = {
     url: string | null,
     content: string | null,
 }
+
+export type PremiumSignUpPlan = {
+    title?: string;
+    price?: string;
+    mainPrice: number;
+    yearlyPrice?: string;
+    save?: string;
+    features?: string[];
+};

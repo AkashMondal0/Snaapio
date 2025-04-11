@@ -11,6 +11,8 @@ export const QProfile = {
       postCount
       followerCount
       followingCount
+      isVerified
+      isPrivate
       friendship {
         followed_by
         following

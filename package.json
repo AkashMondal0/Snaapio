@@ -56,7 +56,10 @@
     "expo-linear-gradient": "~14.0.2",
     "expo-audio": "~0.3.5",
     "expo-video": "~2.0.5",
-    "expo-av": "~15.0.2"
+    "expo-av": "~15.0.2",
+    "@stripe/stripe-react-native": "0.38.6",
+    "@react-native-community/slider": "4.5.5",
+    "expo-constants": "~17.0.8"
   },
   "devDependencies": {
     "@babel/core": "^7.24.0",

@@ -14,6 +14,7 @@ import { AuthNavigation, Navigation } from '@/app/navigation';
 import * as Linking from 'expo-linking';
 import { PersistGate } from 'redux-persist/integration/react';
 import { registerGlobals } from 'react-native-webrtc';
+import StripProvider from './provider/StripProvider';
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
@@ -56,19 +57,23 @@ function Root() {
         flex: 1,
         backgroundColor: background
       }}>
-        {session.user ? <>
-          <BottomSheetProvider>
-            <SocketConnections>
-              {/* <ImagePickerProvider> */}
-              <Navigation
-                onReady={() => { SplashScreen.hide() }}
-                theme={theme} linking={{ prefixes }} />
-              {/* </ImagePickerProvider> */}
-            </SocketConnections>
-          </BottomSheetProvider>
-        </> : <AuthNavigation
-          onReady={() => { SplashScreen.hide() }}
-          theme={theme} linking={{ prefixes }} />}
+        <StripProvider>
+          {session.user ? <>
+            <BottomSheetProvider>
+              <SocketConnections>
+                {/* <ImagePickerProvider> */}
+                <Navigation
+                  onReady={() => { SplashScreen.hide() }}
+                  theme={theme} linking={{ prefixes }} />
+                {/* </ImagePickerProvider> */}
+              </SocketConnections>
+            </BottomSheetProvider>
+          </> :
+            <AuthNavigation
+              onReady={() => { SplashScreen.hide() }}
+              theme={theme} linking={{ prefixes }} />
+          }
+        </StripProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   </>)

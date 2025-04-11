@@ -142,6 +142,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       {
         "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
       }
+    ],
+    [
+      "@stripe/stripe-react-native",
+      {
+        "merchantIdentifier": "com.akashmondal0.snaapio",
+        "enableGooglePay": true
+      }
     ]
   ],
   owner: "akashmondal0"

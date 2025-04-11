@@ -1,10 +1,82 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { graphqlQuery } from "@/lib/GraphqlQuery";
 import { Asset } from "expo-media-library";
-import { findDataInput, Story } from "@/types";
+import { findDataInput, PremiumSignUpPlan, Session, Story } from "@/types";
 import { AQ } from "./account.queries";
 import { uploadPost } from "@/lib/uploadFiles";
+import { configs } from "@/configs";
+import { getSecureStorage } from "@/lib/SecureStore";
 
+export const fetchPaymentSheetParams = async ({ mainPrice }: PremiumSignUpPlan) => {
+    try {
+        const BearerToken = await getSecureStorage<Session["user"]>(configs.sessionName);
+
+        if (!BearerToken?.accessToken) {
+            throw new Error("No access token found");
+        };
+
+        const response = await fetch(`${configs.serverApi.baseUrl}/payment/sheet`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `${BearerToken?.accessToken}`,
+            },
+            credentials: "include",
+            cache: "no-cache",
+            redirect: "follow",
+            body: JSON.stringify({
+                amount: mainPrice,
+            }),
+        });
+
+        if (!response.ok) {
+            console.error("Failed to fetch payment sheet params", response.status);
+            throw new Error("Failed to fetch payment sheet params");
+        };
+
+        const data = await response.json();
+
+        return {
+            paymentIntent: data.paymentIntent,
+            ephemeralKey: data.ephemeralKey,
+            customer: data.customer,
+        };
+    } catch (error) {
+        console.log(error);
+        throw new Error("Failed to fetch payment sheet params");
+    }
+};
+
+export const fetchPaymentSheetSuccess = async (_data: PremiumSignUpPlan) => {
+    try {
+        const BearerToken = await getSecureStorage<Session["user"]>(configs.sessionName);
+
+        if (!BearerToken?.accessToken) {
+            throw new Error("No access token found");
+        };
+
+        const response = await fetch(`${configs.serverApi.baseUrl}/payment/sheet-success`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `${BearerToken?.accessToken}`,
+            },
+            credentials: "include",
+            cache: "no-cache",
+            redirect: "follow",
+            body: JSON.stringify(_data),
+        });
+
+        if (!response.ok) {
+            console.error("Failed to fetch payment sheet params", response.status);
+            throw new Error("Failed to fetch payment sheet params");
+        };
+        return;
+    } catch (error) {
+        console.error(error);
+        return;
+    }
+};
 
 export const fetchAccountFeedApi = createAsyncThunk(
     'fetchAccountFeedApi/get',
