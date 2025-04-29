@@ -1,7 +1,7 @@
 
 import { Post } from "@/types";
 import React, { useCallback, useRef, memo } from "react";
-import { Animated, View } from "react-native";
+import { Animated, StatusBar, View } from "react-native";
 import { FeedItem, HomeHeader } from '@/components/home';
 import ErrorScreen from '@/components/error/page';
 import ListEmpty from '@/components/ListEmpty';
@@ -24,7 +24,7 @@ const FeedsScreen = memo(function FeedsScreen() {
     const scrollYClamped = diffClamp(scrollY.current, 0, 130);
     const translateY = scrollYClamped.interpolate({
         inputRange: [0, 130],
-        outputRange: [0, -(130 / 2)],
+        outputRange: [0, -(200 / 2)],
     });
 
     return (

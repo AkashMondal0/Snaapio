@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { View } from "react-native";
+import { StatusBar, View } from "react-native";
 import { Avatar, Icon } from "@/components/skysolo-ui";
 import { useTheme, Text } from 'hyper-native-ui';
 import { useNavigation } from "@react-navigation/native";
@@ -27,7 +27,8 @@ const ProfileNavbar = memo(function HomeScreen({
                 paddingHorizontal: 10,
                 flexDirection: 'row',
                 alignItems: 'center',
-                justifyContent: 'space-between'
+                justifyContent: 'space-between',
+                marginTop: StatusBar.currentHeight
             }}>
                 <View style={{
                     flexDirection: 'row',
@@ -69,6 +70,7 @@ const ProfileNavbar = memo(function HomeScreen({
         width: '100%',
         height: 55,
         borderColor: currentTheme?.border,
+        marginTop: StatusBar.currentHeight,
         borderBottomWidth: 0.8,
         paddingHorizontal: 6,
         flexDirection: 'row',

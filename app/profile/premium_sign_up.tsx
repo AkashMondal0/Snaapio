@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { useTheme, Text, TouchableOpacity, Button } from 'hyper-native-ui';
+import { useTheme, Text, Button, PressableButton } from 'hyper-native-ui';
 import { fetchPaymentSheetParams, fetchPaymentSheetSuccess } from "@/redux-stores/slice/account/api.service";
 import { useStripe } from "@stripe/stripe-react-native";
-import { SafeAreaView, ToastAndroid } from "react-native";
+import { SafeAreaView, StatusBar, ToastAndroid } from "react-native";
 import { View, ScrollView } from 'react-native';
 import { PremiumSignUpPlan } from '@/types';
 import { useNavigation } from '@react-navigation/native';
@@ -60,7 +60,7 @@ export default function PremiumSignUpScreen() {
 	};
 
 	return (
-		<ScrollView style={{ padding: 20 }}>
+		<ScrollView style={{ padding: 20, marginTop: StatusBar.currentHeight }}>
 			<SafeAreaView>
 				<Text
 					style={{
@@ -89,6 +89,7 @@ export default function PremiumSignUpScreen() {
 						flexDirection: 'row',
 						justifyContent: 'center',
 						marginBottom: 20,
+						gap: 12
 					}}
 				>
 					<Button
@@ -96,10 +97,7 @@ export default function PremiumSignUpScreen() {
 						variant={billingCycle === "Annual" ? 'default' : 'outline'}
 						activeOpacity={0.8}
 						style={{
-							borderWidth: 1,
 							borderRadius: 20,
-							marginHorizontal: 5,
-							backgroundColor: billingCycle === 'Annual' ? currentTheme.primary : 'transparent',
 						}}
 						onPress={() => setBillingCycle('Annual')}
 					>
@@ -110,10 +108,7 @@ export default function PremiumSignUpScreen() {
 						disabled={billingCycle === 'Monthly'}
 						activeOpacity={0.8}
 						style={{
-							borderWidth: 1,
 							borderRadius: 20,
-							marginHorizontal: 5,
-							backgroundColor: billingCycle === 'Monthly' ? currentTheme.primary : 'transparent',
 						}}
 						onPress={() => setBillingCycle('Monthly')}
 					>
@@ -123,14 +118,14 @@ export default function PremiumSignUpScreen() {
 
 				<View style={{ gap: 20 }}>
 					{plans.map((plan) => (
-						<TouchableOpacity
-							activeOpacity={0.8}
+						<PressableButton
+							// activeOpacity={0.8}
 							key={plan.title}
 							style={{
-								backgroundColor: currentTheme.input,
+								// backgroundColor: currentTheme.input,
 								borderColor: selectedPlan === plan.title ? currentTheme.primary : currentTheme.border,
 								borderWidth: selectedPlan === plan.title ? 2 : 2,
-								borderRadius: 10,
+								borderRadius: 20,
 								padding: 16,
 								width: '100%',
 							}}
@@ -157,7 +152,7 @@ export default function PremiumSignUpScreen() {
 									✓ {feature}
 								</Text>
 							))}
-						</TouchableOpacity>
+						</PressableButton>
 					))}
 				</View>
 

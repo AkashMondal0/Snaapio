@@ -51,19 +51,25 @@ export default function InitialScreen() {
                 }}>
                 {configs.AppDetails.name} is a social media platform for sharing your thoughts and ideas with the world.
             </Text>
-
-            <Button onPress={() => { navigation.navigate("Register" as any) }} style={{
-                width: "80%",
-                marginVertical: 10,
-            }}>
-                Register
-            </Button>
-            <Button variant="secondary" onPress={() => { navigation.navigate("Login" as any) }} style={{
-                width: "80%",
-                marginVertical: 4,
-                elevation: 0,
-            }}>
+            <View style={{ height: 20 }} />
+            <Button
+                width={"80%"}
+                // variant="outline"
+                onPress={() => {
+                    navigation.navigate("Login" as any)
+                }}
+                activeOpacity={1}>
                 Login
+            </Button>
+            <View style={{ height: 10 }} />
+            <Button
+                width={"80%"}
+                variant="secondary"
+                onPress={() => {
+                    navigation.navigate("Register" as any)
+                }}
+                activeOpacity={1}>
+                Register
             </Button>
         </View>
     )

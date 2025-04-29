@@ -1,5 +1,5 @@
 import React, { memo, useCallback } from 'react';
-import { View } from 'react-native';
+import { StatusBar, View } from 'react-native';
 import { Icon } from '@/components/skysolo-ui';
 import { Input, Text } from 'hyper-native-ui';
 import { useSelector } from 'react-redux';
@@ -27,6 +27,7 @@ const ListHeader = memo(function ListHeader({
         <View style={{
             paddingHorizontal: 14,
             paddingBottom: 10,
+            paddingTop: StatusBar.currentHeight,
         }}>
             <View style={{
                 width: "100%",

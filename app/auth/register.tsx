@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ScrollView, ToastAndroid, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StatusBar, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -7,8 +7,7 @@ import z from "zod"
 import { Icon } from '@/components/skysolo-ui';
 import { Text, Button, Input } from 'hyper-native-ui'
 import { registerApi } from '@/redux-stores/slice/auth/api.service';
-import { ApiResponse, Session } from '@/types';
-import { clearLoginError, setSession } from '@/redux-stores/slice/auth';
+import { clearLoginError } from '@/redux-stores/slice/auth';
 import { StackActions, useNavigation } from '@react-navigation/native';
 import { RootState } from '@/redux-stores/store';
 
@@ -90,6 +89,7 @@ const RegisterScreen = () => {
                     style={{
                         aspectRatio: 1,
                         width: 40,
+                        marginTop: StatusBar.currentHeight
                     }}
                     onPress={() => {
                         navigation.goBack()
@@ -269,34 +269,22 @@ const RegisterScreen = () => {
                         {errors.password?.message}
                     </Text>
 
-                    <Button onPress={handleSubmit(handleLogin)} style={{
-                        width: "90%",
-                        marginVertical: 20,
-                    }}
+                    <Button onPress={handleSubmit(handleLogin)}
+                        width={"90%"}
                         loading={loading}
                         disabled={loading}>
                         Register
                     </Button>
-                </View>
-                <TouchableOpacity onPress={() => {
-                    navigation.dispatch(StackActions.replace("Login"))
-                }}
-                    activeOpacity={1}
-                    style={{
-                        padding: 10,
-                        flexDirection: "row",
-                        alignItems: "center",
-                        justifyContent: "center",
-                    }}>
-                    <Text
-                        variantColor="secondary"
-                        style={{
-                            textAlign: "center",
-                            paddingRight: 4,
-                        }}>
+                    <View style={{ height: 12 }} />
+                    <Button onPress={() => {
+                        navigation.dispatch(StackActions.replace("Login"))
+                    }}
+                        activeOpacity={1}
+                        width={"90%"}
+                        variant="outline">
                         Login
-                    </Text>
-                </TouchableOpacity>
+                    </Button>
+                </View>
             </ScrollView>
         </View>
     );

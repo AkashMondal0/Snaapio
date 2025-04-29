@@ -173,21 +173,21 @@ const ReelsPage = () => {
   // Handle StatusBar updates and cleanup
   useFocusEffect(
     useCallback(() => {
-      StatusBar.setBackgroundColor('transparent');
-      StatusBar.setTranslucent(true);
-      StatusBar.setBarStyle('light-content');
+      // StatusBar.setBackgroundColor('transparent');
+      // StatusBar.setTranslucent(true);
+      // StatusBar.setBarStyle('light-content');
 
       return () => {
-        StatusBar.setBackgroundColor(currentTheme.background);
-        StatusBar.setTranslucent(false);
-        StatusBar.setBarStyle(themeScheme === 'dark' ? 'light-content' : 'dark-content');
+        // StatusBar.setBackgroundColor(currentTheme.background);
+        // StatusBar.setTranslucent(false);
+        // StatusBar.setBarStyle(themeScheme === 'dark' ? 'light-content' : 'dark-content');
 
         // Stop all videos when exiting the screen
         Object.values(videoRefs.current).forEach((video) => {
           video?.pauseAsync();
         });
       };
-    }, [currentTheme, themeScheme])
+    }, [])
   );
 
   return (

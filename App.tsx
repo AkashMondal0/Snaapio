@@ -5,7 +5,6 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Provider, useSelector } from 'react-redux';
 import { RootState, persistor, store } from '@/redux-stores/store';
 import PreConfiguration from '@/provider/PreConfiguration';
-// import ImagePickerProvider from '@/provider/ImagePickerProvider';
 import BottomSheetProvider from '@/provider/BottomSheetProvider';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import SocketConnections from '@/provider/SocketConnections';
@@ -61,11 +60,9 @@ function Root() {
           {session.user ? <>
             <BottomSheetProvider>
               <SocketConnections>
-                {/* <ImagePickerProvider> */}
                 <Navigation
                   onReady={() => { SplashScreen.hide() }}
                   theme={theme} linking={{ prefixes }} />
-                {/* </ImagePickerProvider> */}
               </SocketConnections>
             </BottomSheetProvider>
           </> :

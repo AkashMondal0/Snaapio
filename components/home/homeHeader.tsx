@@ -1,4 +1,4 @@
-import { View, Text as RNText, TouchableOpacity, Animated } from "react-native"
+import { View, Text as RNText, TouchableOpacity, Animated, StatusBar } from "react-native"
 import { Icon } from '@/components/skysolo-ui';
 import { AnimatedView, Separator, Text } from 'hyper-native-ui'
 import { useDispatch, useSelector } from "react-redux";
@@ -29,6 +29,7 @@ const HomeHeader = ({ translateY }: {
         zIndex: 1,
         width: '100%',
         elevation: 0,
+        paddingTop: StatusBar.currentHeight
     }, { transform: [{ translateY }] }]}>
         <View style={{
             width: '100%',

@@ -10,7 +10,7 @@ import { StackActions, useNavigation } from "@react-navigation/native";
 import { Input, Text, TouchableOpacity } from "hyper-native-ui";
 import React from "react";
 import { memo, useCallback, useRef } from "react";
-import { FlatList, View } from "react-native";
+import { FlatList, StatusBar, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 
 const SearchScreen = memo(function SearchScreen() {
@@ -46,6 +46,7 @@ const SearchScreen = memo(function SearchScreen() {
             flex: 1,
             width: '100%',
             height: '100%',
+            marginTop: StatusBar.currentHeight,
         }}>
             <View style={{
                 flexDirection: 'row',
