@@ -53,6 +53,19 @@ const HomeHeader = ({ translateY }: {
                 alignItems: "center",
                 marginHorizontal: 10
             }}>
+                <TouchableOpacity
+                    style={{
+                        justifyContent: "center",
+                        alignItems: "center",
+                    }}
+                    activeOpacity={0.8}
+                    onPress={() => {
+                        navigation.navigate("VideoSelect")
+                    }} >
+                    <Icon iconName="PlusCircle" size={30} onPress={() => {
+                        navigation.navigate("VideoSelect")
+                    }} />
+                </TouchableOpacity>
                 <NotificationPopup />
                 <TouchableOpacity
                     style={{

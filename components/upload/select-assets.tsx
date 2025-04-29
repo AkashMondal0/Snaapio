@@ -15,9 +15,11 @@ import { setDeviceAssets } from '@/redux-stores/slice/account';
 let loaded = false;
 const SelectAssets = memo(function SelectAssets({
     nextAction,
-    assetsLimit = 5
+    assetsLimit = 5,
+    mediaType = ['photo']
 }: PageProps<any> & {
     assetsLimit?: number;
+    mediaType?: any[]
     nextAction: (selectedAssets: MediaLibrary.Asset[]) => void;
 }) {
     const [permission, requestPermission] = MediaLibrary.usePermissions();
@@ -47,7 +49,7 @@ const SelectAssets = memo(function SelectAssets({
             hasNextPage,
             totalCount: totalMediaCount,
         } = await MediaLibrary.getAssetsAsync({
-            mediaType: ['photo'],
+            mediaType: mediaType,
             first: 20,
             sortBy: MediaLibrary.SortBy.default,
             after: totalCount.current.toString(),
@@ -113,7 +115,7 @@ const SelectAssets = memo(function SelectAssets({
         <>
             <AppHeader
                 titleCenter
-                title={selectedCount > 0 ? `Selected ${selectedCount} ` : 'Select Photos'}
+                title={selectedCount > 0 ? `Selected ${selectedCount} ` : 'Select Items'}
                 rightSideComponent={selectedCount > 0 ? <Icon
                     iconName='Check' isButton
                     style={{ width: 36 }}

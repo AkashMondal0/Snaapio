@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState, useEffect } from 'react';
 import {
   View,
   FlatList,
@@ -6,188 +6,147 @@ import {
   TouchableOpacity,
   Text,
   StyleSheet,
-  StatusBar,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { Video, ResizeMode } from 'expo-av';
-import { useTheme } from 'hyper-native-ui';
+import { useVideoPlayer, VideoView } from 'expo-video';
 import { Icon } from '@/components/skysolo-ui';
 
 const { height, width } = Dimensions.get('window');
 
 const videos = [
   { id: '1', uri: 'https://srcsaekkccuublpzpsnb.supabase.co/storage/v1/object/public/videos/dua/360p/index.m3u8' },
-  { id: '2', uri: 'https://srcsaekkccuublpzpsnb.supabase.co/storage/v1/object/public/videos/dua/360p/index.m3u8' },
-  { id: '3', uri: 'https://srcsaekkccuublpzpsnb.supabase.co/storage/v1/object/public/videos/dua/360p/index.m3u8' },
-  { id: '4', uri: 'https://srcsaekkccuublpzpsnb.supabase.co/storage/v1/object/public/videos/dua/360p/index.m3u8' },
-  { id: '5', uri: 'https://srcsaekkccuublpzpsnb.supabase.co/storage/v1/object/public/videos/dua/360p/index.m3u8' },
-  { id: '6', uri: 'https://srcsaekkccuublpzpsnb.supabase.co/storage/v1/object/public/videos/dua/360p/index.m3u8' },
+  { id: '2', uri: 'https://srcsaekkccuublpzpsnb.supabase.co/storage/v1/object/public/videos/480p/1745848477241/playlist.m3u8' },
+  { id: '3', uri: 'https://srcsaekkccuublpzpsnb.supabase.co/storage/v1/object/public/videos/480p/pkzt1c7G66FG/playlist.m3u8' },
 ];
 
+// ✅ Custom hook to safely create video players
+function useVideoPlayers(videoList: { id: string; uri: string }[]) {
+  const players = videoList.map((video) =>
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useVideoPlayer(video.uri, (p) => {
+      p.loop = true;
+    })
+  );
+
+  return videoList.reduce((acc, video, i) => {
+    acc[video.id] = players[i];
+    return acc;
+  }, {} as { [id: string]: ReturnType<typeof useVideoPlayer> });
+}
+
+const ReelItem = ({
+  uri,
+  player,
+  isActive,
+  muted,
+}: {
+  uri: string;
+  player: ReturnType<typeof useVideoPlayer>;
+  isActive: boolean;
+  muted: boolean;
+}) => {
+  useEffect(() => {
+    if (!player) return;
+    player.muted = muted;
+    if (isActive) {
+      player.play();
+    } else {
+      player.pause();
+    }
+  }, [isActive, muted]);
+
+  return (
+    <View style={styles.container}>
+      <VideoView
+        nativeControls={false}
+        player={player}
+        style={styles.video}
+        contentFit="cover"
+        allowsFullscreen
+        allowsPictureInPicture={false}
+      />
+    </View>
+  );
+};
+
 const ReelsPage = () => {
-  const { currentTheme, themeScheme } = useTheme();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [muted, setMuted] = useState(false);
-  const videoRefs = useRef<{ [key: number]: Video | null }>({});
+  const players = useVideoPlayers(videos);
 
-  // Handle video play/pause based on visibility
-  useEffect(() => {
-    Object.keys(videoRefs.current).forEach((key) => {
-      const index = Number(key);
-      const video = videoRefs.current[index];
-
-      if (video) {
-        if (index === currentIndex) {
-          video.playAsync();
-        } else {
-          video.pauseAsync();
-        }
-      }
-    });
-  }, [currentIndex]);
-
-  // Handles viewable item change to update `currentIndex`
   const onViewableItemsChanged = useRef(({ viewableItems }: any) => {
     if (viewableItems.length > 0) {
       setCurrentIndex(viewableItems[0].index);
     }
   }).current;
 
-  // Optimized `renderItem` using useCallback
+  useFocusEffect(
+    useCallback(() => {
+      // On screen focus: resume current video
+      const currentVideo = videos[currentIndex];
+      const currentPlayer = players[currentVideo.id];
+      try {
+        currentPlayer?.play();
+      } catch (e) {
+        console.warn('Failed to resume video on focus:', e);
+      }
+  
+      return () => {
+        // On screen unfocus: pause all
+        Object.values(players).forEach((player) => {
+          try {
+            player.pause();
+          } catch (e) {
+            console.warn('Failed to pause player on unfocus:', e);
+          }
+        });
+      };
+    }, [currentIndex, players])
+  );
+  
   const renderItem = useCallback(
-    ({ item, index }: { item: any, index: number }) => (
+    ({ item, index }: any) => (
       <View style={styles.container}>
-
-        <Video
-          ref={(ref) => (videoRefs.current[index] = ref)}
-          source={{ uri: item.uri }}
-          style={styles.video}
-          resizeMode={ResizeMode.CONTAIN}
-          shouldPlay={index === currentIndex}
-          isMuted={muted || index !== currentIndex} // Mute all except the visible one
-          useNativeControls={false}
+        <ReelItem
+          uri={item.uri}
+          player={players[item.id]}
+          isActive={index === currentIndex}
+          muted={muted}
         />
-        {/* volume button */}
+
         {index === currentIndex && (
-          <TouchableOpacity style={{
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            borderRadius: 20,
-            justifyContent: 'center',
-            alignItems: 'center',
-            aspectRatio: 1,
-            width: 40,
-            height: 40,
-            position: 'absolute',
-            top: 50,
-            right: 20,
-          }} onPress={() => setMuted(!muted)}>
-            {muted ? <Icon iconName="VolumeOff"
+          <TouchableOpacity
+            style={styles.muteButton}
+            onPress={() => setMuted((m) => !m)}
+          >
+            <Icon
+              iconName={muted ? 'VolumeOff' : 'Volume2'}
               size={24}
               color="white"
-              style={{ padding: 5 }}
-              onPress={() => {
-                setMuted(!muted);
-              }} /> : <Icon iconName="Volume2"
-                size={24}
-                style={{ padding: 5 }}
-                onPress={() => {
-                  setMuted(!muted);
-                }} />}
+              onPress={() => setMuted((m) => !m)}
+            />
           </TouchableOpacity>
         )}
-        <View style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          padding: 10,
-          width: '100%',
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: "flex-end"
-        }}>
-          <View style={{
-            // backgroundColor: 'rgba(0,0,0,0.5)',
-            padding: 10,
-            borderRadius: 10,
-            width: '80%',
-          }}>
-            <Text style={{ color: "white", fontSize: 24, fontWeight: "bold" }}>
-              This is a title
-            </Text>
-            <Text style={{ color: "white", fontSize: 16 }}>
-              This is a description of the video. It can be a bit longer to provide more context about the content.
+
+        <View style={styles.overlay}>
+          <View style={styles.textContent}>
+            <Text style={styles.title}>This is a title</Text>
+            <Text style={styles.description}>
+              This is a description of the video.
             </Text>
           </View>
 
-          {/* left side buttons */}
-          <View style={{
-            position: 'absolute',
-            bottom: 0,
-            right: 0,
-            gap: 26,
-            padding: 16,
-            paddingVertical: 40,
-          }}>
-            <Icon iconName="Heart"
-              size={32}
-              color="white"
-              style={{ padding: 5 }}
-              onPress={() => {
-                setMuted(!muted);
-              }} />
-            <Icon iconName="MessageCircle"
-              size={32}
-              color="white"
-              style={{ padding: 5 }}
-              onPress={() => {
-                setMuted(!muted);
-              }} />
-            <Icon iconName="Send"
-              size={32}
-              color="white"
-              style={{ padding: 5 }}
-              onPress={() => {
-                setMuted(!muted);
-              }} />
-            <Icon iconName="Bookmark"
-              size={32}
-              color="white"
-              style={{ padding: 5 }}
-              onPress={() => {
-                setMuted(!muted);
-              }} />
-            <Icon iconName="MoreHorizontal"
-              size={32}
-              color="white"
-              style={{ padding: 5 }}
-              onPress={() => {
-                setMuted(!muted);
-              }} />
+          <View style={styles.sideButtons}>
+            <Icon iconName="Heart" size={32} color="white" />
+            <Icon iconName="MessageCircle" size={32} color="white" />
+            <Icon iconName="Send" size={32} color="white" />
+            <Icon iconName="Bookmark" size={32} color="white" />
+            <Icon iconName="MoreHorizontal" size={32} color="white" />
           </View>
         </View>
       </View>
     ),
-    [muted, currentIndex]
-  );
-
-  // Handle StatusBar updates and cleanup
-  useFocusEffect(
-    useCallback(() => {
-      // StatusBar.setBackgroundColor('transparent');
-      // StatusBar.setTranslucent(true);
-      // StatusBar.setBarStyle('light-content');
-
-      return () => {
-        // StatusBar.setBackgroundColor(currentTheme.background);
-        // StatusBar.setTranslucent(false);
-        // StatusBar.setBarStyle(themeScheme === 'dark' ? 'light-content' : 'dark-content');
-
-        // Stop all videos when exiting the screen
-        Object.values(videoRefs.current).forEach((video) => {
-          video?.pauseAsync();
-        });
-      };
-    }, [])
+    [muted, currentIndex, players]
   );
 
   return (
@@ -196,7 +155,6 @@ const ReelsPage = () => {
       keyExtractor={(item) => item.id}
       renderItem={renderItem}
       pagingEnabled
-      horizontal={false}
       showsVerticalScrollIndicator={false}
       onViewableItemsChanged={onViewableItemsChanged}
       viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50 }}
@@ -205,10 +163,10 @@ const ReelsPage = () => {
         offset: height * index,
         index,
       })}
-      initialNumToRender={2} // Load only 2 items initially
-      maxToRenderPerBatch={3} // Render 3 items per batch
-      windowSize={4} // Keep 4 items in memory
-      removeClippedSubviews // Optimize performance by removing off-screen items
+      initialNumToRender={2}
+      maxToRenderPerBatch={3}
+      windowSize={4}
+      removeClippedSubviews
     />
   );
 };
@@ -216,7 +174,7 @@ const ReelsPage = () => {
 const styles = StyleSheet.create({
   container: {
     width,
-    height, // Adjusting height for better optimization
+    height,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'black',
@@ -224,19 +182,50 @@ const styles = StyleSheet.create({
   video: {
     width: '100%',
     height: '100%',
-    aspectRatio: 16 / 9
   },
   muteButton: {
     position: 'absolute',
-    bottom: 50,
+    top: 50,
     right: 20,
     backgroundColor: 'rgba(0,0,0,0.5)',
-    padding: 10,
     borderRadius: 20,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  muteText: {
+  overlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    padding: 10,
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+  },
+  textContent: {
+    padding: 10,
+    borderRadius: 10,
+    width: '80%',
+  },
+  title: {
     color: 'white',
-    fontSize: 18,
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  description: {
+    color: 'white',
+    fontSize: 16,
+  },
+  sideButtons: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    gap: 26,
+    padding: 16,
+    paddingVertical: 40,
+    alignItems: 'center',
   },
 });
 

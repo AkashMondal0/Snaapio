@@ -25,7 +25,7 @@ import {
     NewChatScreen
 } from '@/app/message';
 import { PremiumSignUpScreen, ProfileEditScreen, ProfileScreen, TabFollowingAndFollowers } from '@/app/profile';
-import { CommentScreen, LikeScreen, PostScreen, PostUploadScreen, PostSelectScreen } from '@/app/post';
+import { CommentScreen, LikeScreen, PostScreen, PostUploadScreen, PostSelectScreen, ShortVideoSelectScreen, ShortVideoUploadScreen, ShortVideoEditScreen } from '@/app/post';
 import { StoryScreen, StorySelectingScreen, StoryUploadScreen } from '@/app/story';
 import { HighlightPageScreen, HighlightSelectingScreen, HighlightUploadScreen } from '@/app/highlight';
 import { FeedsScreen, AccountScreen, ReelsScreen, SearchScreen } from '@/app/HomeTab';
@@ -288,6 +288,27 @@ const RootStack = createNativeStackNavigator({
                     screen: PostUploadScreen,
                     linking: {
                         path: 'post/upload'
+                    }
+                },
+                VideoUpload: {
+                    screen: ShortVideoUploadScreen,
+                    linking: {
+                        path: 'video/upload'
+                    }
+                },
+                VideoEdit: {
+                    screen: ShortVideoEditScreen,
+                    linking: {
+                        path: 'video/edit'
+                    }
+                },
+                VideoSelect: {
+                    screen: ShortVideoSelectScreen,
+                    options: {
+                        animation: "slide_from_bottom"
+                    },
+                    linking: {
+                        path: 'video/select',
                     }
                 },
             },

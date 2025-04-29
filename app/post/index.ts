@@ -3,6 +3,9 @@ import LikeScreen from "./like";
 import PostScreen from "./post";
 import PostSelectScreen from "./post-selecting";
 import PostUploadScreen from "./post-upload";
+import ShortVideoEditScreen from "./short-video-edit";
+import ShortVideoSelectScreen from "./short-video-select";
+import ShortVideoUploadScreen from "./short-video-upload";
 
 
 export {
@@ -10,5 +13,8 @@ export {
     LikeScreen,
     CommentScreen,
     PostSelectScreen,
-    PostUploadScreen
+    PostUploadScreen,
+    ShortVideoEditScreen,
+    ShortVideoSelectScreen,
+    ShortVideoUploadScreen
 }
