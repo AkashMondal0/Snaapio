@@ -1,14 +1,15 @@
 import React, { useState, useRef, useEffect, memo } from 'react';
 import * as MediaLibrary from 'expo-media-library';
-import { View, Animated, PanResponder, Dimensions, ScrollView } from 'react-native';
-import { Button, Text, useTheme } from "hyper-native-ui";
+import { View, Animated, PanResponder, Dimensions, ScrollView, TouchableOpacity } from 'react-native';
+import { Button, Input, PressableButton, Text, useTheme } from "hyper-native-ui";
 import { useVideoPlayer, VideoView } from 'expo-video';
+import { Icon } from '@/components/skysolo-ui';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const markerWidth = 14;
 const min_trim_duration = 4;
-const end_Second = 20;
+// const end_Second = 20;
 const length_limit = 40;
 
 const ShortVideoEditScreen = memo(function ShortVideoEditScreen({ route }: {
@@ -25,7 +26,7 @@ const ShortVideoEditScreen = memo(function ShortVideoEditScreen({ route }: {
     const video_duration = localVideo?.duration ?? 0;
 
     const [startSecond, setStartSecond] = useState(0);
-    const [muted, setMuted] = useState(0);
+    const [muted, setMuted] = useState(false);
     const [endSecond, setEndSecond] = useState(localVideo.duration ?? 0);
     const [isPlaying, setIsPlaying] = useState(true);
 
@@ -41,8 +42,6 @@ const ShortVideoEditScreen = memo(function ShortVideoEditScreen({ route }: {
         player.currentTime = 0;
         player.play();
     });
-
-    // player.muted = true
 
     // Keep video inside trimmed bounds
     useEffect(() => {
@@ -105,36 +104,91 @@ const ShortVideoEditScreen = memo(function ShortVideoEditScreen({ route }: {
         setIsPlaying(!isPlaying);
     };
 
+    const toggleMute = () => {
+        setMuted((pre) => !pre);
+        if (player) {
+            player.muted = !muted;
+        }
+    };
+
     const handleUpload = () => {
         console.log(`Trimming from ${startSecond.toFixed(2)}s to ${endSecond.toFixed(2)}s`);
         // Add trimming logic here
     };
 
     return (
-        <ScrollView style={{ flex: 1, paddingHorizontal: 20, paddingTop: 40 }}>
-            <Text style={{
-                fontSize: 24,
-                fontWeight: 'bold',
-                marginBottom: 20,
-                textAlign: 'center',
-            }}>
-                Video
-            </Text>
-
+        <ScrollView>
+            {/* header */}
+            <View style={{ paddingHorizontal: 20, paddingTop: 40 }}>
+                <Text style={{
+                    fontSize: 24,
+                    fontWeight: 'bold',
+                    textAlign: 'center',
+                }}>
+                    Video
+                </Text>
+                <Text style={{
+                    fontSize: 14,
+                    marginBottom: 16,
+                    textAlign: 'center',
+                }}> {localVideo.duration.toFixed(2)}s</Text>
+            </View>
+            {/* video component */}
             <VideoView
-                style={{ aspectRatio: 9 / 16, borderRadius: 20 }}
+                style={{
+                    width: "80%",
+                    aspectRatio: 9 / 16,
+                    borderRadius: 20,
+                    padding: 10,
+                    borderWidth: 1,
+                    borderColor: currentTheme.border,
+                    marginHorizontal: "auto"
+                }}
                 player={player}
                 allowsFullscreen={false}
                 nativeControls={false}
                 allowsPictureInPicture={false}
+                contentFit='contain'
             />
-
-            <View style={{ alignItems: 'center', marginVertical: 30 }}>
+            <View style={{
+                flexDirection: 'row',       // Arrange buttons in a row
+                justifyContent: 'center',   // Center the buttons horizontally
+                alignItems: 'center',       // Align them vertically
+                marginVertical: 14,
+                width: "100%",
+                gap: 12                     // Add space between buttons (RN 0.71+)
+            }}>
+                <PressableButton style={{ padding: 10, borderRadius: 100 }} radius={100}>
+                    <Icon
+                        iconName={isPlaying ? 'Pause' : 'Play'}
+                        size={30}
+                        onPress={togglePlayPause}
+                    />
+                </PressableButton>
+                <PressableButton style={{ padding: 10, borderRadius: 100 }} radius={100}>
+                    <Icon
+                        iconName={!muted ? 'Volume2' : 'VolumeOff'}
+                        size={30}
+                        onPress={toggleMute}
+                    />
+                </PressableButton>
+            </View>
+            <View style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                marginVertical: 10,
+                paddingHorizontal: 30
+            }}>
+                <Text>Start: {startSecond.toFixed(2)}s</Text>
+                <Text>End: {endSecond.toFixed(2)}s</Text>
+            </View>
+            {/* rang */}
+            <View style={{ alignItems: 'center', marginVertical: 20 }}>
                 <View style={{
                     width: video_bar_width,
                     height: 60,
                     backgroundColor: currentTheme.input,
-                    borderRadius: 12,
+                    borderRadius: 8,
                     overflow: 'hidden',
                     justifyContent: 'center',
                 }}>
@@ -170,11 +224,10 @@ const ShortVideoEditScreen = memo(function ShortVideoEditScreen({ route }: {
                             top: 0,
                             height: 60,
                             borderRadius: 12,
-                            // backgroundColor: currentTheme.ring,
+                            // backgroundColor: currentTheme.chart_1, //TODO add your color
                             zIndex: 1,
                             left: startAnimation,
                             width: Animated.subtract(endAnimation, startAnimation),
-                            // backgroundImage:localVideo.uri
                         }}
                     >
                         {/* <Image
@@ -188,19 +241,25 @@ const ShortVideoEditScreen = memo(function ShortVideoEditScreen({ route }: {
                     </Animated.View>
                 </View>
             </View>
-
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 }}>
-                <Text>Start: {startSecond.toFixed(2)}s</Text>
-                <Text>End: {endSecond.toFixed(2)}s</Text>
+            {/* input and button */}
+            <View style={{ paddingHorizontal: 14 }}>
+                <Text style={{
+                    marginBottom: 16,
+                    textAlign: 'center',
+                    fontSize: 18,
+                    fontWeight: 'bold',
+                }}>
+                    Details
+                </Text>
+                <Input placeholder='Title' />
+                <View style={{ height: 16 }} />
+                <Input placeholder='Caption' />
+                <View style={{ height: 18 }} />
+                <Button onPress={handleUpload}>
+                    Upload
+                </Button>
+                <View style={{ height: 18 }} />
             </View>
-
-            <Button onPress={togglePlayPause} style={{ marginBottom: 10 }}>
-                {isPlaying ? 'Pause' : 'Play'}
-            </Button>
-
-            <Button onPress={handleUpload}>
-                Trim Video
-            </Button>
         </ScrollView>
     );
 });
