@@ -1,4 +1,6 @@
-export type loadingType = 'idle' | 'pending' | 'normal'
+import * as MediaLibrary from 'expo-media-library';
+
+export type loadingType = 'idle' | 'pending' | 'normal';
 export interface PageProps<T> {
     navigation?: NavigationProps;
     route?: {
@@ -302,3 +304,13 @@ export type PremiumSignUpPlan = {
     save?: string;
     features?: string[];
 };
+
+export type ShortVideoTypes = {
+    start: number,
+    end: number,
+    muted: boolean,
+    resize: "contain" | "cover",
+    title: string,
+    caption: string,
+    file: MediaLibrary.Asset
+}

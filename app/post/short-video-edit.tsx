@@ -1,16 +1,31 @@
-import React, { useState, useRef, useEffect, memo } from 'react';
+import React, { useState, useRef, useEffect, memo, useCallback } from 'react';
 import * as MediaLibrary from 'expo-media-library';
-import { View, Animated, PanResponder, Dimensions, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Animated, PanResponder, Dimensions, ScrollView, ToastAndroid } from 'react-native';
 import { Button, Input, PressableButton, Text, useTheme } from "hyper-native-ui";
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { Icon } from '@/components/skysolo-ui';
+import { z } from 'zod';
+import { Controller, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useNavigation } from '@react-navigation/native';
+import { useDispatch } from 'react-redux';
+import { uploadVideoApi } from '@/redux-stores/slice/account/api.service';
+import { ShortVideoTypes } from '@/types';
+import { hapticVibrate } from '@/lib/RN-vibration';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-const markerWidth = 14;
+const markerWidth = 10;
 const min_trim_duration = 4;
 // const end_Second = 20;
-const length_limit = 40;
+
+const schema = z.object({
+    title: z.string(),
+        // .nonempty({ message: "Title is required" }),
+    caption: z.string()
+    // .min(0, { message: "caption must be at least 4 characters" })
+        // .nonempty({ message: "caption is required" })
+})
 
 const ShortVideoEditScreen = memo(function ShortVideoEditScreen({ route }: {
     route: {
@@ -20,6 +35,10 @@ const ShortVideoEditScreen = memo(function ShortVideoEditScreen({ route }: {
     }
 }) {
     const localVideo = route?.params?.assets?.[0];
+    const length_limit = 43;
+
+    const navigation = useNavigation();
+    const dispatch = useDispatch();
     const { currentTheme } = useTheme();
 
     const video_bar_width = SCREEN_WIDTH - 40;
@@ -27,20 +46,28 @@ const ShortVideoEditScreen = memo(function ShortVideoEditScreen({ route }: {
 
     const [startSecond, setStartSecond] = useState(0);
     const [muted, setMuted] = useState(false);
-    const [endSecond, setEndSecond] = useState(localVideo.duration ?? 0);
+    const [videoResize, setVideoResize] = useState(false);
+    const [endSecond, setEndSecond] = useState(video_duration > 40 ? 40 : video_duration);
     const [isPlaying, setIsPlaying] = useState(true);
 
     const startAnimation = useRef(new Animated.Value(0)).current;
     const endAnimation = useRef(new Animated.Value(0)).current;
 
-    const videoSource = localVideo?.uri
-        ? { uri: localVideo.uri }
-        : 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+    const videoSource = localVideo?.uri && { uri: localVideo.uri };
 
     const player = useVideoPlayer(videoSource, (player) => {
         player.loop = true;
         player.currentTime = 0;
         player.play();
+    });
+    const [loading, setLoading] = useState(false)
+    const inputRef = useRef<any>(null);
+    const { control, handleSubmit, formState: { errors } } = useForm({
+        defaultValues: {
+            title: '',
+            caption: '',
+        },
+        resolver: zodResolver(schema)
     });
 
     // Keep video inside trimmed bounds
@@ -74,7 +101,9 @@ const ShortVideoEditScreen = memo(function ShortVideoEditScreen({ route }: {
 
     const createPanResponder = (isStart: boolean) => PanResponder.create({
         onStartShouldSetPanResponder: () => true,
+        onPanResponderStart: () => hapticVibrate(),
         onPanResponderMove: (_, gestureState) => {
+            if (loading) return;
             const secondsPerPixel = video_duration / (video_bar_width - markerWidth);
             const delta = gestureState.dx * secondsPerPixel;
 
@@ -111,10 +140,30 @@ const ShortVideoEditScreen = memo(function ShortVideoEditScreen({ route }: {
         }
     };
 
-    const handleUpload = () => {
-        console.log(`Trimming from ${startSecond.toFixed(2)}s to ${endSecond.toFixed(2)}s`);
-        // Add trimming logic here
+    const toggleVideoResize = () => {
+        setVideoResize((pre) => !pre);
     };
+
+    const handleUpload = useCallback(async (data: {
+        title: string,
+        caption: string,
+    }) => {
+        player.pause();
+        const _data: ShortVideoTypes = {
+            start: Number(startSecond.toFixed(2)),
+            end: Number(endSecond.toFixed(2)),
+            muted,
+            resize: videoResize ? "contain" : "cover",
+            title: data.title,
+            caption: data.caption,
+            file: localVideo
+        };
+        setLoading(true);
+        await dispatch(uploadVideoApi(_data as any) as any);
+        ToastAndroid.show('Video Uploaded', ToastAndroid.SHORT);
+        navigation.goBack();
+        setLoading(false);
+    }, []);
 
     return (
         <ScrollView>
@@ -131,7 +180,7 @@ const ShortVideoEditScreen = memo(function ShortVideoEditScreen({ route }: {
                     fontSize: 14,
                     marginBottom: 16,
                     textAlign: 'center',
-                }}> {localVideo.duration.toFixed(2)}s</Text>
+                }}>{convertMinutesToTime(localVideo.duration)}</Text>
             </View>
             {/* video component */}
             <VideoView
@@ -148,7 +197,7 @@ const ShortVideoEditScreen = memo(function ShortVideoEditScreen({ route }: {
                 allowsFullscreen={false}
                 nativeControls={false}
                 allowsPictureInPicture={false}
-                contentFit='contain'
+                contentFit={videoResize ? "contain" : "cover"}
             />
             <View style={{
                 flexDirection: 'row',       // Arrange buttons in a row
@@ -158,18 +207,31 @@ const ShortVideoEditScreen = memo(function ShortVideoEditScreen({ route }: {
                 width: "100%",
                 gap: 12                     // Add space between buttons (RN 0.71+)
             }}>
-                <PressableButton style={{ padding: 10, borderRadius: 100 }} radius={100}>
+                <PressableButton style={{ padding: 10, borderRadius: 100 }}
+                    disabled={loading}
+                    radius={100} onPress={togglePlayPause}>
                     <Icon
                         iconName={isPlaying ? 'Pause' : 'Play'}
                         size={30}
                         onPress={togglePlayPause}
                     />
                 </PressableButton>
-                <PressableButton style={{ padding: 10, borderRadius: 100 }} radius={100}>
+                <PressableButton style={{ padding: 10, borderRadius: 100 }}
+                    disabled={loading}
+                    radius={100} onPress={togglePlayPause}>
                     <Icon
                         iconName={!muted ? 'Volume2' : 'VolumeOff'}
                         size={30}
                         onPress={toggleMute}
+                    />
+                </PressableButton>
+                <PressableButton style={{ padding: 10, borderRadius: 100 }}
+                    disabled={loading}
+                    radius={100} onPress={toggleVideoResize}>
+                    <Icon
+                        iconName={!videoResize ? 'X' : 'Scan'}
+                        size={30}
+                        onPress={toggleVideoResize}
                     />
                 </PressableButton>
             </View>
@@ -179,8 +241,8 @@ const ShortVideoEditScreen = memo(function ShortVideoEditScreen({ route }: {
                 marginVertical: 10,
                 paddingHorizontal: 30
             }}>
-                <Text>Start: {startSecond.toFixed(2)}s</Text>
-                <Text>End: {endSecond.toFixed(2)}s</Text>
+                <Text>Start: {convertMinutesToTime(startSecond)}</Text>
+                <Text>End: {convertMinutesToTime(endSecond)}</Text>
             </View>
             {/* rang */}
             <View style={{ alignItems: 'center', marginVertical: 20 }}>
@@ -240,6 +302,13 @@ const ShortVideoEditScreen = memo(function ShortVideoEditScreen({ route }: {
                         /> */}
                     </Animated.View>
                 </View>
+                <View style={{
+                    marginVertical: 10,
+                    paddingHorizontal: 30,
+                    marginLeft: "auto"
+                }}>
+                    <Text>{convertMinutesToTime(localVideo.duration)}</Text>
+                </View>
             </View>
             {/* input and button */}
             <View style={{ paddingHorizontal: 14 }}>
@@ -251,11 +320,69 @@ const ShortVideoEditScreen = memo(function ShortVideoEditScreen({ route }: {
                 }}>
                     Details
                 </Text>
-                <Input placeholder='Title' />
-                <View style={{ height: 16 }} />
-                <Input placeholder='Caption' />
-                <View style={{ height: 18 }} />
-                <Button onPress={handleUpload}>
+                <Controller
+                    control={control}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <Input
+                            disabled={loading}
+                            style={{ width: "90%" }}
+                            isErrorBorder={errors.title}
+                            onBlur={onBlur}
+                            onChangeText={value => onChange(value)}
+                            value={value}
+                            placeholder='Title'
+                            textContentType='name'
+                            keyboardType="default"
+                            returnKeyType="next"
+                            onSubmitEditing={() => inputRef.current?.focus()}
+                            blurOnSubmit={false} />
+                    )}
+                    name="title"
+                    rules={{ required: true }} />
+                <Text
+                    variant="body1"
+                    variantColor="Red"
+                    style={{
+                        fontSize: 12,
+                        textAlign: "left",
+                        fontWeight: 'bold',
+                        margin: 4,
+                    }}>
+                    {errors.title?.message}
+                </Text>
+                <Controller
+                    control={control}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <Input
+                            ref={inputRef}
+                            onSubmitEditing={handleSubmit(handleUpload)}
+                            blurOnSubmit={false}
+                            disabled={loading}
+                            style={{ width: "82%" }}
+                            isErrorBorder={errors.caption}
+                            placeholder='caption'
+                            textContentType="name"
+                            returnKeyType="done"
+                            onBlur={onBlur}
+                            onChangeText={value => onChange(value)}
+                            value={value}
+                        />
+                    )}
+                    name="caption"
+                    rules={{ required: true }} />
+                <Text
+                    variant="body1"
+                    variantColor="Red"
+                    style={{
+                        fontSize: 12,
+                        textAlign: "left",
+                        fontWeight: 'bold',
+                        margin: 4,
+                        marginBottom: 20,
+                    }}>
+                    {errors.caption?.message}
+                </Text>
+                <Button onPress={handleSubmit(handleUpload)} disabled={loading}>
                     Upload
                 </Button>
                 <View style={{ height: 18 }} />
@@ -265,3 +392,11 @@ const ShortVideoEditScreen = memo(function ShortVideoEditScreen({ route }: {
 });
 
 export default ShortVideoEditScreen;
+
+function convertMinutesToTime(mins: number) {
+    const totalSeconds = Math.floor(mins * 60);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+}

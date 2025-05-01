@@ -9,6 +9,7 @@ const _configs = {
         supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
         // ai
         aiApiUrl: process.env.EXPO_PUBLIC_AI_API_URL,
+        videoServerUrl: process.env.EXPO_PUBLIC_VIDEO_SERVER_URL
     },
     eventNames: {
         conversation: {

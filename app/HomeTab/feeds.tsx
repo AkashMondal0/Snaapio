@@ -1,7 +1,7 @@
 
 import { Post } from "@/types";
 import React, { useCallback, useRef, memo } from "react";
-import { Animated, StatusBar, View } from "react-native";
+import { Animated, View } from "react-native";
 import { FeedItem, HomeHeader } from '@/components/home';
 import ErrorScreen from '@/components/error/page';
 import ListEmpty from '@/components/ListEmpty';
