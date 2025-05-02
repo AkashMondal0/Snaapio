@@ -190,18 +190,19 @@ export interface Comment {
 }
 
 export type Assets = {
-    id?: string,
-    blur_square: string,
-    square: string,
-    square_sm: string,
-    blur_original: string,
-    original: string,
-    original_sm: string,
-    width: number,
-    height: number,
+    id?: string | null,
+    blur_square: string | null,
+    square: string | null,
+    square_sm: string | null,
+    blur_original: string | null,
+    original: string | null,
+    original_sm: string | null,
+    width: number | null,
+    height: number | null,
     metadata: string
     type?: 'photo' | 'video' | 'audio' | "text"
-    caption?: string;
+    caption?: string | null;
+    shortVideoUrl?: string | null
 }
 
 export type Story = {

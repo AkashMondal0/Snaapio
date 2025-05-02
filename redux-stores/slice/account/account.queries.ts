@@ -32,6 +32,39 @@ export const AQ = {
     }
   }
   `,
+  shortFeedTimelineConnection:`query FeedTimelineConnection($graphQlPageQuery: GraphQLPageQuery!) {
+  shortFeedTimelineConnection(graphQLPageQuery: $graphQlPageQuery) {
+     id
+      content
+      title
+      fileUrl {
+        width
+        height
+        square
+        square_sm
+        blur_square
+        original
+        original_sm
+        blur_original
+        shortVideoUrl
+        type
+        id
+      }
+      createdAt
+      updatedAt
+      authorId
+      commentCount
+      likeCount
+      is_Liked
+      user {
+        id
+        username
+        email
+        name
+        profilePicture
+      }
+  }
+}`,
   updateUserProfile: `mutation UpdateUserProfile($updateUsersInput: UpdateUsersInput!) {
     updateUserProfile(UpdateUsersInput: $updateUsersInput) {
       profilePicture

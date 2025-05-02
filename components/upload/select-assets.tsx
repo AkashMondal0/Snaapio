@@ -140,6 +140,6 @@ const SelectAssets = memo(function SelectAssets({
             </View>
         </>
     );
-}, () => true);
+});
 
 export default SelectAssets;
