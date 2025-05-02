@@ -8,14 +8,15 @@ import {
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useVideoPlayer, VideoView } from 'expo-video';
-import { Icon } from '@/components/skysolo-ui';
+import { Avatar, Icon } from '@/components/skysolo-ui';
 import { useGQArray } from '@/lib/useGraphqlQuery';
 import { Post } from '@/types';
 import { AQ } from '@/redux-stores/slice/account/account.queries';
 import { Loader, Text } from 'hyper-native-ui';
+import { TouchableWithoutFeedback } from 'react-native';
+import { configs } from '@/configs';
 
 const { height, width } = Dimensions.get('window');
-import { TouchableWithoutFeedback } from 'react-native';
 
 const ReelItem = ({
   uri,
@@ -81,7 +82,7 @@ const ReelItem = ({
           nativeControls={false}
           player={player}
           style={styles.video}
-          contentFit="cover"
+          contentFit="contain"
           allowsFullscreen
           allowsPictureInPicture={false}
         />
@@ -112,6 +113,8 @@ const ReelsPage = () => {
     }
   }).current;
 
+  const navigateToProfile = useCallback(() => { }, [])
+
   useFocusEffect(
     useCallback(() => {
       // Nothing to do here anymore since each ReelItem handles its own play/pause
@@ -127,7 +130,7 @@ const ReelsPage = () => {
       const videoUrl = item?.fileUrl?.[0]?.shortVideoUrl;
       if (!videoUrl) return null;
 
-      const fullUrl = `https://srcsaekkccuublpzpsnb.supabase.co/storage/v1/object/public${videoUrl}`;
+      const fullUrl = `${configs.serverApi.supabaseStorageUrl}`.replace("/snaapio-production/", "/") + videoUrl;
 
       return (
         <View style={styles.container}>
@@ -151,9 +154,39 @@ const ReelsPage = () => {
             </TouchableOpacity>
           )}
 
-          <View style={styles.overlay}>
+          <View style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            width: '100%',
+          }}>
+            <View style={{
+              marginHorizontal: "2%",
+              // paddingVertical: 2,
+              display: 'flex',
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 6
+            }}>
+              <Avatar size={52} url={item.user?.profilePicture} onPress={navigateToProfile} />
+              <View>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={navigateToProfile} >
+                  <Text style={{ fontWeight: "600" }}>
+                    {item?.user?.name}
+                  </Text>
+                </TouchableOpacity>
+                <Text
+                  style={{ fontWeight: "400" }}
+                  variantColor="secondary"
+                  variant="body2">
+                  {`india, kolkata`}
+                </Text>
+              </View>
+            </View>
             <View style={styles.textContent}>
-              <Text variant="H5">{item.title}</Text>
+              <Text variant="body1">{item.title}</Text>
               <Text variant="body2" variantColor="Grey">
                 {item.content}
               </Text>
@@ -253,16 +286,6 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  overlay: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    padding: 5,
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
   },
   textContent: {
     padding: 10,

@@ -144,7 +144,7 @@ const ShortVideoEditScreen = memo(function ShortVideoEditScreen({ route }: {
         setVideoResize((pre) => !pre);
     };
 
-    const handleUpload = useCallback(async (data: {
+    const handleUpload = async (data: {
         title: string,
         caption: string,
     }) => {
@@ -152,7 +152,7 @@ const ShortVideoEditScreen = memo(function ShortVideoEditScreen({ route }: {
         const _data: ShortVideoTypes = {
             start: Number(startSecond.toFixed(2)),
             end: Number(endSecond.toFixed(2)),
-            muted,
+            muted:muted,
             resize: videoResize ? "contain" : "cover",
             title: data.title,
             caption: data.caption,
@@ -163,7 +163,7 @@ const ShortVideoEditScreen = memo(function ShortVideoEditScreen({ route }: {
         ToastAndroid.show('Video Uploaded', ToastAndroid.SHORT);
         navigation.goBack();
         setLoading(false);
-    }, []);
+    }
 
     return (
         <ScrollView>
