@@ -6,15 +6,18 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { StackActions, useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { Avatar, Icon } from '@/components/skysolo-ui';
-import { useGQArray } from '@/lib/useGraphqlQuery';
+import { useGQArray, useGQMutation } from '@/lib/useGraphqlQuery';
 import { Post } from '@/types';
 import { AQ } from '@/redux-stores/slice/account/account.queries';
 import { Loader, Text } from 'hyper-native-ui';
 import { TouchableWithoutFeedback } from 'react-native';
 import { configs } from '@/configs';
+import useDebounce from '@/lib/debouncing';
+import { QPost } from '@/redux-stores/slice/post/post.queries';
+import { Heart } from 'lucide-react-native';
 
 const { height, width } = Dimensions.get('window');
 
@@ -154,62 +157,10 @@ const ReelsPage = () => {
             </TouchableOpacity>
           )}
 
-          <View style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            width: '100%',
-          }}>
-            <View style={{
-              marginHorizontal: "2%",
-              // paddingVertical: 2,
-              display: 'flex',
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 6
-            }}>
-              <Avatar size={52} url={item.user?.profilePicture} onPress={navigateToProfile} />
-              <View>
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  onPress={navigateToProfile} >
-                  <Text style={{ fontWeight: "600" }}>
-                    {item?.user?.name}
-                  </Text>
-                </TouchableOpacity>
-                <Text
-                  style={{ fontWeight: "400" }}
-                  variantColor="secondary"
-                  variant="body2">
-                  {`india, kolkata`}
-                </Text>
-              </View>
-            </View>
-            <View style={styles.textContent}>
-              <Text variant="body1">{item.title}</Text>
-              <Text variant="body2" variantColor="Grey">
-                {item.content}
-              </Text>
-            </View>
-
-            <View style={styles.sideButtons}>
-              <View>
-                <Icon iconName="Heart" size={32} />
-                <Text style={{ textAlign: "center", marginTop: 6 }}>
-                  {item.likeCount}
-                </Text>
-              </View>
-              <View>
-                <Icon iconName="MessageCircle" size={32} />
-                <Text style={{ textAlign: "center", marginTop: 6 }}>
-                  {item.commentCount}
-                </Text>
-              </View>
-              <Icon iconName="Send" size={32} />
-              <Icon iconName="Bookmark" size={32} />
-              <Icon iconName="MoreHorizontal" size={32} />
-            </View>
-          </View>
+          <ActionButtonShort
+            item={item}
+            navigateToProfile={navigateToProfile}
+          />
         </View>
       );
     },
@@ -304,3 +255,112 @@ const styles = StyleSheet.create({
 });
 
 export default ReelsPage;
+
+export function ActionButtonShort({
+  item,
+  navigateToProfile
+}: { item: Post, navigateToProfile: () => void }) {
+  const navigation = useNavigation();
+  const [like, setLike] = useState({
+    isLike: item.is_Liked,
+    likeCount: item.likeCount
+  })
+
+  const { mutate } = useGQMutation<boolean>({
+    mutation: QPost.createAndDestroyLike,
+    onError: (err) => {
+      setLike((pre) => ({
+        isLike: !pre.isLike,
+        likeCount: !pre.isLike ? pre.likeCount + 1 : pre.likeCount - 1
+      }));
+    }
+  });
+
+  const delayLike = useCallback((value: boolean) => {
+    if (!item?.id) return;
+    mutate({ input: { id: item?.id, like: value } })
+  }, [item?.id])
+
+  const debounceLike = useDebounce(delayLike, 500)
+
+  const onLike = useCallback(() => {
+    setLike((pre) => ({
+      isLike: !pre.isLike,
+      likeCount: !pre.isLike ? pre.likeCount + 1 : pre.likeCount - 1
+    }))
+    debounceLike(!like.isLike)
+  }, [like.isLike, like.likeCount])
+
+  return <View style={{
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    justifyContent: "flex-end",
+  }}>
+    <View style={{
+      marginHorizontal: "2%",
+      // paddingVertical: 2,
+      display: 'flex',
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6
+    }}>
+      <Avatar size={52} url={item.user?.profilePicture} onPress={navigateToProfile} />
+      <View>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={navigateToProfile}>
+          <Text style={{ fontWeight: "600" }}>
+            {item?.user?.name}
+          </Text>
+        </TouchableOpacity>
+        <Text
+          style={{ fontWeight: "400" }}
+          variantColor="secondary"
+          variant="body2">
+          {`india, kolkata`}
+        </Text>
+      </View>
+    </View>
+    <View style={styles.textContent}>
+      {item.title ? <Text variant="body1">{item.title}</Text> : <></>}
+      {item.content ? <Text variant="body2" variantColor="Grey">
+        {item.content}
+      </Text> : <></>}
+    </View>
+
+    {/* side button */}
+    <View style={styles.sideButtons}>
+      <View>
+        {!like.isLike ? <Icon iconName={"Heart"} size={32} onPress={onLike} /> :
+          <Heart size={32} fill={like.isLike ? "red" : ""} onPress={onLike} />}
+        <TouchableOpacity activeOpacity={1} onPress={() => navigation.navigate("PostLike", { id: item.id })}>
+          <Text style={{
+            textAlign: "center", marginTop: 6, fontSize: 16,
+            fontWeight: "600"
+          }}>
+            {like.likeCount}
+          </Text>
+        </TouchableOpacity>
+      </View>
+      <TouchableOpacity activeOpacity={1} onPress={() => {
+        navigation.dispatch(StackActions.push("PostComment", { id: item.id }))
+      }}>
+        <Icon iconName="MessageCircle" size={32} onPress={() => {
+          navigation.dispatch(StackActions.push("PostComment", { id: item.id }))
+        }} />
+        <Text style={{
+          textAlign: "center", marginTop: 6, fontSize: 16,
+          fontWeight: "600"
+        }}>
+          {item.commentCount}
+        </Text>
+      </TouchableOpacity>
+      <Icon iconName="Send" size={32} />
+      <Icon iconName="Bookmark" size={32} />
+      <Icon iconName="MoreHorizontal" size={32} />
+    </View>
+  </View>;
+}

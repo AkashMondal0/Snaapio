@@ -22,6 +22,7 @@ export const QProfile = {
   findAllPosts: `query FindAllPosts($graphQlPageQuery: GraphQLPageQuery!) {
     findAllPosts(graphQLPageQuery: $graphQlPageQuery) {
       id
+      type
       fileUrl {
       width
       height
@@ -31,6 +32,7 @@ export const QProfile = {
       original
       original_sm
       blur_original
+      shortVideoUrl
       type
       id
     }
@@ -94,6 +96,7 @@ export const QProfile = {
       original_sm
       blur_original
       type
+       shortVideoUrl
       id
       }
       id

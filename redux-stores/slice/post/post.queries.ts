@@ -3,6 +3,7 @@ export const QPost = {
     findOnePost(graphQLPageQuery: $graphQlPageQuery) {
       id
       content
+      type
       fileUrl {
         width
         height
@@ -12,6 +13,7 @@ export const QPost = {
         original
         original_sm
         blur_original
+        shortVideoUrl
         type
         id
       }

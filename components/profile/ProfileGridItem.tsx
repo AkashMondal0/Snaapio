@@ -3,6 +3,7 @@ import { TouchableOpacity, View } from 'react-native'
 import { Icon, Image } from "@/components/skysolo-ui"
 import { useNavigation } from "@react-navigation/native";
 import { Post } from '@/types'
+import { useTheme } from 'hyper-native-ui';
 
 const ProfileGridItem = memo(function ProfileGridItem({ item, index,
     aspectRatio = 4 / 5
@@ -11,6 +12,35 @@ const ProfileGridItem = memo(function ProfileGridItem({ item, index,
     aspectRatio?: number
 }) {
     const navigation = useNavigation();
+    const { currentTheme } = useTheme();
+
+    if (item.type === "short") {
+        return <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={() => {
+                navigation.navigate("Post", { id: item.id })
+            }}
+            style={{
+                width: "33%",
+                height: "100%",
+                aspectRatio: aspectRatio,
+            }}>
+            <View style={{
+                // position: 'absolute',
+                width: '100%',
+                height: '100%',
+                zIndex: 1,
+                display: 'flex',
+                justifyContent: "center",
+                alignItems: "center",
+                opacity: 0.8,
+                padding: 4,
+                backgroundColor: currentTheme.accent,
+            }}>
+                <Icon iconName="Video" size={26} color="white" />
+            </View>
+        </TouchableOpacity>
+    }
     return (
         <TouchableOpacity
             activeOpacity={0.8}

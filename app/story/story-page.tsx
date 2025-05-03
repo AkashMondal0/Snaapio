@@ -1,5 +1,5 @@
 import { memo, useCallback, useState } from "react";
-import { TouchableOpacity, View } from "react-native";
+import { StatusBar, TouchableOpacity, View } from "react-native";
 import { Avatar, Icon, Image } from "@/components/skysolo-ui";
 import { Text, Loader } from "hyper-native-ui";
 import { AuthorData, Story } from "@/types";
@@ -63,6 +63,7 @@ const StoryScreen = memo(function StoryScreen({
             flex: 1,
             width: '100%',
             height: '100%',
+            marginTop: StatusBar.currentHeight
         }}>
             <View style={{
                 width: "100%",

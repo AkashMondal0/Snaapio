@@ -157,6 +157,7 @@ export interface Post {
     locations?: string[];
     country?: string;
     city?: string;
+    type?: "post" | "short" | "ad";
 }
 
 export interface Highlight {

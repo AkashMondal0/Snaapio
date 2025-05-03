@@ -168,7 +168,7 @@ export const uploadVideoApi = createAsyncThunk(
         try {
             // await new Promise((res, rej) => setTimeout(res, 3000))
             const res = await uploadVideo(data);
-            console.log(res)
+            // console.log(res)
             return res;
         } catch (error: any) {
             console.error(error);
