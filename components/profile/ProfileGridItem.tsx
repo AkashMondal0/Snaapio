@@ -37,7 +37,9 @@ const ProfileGridItem = memo(function ProfileGridItem({ item, index,
                 padding: 4,
                 backgroundColor: currentTheme.accent,
             }}>
-                <Icon iconName="Video" size={26} color="white" />
+                <Icon iconName="Video" size={26} color="white" onPress={() => {
+                navigation.navigate("Post", { id: item.id })
+            }} />
             </View>
         </TouchableOpacity>
     }

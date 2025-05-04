@@ -21,10 +21,10 @@ const min_trim_duration = 4;
 
 const schema = z.object({
     title: z.string(),
-        // .nonempty({ message: "Title is required" }),
+    // .nonempty({ message: "Title is required" }),
     caption: z.string()
     // .min(0, { message: "caption must be at least 4 characters" })
-        // .nonempty({ message: "caption is required" })
+    // .nonempty({ message: "caption is required" })
 })
 
 const ShortVideoEditScreen = memo(function ShortVideoEditScreen({ route }: {
@@ -152,7 +152,7 @@ const ShortVideoEditScreen = memo(function ShortVideoEditScreen({ route }: {
         const _data: ShortVideoTypes = {
             start: Number(startSecond.toFixed(2)),
             end: Number(endSecond.toFixed(2)),
-            muted:muted,
+            muted: muted,
             resize: videoResize ? "contain" : "cover",
             title: data.title,
             caption: data.caption,
@@ -211,6 +211,7 @@ const ShortVideoEditScreen = memo(function ShortVideoEditScreen({ route }: {
                     disabled={loading}
                     radius={100} onPress={togglePlayPause}>
                     <Icon
+                        disabled={loading}
                         iconName={isPlaying ? 'Pause' : 'Play'}
                         size={30}
                         onPress={togglePlayPause}
@@ -220,6 +221,7 @@ const ShortVideoEditScreen = memo(function ShortVideoEditScreen({ route }: {
                     disabled={loading}
                     radius={100} onPress={togglePlayPause}>
                     <Icon
+                        disabled={loading}
                         iconName={!muted ? 'Volume2' : 'VolumeOff'}
                         size={30}
                         onPress={toggleMute}
@@ -229,6 +231,7 @@ const ShortVideoEditScreen = memo(function ShortVideoEditScreen({ route }: {
                     disabled={loading}
                     radius={100} onPress={toggleVideoResize}>
                     <Icon
+                        disabled={loading}
                         iconName={!videoResize ? 'X' : 'Scan'}
                         size={30}
                         onPress={toggleVideoResize}
@@ -382,7 +385,7 @@ const ShortVideoEditScreen = memo(function ShortVideoEditScreen({ route }: {
                     }}>
                     {errors.caption?.message}
                 </Text>
-                <Button onPress={handleSubmit(handleUpload)} disabled={loading}>
+                <Button onPress={handleSubmit(handleUpload)} disabled={loading} loading={loading}>
                     Upload
                 </Button>
                 <View style={{ height: 18 }} />

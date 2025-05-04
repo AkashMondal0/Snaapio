@@ -32,7 +32,7 @@
     "expo-media-library": "~17.0.6",
     "expo-splash-screen": "~0.29.22",
     "expo-system-ui": "~4.0.8",
-    "hyper-native-ui": "^0.2.16",
+    "hyper-native-ui": "^0.2.17",
     "lottie-react-native": "7.1.0",
     "lucide-react-native": "^0.473.0",
     "react": "18.3.1",
