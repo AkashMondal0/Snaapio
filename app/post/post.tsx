@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Post } from "@/types";
 import AppHeader from "@/components/AppHeader";
 import { FeedItem } from "@/components/home";
@@ -14,10 +14,10 @@ import { StaticScreenProps, useFocusEffect } from "@react-navigation/native";
 import { useGQObject } from "@/lib/useGraphqlQuery";
 import { QPost } from "@/redux-stores/slice/post/post.queries";
 import { Icon } from "@/components/skysolo-ui";
-import { useVideoPlayer, VideoView } from "expo-video";
 import { configs } from "@/configs";
 import { ActionButtonShort } from "../HomeTab/reels";
 import { Loader } from "hyper-native-ui";
+import { ResizeMode, Video } from "expo-av";
 
 type Props = StaticScreenProps<{
     id: string;
@@ -50,7 +50,7 @@ const PostScreen = memo(function PostScreen({ route }: Props) {
     if (data?.type === "short") {
         return <ShortVideoComponent data={data} navigateToProfile={() => { }} />;
     }
-     
+
 
     return (
         <View style={{ flex: 1, width: "100%", height: "100%" }}>
@@ -67,96 +67,72 @@ export default PostScreen;
 const ShortVideoComponent = ({
     data,
     navigateToProfile,
-}:{
+}: {
     data: Post;
     navigateToProfile: () => void;
 }) => {
     const [muted, setMuted] = useState(false);
     const [paused, setPaused] = useState(false);
-    const fullUrl = `${configs.serverApi.supabaseStorageUrl}`.replace(
-        "/snaapio-production/",
-        "/"
-    ) + data?.fileUrl[0].shortVideoUrl;
+    const videoRef = useRef<Video>(null);
 
-    const player = useVideoPlayer(fullUrl, (p) => {
-        p.loop = true;
-        p.muted = muted;
-        try {
-            p.play();
-        } catch (e) {
-            console.warn("Initial play failed:", e);
-        }
-    });
+    const fullUrl =
+        `${configs.serverApi.supabaseStorageUrl}`.replace(
+            '/snaapio-production/',
+            '/'
+        ) + data?.fileUrl?.[0]?.shortVideoUrl;
 
-    // Apply mute to player when state changes
-    useEffect(() => {
-        try {
-            if (player) {
-                player.muted = muted;
-            }
-        } catch (e) {
-            console.warn("Mute update failed:", e);
-        }
-    }, [muted, player]);
-
-    const handlePlayPause = () => {
+    const handlePlayPause = useCallback(() => {
         setPaused((prev) => {
             const next = !prev;
             try {
-                if (player) {
-                    next ? player.pause?.() : player.play?.();
+                if (videoRef.current) {
+                    next ? videoRef.current.pauseAsync() : videoRef.current.playAsync();
                 }
             } catch (e) {
-                console.warn("Play/pause toggle failed:", e);
+                console.warn('Play/pause toggle failed:', e);
             }
             return next;
         });
-    }
+    }, []);
 
-    // Handle focus lifecycle (play/pause)
+    // Apply mute when state changes
+    useEffect(() => {
+        if (videoRef.current) {
+            videoRef.current.setIsMutedAsync(muted);
+        }
+    }, [muted]);
+
+    // Handle screen focus: resume/pause
     useFocusEffect(
         useCallback(() => {
-            try {
-                if (player && !paused) {
-                    player.play?.();
-                }
-            } catch (e) {
-                console.warn("FocusEffect play failed:", e);
+            if (videoRef.current && !paused) {
+                videoRef.current.playAsync();
             }
 
             return () => {
-                try {
-                    player?.pause?.();
-                } catch (e) {
-                    console.warn("FocusEffect pause failed:", e);
-                }
+                videoRef.current?.pauseAsync();
             };
         }, [paused])
     );
 
-    // Cleanup on unmount
     useEffect(() => {
         return () => {
-            try {
-                player?.pause?.();
-            } catch (e) {
-                console.warn("Unmount pause failed:", e);
-            }
+            videoRef.current?.pauseAsync();
         };
     }, []);
+
     return (
         <View style={styles.container}>
-            <TouchableWithoutFeedback>
-                <View style={styles.container}>
-                    <VideoView
-                        nativeControls={false}
-                        player={player}
-                        style={styles.video}
-                        contentFit="contain"
-                        allowsFullscreen
-                        allowsPictureInPicture={false}
-                    />
-                </View>
+            <TouchableWithoutFeedback onPress={handlePlayPause}>
+                <Video
+                    ref={videoRef}
+                    source={{ uri: fullUrl }}
+                    style={styles.video}
+                    resizeMode={ResizeMode.CONTAIN}
+                    shouldPlay={!paused}
+                    isMuted={muted}
+                    isLooping
+                />
             </TouchableWithoutFeedback>
 
             {/* Mute Button */}
@@ -166,7 +142,7 @@ const ShortVideoComponent = ({
             >
                 <Icon
                     onPress={() => setMuted((m) => !m)}
-                    iconName={muted ? "VolumeOff" : "Volume2"}
+                    iconName={muted ? 'VolumeOff' : 'Volume2'}
                     size={24}
                     color="white"
                 />
@@ -179,13 +155,14 @@ const ShortVideoComponent = ({
             >
                 <Icon
                     onPress={handlePlayPause}
-                    iconName={paused ? "Play" : "Pause"}
+                    iconName={paused ? 'Play' : 'Pause'}
                     size={24}
                     color="white"
                 />
             </TouchableOpacity>
 
-            <ActionButtonShort item={data} navigateToProfile={() => { }} />
+            {/* Action Buttons */}
+            <ActionButtonShort item={data} />
         </View>
     );
 };

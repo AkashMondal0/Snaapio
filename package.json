@@ -1,6 +1,6 @@
 {
   "name": "snaapio",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "scripts": {
     "start": "expo start --dev-client",
     "android": "expo run:android",

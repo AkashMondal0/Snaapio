@@ -5,19 +5,19 @@ import {
   Dimensions,
   TouchableOpacity,
   StyleSheet,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { StackActions, useFocusEffect, useNavigation } from '@react-navigation/native';
-import { useVideoPlayer, VideoView } from 'expo-video';
+import { Video, ResizeMode } from 'expo-av';
 import { Avatar, Icon } from '@/components/skysolo-ui';
 import { useGQArray, useGQMutation } from '@/lib/useGraphqlQuery';
 import { Post } from '@/types';
 import { AQ } from '@/redux-stores/slice/account/account.queries';
 import { Loader, Text } from 'hyper-native-ui';
-import { TouchableWithoutFeedback } from 'react-native';
 import { configs } from '@/configs';
-import useDebounce from '@/lib/debouncing';
-import { QPost } from '@/redux-stores/slice/post/post.queries';
 import { Heart } from 'lucide-react-native';
+import { QPost } from '@/redux-stores/slice/post/post.queries';
+import useDebounce from '@/lib/debouncing';
 
 const { height, width } = Dimensions.get('window');
 
@@ -30,64 +30,77 @@ const ReelItem = ({
   isActive: boolean;
   muted: boolean;
 }) => {
-  const player = useVideoPlayer(uri, (p) => {
-    p.loop = true;
-    p.muted = muted; // Set initial mute state
-  });
-
+  const videoRef = useRef<Video>(null);
   const [paused, setPaused] = useState(false);
+  const [showButtons, setShowButtons] = useState(false);
 
-  // Apply mute when it changes
   useEffect(() => {
-    if (player) {
-      player.muted = muted;
-    }
-  }, [player, muted]);
-
-  // Control playback based on isActive + paused state
-  useEffect(() => {
-    if (!player) return;
+    if (!videoRef.current) return;
 
     if (isActive && !paused) {
-      player.play();
+      videoRef.current.playAsync();
     } else {
-      player.pause();
+      videoRef.current.pauseAsync();
     }
-  }, [player, isActive, paused]);
+  }, [isActive, paused]);
 
-  // Pause video when navigating away from screen
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.setIsMutedAsync(muted);
+    }
+  }, [muted]);
+
   useFocusEffect(
     useCallback(() => {
-      // Resume if active
-      if (player && isActive && !paused) {
-        player.play();
+      if (isActive && !paused && videoRef.current) {
+        videoRef.current.playAsync();
       }
 
-      // Cleanup: pause on blur
       return () => {
-        try {
-          player?.pause();
-        } catch (e) {
-          console.warn('Failed to pause player on unfocus:', e);
-        }
+        videoRef.current?.pauseAsync();
       };
-    }, [player, isActive, paused])
+    }, [isActive, paused])
   );
 
-  const togglePlayback = useCallback(() => {
+  const togglePlayback = () => {
     setPaused((prev) => !prev);
-  }, []);
+    setTimeout(() => {
+      setShowButtons((prev) => !prev);
+    }, paused ? 2800 : 0);
+  };
 
   return (
     <TouchableWithoutFeedback onPress={togglePlayback}>
       <View style={styles.container}>
-        <VideoView
-          nativeControls={false}
-          player={player}
+        <TouchableOpacity
+          style={{
+            position: 'absolute',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            borderRadius: 50,
+            width: 50,
+            height: 50,
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1,
+            display: showButtons ? 'flex' : 'none',
+          }}
+          onPress={togglePlayback}
+        >
+          <Icon
+            onPress={togglePlayback}
+            iconName={paused ? 'Play' : 'Pause'}
+            size={34}
+            color="white"
+          />
+        </TouchableOpacity>
+        <Video
+          ref={videoRef}
+          source={{ uri }}
           style={styles.video}
-          contentFit="contain"
-          allowsFullscreen
-          allowsPictureInPicture={false}
+          resizeMode={ResizeMode.CONTAIN}
+          shouldPlay={isActive && !paused}
+          isLooping
+          isMuted={muted}
         />
       </View>
     </TouchableWithoutFeedback>
@@ -116,24 +129,17 @@ const ReelsPage = () => {
     }
   }).current;
 
-  const navigateToProfile = useCallback(() => { }, [])
-
-  useFocusEffect(
-    useCallback(() => {
-      // Nothing to do here anymore since each ReelItem handles its own play/pause
-      return () => {
-        // Cleanup if needed pause the video
-
-      };
-    }, [currentIndex])
-  );
+  const navigateToProfile = useCallback(() => { }, []);
 
   const renderItem = useCallback(
     ({ item, index }: { item: Post; index: number }) => {
       const videoUrl = item?.fileUrl?.[0]?.shortVideoUrl;
       if (!videoUrl) return null;
 
-      const fullUrl = `${configs.serverApi.supabaseStorageUrl}`.replace("/snaapio-production/", "/") + videoUrl;
+      const fullUrl = `${configs.serverApi.supabaseStorageUrl}`.replace(
+        '/snaapio-production/',
+        '/'
+      ) + videoUrl;
 
       return (
         <View style={styles.container}>
@@ -146,21 +152,17 @@ const ReelsPage = () => {
           {index === currentIndex && (
             <TouchableOpacity
               style={styles.muteButton}
-              onPress={() => setMuted((m) => !m)}
+              onPress={() => setMuted(m => !m)}
             >
               <Icon
+                onPress={() => setMuted(m => !m)}
                 iconName={muted ? 'VolumeOff' : 'Volume2'}
                 size={24}
                 color="white"
-                onPress={() => setMuted((m) => !m)}
               />
             </TouchableOpacity>
           )}
-
-          <ActionButtonShort
-            item={item}
-            navigateToProfile={navigateToProfile}
-          />
+          <ActionButtonShort item={item} />
         </View>
       );
     },
@@ -170,7 +172,7 @@ const ReelsPage = () => {
   if (data.length <= 0 && loading === 'normal') {
     return (
       <View style={styles.container}>
-        <Text style={{ color: 'white' }}>No videos yet</Text>
+        <Text>No videos yet</Text>
       </View>
     );
   }
@@ -238,11 +240,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  textContent: {
-    padding: 10,
-    borderRadius: 10,
-    width: '80%',
-  },
   sideButtons: {
     position: 'absolute',
     bottom: 0,
@@ -256,10 +253,10 @@ const styles = StyleSheet.create({
 
 export default ReelsPage;
 
+
 export function ActionButtonShort({
   item,
-  navigateToProfile
-}: { item: Post, navigateToProfile: () => void }) {
+}: { item: Post }) {
   const navigation = useNavigation();
   const [like, setLike] = useState({
     isLike: item.is_Liked,
@@ -290,6 +287,10 @@ export function ActionButtonShort({
     }))
     debounceLike(!like.isLike)
   }, [like.isLike, like.likeCount])
+
+  const navigateToProfile = useCallback(() => {
+    navigation.dispatch(StackActions.push("Profile", { id: item.user?.id }))
+  }, [item.user?.id])
 
   return <View style={{
     position: 'absolute',
@@ -324,7 +325,14 @@ export function ActionButtonShort({
         </Text>
       </View>
     </View>
-    <View style={styles.textContent}>
+    <View style={{
+      marginHorizontal: "2%",
+      paddingVertical: 2,
+      display: 'flex',
+      flexDirection: "column",
+      gap: 6,
+      marginBottom: 20
+    }}>
       {item.title ? <Text variant="body1">{item.title}</Text> : <></>}
       {item.content ? <Text variant="body2" variantColor="Grey">
         {item.content}

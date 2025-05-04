@@ -40,11 +40,10 @@ React Native, Redux toolkit, react-hook-form, socket io, zod, WebRTC, JWT, Expo,
 
 - Real time chat using Socket io.
 - Video calling feature. using WebRTC.
-- Image uploading feature.
-- share short videos.
+- Image and video uploading feature.
 - ChatBot: Ask Google Gemini AI anything. and image generator.
 - User profile verification and payment gateway.
-- Share Photo with your friends.
+- Share Photo & video with your friends.
 - User authentication with JWT and NextAuth.js.
 - Light and dark modes Toggle and switch themes.
 
