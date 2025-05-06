@@ -1,9 +1,9 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { graphqlQuery } from "@/lib/GraphqlQuery";
 import { Asset } from "expo-media-library";
-import { findDataInput, PremiumSignUpPlan, Session, Story } from "@/types";
+import { findDataInput, PremiumSignUpPlan, Session, ShortVideoTypes, Story } from "@/types";
 import { AQ } from "./account.queries";
-import { uploadPost } from "@/lib/uploadFiles";
+import { uploadPost, uploadVideo } from "@/lib/uploadFiles";
 import { configs } from "@/configs";
 import { getSecureStorage } from "@/lib/SecureStore";
 
@@ -155,6 +155,23 @@ export const uploadStoryApi = createAsyncThunk(
             });
             return res;
         } catch (error: any) {
+            return thunkApi.rejectWithValue({
+                message: error?.message
+            });
+        }
+    }
+);
+
+export const uploadVideoApi = createAsyncThunk(
+    'uploadVideoApi/post',
+    async (data: ShortVideoTypes, thunkApi) => {
+        try {
+            // await new Promise((res, rej) => setTimeout(res, 3000))
+            const res = await uploadVideo(data);
+            // console.log(res)
+            return res;
+        } catch (error: any) {
+            console.error(error);
             return thunkApi.rejectWithValue({
                 message: error?.message
             });

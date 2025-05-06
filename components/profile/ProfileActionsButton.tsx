@@ -107,10 +107,12 @@ const ProfileActionsButton = memo(function ProfileActionsButton({
                 }}>
                 Edit Profile
             </Button>
-            <Button style={{
-                flex: 1,
-                height: 40
-            }}>
+            <Button
+                variant="secondary"
+                style={{
+                    flex: 1,
+                    height: 40
+                }}>
                 Share Profile
             </Button>
         </View>)

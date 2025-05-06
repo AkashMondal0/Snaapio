@@ -1,4 +1,6 @@
-export type loadingType = 'idle' | 'pending' | 'normal'
+import * as MediaLibrary from 'expo-media-library';
+
+export type loadingType = 'idle' | 'pending' | 'normal';
 export interface PageProps<T> {
     navigation?: NavigationProps;
     route?: {
@@ -155,6 +157,7 @@ export interface Post {
     locations?: string[];
     country?: string;
     city?: string;
+    type?: "post" | "short" | "ad";
 }
 
 export interface Highlight {
@@ -188,18 +191,19 @@ export interface Comment {
 }
 
 export type Assets = {
-    id?: string,
-    blur_square: string,
-    square: string,
-    square_sm: string,
-    blur_original: string,
-    original: string,
-    original_sm: string,
-    width: number,
-    height: number,
+    id?: string | null,
+    blur_square: string | null,
+    square: string | null,
+    square_sm: string | null,
+    blur_original: string | null,
+    original: string | null,
+    original_sm: string | null,
+    width: number | null,
+    height: number | null,
     metadata: string
     type?: 'photo' | 'video' | 'audio' | "text"
-    caption?: string;
+    caption?: string | null;
+    shortVideoUrl?: string | null
 }
 
 export type Story = {
@@ -302,3 +306,13 @@ export type PremiumSignUpPlan = {
     save?: string;
     features?: string[];
 };
+
+export type ShortVideoTypes = {
+    start: number,
+    end: number,
+    muted: boolean,
+    resize: "contain" | "cover",
+    title: string,
+    caption: string,
+    file: MediaLibrary.Asset
+}

@@ -24,7 +24,7 @@ const FeedsScreen = memo(function FeedsScreen() {
     const scrollYClamped = diffClamp(scrollY.current, 0, 130);
     const translateY = scrollYClamped.interpolate({
         inputRange: [0, 130],
-        outputRange: [0, -(130 / 2)],
+        outputRange: [0, -(200 / 2)],
     });
 
     return (
@@ -44,8 +44,8 @@ const FeedsScreen = memo(function FeedsScreen() {
                 onEndReachedThreshold={0.5}
                 bounces={false}
                 refreshing={false}
-                onScroll={handleScroll}
                 removeClippedSubviews={true}
+                onScroll={handleScroll}
                 windowSize={16}
                 onRefresh={reload}
                 onEndReached={loadMoreData}

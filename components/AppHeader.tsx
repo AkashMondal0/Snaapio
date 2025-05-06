@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { View, ViewProps } from "react-native";
+import { StatusBar, View, ViewProps } from "react-native";
 import { Icon } from "@/components/skysolo-ui";
 import { useTheme } from 'hyper-native-ui';
 import { Text } from "hyper-native-ui";
@@ -32,7 +32,8 @@ const AppHeader = memo(function HomeScreen({
                 paddingHorizontal: 10,
                 flexDirection: 'row',
                 alignItems: 'center',
-                justifyContent: "space-between"
+                justifyContent: "space-between",
+                marginTop: StatusBar.currentHeight
             }, containerStyle]}>
                 <Icon iconName="ArrowLeft"
                     size={28}
@@ -69,6 +70,7 @@ const AppHeader = memo(function HomeScreen({
             paddingHorizontal: 10,
             flexDirection: 'row',
             alignItems: 'center',
+            marginTop: StatusBar.currentHeight,
             justifyContent: 'space-between'
         }, containerStyle]}>
             <View style={{

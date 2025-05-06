@@ -2,7 +2,7 @@ import { Avatar, Icon } from "@/components/skysolo-ui";
 import { Text } from "hyper-native-ui";
 import { memo, useCallback } from "react";
 import { Conversation } from "@/types";
-import { ToastAndroid, View } from "react-native";
+import { StatusBar, ToastAndroid, View } from "react-native";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { useTheme } from 'hyper-native-ui';
@@ -54,6 +54,7 @@ const ChatScreenNavbar = memo(function ChatScreenNavbar({
             paddingHorizontal: 3,
             borderBottomWidth: 1,
             borderColor: currentTheme?.border,
+            marginTop: StatusBar.currentHeight,
         }}>
             <View style={{
                 display: 'flex',

@@ -1,7 +1,7 @@
 version: '1.0'
 services:
   server:
-    image: akashmondal0/skylight-backend:dev
+    image: akashmondal0/snaapio-backend:1.5
     # restart: always
     ports:
       - 5000:5000

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ScrollView, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StatusBar, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -71,6 +71,7 @@ const LoginScreen = () => {
                     style={{
                         aspectRatio: 1,
                         width: 40,
+                        marginTop: StatusBar.currentHeight
                     }}
                     onPress={() => {
                         navigation.goBack()
@@ -183,33 +184,21 @@ const LoginScreen = () => {
                     <Button
                         onPress={handleSubmit(handleLogin)}
                         width={"90%"}
-                        style={{
-                            marginVertical: 10,
-                        }}
                         loading={loading}
                         disabled={loading}>
                         Login
                     </Button>
-                </View>
-                <TouchableOpacity onPress={() => {
-                    navigation.dispatch(StackActions.replace("Register"))
-                }}
-                    activeOpacity={1}
-                    style={{
-                        padding: 10,
-                        flexDirection: "row",
-                        alignItems: "center",
-                        justifyContent: "center",
-                    }}>
-                    <Text
-                        variantColor="secondary"
-                        style={{
-                            textAlign: "center",
-                            paddingRight: 4,
-                        }}>
+                    <View style={{ height: 12 }} />
+                    <Button
+                        width={"90%"}
+                        variant="outline"
+                        onPress={() => {
+                            navigation.dispatch(StackActions.replace("Register"))
+                        }}
+                        activeOpacity={1}>
                         Register
-                    </Text>
-                </TouchableOpacity>
+                    </Button>
+                </View>
             </ScrollView>
         </View>
     );

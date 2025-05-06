@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect } from "react";
-import { FlatList, TouchableOpacity, View } from "react-native";
+import { FlatList, StatusBar, TouchableOpacity, View } from "react-native";
 import { Avatar, Icon } from "@/components/skysolo-ui";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
@@ -28,7 +28,7 @@ const StoriesComponent = memo(function StoriesComponent() {
     return (
         <View style={{
             width: '100%',
-            paddingTop: 8,
+            paddingTop: StatusBar.currentHeight
         }}>
             <FlatList
                 data={data}

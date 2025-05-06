@@ -11,8 +11,30 @@ import { PageProps } from '@/types';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
 import { setDeviceAssets } from '@/redux-stores/slice/account';
+import { useNavigation } from '@react-navigation/native';
 
-let loaded = false;
+const ShortVideoSelectScreen = memo(function ShortVideoSelectScreen() {
+	const navigation = useNavigation();
+	const nextAction = useCallback((selectedAssets: MediaLibrary.Asset[]) => {
+		navigation?.navigate("VideoEdit" as any, { assets: selectedAssets })
+	}, []);
+
+	return (
+		<View style={{
+			flex: 1,
+			width: '100%',
+			height: '100%',
+		}}>
+			<SelectAssets
+				assetsLimit={1}
+				nextAction={nextAction}
+				mediaType={["video"]} />
+		</View>
+	)
+})
+
+export default ShortVideoSelectScreen;
+
 const SelectAssets = memo(function SelectAssets({
     nextAction,
     assetsLimit = 5,
@@ -23,11 +45,12 @@ const SelectAssets = memo(function SelectAssets({
     nextAction: (selectedAssets: MediaLibrary.Asset[]) => void;
 }) {
     const [permission, requestPermission] = MediaLibrary.usePermissions();
-    const media = useSelector((state: RootState) => state.AccountState.deviceAssets);
+    // const media = useSelector((state: RootState) => state.AccountState.deviceAssets);
+    const totalCount = useRef(0);
+    // const dispatch = useDispatch();
     const selectedAssets = useRef<MediaLibrary.Asset[]>([]);
-    const totalCount = useRef(media.length);
     const [selectedCount, setSelectedCount] = useState(0);
-    const dispatch = useDispatch();
+	const [media, setMedia] = useState<MediaLibrary.Asset[]>([]);
 
     const alertMessage = throttle(() => {
         ToastAndroid.show(`You can select up to ${assetsLimit} images`, ToastAndroid.LONG);
@@ -57,7 +80,9 @@ const SelectAssets = memo(function SelectAssets({
 
         if (totalCount.current < totalMediaCount) {
             totalCount.current = Number(endCursor);
-            dispatch(setDeviceAssets(mediaResult));
+			setMedia((prev) => [...prev, ...mediaResult]);
+			// loaded = true;
+            // dispatch(setDeviceAssets(mediaResult));
         }
     }, [totalCount.current]);
 
@@ -92,7 +117,7 @@ const SelectAssets = memo(function SelectAssets({
     }, [selectedAssets]);
 
     useEffect(() => {
-        if (!loaded && permission?.granted && media.length >= 0) {
+        if (permission?.granted && media.length >= 0) {
             getMediaPermission();
             fetchMediaPagination();
         }
@@ -141,5 +166,3 @@ const SelectAssets = memo(function SelectAssets({
         </>
     );
 });
-
-export default SelectAssets;

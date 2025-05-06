@@ -74,7 +74,7 @@ const LikeScreen = memo(function LikeScreen({ route }: Props) {
 });
 export default LikeScreen;
 
-const LikeItem = memo(function CommentItem({
+export const LikeItem = memo(function LikeItem({
     data,
     onPress,
 }: {

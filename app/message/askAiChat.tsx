@@ -1,5 +1,5 @@
 import { memo, useCallback, } from "react";
-import { View } from "react-native";
+import { StatusBar, View } from "react-native";
 import { Avatar, Icon } from "@/components/skysolo-ui";
 import {
     Text
@@ -51,6 +51,7 @@ const AskAiChatScreenNavbar = memo(function AskAiChatScreenNavbar({
             paddingHorizontal: 3,
             borderBottomWidth: 1,
             borderColor: currentTheme?.border,
+            marginTop: StatusBar.currentHeight
         }}>
             <View style={{
                 display: 'flex',
