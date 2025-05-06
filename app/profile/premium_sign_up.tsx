@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { useTheme, Text, Button, PressableButton } from 'hyper-native-ui';
 import { fetchPaymentSheetParams, fetchPaymentSheetSuccess } from "@/redux-stores/slice/account/api.service";
 import { useStripe } from "@stripe/stripe-react-native";
-import { SafeAreaView, StatusBar, ToastAndroid } from "react-native";
+import { SafeAreaView, ToastAndroid } from "react-native";
 import { View, ScrollView } from 'react-native';
 import { PremiumSignUpPlan } from '@/types';
 import { useNavigation } from '@react-navigation/native';
+import AppHeader from '@/components/AppHeader';
 
 export default function PremiumSignUpScreen() {
 	const navigation = useNavigation();
@@ -60,118 +61,121 @@ export default function PremiumSignUpScreen() {
 	};
 
 	return (
-		<ScrollView style={{ padding: 20, marginTop: StatusBar.currentHeight }}>
-			<SafeAreaView>
-				<Text
-					style={{
-
-						fontSize: 28,
-						fontWeight: 'bold',
-						textAlign: 'center',
-						marginVertical: 10,
-					}}
-				>
-					Upgrade to Premium
-				</Text>
-				<Text
-					variantColor="secondary"
-					style={{
-						fontSize: 14,
-						textAlign: 'center',
-						marginBottom: 20,
-					}}
-				>
-					Enjoy an enhanced experience, exclusive creator tools, top-tier verification and security.
-				</Text>
-
-				<View
-					style={{
-						flexDirection: 'row',
-						justifyContent: 'center',
-						marginBottom: 20,
-						gap: 12
-					}}
-				>
-					<Button
-						disabled={billingCycle === 'Annual'}
-						variant={billingCycle === "Annual" ? 'default' : 'outline'}
-						activeOpacity={0.8}
+		<>
+			<AppHeader title="Premium" key={"profile-premium"} />
+			<ScrollView>
+				<SafeAreaView>
+					<Text
 						style={{
-							borderRadius: 20,
-						}}
-						onPress={() => setBillingCycle('Annual')}
-					>
-						Annual
-					</Button>
-					<Button
-						variant={billingCycle === 'Monthly' ? 'default' : 'outline'}
-						disabled={billingCycle === 'Monthly'}
-						activeOpacity={0.8}
-						style={{
-							borderRadius: 20,
-						}}
-						onPress={() => setBillingCycle('Monthly')}
-					>
-						Monthly
-					</Button>
-				</View>
 
-				<View style={{ gap: 20 }}>
-					{plans.map((plan) => (
-						<PressableButton
-							// activeOpacity={0.8}
-							key={plan.title}
+							fontSize: 28,
+							fontWeight: 'bold',
+							textAlign: 'center',
+							marginVertical: 10,
+						}}
+					>
+						Upgrade to Premium
+					</Text>
+					<Text
+						variantColor="secondary"
+						style={{
+							fontSize: 14,
+							textAlign: 'center',
+							marginBottom: 20,
+						}}
+					>
+						Enjoy an enhanced experience, exclusive creator tools, top-tier verification and security.
+					</Text>
+
+					<View
+						style={{
+							flexDirection: 'row',
+							justifyContent: 'center',
+							marginBottom: 20,
+							gap: 12
+						}}
+					>
+						<Button
+							disabled={billingCycle === 'Annual'}
+							variant={billingCycle === "Annual" ? 'default' : 'outline'}
+							activeOpacity={0.8}
 							style={{
-								// backgroundColor: currentTheme.input,
-								borderColor: selectedPlan === plan.title ? currentTheme.primary : currentTheme.border,
-								borderWidth: selectedPlan === plan.title ? 2 : 2,
 								borderRadius: 20,
-								padding: 16,
-								width: '100%',
 							}}
-							onPress={() => setSelectedPlan(plan.title)}
+							onPress={() => setBillingCycle('Annual')}
 						>
-							<Text style={{ fontSize: 18, fontWeight: 'bold' }}>
-								{plan.title}
-							</Text>
-							<Text style={{ fontSize: 16, color: currentTheme.primary, marginTop: 5 }}>
-								{plan.price} / month
-							</Text>
-							<Text style={{ fontSize: 12, color: currentTheme.muted_foreground, marginBottom: 10 }}>
+							Annual
+						</Button>
+						<Button
+							variant={billingCycle === 'Monthly' ? 'default' : 'outline'}
+							disabled={billingCycle === 'Monthly'}
+							activeOpacity={0.8}
+							style={{
+								borderRadius: 20,
+							}}
+							onPress={() => setBillingCycle('Monthly')}
+						>
+							Monthly
+						</Button>
+					</View>
 
-								{plan.yearlyPrice} billed annually{plan?.save ? ` • ${plan.save}` : ''}
-							</Text>
-							{plan.features.map((feature, index) => (
-								<Text
-									key={index}
-									style={{
-										fontSize: 14,
-										// marginBottom: 4,
-									}}
-								>
-									✓ {feature}
+					<View style={{ gap: 20 }}>
+						{plans.map((plan) => (
+							<PressableButton
+								// activeOpacity={0.8}
+								key={plan.title}
+								style={{
+									// backgroundColor: currentTheme.input,
+									borderColor: selectedPlan === plan.title ? currentTheme.primary : currentTheme.border,
+									borderWidth: selectedPlan === plan.title ? 2 : 2,
+									borderRadius: 20,
+									padding: 16,
+									width: '100%',
+								}}
+								onPress={() => setSelectedPlan(plan.title)}
+							>
+								<Text style={{ fontSize: 18, fontWeight: 'bold' }}>
+									{plan.title}
 								</Text>
-							))}
-						</PressableButton>
-					))}
-				</View>
+								<Text style={{ fontSize: 16, color: currentTheme.primary, marginTop: 5 }}>
+									{plan.price} / month
+								</Text>
+								<Text style={{ fontSize: 12, color: currentTheme.muted_foreground, marginBottom: 10 }}>
 
-				<Button
-					disabled={loading}
-					onPress={openPaymentSheet}
-					variant={"default"}
-					activeOpacity={0.8}
-					style={{
-						paddingVertical: 2,
-						borderRadius: 30,
-						marginTop: 30,
-					}}
-				>
-					Subscribe & Pay
-				</Button>
-				<View style={{ height: 30 }} />
-			</SafeAreaView>
-		</ScrollView>
+									{plan.yearlyPrice} billed annually{plan?.save ? ` • ${plan.save}` : ''}
+								</Text>
+								{plan.features.map((feature, index) => (
+									<Text
+										key={index}
+										style={{
+											fontSize: 14,
+											// marginBottom: 4,
+										}}
+									>
+										✓ {feature}
+									</Text>
+								))}
+							</PressableButton>
+						))}
+					</View>
+
+					<Button
+						disabled={loading}
+						onPress={openPaymentSheet}
+						variant={"default"}
+						activeOpacity={0.8}
+						style={{
+							paddingVertical: 2,
+							borderRadius: 30,
+							marginTop: 30,
+						}}
+					>
+						Subscribe & Pay
+					</Button>
+					<View style={{ height: 30 }} />
+				</SafeAreaView>
+			</ScrollView>
+		</>
 	);
 }
 

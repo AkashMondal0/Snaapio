@@ -1,3 +1,4 @@
+import { Post } from '@/types'
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 
@@ -9,7 +10,8 @@ export type dialogsType = {
     logOut: {
         visible: boolean,
         data?: any | null
-    }
+    },
+    shareSheetData: Post | null
 }
 
 const initialState: dialogsType = {
@@ -20,7 +22,8 @@ const initialState: dialogsType = {
     logOut: {
         visible: false,
         data: null
-    }
+    },
+    shareSheetData: null
 }
 
 export const Dialogs = createSlice({
@@ -32,13 +35,17 @@ export const Dialogs = createSlice({
         },
         setLogOutDialog: (state, action: PayloadAction<{ visible: boolean, data: any }>) => {
             state.logOut = action.payload
-        }
+        },
+        setShareSheetData: (state, action: PayloadAction<Post | any>) => {
+            state.shareSheetData = action.payload
+        },
     }
 })
 
 export const {
     setAppPermissionDialog,
-    setLogOutDialog
+    setLogOutDialog,
+    setShareSheetData
 } = Dialogs.actions
 
 export default Dialogs.reducer
