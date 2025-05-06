@@ -18,6 +18,9 @@ import { configs } from '@/configs';
 import { Heart } from 'lucide-react-native';
 import { QPost } from '@/redux-stores/slice/post/post.queries';
 import useDebounce from '@/lib/debouncing';
+import useAppState from '@/hooks/AppState';
+import { useDispatch } from 'react-redux';
+import { setShareSheetData } from '@/redux-stores/slice/dialog';
 
 const { height, width } = Dimensions.get('window');
 
@@ -257,6 +260,8 @@ export default ReelsPage;
 export function ActionButtonShort({
   item,
 }: { item: Post }) {
+  const { handleSnapPress } = useAppState();
+  const dispatch = useDispatch();
   const navigation = useNavigation();
   const [like, setLike] = useState({
     isLike: item.is_Liked,
@@ -291,6 +296,11 @@ export function ActionButtonShort({
   const navigateToProfile = useCallback(() => {
     navigation.dispatch(StackActions.push("Profile", { id: item.user?.id }))
   }, [item.user?.id])
+
+  const handleShare = useCallback(() => {
+    dispatch(setShareSheetData(item))
+    handleSnapPress(0)
+  }, [item?.id])
 
   return <View style={{
     position: 'absolute',
@@ -366,7 +376,7 @@ export function ActionButtonShort({
           {item.commentCount}
         </Text>
       </TouchableOpacity>
-      <Icon iconName="Send" size={32} />
+      <Icon iconName="Send" size={32} onPress={handleShare} />
       <Icon iconName="Bookmark" size={32} />
       <Icon iconName="MoreHorizontal" size={32} />
     </View>

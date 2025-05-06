@@ -61,11 +61,12 @@ const _configs = {
         version: "0.1.5",
         name: "Snaapio",
         description: "Snaapio is a social media platform that allows users to share their thoughts and ideas with the world.",
-        appUrl: '',
+        appUrl: 'https://snaapio.vercel.app',
         logoUrl: "/primary-logo.png",
         primaryLightLogo: "/primary-light-logo.jpeg",
         creator: "@AkashMondal",
         category: "social media",
+        stripePk: process.env.EXPO_PUBLIC_STRIPE_PK
     }
 }
 

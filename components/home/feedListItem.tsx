@@ -20,6 +20,9 @@ import {
     GestureHandlerRootView,
     PinchGestureHandler,
 } from 'react-native-gesture-handler';
+import useAppState from '@/hooks/AppState';
+import { setShareSheetData } from '@/redux-stores/slice/dialog';
+import { useDispatch } from 'react-redux';
 
 const FeedItem = memo(function FeedItem({
     data
@@ -182,6 +185,8 @@ const FeedItemActionsButtons = (
         post: Post
     }
 ) => {
+    const { handleSnapPress } = useAppState();
+    const dispatch = useDispatch();
     const navigation = useNavigation();
     const [like, setLike] = useState({
         isLike: post.is_Liked,
@@ -224,7 +229,10 @@ const FeedItemActionsButtons = (
             iconName: "Send",
             count: "",
             size: 28,
-            onPress: () => { },
+            onPress: () => {
+                dispatch(setShareSheetData(post))
+                handleSnapPress(0)
+            },
         },
     ]
     return (
@@ -278,7 +286,7 @@ const FeedItemActionsButtons = (
                     </View>
                 ))}
             </View>
-            <Icon iconName="Bookmark" size={30} />
+            <Icon iconName="Bookmark" size={30} onPress={() => {}} />
         </View>
     )
 }
