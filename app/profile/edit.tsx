@@ -11,9 +11,6 @@ import { Controller, useForm } from 'react-hook-form';
 import { profileUpdateApi } from '@/redux-stores/slice/auth/api.service';
 import { useNavigation } from '@react-navigation/native';
 import { VerifiedAdComponent } from '@/components/profile';
-import { useGQObject } from '@/lib/useGraphqlQuery';
-import { QProfile } from '@/redux-stores/slice/profile/profile.queries';
-import { User } from '@/types';
 
 const schema = z.object({
     username: z.string().min(2, {
@@ -34,18 +31,6 @@ const schema = z.object({
 const ProfileEditScreen = memo(function ProfileEditScreen() {
     const navigation = useNavigation();
     const session = useSelector((state: RootState) => state.AuthState.session.user);
-    const {
-        data: dataUser,
-        error: errorUser,
-        loading: loadingUser,
-        reload: reloadUser,
-        fetch: fetchUser,
-    } = useGQObject<User>({
-        query: QProfile.findUserProfile,
-        variables: { id: session?.username },
-        initialFetch: false,
-    });
-
     const globalAssets = useSelector((state: RootState) => state.AccountState.globalSelectedAssets);
     const [state, setStats] = useState<{
         showPassword: boolean,
@@ -65,10 +50,10 @@ const ProfileEditScreen = memo(function ProfileEditScreen() {
 
     const { control, handleSubmit, reset, formState: { errors } } = useForm({
         defaultValues: {
-            email: dataUser?.email || "",
-            name: dataUser?.name || "",
-            username: dataUser?.username || "",
-            bio: dataUser?.bio || "",
+            email: "",
+            name: "",
+            username: "",
+            bio: "",
         },
         resolver: zodResolver(schema)
     });
@@ -89,7 +74,7 @@ const ProfileEditScreen = memo(function ProfileEditScreen() {
                     username: inputData.username,
                     bio: inputData.bio,
                 },
-                fileUrl: globalAssets
+                fileUrl: undefined
             }) as any);
             ToastAndroid.show("Profile updated", ToastAndroid.SHORT);
         }
@@ -106,7 +91,6 @@ const ProfileEditScreen = memo(function ProfileEditScreen() {
 
     useEffect(() => {
         if (session) {
-            fetchUser();
             reset({
                 email: session.email,
                 name: session.name,
@@ -115,19 +99,6 @@ const ProfileEditScreen = memo(function ProfileEditScreen() {
             })
         }
     }, [session]);
-
-    useEffect(() => {
-        if (dataUser) {
-            reset({
-                email: dataUser.email,
-                name: dataUser.name,
-                username: dataUser.username,
-                bio: dataUser.bio || ""
-            })
-        }
-    }, [dataUser])
-
-    // console.log("dataUser", dataUser);
 
 
     const ErrorMessage = ({ text }: any) => {
@@ -186,7 +157,7 @@ const ProfileEditScreen = memo(function ProfileEditScreen() {
                     url={image} /> :
                     <Avatar
                         size={120}
-                        url={dataUser?.profilePicture} />}
+                        url={session?.profilePicture} />}
             </View>
             <View style={{
                 padding: 20,
@@ -195,7 +166,7 @@ const ProfileEditScreen = memo(function ProfileEditScreen() {
                 flexDirection: "column",
                 gap: 8
             }}>
-                <VerifiedAdComponent verified={dataUser?.isVerified || false} />
+                <VerifiedAdComponent verified={false} />
                 <View style={{ height: 10 }} />
                 <Text>Name</Text>
                 <Controller
@@ -276,8 +247,8 @@ const ProfileEditScreen = memo(function ProfileEditScreen() {
                     name="bio"
                     rules={{ required: false }} />
                 <ErrorMessage text={errors.bio?.message} />
-                <View style={{ height: 10 }} />
-                <Button onPress={handleSubmit(handleUpdate)} disabled={state.loading}>
+                <Button style={{ borderRadius: 50, marginVertical: 10 }}
+                    onPress={handleSubmit(handleUpdate)} disabled={state.loading}>
                     Submit
                 </Button>
             </View>

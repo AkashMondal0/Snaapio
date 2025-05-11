@@ -58,11 +58,13 @@ export default function InitialScreen() {
                 onPress={() => {
                     navigation.navigate("Login" as any)
                 }}
+                style={{ borderRadius: 100 }}
                 activeOpacity={1}>
                 Login
             </Button>
-            <View style={{ height: 10 }} />
+            <View style={{ height: 16}} />
             <Button
+                style={{ borderRadius: 100 }}
                 width={"80%"}
                 variant="secondary"
                 onPress={() => {

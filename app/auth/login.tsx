@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ScrollView, StatusBar, TouchableOpacity, View } from 'react-native';
+import { Dimensions, ScrollView, StatusBar, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,6 +10,7 @@ import { loginApi } from '@/redux-stores/slice/auth/api.service';
 import { StackActions, useNavigation } from '@react-navigation/native';
 import { RootState } from '@/redux-stores/store';
 import { clearLoginError } from '@/redux-stores/slice/auth';
+const { height: SH } = Dimensions.get("window");
 
 const schema = z.object({
     email: z.string().email({ message: "Invalid email" })
@@ -21,10 +22,10 @@ const schema = z.object({
 const LoginScreen = () => {
     const navigation = useNavigation();
     const error = useSelector((state: RootState) => state.AuthState.loginError);
+    const loading = useSelector((state: RootState) => state.AuthState.loading);
     const [showPassword, setShowPassword] = useState(false)
     const dispatch = useDispatch();
     const inputRef = useRef<any>(null);
-    const [loading, setLoading] = useState(false)
 
     const { control, handleSubmit, formState: { errors } } = useForm({
         defaultValues: {
@@ -38,51 +39,47 @@ const LoginScreen = () => {
         email: string,
         password: string,
     }) => {
-        setLoading(true)
         await dispatch(loginApi({
             email: data.email,
             password: data.password,
-        }) as any)
-        setLoading(false)
-    }, [])
+        }) as any);
+    }, []);
 
     useEffect(() => {
-        dispatch(clearLoginError())
-    }, [])
+        dispatch(clearLoginError());
+    }, []);
 
     return (
-        <View style={{
-            flex: 1,
-            height: "100%",
-            width: "100%",
-        }}>
-            <ScrollView
-                keyboardDismissMode='on-drag'
-                keyboardShouldPersistTaps='handled'
-                style={{
-                    flex: 1,
-                    padding: 20,
-                    width: "100%",
-                }}>
-                {navigation.canGoBack() ? <Icon
-                    disabled={loading}
-                    iconName="ArrowLeft"
-                    size={30}
-                    style={{
-                        aspectRatio: 1,
-                        width: 40,
-                        marginTop: StatusBar.currentHeight
-                    }}
-                    onPress={() => {
-                        navigation.goBack()
-                    }}
-                    isButton /> : <></>}
-
+        <ScrollView keyboardDismissMode='on-drag'
+            keyboardShouldPersistTaps='handled'>
+            <View style={{
+                flex: 1,
+                padding: 20,
+                height: SH,
+                width: "100%",
+                marginTop: StatusBar.currentHeight,
+                justifyContent: "space-between"
+            }}>
+                {/* top */}
+                <View>
+                    {navigation.canGoBack() ? <Icon
+                        disabled={loading}
+                        iconName="ArrowLeft"
+                        size={30}
+                        style={{
+                            aspectRatio: 1,
+                            width: 40,
+                        }}
+                        onPress={() => {
+                            navigation.goBack()
+                        }}
+                        isButton /> : <></>}
+                </View>
+                {/* center */}
                 <View style={{
-                    flex: 1,
+                    // flex: 1,
                     justifyContent: "center",
                     alignItems: "center",
-                    marginTop: 50,
                 }}>
                     <Text style={{
                         fontSize: 32,
@@ -92,7 +89,7 @@ const LoginScreen = () => {
                     <Text
                         style={{
                             fontSize: 15,
-                            marginBottom: 40,
+                            marginBottom: 12,
                             marginHorizontal: 25,
                             textAlign: "center"
                         }}>
@@ -106,7 +103,7 @@ const LoginScreen = () => {
                             textAlign: "left",
                             fontWeight: 'bold',
                             margin: 4,
-                            marginBottom: 20,
+                            marginBottom: 12,
                         }}>
                         {error}
                     </Text>
@@ -137,7 +134,7 @@ const LoginScreen = () => {
                             textAlign: "left",
                             fontWeight: 'bold',
                             margin: 4,
-                            marginBottom: 20,
+                            marginBottom: 12,
                         }}>
                         {errors.email?.message}
                     </Text>
@@ -150,7 +147,7 @@ const LoginScreen = () => {
                                 blurOnSubmit={false}
                                 disabled={loading}
                                 style={{ width: "82%" }}
-                                secureTextEntry={showPassword}
+                                secureTextEntry={!showPassword}
                                 isErrorBorder={errors.password}
                                 placeholder='Password'
                                 textContentType='password'
@@ -161,8 +158,8 @@ const LoginScreen = () => {
                                 rightSideComponent={<View style={{
                                     width: "8%"
                                 }}>
-                                    {showPassword ? <Icon iconName="Eye" size={26} onPress={() => setShowPassword(false)} /> :
-                                        <Icon iconName="EyeOff" size={26} onPress={() => setShowPassword(true)} />}
+                                    {!showPassword ? <Icon iconName="Eye" size={26} onPress={() => setShowPassword(true)} /> :
+                                        <Icon iconName="EyeOff" size={26} onPress={() => setShowPassword(false)} />}
                                 </View>}
                             />
                         )}
@@ -176,7 +173,7 @@ const LoginScreen = () => {
                             textAlign: "left",
                             fontWeight: 'bold',
                             margin: 4,
-                            marginBottom: 20,
+                            marginBottom: 12,
                         }}>
                         {errors.password?.message}
                     </Text>
@@ -185,22 +182,26 @@ const LoginScreen = () => {
                         onPress={handleSubmit(handleLogin)}
                         width={"90%"}
                         loading={loading}
+                        style={{ borderRadius: 100 }}
                         disabled={loading}>
                         Login
                     </Button>
                     <View style={{ height: 12 }} />
-                    <Button
-                        width={"90%"}
-                        variant="outline"
-                        onPress={() => {
-                            navigation.dispatch(StackActions.replace("Register"))
-                        }}
-                        activeOpacity={1}>
-                        Register
-                    </Button>
                 </View>
-            </ScrollView>
-        </View>
+                {/* bottom */}
+                <Button
+                    center
+                    width={"90%"}
+                    variant="outline"
+                    style={{ borderWidth: 2, borderRadius: 100 }}
+                    onPress={() => {
+                        navigation.dispatch(StackActions.replace("Register"))
+                    }}
+                    activeOpacity={1}>
+                    Register
+                </Button>
+            </View>
+        </ScrollView>
     );
 };
 

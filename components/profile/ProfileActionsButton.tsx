@@ -103,7 +103,7 @@ const ProfileActionsButton = memo(function ProfileActionsButton({
             <Button
                 onPress={() => navigation?.navigate("AccountEdit")} style={{
                     flex: 1,
-                    height: 40
+                    borderRadius:16
                 }}>
                 Edit Profile
             </Button>
@@ -111,7 +111,7 @@ const ProfileActionsButton = memo(function ProfileActionsButton({
                 variant="secondary"
                 style={{
                     flex: 1,
-                    height: 40
+                    borderRadius:16
                 }}>
                 Share Profile
             </Button>
@@ -129,7 +129,7 @@ const ProfileActionsButton = memo(function ProfileActionsButton({
             variant={isFollowing ? "secondary" : "default"}
             style={{
                 flex: 1,
-                height: 40
+                borderRadius:16
             }}>
             {isFollowing ? "Following" : "Follow"}
         </Button>
@@ -138,7 +138,7 @@ const ProfileActionsButton = memo(function ProfileActionsButton({
             onPress={messagePageNavigate}
             variant="secondary" style={{
                 flex: 1,
-                height: 40
+                borderRadius:16
             }}>
             Message
         </Button>

@@ -73,13 +73,11 @@ Create a `.env.local` file in the `client` directory and configure the necessary
 environment variables:
 
 ```env
-# supabase config
-EXPO_PUBLIC_SUPABASE_URL=supabaseUrl
-EXPO_PUBLIC_SUPABASE_ANON_KEY=
 # user config
-EXPO_PUBLIC_SUPABASE_STORAGE_URL=supabaseUrl + /storage/v1/object/public/
-EXPO_PUBLIC_SERVER_URL=http://192.168.31.232:5000/v1
-EXPO_PUBLIC_AI_API_URL=supabaseUrl + /functions/v1/generative
+EXPO_PUBLIC_SERVER_URL=http://localhost:5000/v1
+EXPO_PUBLIC_SUPABASE_STORAGE_URL=supabaseUrl + /storage/v1/object/public/snaapio-production/
+EXPO_PUBLIC_VIDEO_SERVER_URL=http://localhost:5100
+EXPO_PUBLIC_STRIPE_PK=pk_test_51Nn5qw....
 ```
 
 ### Server - Docker Image
