@@ -1,5 +1,5 @@
 import { Avatar, Icon } from "@/components/skysolo-ui";
-import { Text } from "hyper-native-ui";
+import { PressableButton, Text } from "hyper-native-ui";
 import { memo, useCallback } from "react";
 import { Conversation } from "@/types";
 import { StatusBar, ToastAndroid, View } from "react-native";
@@ -88,8 +88,22 @@ const ChatScreenNavbar = memo(function ChatScreenNavbar({
                 </View>
             </View>
             <View style={{ paddingRight: 16, gap: 12, display: "flex", flexDirection: "row" }}>
-                <Icon iconName="Phone" isButton variant="secondary" size={24} style={{ elevation: 2 }} onPress={() => onPress(false)} />
-                <Icon iconName="Video" isButton variant="secondary" size={24} style={{ elevation: 2 }} onPress={() => onPress(true)} />
+                <PressableButton
+                    style={{ padding: 10, borderRadius: 100 }}
+                    radius={100} onPress={() => onPress(false)}>
+                    <Icon
+                        onPress={() => onPress(false)}
+                        iconName={'Phone'}
+                        size={24} />
+                </PressableButton>
+                <PressableButton
+                    style={{ padding: 10, borderRadius: 100 }}
+                    radius={100} onPress={() => onPress(false)}>
+                    <Icon
+                        onPress={() => onPress(true)}
+                        iconName={'Video'}
+                        size={24} />
+                </PressableButton>
             </View>
         </View>
     )

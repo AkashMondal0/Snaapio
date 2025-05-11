@@ -22,7 +22,7 @@ const schema = z.object({
 const LoginScreen = () => {
     const navigation = useNavigation();
     const error = useSelector((state: RootState) => state.AuthState.loginError);
-    const loading = useSelector((state: RootState) => state.AuthState.loading);
+    const loading = useSelector((state: RootState) => state.AuthState.loginLoading);
     const [showPassword, setShowPassword] = useState(false)
     const dispatch = useDispatch();
     const inputRef = useRef<any>(null);

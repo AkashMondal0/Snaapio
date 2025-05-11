@@ -37,14 +37,17 @@ import PickupImages from './SelectFiles/pickup-images';
 
 export const HomeTabs = createBottomTabNavigator({
     screenOptions: {
-        headerShown: false
+        headerShown: false,
+        tabBarShowLabel: false,
+        animation: "shift",
+        tabBarItemStyle:{margin:4}
     },
     screens: {
         Home: {
             screen: FeedsScreen,
             options: {
                 tabBarIcon: ({ color, size, focused }) => (
-                    <HomeIcon size={size} color={color} />
+                    <HomeIcon size={30} color={color} />
                 ),
             },
         },
@@ -52,7 +55,7 @@ export const HomeTabs = createBottomTabNavigator({
             screen: SearchScreen,
             options: {
                 tabBarIcon: ({ color, size, focused }) => (
-                    <Search size={size} color={color} />
+                    <Search size={30} color={color} />
                 ),
             },
         },
@@ -60,7 +63,7 @@ export const HomeTabs = createBottomTabNavigator({
             screen: PostSelectScreen,
             options: {
                 tabBarIcon: ({ color, size, focused }) => (
-                    <PlusCircle size={size} color={color} />
+                    <PlusCircle size={30} color={color} />
                 ),
             },
         },
@@ -68,7 +71,7 @@ export const HomeTabs = createBottomTabNavigator({
             screen: ReelsScreen,
             options: {
                 tabBarIcon: ({ color, size, focused }) => (
-                    <Film size={size} color={color} />
+                    <Film size={30} color={color} />
                 ),
             },
         },
@@ -78,7 +81,7 @@ export const HomeTabs = createBottomTabNavigator({
                 title: "Profile",
                 tabBarIcon: ({ color, size, focused }) => (
                     <AccountIcon
-                        size={size}
+                        size={30}
                         focused={focused}
                         onPress={(name) => navigation.navigate(route.name, { ...route.params, id: name })} />
                 ),
