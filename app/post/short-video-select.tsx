@@ -8,29 +8,31 @@ import PhotosPermissionRequester from '@/components/upload/no-permission';
 import ImageItem from '@/components/upload/image';
 import throttle from '@/lib/throttling';
 import { PageProps } from '@/types';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '@/redux-stores/store';
-import { setDeviceAssets } from '@/redux-stores/slice/account';
+// import { useDispatch, useSelector } from 'react-redux';
+// import { RootState } from '@/redux-stores/store';
+// import { setDeviceAssets } from '@/redux-stores/slice/account';
 import { useNavigation } from '@react-navigation/native';
+import ActionNextButton from '@/components/ActionNextButton';
 
 const ShortVideoSelectScreen = memo(function ShortVideoSelectScreen() {
-	const navigation = useNavigation();
-	const nextAction = useCallback((selectedAssets: MediaLibrary.Asset[]) => {
-		navigation?.navigate("VideoEdit" as any, { assets: selectedAssets })
-	}, []);
+    const navigation = useNavigation();
+    const nextAction = useCallback((selectedAssets: MediaLibrary.Asset[]) => {
+        navigation?.navigate("VideoEdit" as any, { assets: selectedAssets })
+    }, []);
 
-	return (
-		<View style={{
-			flex: 1,
-			width: '100%',
-			height: '100%',
-		}}>
-			<SelectAssets
-				assetsLimit={1}
-				nextAction={nextAction}
-				mediaType={["video"]} />
-		</View>
-	)
+    return (
+        <View style={{
+            flex: 1,
+            width: '100%',
+            height: '100%',
+        }}>
+            <SelectAssets
+            showHeader={false}
+                assetsLimit={1}
+                nextAction={nextAction}
+                mediaType={["video"]} />
+        </View>
+    )
 })
 
 export default ShortVideoSelectScreen;
@@ -38,10 +40,12 @@ export default ShortVideoSelectScreen;
 const SelectAssets = memo(function SelectAssets({
     nextAction,
     assetsLimit = 5,
-    mediaType = ['photo']
+    mediaType = ['photo'],
+    showHeader = true
 }: PageProps<any> & {
     assetsLimit?: number;
     mediaType?: any[]
+    showHeader?: boolean
     nextAction: (selectedAssets: MediaLibrary.Asset[]) => void;
 }) {
     const [permission, requestPermission] = MediaLibrary.usePermissions();
@@ -50,7 +54,7 @@ const SelectAssets = memo(function SelectAssets({
     // const dispatch = useDispatch();
     const selectedAssets = useRef<MediaLibrary.Asset[]>([]);
     const [selectedCount, setSelectedCount] = useState(0);
-	const [media, setMedia] = useState<MediaLibrary.Asset[]>([]);
+    const [media, setMedia] = useState<MediaLibrary.Asset[]>([]);
 
     const alertMessage = throttle(() => {
         ToastAndroid.show(`You can select up to ${assetsLimit} images`, ToastAndroid.LONG);
@@ -80,8 +84,8 @@ const SelectAssets = memo(function SelectAssets({
 
         if (totalCount.current < totalMediaCount) {
             totalCount.current = Number(endCursor);
-			setMedia((prev) => [...prev, ...mediaResult]);
-			// loaded = true;
+            setMedia((prev) => [...prev, ...mediaResult]);
+            // loaded = true;
             // dispatch(setDeviceAssets(mediaResult));
         }
     }, [totalCount.current]);
@@ -138,14 +142,14 @@ const SelectAssets = memo(function SelectAssets({
 
     return (
         <>
-            <AppHeader
+            {showHeader ? <AppHeader
                 titleCenter
                 title={selectedCount > 0 ? `Selected ${selectedCount} ` : 'Select Items'}
                 rightSideComponent={selectedCount > 0 ? <Icon
                     iconName='Check' isButton
                     style={{ width: 36 }}
                     onPress={navigateToPostReview}
-                    variant="primary" /> : <></>} />
+                    variant="primary" /> : <></>} /> : <></>}
             <View style={{ flex: 1 }}>
                 <FlatList
                     nestedScrollEnabled
@@ -163,6 +167,7 @@ const SelectAssets = memo(function SelectAssets({
                             onPressAssetHandle={onPressAssetHandle} />
                     }} />
             </View>
+              {selectedCount > 0 ? <ActionNextButton onPress={navigateToPostReview} /> : <></>}
         </>
     );
 });

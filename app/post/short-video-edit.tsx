@@ -166,9 +166,24 @@ const ShortVideoEditScreen = memo(function ShortVideoEditScreen({ route }: {
     }
 
     return (
-        <ScrollView>
+        <ScrollView keyboardDismissMode='on-drag'
+            keyboardShouldPersistTaps='handled'>
             {/* header */}
             <View style={{ paddingHorizontal: 20, paddingTop: 40 }}>
+                <View>
+                    {navigation.canGoBack() ? <Icon
+                        disabled={loading}
+                        iconName="ArrowLeft"
+                        size={30}
+                        style={{
+                            aspectRatio: 1,
+                            width: 40,
+                        }}
+                        onPress={() => {
+                            navigation.goBack()
+                        }}
+                        isButton /> : <></>}
+                </View>
                 <Text style={{
                     fontSize: 24,
                     fontWeight: 'bold',

@@ -25,7 +25,7 @@ import {
     NewChatScreen
 } from '@/app/message';
 import { PremiumSignUpScreen, ProfileEditScreen, ProfileScreen, TabFollowingAndFollowers } from '@/app/profile';
-import { CommentScreen, LikeScreen, PostScreen, PostUploadScreen, PostSelectScreen, ShortVideoSelectScreen, ShortVideoUploadScreen, ShortVideoEditScreen } from '@/app/post';
+import { CommentScreen, LikeScreen, PostScreen, PostUploadScreen, PostSelectScreen, ShortVideoSelectScreen, ShortVideoUploadScreen, ShortVideoEditScreen, UploadMediaScreen } from '@/app/post';
 import { StoryScreen, StorySelectingScreen, StoryUploadScreen } from '@/app/story';
 import { HighlightPageScreen, HighlightSelectingScreen, HighlightUploadScreen } from '@/app/highlight';
 import { FeedsScreen, AccountScreen, ReelsScreen, SearchScreen } from '@/app/HomeTab';
@@ -60,7 +60,7 @@ export const HomeTabs = createBottomTabNavigator({
             },
         },
         Create: {
-            screen: PostSelectScreen,
+            screen: UploadMediaScreen,
             options: {
                 tabBarIcon: ({ color, size, focused }) => (
                     <PlusCircle size={30} color={color} />

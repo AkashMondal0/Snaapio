@@ -141,8 +141,8 @@ export const StoryLoader = () => {
         display: "flex",
         flexDirection: "row",
         gap: 10,
-        height: 120,
-        alignItems: "center"
+        height: 100,
+        alignItems: "center",
     }}>
         {Array(10).fill(0).map((_, i) => <View key={i} style={{
             width: 80,
