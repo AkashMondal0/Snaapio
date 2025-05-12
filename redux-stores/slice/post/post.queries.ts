@@ -3,6 +3,7 @@ export const QPost = {
     findOnePost(graphQLPageQuery: $graphQlPageQuery) {
       id
       content
+      title
       type
       fileUrl {
         width

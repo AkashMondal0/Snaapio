@@ -128,6 +128,7 @@ const PostUploadScreen = memo(function PostUploadScreen({
                 <Button
                     loading={loading}
                     disabled={loading}
+                    center
                     style={{ width: "95%", margin: 10 }}
                     onPress={handledShare}>
                     Share

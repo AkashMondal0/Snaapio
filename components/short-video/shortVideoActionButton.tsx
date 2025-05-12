@@ -14,6 +14,7 @@ import useDebounce from '@/lib/debouncing';
 import useAppState from '@/hooks/AppState';
 import { useDispatch } from 'react-redux';
 import { setShareSheetData } from '@/redux-stores/slice/dialog';
+import { FeedItemContent } from '../post';
 
 function ShortVideoActionButton({
 	item,
@@ -70,6 +71,17 @@ function ShortVideoActionButton({
 	}}>
 		<View style={{
 			marginHorizontal: "2%",
+			display: 'flex',
+			flexDirection: "column",
+			gap: 6,
+			marginBottom: 20
+		}}>
+			{item.title ? <Text variant="body1" style={{ marginHorizontal: "2%" }}>{item.title}</Text> : <></>}
+			{item.content ? <FeedItemContent data={item} showUserName={false} textSecondaryColor={false} /> : <></>}
+		</View>
+		{/* avatar */}
+		<View style={{
+			marginHorizontal: "2%",
 			// paddingVertical: 2,
 			display: 'flex',
 			flexDirection: "row",
@@ -93,20 +105,6 @@ function ShortVideoActionButton({
 				</Text>
 			</View>
 		</View>
-		<View style={{
-			marginHorizontal: "2%",
-			paddingVertical: 2,
-			display: 'flex',
-			flexDirection: "column",
-			gap: 6,
-			marginBottom: 20
-		}}>
-			{item.title ? <Text variant="body1">{item.title}</Text> : <></>}
-			{item.content ? <Text variant="body2" variantColor="Grey">
-				{item.content}
-			</Text> : <></>}
-		</View>
-
 		{/* side button */}
 		<View style={{
 			position: 'absolute',

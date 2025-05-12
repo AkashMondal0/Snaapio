@@ -5,9 +5,13 @@ import { Text } from 'hyper-native-ui';
 import React from 'react';
 import { useNavigation } from '@react-navigation/native';
 
-const FeedItemContent = memo(function FeedItemContent({ data
+const FeedItemContent = memo(function FeedItemContent({ data,
+	showUserName = true,
+	textSecondaryColor = true
 }: {
 	data: Post,
+	showUserName?: boolean,
+	textSecondaryColor?: boolean
 }) {
 	const navigation = useNavigation();
 	const [readMore, setReadMore] = useState(false)
@@ -21,7 +25,7 @@ const FeedItemContent = memo(function FeedItemContent({ data
 			marginHorizontal: "2%",
 		}}
 		ellipsizeMode="tail">
-		<TouchableWithoutFeedback
+		{showUserName ? <TouchableWithoutFeedback
 			style={{
 				borderWidth: 0.5,
 				borderColor: "red",
@@ -37,10 +41,10 @@ const FeedItemContent = memo(function FeedItemContent({ data
 				lineBreakMode="clip" numberOfLines={2}>
 				{data.user.name}{" "}
 			</Text>
-		</TouchableWithoutFeedback>
+		</TouchableWithoutFeedback> : <></>}
 		<TouchableWithoutFeedback onPress={() => setReadMore(!readMore)}>
 			<Text
-				variantColor='secondary'
+				variantColor={textSecondaryColor ? 'secondary' : "default"}
 				style={{
 					marginHorizontal: "2%",
 					fontWeight: "400",
