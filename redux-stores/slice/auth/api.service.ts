@@ -117,37 +117,39 @@ export const profileUpdateApi = createAsyncThunk(
             website?: string[]
             profilePicture?: string
         },
-        fileUrl?: Asset[],
+        fileUrl?: Asset | undefined,
         profileId: string
     }, thunkApi) => {
         const { fileUrl, profileId, ...updateUsersInput } = data;
         try {
-            let _data; // to store the response
+            // let _data; // to store the response
             let newProfileImage;
             if (fileUrl) {
-                const imgUrls = await uploadPost({ files: fileUrl }) as UploadFileRespond[]
+                const imgUrls = await uploadPost({ files: [fileUrl] }) as UploadFileRespond[]
                 if (!imgUrls) {
                     return thunkApi.rejectWithValue({
                         message: "Server Error"
                     });
                 }
                 // Update the user profile with the new image
-                const res = await graphqlQuery({
+                // const res = 
+                await graphqlQuery({
                     query: AQ.updateUserProfile,
                     variables: {
                         updateUsersInput: { profilePicture: imgUrls[0].square, fileUrl: imgUrls }
                     }
                 });
-                _data = res;
+                // _data = res;
                 newProfileImage = imgUrls[0].square
             }
             // Update only the user profile with the new details
             else {
-                const res = await graphqlQuery({
+                // const res = 
+                await graphqlQuery({
                     query: AQ.updateUserProfile,
                     variables: updateUsersInput
                 });
-                _data = res;
+                // _data = res;
             }
             // Update the session with the new details
             const session = await getSecureStorage<Session["user"]>(configs.sessionName);

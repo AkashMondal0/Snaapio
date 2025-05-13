@@ -11,6 +11,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { profileUpdateApi } from '@/redux-stores/slice/auth/api.service';
 import { useNavigation } from '@react-navigation/native';
 import { VerifiedAdComponent } from '@/components/profile';
+import { Asset } from 'expo-media-library';
 
 const schema = z.object({
     username: z.string().min(2, {
@@ -41,11 +42,11 @@ const ProfileEditScreen = memo(function ProfileEditScreen() {
         loading: false,
         errorMessage: null,
     });
-    const [image, setImage] = useState<string | null>(null);
+    const [image, setImage] = useState<Asset | undefined>(undefined);
     const dispatch = useDispatch();
     const pickImage = async () => {
         if (!session || state.loading) return;
-        navigation.navigate("PickupImages")
+        navigation.navigate("PickupImages");
     };
 
     const { control, handleSubmit, reset, formState: { errors } } = useForm({
@@ -74,7 +75,7 @@ const ProfileEditScreen = memo(function ProfileEditScreen() {
                     username: inputData.username,
                     bio: inputData.bio,
                 },
-                fileUrl: undefined
+                fileUrl: image
             }) as any);
             ToastAndroid.show("Profile updated", ToastAndroid.SHORT);
         }
@@ -85,7 +86,7 @@ const ProfileEditScreen = memo(function ProfileEditScreen() {
 
     useEffect(() => {
         if (globalAssets.length > 0) {
-            setImage(globalAssets[0]?.uri)
+            setImage(globalAssets[0])
         }
     }, [globalAssets]);
 
@@ -154,7 +155,7 @@ const ProfileEditScreen = memo(function ProfileEditScreen() {
                 {image ? <Avatar
                     serverImage={false}
                     size={120}
-                    url={image} /> :
+                    url={image.uri} /> :
                     <Avatar
                         size={120}
                         url={session?.profilePicture} />}

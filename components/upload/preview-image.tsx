@@ -79,7 +79,7 @@ export const AddImage = memo(function AddImage({
     const { currentTheme } = useTheme();
 
     return (<>
-        <TouchableOpacity
+        <TouchableOpacity onPress={onPress}
             activeOpacity={0.8}
             style={{
                 width: "auto",
@@ -94,7 +94,7 @@ export const AddImage = memo(function AddImage({
                 elevation: 0.5,
                 marginHorizontal: 10
             }}>
-            <TouchableOpacity
+            <TouchableOpacity onPress={onPress}
                 activeOpacity={0.8}
                 style={{
                     width: 80,
@@ -106,6 +106,7 @@ export const AddImage = memo(function AddImage({
                     alignItems: "center"
                 }}>
                 <Plus
+                onPress={onPress}
                     color={currentTheme?.muted_foreground}
                     size={70} strokeWidth={0.8} />
             </TouchableOpacity>

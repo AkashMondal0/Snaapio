@@ -55,7 +55,12 @@ const PostUploadScreen = memo(function PostUploadScreen({
             return;
         }
         navigation.goBack();
-    }, [assets.length, session?.id])
+    }, [assets.length, session?.id]);
+
+    const pickImage = async () => {
+        if (!session || loading) return;
+        navigation.navigate("PickupImages");
+    };
 
     return (
         <>
@@ -97,7 +102,8 @@ const PostUploadScreen = memo(function PostUploadScreen({
                             flexDirection: "row",
                             justifyContent: "center",
                         }}
-                        ListFooterComponent={<AddImage onPress={() => { }} />} />
+                    // ListFooterComponent={<AddImage onPress={pickImage} />}
+                    />
                 </View>
                 <View style={{
                     width: "95%",
