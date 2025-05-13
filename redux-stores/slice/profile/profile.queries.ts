@@ -33,6 +33,7 @@ export const QProfile = {
       original_sm
       blur_original
       shortVideoUrl
+      shortVideoThumbnail
       type
       id
     }

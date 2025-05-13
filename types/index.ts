@@ -204,6 +204,7 @@ export type Assets = {
     type?: 'photo' | 'video' | 'audio' | "text"
     caption?: string | null;
     shortVideoUrl?: string | null
+    shortVideoThumbnail?: string | null;
 }
 
 export type Story = {

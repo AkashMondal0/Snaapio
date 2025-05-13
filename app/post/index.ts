@@ -6,6 +6,7 @@ import PostUploadScreen from "./post-upload";
 import ShortVideoEditScreen from "./short-video-edit";
 import ShortVideoSelectScreen from "./short-video-select";
 import ShortVideoUploadScreen from "./short-video-upload";
+import UploadMediaScreen from "./upload-media";
 
 
 export {
@@ -16,5 +17,6 @@ export {
     PostUploadScreen,
     ShortVideoEditScreen,
     ShortVideoSelectScreen,
-    ShortVideoUploadScreen
+    ShortVideoUploadScreen,
+    UploadMediaScreen
 }

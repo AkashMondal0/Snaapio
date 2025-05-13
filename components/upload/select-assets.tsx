@@ -11,15 +11,18 @@ import { PageProps } from '@/types';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
 import { setDeviceAssets } from '@/redux-stores/slice/account';
+import ActionNextButton from '../ActionNextButton';
 
 let loaded = false;
 const SelectAssets = memo(function SelectAssets({
     nextAction,
     assetsLimit = 5,
-    mediaType = ['photo']
+    mediaType = ['photo'],
+    showHeader = true
 }: PageProps<any> & {
     assetsLimit?: number;
     mediaType?: any[]
+    showHeader?: boolean
     nextAction: (selectedAssets: MediaLibrary.Asset[]) => void;
 }) {
     const [permission, requestPermission] = MediaLibrary.usePermissions();
@@ -113,14 +116,14 @@ const SelectAssets = memo(function SelectAssets({
 
     return (
         <>
-            <AppHeader
+            {showHeader ? <AppHeader
                 titleCenter
                 title={selectedCount > 0 ? `Selected ${selectedCount} ` : 'Select Items'}
                 rightSideComponent={selectedCount > 0 ? <Icon
                     iconName='Check' isButton
                     style={{ width: 36 }}
                     onPress={navigateToPostReview}
-                    variant="primary" /> : <></>} />
+                    variant="primary" /> : <></>} /> : <></>}
             <View style={{ flex: 1 }}>
                 <FlatList
                     nestedScrollEnabled
@@ -138,6 +141,7 @@ const SelectAssets = memo(function SelectAssets({
                             onPressAssetHandle={onPressAssetHandle} />
                     }} />
             </View>
+            {selectedCount > 0 ? <ActionNextButton onPress={navigateToPostReview} /> : <></>}
         </>
     );
 });

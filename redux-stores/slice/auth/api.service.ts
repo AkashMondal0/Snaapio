@@ -117,45 +117,54 @@ export const profileUpdateApi = createAsyncThunk(
             website?: string[]
             profilePicture?: string
         },
-        fileUrl?: Asset[],
+        fileUrl?: Asset | undefined,
         profileId: string
     }, thunkApi) => {
         const { fileUrl, profileId, ...updateUsersInput } = data;
         try {
-            let data; // to store the response
+            // let _data; // to store the response
+            let newProfileImage;
             if (fileUrl) {
-                const imgUrls = await uploadPost({ files: fileUrl }) as UploadFileRespond[]
+                const imgUrls = await uploadPost({ files: [fileUrl] }) as UploadFileRespond[]
                 if (!imgUrls) {
                     return thunkApi.rejectWithValue({
                         message: "Server Error"
                     });
                 }
                 // Update the user profile with the new image
-                const res = await graphqlQuery({
+                // const res = 
+                await graphqlQuery({
                     query: AQ.updateUserProfile,
                     variables: {
                         updateUsersInput: { profilePicture: imgUrls[0].square, fileUrl: imgUrls }
                     }
                 });
-                data = res;
+                // _data = res;
+                newProfileImage = imgUrls[0].square
             }
             // Update only the user profile with the new details
             else {
-                const res = await graphqlQuery({
+                // const res = 
+                await graphqlQuery({
                     query: AQ.updateUserProfile,
-                    variables: {
-                        updateUsersInput
-                    }
+                    variables: updateUsersInput
                 });
-                data = res;
+                // _data = res;
             }
             // Update the session with the new details
             const session = await getSecureStorage<Session["user"]>(configs.sessionName);
-            await setSecureStorage(configs.sessionName, JSON.stringify({
+            const newUser = {
                 ...session,
                 ...updateUsersInput
-            }));
-            return updateUsersInput;
+            }
+            await setSecureStorage(configs.sessionName, JSON.stringify(newUser));
+            return {
+                bio: data.updateUsersInput?.bio,
+                name: data.updateUsersInput?.name,
+                username: data.updateUsersInput?.username,
+                email: data.updateUsersInput?.email,
+                profilePicture: newProfileImage,
+            };
         } catch (error: any) {
             return thunkApi.rejectWithValue({
                 ...error?.response?.data,

@@ -1,16 +1,18 @@
-import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import { Navbar, Input } from "@/components/message";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { StaticScreenProps, useNavigation } from "@react-navigation/native";
 import { NotFound } from "../NotFound";
-import { FlatList, View } from "react-native";
+import { FlatList, View, Dimensions } from "react-native";
 import { Message } from "@/types";
 import MessageItem from "@/components/message/messageItem";
-import { Loader } from "hyper-native-ui";
+import { Loader, Text } from "hyper-native-ui";
 import { conversationSeenAllMessage, fetchConversationAllMessagesApi, fetchConversationApi } from "@/redux-stores/slice/conversation/api.service";
 import useDebounce, { useThrottle } from "@/lib/debouncing";
 import React from "react";
+import { Avatar } from "@/components/skysolo-ui";
+const { height: SH } = Dimensions.get("window")
 
 type Props = StaticScreenProps<{
     id: string;
@@ -117,11 +119,34 @@ const ChatScreen = memo(function ChatScreen({ route }: Props) {
                     data={item} seenMessage={cMembers === item.seenBy?.length}
                     key={item.id} myself={session?.id === item.authorId} />}
                 ListFooterComponent={() => {
-                    if (loading) {
-                        return <Loader size={50} />
-                    }
-                    return <View />;
+                    return <View style={{
+                        height: SH, width: "100%",
+                        justifyContent: "center",
+                        alignItems: "center"
+                    }} >
+                        <View style={{
+                            display: 'flex',
+                            alignItems: "center",
+                            gap: 10,
+                        }}>
+                            <Avatar
+                                size={180}
+                                url={conversation.user?.profilePicture} />
+                            <Text
+                                style={{ fontWeight: "600" }}
+                                variant="H5">
+                                {conversation?.user?.name}
+                            </Text>
+                            <Text
+                                style={{ fontWeight: "600" }}
+                                variant="body1">
+                                {conversation?.user?.email}
+                            </Text>
+                        </View>
+                        {loading ? <Loader size={50} /> : <></>}
+                    </View>
                 }}
+            // ListHeaderComponent={() => }
             />
             <Input conversation={conversation} />
         </View>

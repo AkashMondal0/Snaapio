@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ScrollView, StatusBar, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StatusBar, View, Dimensions } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,6 +10,7 @@ import { registerApi } from '@/redux-stores/slice/auth/api.service';
 import { clearLoginError } from '@/redux-stores/slice/auth';
 import { StackActions, useNavigation } from '@react-navigation/native';
 import { RootState } from '@/redux-stores/store';
+const { height: SH } = Dimensions.get("window");
 
 const schema = z.object({
     username: z.string().min(2, {
@@ -32,12 +33,12 @@ const schema = z.object({
 const RegisterScreen = () => {
     const navigation = useNavigation();
     const error = useSelector((state: RootState) => state.AuthState.registerError);
+    const loading = useSelector((state: RootState) => state.AuthState.registerLoading);
     const [showPassword, setShowPassword] = useState(false)
     const dispatch = useDispatch();
     const input1Ref = useRef<any>(null);
     const input2Ref = useRef<any>(null);
     const input3Ref = useRef<any>(null);
-    const [loading, setLoading] = useState(false)
     const { control, handleSubmit, formState: { errors } } = useForm({
         defaultValues: {
             email: '',
@@ -54,52 +55,49 @@ const RegisterScreen = () => {
         name: string,
         username: string,
     }) => {
-        setLoading(true)
         await dispatch(registerApi({
             email: data.email,
             password: data.password,
             name: data.name,
             username: data.username,
-        }) as any)
-        setLoading(false)
-    }, [])
+        }) as any);
+    }, []);
 
     useEffect(() => {
-        dispatch(clearLoginError())
-    }, [])
+        dispatch(clearLoginError());
+    }, []);
 
     return (
-        <View style={{
-            flex: 1,
-            height: "100%",
-            width: "100%",
-        }}>
-            <ScrollView
-                keyboardDismissMode='on-drag'
-                keyboardShouldPersistTaps='handled'
+        <ScrollView keyboardDismissMode='on-drag'
+        keyboardShouldPersistTaps='handled'>
+            <View
                 style={{
                     flex: 1,
                     padding: 20,
+                    height: SH,
                     width: "100%",
+                    marginTop: StatusBar.currentHeight,
+                    justifyContent: "space-between"
                 }}>
-                {navigation.canGoBack() ? <Icon
-                    disabled={loading}
-                    iconName="ArrowLeft"
-                    size={30}
-                    style={{
-                        aspectRatio: 1,
-                        width: 40,
-                        marginTop: StatusBar.currentHeight
-                    }}
-                    onPress={() => {
-                        navigation.goBack()
-                    }}
-                    isButton /> : <></>}
+                {/* top */}
+                <View>
+                    {navigation.canGoBack() ? <Icon
+                        disabled={loading}
+                        iconName="ArrowLeft"
+                        size={30}
+                        style={{
+                            aspectRatio: 1,
+                            width: 40,
+                        }}
+                        onPress={() => {
+                            navigation.goBack()
+                        }}
+                        isButton /> : <></>}
+                </View>
+                {/* center */}
                 <View style={{
-                    flex: 1,
                     justifyContent: "center",
                     alignItems: "center",
-                    marginTop: 50,
                 }}>
                     <Text style={{
                         fontSize: 32,
@@ -111,7 +109,6 @@ const RegisterScreen = () => {
                     <Text
                         style={{
                             fontSize: 15,
-                            marginBottom: 40,
                             marginHorizontal: 25,
                             textAlign: "center"
                         }}>
@@ -125,7 +122,7 @@ const RegisterScreen = () => {
                             textAlign: "left",
                             fontWeight: 'bold',
                             margin: 4,
-                            marginBottom: 20,
+                            marginBottom: 12,
                         }}>
                         {error}
                     </Text>
@@ -159,7 +156,7 @@ const RegisterScreen = () => {
                             textAlign: "left",
                             fontWeight: 'bold',
                             margin: 4,
-                            marginBottom: 20,
+                            marginBottom: 12,
                         }}>
                         {errors.name?.message}
                     </Text>
@@ -192,7 +189,7 @@ const RegisterScreen = () => {
                             textAlign: "left",
                             fontWeight: 'bold',
                             margin: 4,
-                            marginBottom: 20,
+                            marginBottom: 12,
                         }}>
                         {errors.username?.message}
                     </Text>
@@ -226,7 +223,7 @@ const RegisterScreen = () => {
                             textAlign: "left",
                             fontWeight: 'bold',
                             margin: 4,
-                            marginBottom: 20,
+                            marginBottom: 12,
                         }}>
                         {errors.email?.message}
                     </Text>
@@ -236,7 +233,7 @@ const RegisterScreen = () => {
                             <Input
                                 disabled={loading}
                                 style={{ width: "82%" }}
-                                secureTextEntry={showPassword}
+                                secureTextEntry={!showPassword}
                                 isErrorBorder={errors.password}
                                 placeholder='Password'
                                 textContentType='password'
@@ -250,8 +247,8 @@ const RegisterScreen = () => {
                                 rightSideComponent={<View style={{
                                     width: "8%"
                                 }}>
-                                    {showPassword ? <Icon iconName="Eye" size={26} onPress={() => setShowPassword(false)} /> :
-                                        <Icon iconName="EyeOff" size={26} onPress={() => setShowPassword(true)} />}
+                                    {!showPassword ? <Icon iconName="Eye" size={26} onPress={() => setShowPassword(true)} /> :
+                                        <Icon iconName="EyeOff" size={26} onPress={() => setShowPassword(false)} />}
                                 </View>} />
                         )}
                         name="password"
@@ -264,29 +261,33 @@ const RegisterScreen = () => {
                             textAlign: "left",
                             fontWeight: 'bold',
                             margin: 4,
-                            marginBottom: 20,
+                            marginBottom: 12,
                         }}>
                         {errors.password?.message}
                     </Text>
 
                     <Button onPress={handleSubmit(handleLogin)}
                         width={"90%"}
+                        style={{ borderRadius: 100 }}
                         loading={loading}
                         disabled={loading}>
                         Register
                     </Button>
-                    <View style={{ height: 12 }} />
-                    <Button onPress={() => {
+                </View>
+                {/* bottom */}
+                <Button
+                    center
+                    onPress={() => {
                         navigation.dispatch(StackActions.replace("Login"))
                     }}
-                        activeOpacity={1}
-                        width={"90%"}
-                        variant="outline">
-                        Login
-                    </Button>
-                </View>
-            </ScrollView>
-        </View>
+                    style={{ borderWidth: 2, borderRadius: 100 }}
+                    activeOpacity={1}
+                    width={"90%"}
+                    variant="outline">
+                    Login
+                </Button>
+            </View>
+        </ScrollView>
     );
 };
 

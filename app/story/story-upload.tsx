@@ -91,7 +91,8 @@ const StoryUploadScreen = memo(function StoryUploadScreen({
                             flexDirection: "row",
                             justifyContent: "center",
                         }}
-                        ListFooterComponent={<AddImage onPress={() => { }} />} />
+                        // ListFooterComponent={<AddImage onPress={() => { }} />} 
+                        />
                 </View>
                 <View style={{
                     width: "95%",

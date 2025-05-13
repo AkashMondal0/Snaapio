@@ -63,15 +63,14 @@ export default function PremiumSignUpScreen() {
 	return (
 		<>
 			<AppHeader title="Premium" key={"profile-premium"} />
-			<ScrollView>
+			<ScrollView style={{paddingHorizontal:20}}>
 				<SafeAreaView>
 					<Text
 						style={{
-
 							fontSize: 28,
 							fontWeight: 'bold',
 							textAlign: 'center',
-							marginVertical: 10,
+							marginVertical: 16,
 						}}
 					>
 						Upgrade to Premium

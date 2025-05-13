@@ -6,7 +6,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   slug: "snaapio",
   scheme: "snaapio",
   platforms: ["android"],
-  version: "0.1.0",
+  version: "0.1.6",
   orientation: "default",
   icon: "./assets/icon.png",
   userInterfaceStyle: "automatic",

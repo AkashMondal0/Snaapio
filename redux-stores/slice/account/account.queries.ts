@@ -47,6 +47,7 @@ export const AQ = {
         original_sm
         blur_original
         shortVideoUrl
+        shortVideoThumbnail
         type
         id
       }

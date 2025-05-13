@@ -26,21 +26,27 @@ const ProfileGridItem = memo(function ProfileGridItem({ item, index,
                 aspectRatio: aspectRatio,
             }}>
             <View style={{
-                // position: 'absolute',
+                position: 'absolute',
                 width: '100%',
                 height: '100%',
                 zIndex: 1,
                 display: 'flex',
-                justifyContent: "center",
-                alignItems: "center",
+                justifyContent: "flex-start",
+                alignItems: "flex-end",
                 opacity: 0.8,
-                padding: 4,
-                backgroundColor: currentTheme.accent,
+                padding: 6,
             }}>
                 <Icon iconName="Video" size={26} color="white" onPress={() => {
                 navigation.navigate("Post", { id: item.id })
             }} />
             </View>
+            <Image
+                url={item.fileUrl[0].shortVideoThumbnail}
+                style={{
+                    width: '100%',
+                    height: "100%",
+                    aspectRatio: aspectRatio,
+                }} />
         </TouchableOpacity>
     }
     return (

@@ -68,7 +68,12 @@ export const AuthSlice = createSlice({
       state.session.user = null
     },
     clearLoginError: (state) => {
-      state.loginError = null
+      state.error = null;
+      state.loading = false;
+      state.loginLoading = false;
+      state.registerLoading = false;
+      state.loginError = null;
+      state.registerError = null;
     },
   },
   extraReducers: (builder) => {
@@ -81,7 +86,11 @@ export const AuthSlice = createSlice({
       if (!state.session.user) return
       state.session.user = {
         ...state.session.user,
-        ...action.payload
+        bio: action.payload.bio || state.session.user.bio,
+        name: action.payload.name || state.session.user.name,
+        username: action.payload.username || state.session.user.username,
+        email: action.payload.email || state.session.user.email,
+        profilePicture: action.payload.profilePicture || state.session.user.profilePicture,
       }
       state.loading = false
     })

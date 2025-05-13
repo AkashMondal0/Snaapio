@@ -16,7 +16,7 @@ const PostSelectScreen = memo(function PostSelectScreen() {
             width: '100%',
             height: '100%',
         }}>
-            <SelectAssets nextAction={nextAction} />
+            <SelectAssets nextAction={nextAction} showHeader={false} />
         </View>
     )
 })

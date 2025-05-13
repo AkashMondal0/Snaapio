@@ -2,14 +2,14 @@
 import { Post } from "@/types";
 import React, { useCallback, useRef, memo } from "react";
 import { Animated, View } from "react-native";
-import { FeedItem, HomeHeader } from '@/components/home';
+import { HomeHeader } from '@/components/home';
 import ErrorScreen from '@/components/error/page';
 import ListEmpty from '@/components/ListEmpty';
 import { Loader } from 'hyper-native-ui';
-import { FeedLoader } from "@/components/home/feedListItem";
 import { useGQArray } from "@/lib/useGraphqlQuery";
 import { AQ } from "@/redux-stores/slice/account/account.queries";
 import StoriesComponent from "@/components/home/story";
+import { FeedItem, FeedItemLoader } from "@/components/post";
 
 const FeedsScreen = memo(function FeedsScreen() {
     const { data, error, loadMoreData, loading, reload, requestCount } = useGQArray<Post>({
@@ -60,7 +60,7 @@ const FeedsScreen = memo(function FeedsScreen() {
                 }}
                 ListFooterComponent={() => {
                     if (loading !== "normal" && requestCount === 0) {
-                        return <FeedLoader />;
+                        return <FeedItemLoader />;
                     }
                     if (loading === "pending") {
                         return <Loader size={50} />
