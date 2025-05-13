@@ -5,12 +5,14 @@ import {
     StyleSheet,
     TouchableOpacity,
     TouchableWithoutFeedback,
+    StatusBar,
 } from "react-native";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { Icon } from "@/components/skysolo-ui";
 import { configs } from "@/configs";
 import { ResizeMode, Video } from "expo-av";
 import ShortVideoActionButton from "./shortVideoActionButton";
+import { useTheme } from "hyper-native-ui";
 
 const ShortVideoComponent = ({
     data,
@@ -19,8 +21,10 @@ const ShortVideoComponent = ({
     data: Post;
     navigateToProfile: () => void;
 }) => {
+    const { themeScheme } = useTheme();
     const [muted, setMuted] = useState(false);
     const [paused, setPaused] = useState(false);
+    const navigation = useNavigation();
     const videoRef = useRef<Video>(null);
 
     const fullUrl = configs.serverApi.supabaseStorageUrl + data?.fileUrl?.[0]?.shortVideoUrl;
@@ -37,6 +41,12 @@ const ShortVideoComponent = ({
             }
             return next;
         });
+    }, []);
+
+    const navigateToBack = useCallback(() => {
+        if (navigation.canGoBack()) {
+            navigation.goBack();
+        }
     }, []);
 
     // Apply mute when state changes
@@ -58,6 +68,19 @@ const ShortVideoComponent = ({
             };
         }, [paused])
     );
+    useFocusEffect(
+        useCallback(() => {
+            // Do something when the screen is focused
+            // console.log('Screen is focused');
+            StatusBar.setBarStyle("light-content");
+
+            return () => {
+                // Cleanup if needed when the screen is unfocused
+                // console.log('Screen is unfocused');
+                StatusBar.setBarStyle(themeScheme === "dark" ? "light-content" : "dark-content");
+            };
+        }, [themeScheme])
+    );
 
     useEffect(() => {
         return () => {
@@ -66,48 +89,71 @@ const ShortVideoComponent = ({
     }, []);
 
     return (
-        <View style={styles.container}>
-            <TouchableWithoutFeedback onPress={handlePlayPause}>
-                <Video
-                    ref={videoRef}
-                    source={{ uri: fullUrl }}
-                    style={styles.video}
-                    resizeMode={ResizeMode.CONTAIN}
-                    shouldPlay={!paused}
-                    isMuted={muted}
-                    isLooping
-                />
-            </TouchableWithoutFeedback>
-
-            {/* Mute Button */}
+        <>
             <TouchableOpacity
-                style={styles.muteButton}
-                onPress={() => setMuted((m) => !m)}
+                style={{
+                    position: "absolute",
+                    margin: 8,
+                    marginTop: StatusBar.currentHeight ?? 0 + 20,
+                    backgroundColor: "rgba(0,0,0,0.5)",
+                    borderRadius: 50,
+                    zIndex: 100,
+                    padding: 4
+                }}
+                onPress={navigateToBack}
             >
                 <Icon
+                    onPress={navigateToBack}
+                    iconName={"ArrowLeft"}
+                    size={38}
+                    color="white"
+                />
+            </TouchableOpacity>
+            {/*  */}
+            <View style={styles.container}>
+                {/* back Button */}
+                <TouchableWithoutFeedback onPress={handlePlayPause}>
+                    <Video
+                        ref={videoRef}
+                        source={{ uri: fullUrl }}
+                        style={styles.video}
+                        resizeMode={ResizeMode.CONTAIN}
+                        shouldPlay={!paused}
+                        isMuted={muted}
+                        isLooping
+                    />
+                </TouchableWithoutFeedback>
+
+                {/* Mute Button */}
+                <TouchableOpacity
+                    style={styles.muteButton}
                     onPress={() => setMuted((m) => !m)}
-                    iconName={muted ? 'VolumeOff' : 'Volume2'}
-                    size={24}
-                    color="white"
-                />
-            </TouchableOpacity>
+                >
+                    <Icon
+                        onPress={() => setMuted((m) => !m)}
+                        iconName={muted ? 'VolumeOff' : 'Volume2'}
+                        size={24}
+                        color="white"
+                    />
+                </TouchableOpacity>
 
-            {/* Play/Pause Button */}
-            <TouchableOpacity
-                style={[styles.muteButton, { top: 100 }]}
-                onPress={handlePlayPause}
-            >
-                <Icon
+                {/* Play/Pause Button */}
+                <TouchableOpacity
+                    style={[styles.muteButton, { top: 100 }]}
                     onPress={handlePlayPause}
-                    iconName={paused ? 'Play' : 'Pause'}
-                    size={24}
-                    color="white"
-                />
-            </TouchableOpacity>
+                >
+                    <Icon
+                        onPress={handlePlayPause}
+                        iconName={paused ? 'Play' : 'Pause'}
+                        size={24}
+                        color="white"
+                    />
+                </TouchableOpacity>
 
-            {/* Action Buttons */}
-            <ShortVideoActionButton item={data} />
-        </View>
+                {/* Action Buttons */}
+                <ShortVideoActionButton item={data} />
+            </View>
+        </>
     );
 };
 

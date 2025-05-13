@@ -14,6 +14,7 @@ import * as Linking from 'expo-linking';
 import { PersistGate } from 'redux-persist/integration/react';
 import { registerGlobals } from 'react-native-webrtc';
 import StripProvider from './provider/StripProvider';
+import { StatusBar } from 'react-native';
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
@@ -30,7 +31,7 @@ const prefix = Linking.createURL('/');
 const prefixes = [prefix, 'snaapio://', 'https://snaapio.vercel.app'];
 
 function Root() {
-  const { currentTheme } = useTheme();
+  const { currentTheme, themeScheme } = useTheme();
   const session = useSelector((state: RootState) => state.AuthState.session, (pre, next) => pre.user === next.user);
 
   const background = currentTheme.background;
@@ -47,6 +48,7 @@ function Root() {
   };
 
   return (<>
+    <StatusBar barStyle={themeScheme === "dark" ? "light-content" : "dark-content"} />
     <GestureHandlerRootView style={{
       flex: 1,
       backgroundColor: background,

@@ -76,13 +76,13 @@ function ShortVideoActionButton({
 			gap: 6,
 			marginBottom: 20
 		}}>
-			{item.title ? <Text variant="body1" style={{ marginHorizontal: "2%" }}>{item.title}</Text> : <></>}
-			{item.content ? <FeedItemContent data={item} showUserName={false} textSecondaryColor={false} /> : <></>}
+			{item.title ? <Text variant="body1" style={{ marginHorizontal: "2%", color: "white" }}>{item.title}</Text> : <></>}
+			{item.content ? <FeedItemContent data={item} showUserName={false} textSecondaryColor={false} textColor={"white"} /> : <></>}
 		</View>
 		{/* avatar */}
 		<View style={{
 			marginHorizontal: "2%",
-			// paddingVertical: 2,
+			paddingBottom: "4%",
 			display: 'flex',
 			flexDirection: "row",
 			alignItems: "center",
@@ -93,12 +93,12 @@ function ShortVideoActionButton({
 				<TouchableOpacity
 					activeOpacity={0.8}
 					onPress={navigateToProfile}>
-					<Text style={{ fontWeight: "600" }}>
+					<Text style={{ fontWeight: "600", color: "white" }}>
 						{item?.user?.name}
 					</Text>
 				</TouchableOpacity>
 				<Text
-					style={{ fontWeight: "400" }}
+					style={{ fontWeight: "400", color: "white" }}
 					variantColor="secondary"
 					variant="body2">
 					{`india, kolkata`}
@@ -116,12 +116,12 @@ function ShortVideoActionButton({
 			alignItems: 'center',
 		}}>
 			<View>
-				{!like.isLike ? <Icon iconName={"Heart"} size={32} onPress={onLike} /> :
-					<Heart size={32} fill={like.isLike ? "red" : ""} onPress={onLike} />}
+				{!like.isLike ? <Icon color="white" iconName={"Heart"} size={32} onPress={onLike} /> :
+					<Heart size={32} fill={like.isLike ? "red" : ""} onPress={onLike} color="white" />}
 				<TouchableOpacity activeOpacity={1} onPress={() => navigation.navigate("PostLike", { id: item.id })}>
 					<Text style={{
 						textAlign: "center", marginTop: 6, fontSize: 16,
-						fontWeight: "600"
+						fontWeight: "600", color: "white"
 					}}>
 						{like.likeCount}
 					</Text>
@@ -130,19 +130,20 @@ function ShortVideoActionButton({
 			<TouchableOpacity activeOpacity={1} onPress={() => {
 				navigation.dispatch(StackActions.push("PostComment", { id: item.id }))
 			}}>
-				<Icon iconName="MessageCircle" size={32} onPress={() => {
+				<Icon iconName="MessageCircle" size={32} color="white" onPress={() => {
 					navigation.dispatch(StackActions.push("PostComment", { id: item.id }))
 				}} />
 				<Text style={{
 					textAlign: "center", marginTop: 6, fontSize: 16,
-					fontWeight: "600"
+					fontWeight: "600",
+					color: "white"
 				}}>
 					{item.commentCount}
 				</Text>
 			</TouchableOpacity>
-			<Icon iconName="Send" size={32} onPress={handleShare} />
-			<Icon iconName="Bookmark" size={32} />
-			<Icon iconName="MoreHorizontal" size={32} />
+			<Icon iconName="Send" size={32} color="white" onPress={handleShare} />
+			<Icon iconName="Bookmark" size={32} color="white" />
+			<Icon iconName="MoreHorizontal" size={32} color="white" />
 		</View>
 	</View>;
 }

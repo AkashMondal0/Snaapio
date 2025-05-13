@@ -6,14 +6,15 @@ import {
   TouchableOpacity,
   StyleSheet,
   TouchableWithoutFeedback,
+  StatusBar,
 } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { Video, ResizeMode } from 'expo-av';
 import { Icon } from '@/components/skysolo-ui';
 import { useGQArray } from '@/lib/useGraphqlQuery';
 import { Post } from '@/types';
 import { AQ } from '@/redux-stores/slice/account/account.queries';
-import { Loader, Text } from 'hyper-native-ui';
+import { Loader, Text, useTheme } from 'hyper-native-ui';
 import { configs } from '@/configs';
 import { ShortVideoActionButton } from '@/components/short-video';
 
@@ -117,7 +118,8 @@ const ReelsPage = () => {
     query: AQ.shortFeedTimelineConnection,
     initialFetch: true,
   });
-
+  const navigation = useNavigation();
+  const { themeScheme } = useTheme();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [muted, setMuted] = useState(false);
 
@@ -127,6 +129,12 @@ const ReelsPage = () => {
     }
   }).current;
 
+  const navigateToBack = useCallback(() => {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    }
+  }, []);
+
   const navigateToProfile = useCallback(() => { }, []);
 
   const renderItem = useCallback(
@@ -135,7 +143,6 @@ const ReelsPage = () => {
       if (!videoUrl) return null;
 
       const fullUrl = configs.serverApi.supabaseStorageUrl + videoUrl;
-
       return (
         <View style={styles.container}>
           <ReelItem
@@ -164,6 +171,20 @@ const ReelsPage = () => {
     [muted, currentIndex]
   );
 
+  useFocusEffect(
+    useCallback(() => {
+      // Do something when the screen is focused
+      // console.log('Screen is focused');
+      StatusBar.setBarStyle("light-content");
+
+      return () => {
+        // Cleanup if needed when the screen is unfocused
+        // console.log('Screen is unfocused');
+        StatusBar.setBarStyle(themeScheme === "dark" ? "light-content" : "dark-content");
+      };
+    }, [themeScheme])
+  );
+
   if (data.length <= 0 && loading === 'normal') {
     return (
       <View style={styles.container}>
@@ -189,26 +210,48 @@ const ReelsPage = () => {
   }
 
   return (
-    <FlatList
-      data={data}
-      keyExtractor={(item) => item.id}
-      onEndReachedThreshold={0.5}
-      bounces={false}
-      renderItem={renderItem}
-      pagingEnabled
-      showsVerticalScrollIndicator={false}
-      onViewableItemsChanged={onViewableItemsChanged}
-      viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50 }}
-      getItemLayout={(_, index) => ({
-        length: height,
-        offset: height * index,
-        index,
-      })}
-      onEndReached={loadMoreData}
-      initialNumToRender={2}
-      maxToRenderPerBatch={3}
-      windowSize={4}
-    />
+    <>
+      <TouchableOpacity
+        style={{
+          position: "absolute",
+          margin: 8,
+          marginTop: StatusBar.currentHeight ?? 0 + 20,
+          backgroundColor: "rgba(0,0,0,0.5)",
+          borderRadius: 50,
+          zIndex: 100,
+          padding: 4
+        }}
+        onPress={navigateToBack}
+      >
+        <Icon
+          onPress={navigateToBack}
+          iconName={"ArrowLeft"}
+          size={38}
+          color="white"
+        />
+      </TouchableOpacity>
+      {/*  */}
+      <FlatList
+        data={data}
+        keyExtractor={(item) => item.id}
+        onEndReachedThreshold={0.5}
+        bounces={false}
+        renderItem={renderItem}
+        pagingEnabled
+        showsVerticalScrollIndicator={false}
+        onViewableItemsChanged={onViewableItemsChanged}
+        viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50 }}
+        getItemLayout={(_, index) => ({
+          length: height,
+          offset: height * index,
+          index,
+        })}
+        onEndReached={loadMoreData}
+        initialNumToRender={2}
+        maxToRenderPerBatch={3}
+        windowSize={4}
+      />
+    </>
   );
 };
 

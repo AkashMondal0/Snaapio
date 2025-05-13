@@ -96,7 +96,9 @@ const SwitchDarkDropDownComponent = () => {
                     Change theme
                 </Text>
             </View>
-            <Dropdown data={items} placeholder={currentColorScheme} onSelect={onSelect} />
+            <Dropdown dropdownStyle={{
+                width:100
+            }} data={items} placeholder={currentColorScheme} onSelect={onSelect} />
         </View>
     </>
 };

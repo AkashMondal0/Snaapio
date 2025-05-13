@@ -39,8 +39,8 @@ export const HomeTabs = createBottomTabNavigator({
     screenOptions: {
         headerShown: false,
         tabBarShowLabel: false,
-        animation: "shift",
-        tabBarItemStyle:{margin:4}
+        animation: "fade",
+        tabBarItemStyle: { margin: 3}
     },
     screens: {
         Home: {
@@ -70,8 +70,9 @@ export const HomeTabs = createBottomTabNavigator({
         Reels: {
             screen: ReelsScreen,
             options: {
+                tabBarStyle: { backgroundColor: '#000' },
                 tabBarIcon: ({ color, size, focused }) => (
-                    <Film size={30} color={color} />
+                    <Film size={30} color={focused ? "#fff" : color} />
                 ),
             },
         },

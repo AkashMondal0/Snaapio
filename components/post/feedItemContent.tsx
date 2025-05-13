@@ -7,11 +7,13 @@ import { useNavigation } from '@react-navigation/native';
 
 const FeedItemContent = memo(function FeedItemContent({ data,
 	showUserName = true,
-	textSecondaryColor = true
+	textSecondaryColor = true,
+	textColor
 }: {
 	data: Post,
 	showUserName?: boolean,
-	textSecondaryColor?: boolean
+	textSecondaryColor?: boolean,
+	textColor?:string
 }) {
 	const navigation = useNavigation();
 	const [readMore, setReadMore] = useState(false)
@@ -23,6 +25,7 @@ const FeedItemContent = memo(function FeedItemContent({ data,
 		style={{
 			alignItems: "center",
 			marginHorizontal: "2%",
+			color:textColor
 		}}
 		ellipsizeMode="tail">
 		{showUserName ? <TouchableWithoutFeedback
@@ -36,7 +39,8 @@ const FeedItemContent = memo(function FeedItemContent({ data,
 			<Text
 				style={{
 					fontWeight: "500",
-					fontSize: 16
+					fontSize: 16,
+					color:textColor
 				}}
 				lineBreakMode="clip" numberOfLines={2}>
 				{data.user.name}{" "}
@@ -49,7 +53,8 @@ const FeedItemContent = memo(function FeedItemContent({ data,
 					marginHorizontal: "2%",
 					fontWeight: "400",
 					paddingVertical: 5,
-					fontSize: 14
+					fontSize: 14,
+					color:textColor
 				}}
 				numberOfLines={readMore ? 100 : 2}>
 				{data.content}
