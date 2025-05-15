@@ -7,7 +7,7 @@ import { NotFound } from "../NotFound";
 import { FlatList, View, Dimensions } from "react-native";
 import { Message } from "@/types";
 import MessageItem from "@/components/message/messageItem";
-import { Loader, Text } from "hyper-native-ui";
+import { Card, Loader, PressableView, Text } from "hyper-native-ui";
 import { conversationSeenAllMessage, fetchConversationAllMessagesApi, fetchConversationApi } from "@/redux-stores/slice/conversation/api.service";
 import useDebounce, { useThrottle } from "@/lib/debouncing";
 import React from "react";
@@ -142,6 +142,15 @@ const ChatScreen = memo(function ChatScreen({ route }: Props) {
                                 variant="body1">
                                 {conversation?.user?.email}
                             </Text>
+                            <PressableView 
+                            style={{
+                                width: "76%", padding: 10,
+                                justifyContent: "center", alignItems: "center"
+                            }}>
+                                <Text center variant="caption">
+                                    Messages are end to end encrypted. only people in this chat can read.
+                                </Text>
+                            </PressableView>
                         </View>
                         {loading ? <Loader size={50} /> : <></>}
                     </View>

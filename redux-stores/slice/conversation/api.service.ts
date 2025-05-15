@@ -13,6 +13,12 @@ export const fetchConversationsApi = createAsyncThunk(
     "fetchConversationsApi/get",
     async (graphQlPageQuery: findDataInput, thunkAPI) => {
         try {
+            const BearerToken = await getSecureStorage<Session["user"]>(configs.sessionName);
+            if (!BearerToken?.id) {
+                throw new Error("BearerToken Token Not Found")
+            };
+
+            graphQlPageQuery.privateKey = BearerToken.privateKey;
             const res = await graphqlQuery({
                 query: CQ.findAllConversation,
                 variables: { graphQlPageQuery },
