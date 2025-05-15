@@ -87,7 +87,7 @@ const FollowingItem = memo(function FollowingItem({
         try {
             if (!session?.id) return ToastAndroid.show('You are not logged in', ToastAndroid.SHORT)
             if (!data || data?.id === session?.id) return ToastAndroid.show("Something's went Wrong", ToastAndroid.SHORT)
-            const res = await dispatch(CreateConversationApi([data.id]) as any) as disPatchResponse<Conversation>
+            const res = await dispatch(CreateConversationApi([data]) as any) as disPatchResponse<Conversation>
             if (res.error) return ToastAndroid.show("Something's went Wrong", ToastAndroid.SHORT)
             dispatch(setConversation({
                 id: res.payload.id,

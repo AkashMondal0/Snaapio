@@ -76,6 +76,7 @@ const ChatScreenInput = memo(function ChatScreenInput({
                 content: _data.message,
                 fileUrl: [],
                 members: members.current,
+                membersPublicKey:conversation.membersPublicKey
             }) as any) as disPatchResponse<Message>
             if (ConversationList.findIndex((i) => i.id === conversation?.id) === -1) {
                 dispatch(fetchConversationsApi({

@@ -45,6 +45,7 @@ const ChatAssetsReviewScreen = memo(function ChatAssetsReviewScreen({
                 content: inputRef.current,
                 fileUrl: assets,
                 members: members,
+                membersPublicKey:conversation.membersPublicKey
             }) as any) as disPatchResponse<Message>
             if (ConversationList.findIndex((i) => i.id === conversation?.id) === -1) {
                 await dispatch(fetchConversationsApi({

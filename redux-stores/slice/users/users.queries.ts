@@ -6,6 +6,7 @@ export const QUsers = {
       name
       id
       email
+      publicKey
     }
   }`
 }
