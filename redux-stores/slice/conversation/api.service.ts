@@ -1,5 +1,5 @@
 import { graphqlQuery } from "@/lib/GraphqlQuery";
-import { AIApiResponse, findDataInput } from "@/types";
+import { AIApiResponse, AuthorData, Conversation, findDataInput } from "@/types";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { CQ } from "./conversation.queries";
 import { Asset } from "expo-media-library";
@@ -13,6 +13,12 @@ export const fetchConversationsApi = createAsyncThunk(
     "fetchConversationsApi/get",
     async (graphQlPageQuery: findDataInput, thunkAPI) => {
         try {
+            const BearerToken = await getSecureStorage<Session["user"]>(configs.sessionName);
+            if (!BearerToken?.id) {
+                throw new Error("BearerToken Token Not Found")
+            };
+
+            graphQlPageQuery.privateKey = BearerToken.privateKey;
             const res = await graphqlQuery({
                 query: CQ.findAllConversation,
                 variables: { graphQlPageQuery },
@@ -47,6 +53,12 @@ export const fetchConversationAllMessagesApi = createAsyncThunk(
     "fetchConversationAllMessagesApi/get",
     async (graphQlPageQuery: findDataInput, thunkAPI) => {
         try {
+            const BearerToken = await getSecureStorage<Session["user"]>(configs.sessionName);
+            if (!BearerToken?.id) {
+                throw new Error("BearerToken Token Not Found")
+            };
+
+            graphQlPageQuery.privateKey = BearerToken.privateKey;
             const res = await graphqlQuery({
                 query: CQ.findAllMessages,
                 variables: { graphQlPageQuery },
@@ -62,14 +74,21 @@ export const fetchConversationAllMessagesApi = createAsyncThunk(
 
 export const CreateConversationApi = createAsyncThunk(
     "CreateConversationApi/post",
-    async (memberIds: string[], thunkAPI) => {
+    async (member: AuthorData[], thunkAPI) => {
         try {
+            const BearerToken = await getSecureStorage<Session["user"]>(configs.sessionName);
+            if (!BearerToken?.id) {
+                throw new Error("BearerToken Token Not Found")
+            }
+            const members_e_key = Object.fromEntries(member.map(item => [item.id, item.publicKey]));
+            members_e_key[BearerToken?.id as string] = BearerToken?.publicKey;
             const res = await graphqlQuery({
                 query: CQ.createConversation,
                 variables: {
                     createConversationInput: {
                         isGroup: false,
-                        memberIds,
+                        memberIds: member.map((i) => i.id),
+                        members_e_key: members_e_key
                     },
                 },
             });
@@ -90,6 +109,7 @@ export const CreateMessageApi = createAsyncThunk(
         authorId: string;
         conversationId: string;
         members: string[];
+        membersPublicKey: Conversation["membersPublicKey"]
         fileUrl: Asset[];
     }, thunkAPI) => {
         try {

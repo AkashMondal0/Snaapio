@@ -40,6 +40,8 @@ export interface Session {
         profilePicture: string,
         accessToken?: string,
         bio?: string,
+        privateKey: string
+        publicKey: string
     } | null
 }
 export interface AuthorData {
@@ -52,6 +54,8 @@ export interface AuthorData {
     following?: boolean | any
     bio?: string | any
     website?: string[] | any[];
+    privateKey?: string
+    publicKey?: string
 }
 export enum Role {
     User = 'user',
@@ -116,6 +120,7 @@ export interface Conversation {
     members: string[];
     authorId: string;
     messages: Message[]
+    membersPublicKey:  Record<string, string>;
     user?: AuthorData | User | null
     isGroup: boolean | null;
     lastMessageContent: string | null;
@@ -224,6 +229,7 @@ export type Story = {
 }
 export type findDataInput = {
     id?: string
+    privateKey?: string;
     offset: number
     limit: number
 }

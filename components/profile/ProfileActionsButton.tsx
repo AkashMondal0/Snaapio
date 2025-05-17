@@ -78,7 +78,7 @@ const ProfileActionsButton = memo(function ProfileActionsButton({
         try {
             if (!session?.id) return ToastAndroid.show('You are not logged in', ToastAndroid.SHORT)
             if (!userData || userData?.id === session?.id) return ToastAndroid.show("Something's went Wrong", ToastAndroid.SHORT)
-            const res = await dispatch(CreateConversationApi([userData.id]) as any) as disPatchResponse<Conversation>
+            const res = await dispatch(CreateConversationApi([userData]) as any) as disPatchResponse<Conversation>
             if (res.error) return ToastAndroid.show("Something's went Wrong", ToastAndroid.SHORT)
             // dispatch(setConversation({
             //     id: res.payload.id,

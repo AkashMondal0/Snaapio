@@ -11,6 +11,7 @@ const conversationQueries = {
         name
         profilePicture
       }
+      membersPublicKey
       isGroup
       lastMessageContent
       totalUnreadMessagesCount
@@ -32,6 +33,7 @@ const conversationQueries = {
     findOneConversation(graphQLPageQuery: $graphQlPageQuery) {  
       id
       members
+      membersPublicKey
       authorId
       messages {
         id

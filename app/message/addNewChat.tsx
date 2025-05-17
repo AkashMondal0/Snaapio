@@ -39,7 +39,7 @@ const NewChatScreen = memo(function NewChatScreen() {
 
     const onNavigate = useCallback(async (userData: AuthorData) => {
         if (session?.id === userData.id) return ToastAndroid.show("You can't chat with yourself", ToastAndroid.SHORT)
-        const res = await dispatch(CreateConversationApi([userData.id]) as any) as disPatchResponse<Conversation>
+        const res = await dispatch(CreateConversationApi([userData]) as any) as disPatchResponse<Conversation>
         if (res.error) return ToastAndroid.show("Something went wrong, please try again", ToastAndroid.SHORT)
         navigation?.navigate("MessageRoom", { id: res.payload.id });
     }, [])

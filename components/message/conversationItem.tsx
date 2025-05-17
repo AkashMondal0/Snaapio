@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { View } from 'react-native';
 import { Conversation } from '@/types';
 import { Avatar } from '@/components/skysolo-ui';
-import { Text, TouchableOpacity, useTheme } from "hyper-native-ui";
+import { PressableView, Text, TouchableOpacity, useTheme } from "hyper-native-ui";
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
 import { timeFormat } from '@/lib/timeFormat';
@@ -22,7 +22,7 @@ const ConversationItem = memo(function ConversationItem({
 
     return (
         <View style={{ paddingHorizontal: 4 }}>
-            <TouchableOpacity
+            <PressableView
                 onPress={() => { onClick(data) }}
                 style={{
                     width: "100%",
@@ -33,6 +33,7 @@ const ConversationItem = memo(function ConversationItem({
                     alignItems: "center",
                     gap: 10,
                     borderRadius: 15,
+                    borderWidth:0
                 }}>
                 <Avatar size={55} url={data.user?.profilePicture} onLongPress={() => { onLongPress(data) }} />
                 <View style={{
@@ -93,7 +94,7 @@ const ConversationItem = memo(function ConversationItem({
                         {timeFormat(data?.lastMessageCreatedAt as string)}
                     </Text>
                 </View>
-            </TouchableOpacity>
+            </PressableView>
         </View>)
 })
 
