@@ -21,7 +21,7 @@ export const SocketContext = React.createContext<{
     socket: null,
     callSound: (data: "END" | "START") => { }
 });
-
+let loaded = false;
 const SocketConnectionsProvider = ({
     children
 }: {
@@ -150,7 +150,18 @@ const SocketConnectionsProvider = ({
                 socketRef.current?.off("send-call", incomingCall)
             }
         }
-    }, [session, list.length])
+    }, [session])
+
+
+    useEffect(() => {
+        if (!loaded) {
+            dispatch(fetchConversationsApi({
+                limit: 18,
+                offset: 0
+            }) as any);
+            loaded = true;
+        }
+    }, [])
 
     return <SocketContext.Provider value={{
         socket: socketRef.current,

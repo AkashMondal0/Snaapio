@@ -7,6 +7,7 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
   StatusBar,
+  Text as RNText
 } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { Video, ResizeMode } from 'expo-av';
@@ -188,7 +189,7 @@ const ReelsPage = () => {
   if (data.length <= 0 && loading === 'normal') {
     return (
       <View style={styles.container}>
-        <Text>No videos yet</Text>
+        <RNText style={{ color: "white" }}>No videos yet</RNText>
       </View>
     );
   }

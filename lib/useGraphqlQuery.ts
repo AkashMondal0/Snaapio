@@ -193,25 +193,24 @@ export const useGQArray = <T>({
     url?: string;
     withCredentials?: boolean;
     errorCallBack?: (error: GraphqlError[]) => void;
-    requestCount?: number;
     initialFetch?: boolean;
-    defaultValue?: T | null
-    onDataChange?: (data: T) => void
-    onError?: (data: any) => void
-    order?: "reverse" | "normal"
+    defaultValue?: T | null;
+    onDataChange?: (data: T) => void;
+    onError?: (data: any) => void;
+    order?: "reverse" | "normal";
 }) => {
     const [state, dispatch] = useReducer((state: Array_State<T>, action: Array_Action<T>): Array_State<T> => {
         switch (action.type) {
             case "FETCH_INIT":
                 return { ...state, loading: "pending", error: null };
             case "FETCH_SUCCESS":
-                if (action.payload.length <= 0) {
+                if (action.payload.length === 0) {
                     return { ...state, loading: "normal" };
                 }
                 return {
                     ...state,
                     loading: "normal",
-                    data: state.data.concat(action.payload),
+                    data: [...state.data, ...action.payload],
                 };
             case "FETCH_FAILURE":
                 return { ...state, loading: "normal", error: action.error };
@@ -229,17 +228,22 @@ export const useGQArray = <T>({
         loading: "idle",
         error: null,
     });
-    const totalItemCount = useRef(state.data.length);
-    const stopFetch = useRef(false); //  Track if there are more data to fetch
-    const isFetching = useRef(false); // Track ongoing requests
-    const fetchingCount = useRef(0); // count of requests made
+
+    const totalItemCount = useRef(0);
+    const stopFetch = useRef(false);
+    const isFetching = useRef(false);
+    const fetchingCount = useRef(0);
     const limit = variables?.limit || 16;
-    // Fetch Data
+
+    const serializedQueryKey = JSON.stringify({ query, variables });
+
     const fetchData = useCallback(async () => {
+        if (stopFetch.current || isFetching.current) return;
+
+        isFetching.current = true;
+        dispatch({ type: "FETCH_INIT" });
+
         try {
-            if (stopFetch.current || isFetching.current) return;
-            isFetching.current = true;
-            dispatch({ type: "FETCH_INIT" });
             const BearerToken = await getSecureStorage<Session["user"]>(configs.sessionName);
             if (!BearerToken?.accessToken) throw new Error("No token available");
 
@@ -255,7 +259,7 @@ export const useGQArray = <T>({
                     variables: {
                         graphQlPageQuery: {
                             id: variables?.id ?? null,
-                            limit: limit,
+                            limit,
                             offset: totalItemCount.current,
                         },
                     },
@@ -267,28 +271,32 @@ export const useGQArray = <T>({
 
             if (!response.ok || responseBody.errors) {
                 const errorMsg = responseBody.errors?.[0]?.message || "Unknown GraphQL error";
-                if (errorCallBack) errorCallBack(responseBody.errors || []);
+                errorCallBack?.(responseBody.errors || []);
                 throw new Error(errorMsg);
             }
-            const data = responseBody.data[Object.keys(responseBody.data)[0]];
+
+            const data = responseBody.data[Object.keys(responseBody.data)[0]] || [];
+
             if (data.length < limit) {
                 stopFetch.current = true;
             }
+
+            totalItemCount.current += data.length;
             fetchingCount.current++;
-            onDataChange?.(data)
+
+            onDataChange?.(data);
             dispatch({ type: "FETCH_SUCCESS", payload: order === "reverse" ? data.reverse() : data });
         } catch (err: any) {
-            stopFetch.current = true
+            stopFetch.current = true;
             fetchingCount.current++;
-            onError?.(err)
+            onError?.(err);
             dispatch({ type: "FETCH_FAILURE", error: err.message || "An error occurred" });
-            console.error("Internal Error", err)
+            console.error("Internal Error", err);
         } finally {
             isFetching.current = false;
         }
-    }, [query, url, variables, withCredentials]);
+    }, [serializedQueryKey, url, withCredentials]);
 
-    // Reset and fetch fresh data
     const reloadData = useCallback(() => {
         stopFetch.current = false;
         totalItemCount.current = 0;
@@ -296,27 +304,25 @@ export const useGQArray = <T>({
         fetchData();
     }, [fetchData]);
 
-    // Load more data (pagination)
     const loadMoreData = useCallback(() => {
         if (stopFetch.current || isFetching.current) return;
-        // Update the total item count before fetching
-        totalItemCount.current = state.data.length;
         fetchData();
-    }, [fetchData, state.data.length]);
+    }, [fetchData]);
 
     const addItemPush = useCallback((item: T) => {
         dispatch({ type: "ADD_ITEM_PUSH", payload: item });
-    }, [state.data.length])
+        totalItemCount.current++;
+    }, []);
 
     const addItemUnshift = useCallback((item: T) => {
         dispatch({ type: "ADD_ITEM_UNSHIFT", payload: item });
-    }, [state.data.length])
+        totalItemCount.current++;
+    }, []);
 
-    // Initial data load
     useEffect(() => {
         if (!initialFetch) return;
         fetchData();
-    }, [initialFetch]);
+    }, [initialFetch, fetchData]);
 
     return {
         data: state.data,
@@ -329,9 +335,10 @@ export const useGQArray = <T>({
         totalItemCount,
         isFetching,
         addItemPush,
-        addItemUnshift
+        addItemUnshift,
     };
 };
+
 
 // ================================================= Mutation ===========================================================================================================================================
 // Define action types for the reducer

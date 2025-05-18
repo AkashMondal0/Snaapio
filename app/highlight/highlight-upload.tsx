@@ -109,6 +109,7 @@ const HighlightUploadScreen = memo(function HighlightUploadScreen({
             }}>
                 <Separator value={0.6} />
                 <Button
+                    center
                     loading={loading}
                     disabled={loading}
                     style={{ width: "95%", margin: 10 }}

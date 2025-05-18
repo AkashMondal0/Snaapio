@@ -2,10 +2,10 @@ import { memo, useCallback, useEffect, useState } from "react";
 import { Navbar, Input } from "@/components/message";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
-import { StaticScreenProps, useNavigation } from "@react-navigation/native";
+import { StaticScreenProps, useFocusEffect, useNavigation } from "@react-navigation/native";
 import { NotFound } from "../NotFound";
 import { FlatList, View, Dimensions } from "react-native";
-import { Message } from "@/types";
+import { disPatchResponse, Message } from "@/types";
 import MessageItem from "@/components/message/messageItem";
 import { Card, Loader, PressableView, Text } from "hyper-native-ui";
 import { conversationSeenAllMessage, fetchConversationAllMessagesApi, fetchConversationApi } from "@/redux-stores/slice/conversation/api.service";
@@ -28,20 +28,25 @@ const ChatScreen = memo(function ChatScreen({ route }: Props) {
     const totalFetchedItemCount = conversation?.messages?.length || 0;
     const [loading, setLoading] = useState(false);
     const [loadingC, setLoadingC] = useState(true);
+    let loaded = false;
+    let stopFetch = false;
 
     const loadMoreMessages = useCallback(async (offset: number) => {
-        if (!conversation?.id || loading) return;
+        if (!conversation?.id || loading || stopFetch) return;
         setLoading(true)
         try {
-            await dispatch(fetchConversationAllMessagesApi({
+            const res = await dispatch(fetchConversationAllMessagesApi({
                 id: conversation?.id,
                 offset: offset,
                 limit: 20
-            }) as any)
+            }) as any) as disPatchResponse<Message[]>
+            if (res.payload.length <= 0) {
+                stopFetch = true
+            }
         } finally {
             setLoading(false)
         }
-    }, [conversation?.id, loading])
+    }, [conversation?.id, loading]);
 
     const navigateToImagePreview = useCallback((data: Message, index?: number) => {
         navigation.navigate("MessageImagePreview" as any, { data, index });
@@ -73,12 +78,21 @@ const ChatScreen = memo(function ChatScreen({ route }: Props) {
         } else {
             setLoadingC(false)
         }
-    }, [conversation?.id])
+    }, [conversation?.id]);
 
-    useEffect(() => {
-        fetchInitialMessage()
-        fetchInitial()
-    }, [conversation?.id])
+    useFocusEffect(
+        useCallback(() => {
+            if (conversation?.id && !loaded) {
+                fetchInitialMessage();
+                fetchInitial();
+                loaded = true;
+            };
+
+            return () => {
+
+            };
+        }, [conversation?.id])
+    );
 
     useEffect(() => {
         if (conversation?.id) {
@@ -142,11 +156,11 @@ const ChatScreen = memo(function ChatScreen({ route }: Props) {
                                 variant="body1">
                                 {conversation?.user?.email}
                             </Text>
-                            <PressableView 
-                            style={{
-                                width: "76%", padding: 10,
-                                justifyContent: "center", alignItems: "center"
-                            }}>
+                            <PressableView
+                                style={{
+                                    width: "76%", padding: 10,
+                                    justifyContent: "center", alignItems: "center"
+                                }}>
                                 <Text center variant="caption">
                                     Messages are end to end encrypted. only people in this chat can read.
                                 </Text>
