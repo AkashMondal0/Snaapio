@@ -40,7 +40,7 @@ const FeedItemActionsButtons = (
 
     const delayLike = useCallback((value: boolean) => {
         if (!post?.id) return;
-        mutate({ input: { id: post?.id, like: value } })
+        mutate({ input: { id: post?.id, like: value, recipientId: post.user.id, postUrl: post.fileUrl[0].square_sm } })
     }, [post?.id])
 
     const debounceLike = useDebounce(delayLike, 500)
@@ -121,7 +121,7 @@ const FeedItemActionsButtons = (
                     </View>
                 ))}
             </View>
-            <Icon iconName="Bookmark" size={30} onPress={() => {}} />
+            <Icon iconName="Bookmark" size={30} onPress={() => { }} />
         </View>
     )
 }

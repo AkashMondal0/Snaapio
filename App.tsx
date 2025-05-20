@@ -16,6 +16,17 @@ import { registerGlobals } from 'react-native-webrtc';
 import StripProvider from './provider/StripProvider';
 import { StatusBar } from 'react-native';
 import { KeyboardProvider } from "react-native-keyboard-controller";
+import * as Notifications from 'expo-notifications';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }) as any,
+});
+
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
 

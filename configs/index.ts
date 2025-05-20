@@ -1,5 +1,6 @@
 const _configs = {
     sessionName: "Snaapio-sessionName",
+    notificationName: "Snaapio-notificationName",
     themeName: "Snaapio-themeName",
     themeSchema: "Snaapio-themeSchema",
     serverApi: {
