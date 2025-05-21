@@ -39,6 +39,7 @@ React Native, Redux toolkit, react-hook-form, socket io, zod, WebRTC, JWT, Expo,
 ## Features
 
 - Real time chat using Socket io, and messages are end to end encrypted.
+- Push Notification feature using Firebase FCM.
 - Video calling feature. using WebRTC.
 - Image and video uploading feature.
 - ChatBot: Ask Google Gemini AI anything. and image generator.

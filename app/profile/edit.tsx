@@ -1,5 +1,5 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
-import { ScrollView, ToastAndroid, TouchableOpacity, View } from 'react-native';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { ToastAndroid, TouchableOpacity, View } from 'react-native';
 import { Avatar, Icon } from '@/components/skysolo-ui';
 import { Button, Input, Text } from "hyper-native-ui"
 import AppHeader from '@/components/AppHeader';
@@ -12,6 +12,9 @@ import { profileUpdateApi } from '@/redux-stores/slice/auth/api.service';
 import { useNavigation } from '@react-navigation/native';
 import { VerifiedAdComponent } from '@/components/profile';
 import { Asset } from 'expo-media-library';
+import { ScrollView } from "react-native-gesture-handler";
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+
 
 const schema = z.object({
     username: z.string().min(2, {
@@ -33,6 +36,9 @@ const ProfileEditScreen = memo(function ProfileEditScreen() {
     const navigation = useNavigation();
     const session = useSelector((state: RootState) => state.AuthState.session.user);
     const globalAssets = useSelector((state: RootState) => state.AccountState.globalSelectedAssets);
+    const input1Ref = useRef<any>(null);
+    const input2Ref = useRef<any>(null);
+    const input3Ref = useRef<any>(null);
     const [state, setStats] = useState<{
         showPassword: boolean,
         loading: boolean,
@@ -101,7 +107,6 @@ const ProfileEditScreen = memo(function ProfileEditScreen() {
         }
     }, [session]);
 
-
     const ErrorMessage = ({ text }: any) => {
         return <Text
             variantColor="Red"
@@ -120,9 +125,7 @@ const ProfileEditScreen = memo(function ProfileEditScreen() {
         width: "100%"
     }}>
         <AppHeader title="Edit Profile" />
-        <ScrollView
-            keyboardDismissMode='on-drag'
-            keyboardShouldPersistTaps='handled'>
+        <KeyboardAwareScrollView ScrollViewComponent={ScrollView}>
             <View
                 style={{
                     width: 120,
@@ -182,6 +185,8 @@ const ProfileEditScreen = memo(function ProfileEditScreen() {
                             placeholder='Name'
                             textContentType="name"
                             keyboardType="default"
+                            onSubmitEditing={() => input1Ref.current?.focus()}
+                            blurOnSubmit={false}
                             returnKeyType="next" />
                     )}
                     name="name"
@@ -200,6 +205,9 @@ const ProfileEditScreen = memo(function ProfileEditScreen() {
                             placeholder='Email'
                             textContentType="username"
                             keyboardType="email-address"
+                            ref={input1Ref}
+                            onSubmitEditing={() => input2Ref.current?.focus()}
+                            blurOnSubmit={false}
                             returnKeyType="next" />
                     )}
                     name="email"
@@ -218,6 +226,9 @@ const ProfileEditScreen = memo(function ProfileEditScreen() {
                             placeholder="username"
                             textContentType="givenName"
                             keyboardType="default"
+                            ref={input2Ref}
+                            onSubmitEditing={() => input3Ref.current?.focus()}
+                            blurOnSubmit={false}
                             returnKeyType="next" />
                     )}
                     name="username"
@@ -238,6 +249,7 @@ const ProfileEditScreen = memo(function ProfileEditScreen() {
                             placeholder='bio'
                             returnKeyType="done"
                             multiline
+                            ref={input3Ref}
                             numberOfLines={10}
                             style={{
                                 minHeight: 140,
@@ -253,7 +265,7 @@ const ProfileEditScreen = memo(function ProfileEditScreen() {
                     Submit
                 </Button>
             </View>
-        </ScrollView>
+        </KeyboardAwareScrollView>
     </View>
 }, () => true);
 

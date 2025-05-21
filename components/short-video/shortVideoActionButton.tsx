@@ -39,7 +39,7 @@ function ShortVideoActionButton({
 
 	const delayLike = useCallback((value: boolean) => {
 		if (!item?.id) return;
-		mutate({ input: { id: item?.id, like: value } })
+		mutate({ input: { id: item?.id, like: value, recipientId: item.user.id, postUrl: item.fileUrl[0].shortVideoThumbnail } });
 	}, [item?.id])
 
 	const debounceLike = useDebounce(delayLike, 500)

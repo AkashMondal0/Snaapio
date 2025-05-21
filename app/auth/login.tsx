@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Dimensions, ScrollView, StatusBar, View } from 'react-native';
+import { Dimensions, StatusBar, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,6 +10,8 @@ import { loginApi } from '@/redux-stores/slice/auth/api.service';
 import { StackActions, useNavigation } from '@react-navigation/native';
 import { RootState } from '@/redux-stores/store';
 import { clearLoginError } from '@/redux-stores/slice/auth';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import { ScrollView } from 'react-native-gesture-handler';
 const { height: SH } = Dimensions.get("window");
 
 const schema = z.object({
@@ -50,8 +52,7 @@ const LoginScreen = () => {
     }, []);
 
     return (
-        <ScrollView keyboardDismissMode='on-drag'
-            keyboardShouldPersistTaps='handled'>
+         <KeyboardAwareScrollView ScrollViewComponent={ScrollView}>
             <View style={{
                 flex: 1,
                 padding: 20,
@@ -201,7 +202,7 @@ const LoginScreen = () => {
                     Register
                 </Button>
             </View>
-        </ScrollView>
+        </KeyboardAwareScrollView>
     );
 };
 

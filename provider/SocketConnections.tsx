@@ -149,9 +149,13 @@ const SocketConnectionsProvider = ({
             socketRef.current?.on(configs.eventNames.notification.post, notification);
             socketRef.current?.on("send-call", incomingCall);
             const notificationListener = Notifications.addNotificationReceivedListener(notification => {
-                // setNotification(notification);
+                console.log(notification);
             });
-
+            Notifications.getLastNotificationResponseAsync()
+                .then(response => {
+                    const url = response?.notification.request.content.data.url;
+                    Linking.openURL(url);
+                });
             const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
                 console.log(response);
             });

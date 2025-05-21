@@ -8,11 +8,10 @@ import { Session } from '@/types';
 
 export async function registerForPushNotificationsAsync() {
   if (Platform.OS === 'android') {
-    Notifications.setNotificationChannelAsync('default', {
-      name: 'default',
-      importance: Notifications.AndroidImportance.MAX,
-      vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#FF231F7C',
+    await Notifications.setNotificationChannelAsync('default', {
+      name: 'E-mail notifications',
+      importance: Notifications.AndroidImportance.HIGH,
+      sound: 'connect.wav', // <- for Android 8.0+, see channelId property below
     });
   }
 
