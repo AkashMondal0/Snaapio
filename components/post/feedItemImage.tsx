@@ -13,7 +13,8 @@ const FeedItemImage = memo(function ImageItem({ item, index }: { item: Assets, i
         style={{
             width: "100%",
             flex: 1,
-            borderRadius: 0,
+            borderRadius: 16,
+            paddingHorizontal:"2%"
         }} />
 }, (prev, next) => {
     return prev.item.id === next.item.id

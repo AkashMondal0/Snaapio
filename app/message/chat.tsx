@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { StaticScreenProps, useFocusEffect, useNavigation } from "@react-navigation/native";
 import { NotFound } from "../NotFound";
-import { View, Dimensions } from "react-native";
+import { View, Dimensions, ImageBackground } from "react-native";
 import { disPatchResponse, Message } from "@/types";
 import MessageItem from "@/components/message/messageItem";
 import { Loader, PressableView, Text } from "hyper-native-ui";
@@ -164,6 +164,18 @@ const ChatScreen = memo(function ChatScreen({ route }: Props) {
             width: '100%',
             height: '100%',
         }}>
+            <ImageBackground
+                source={require('../../assets/chat_bg/bg7.jpeg')}
+                resizeMode="cover"
+                style={{
+                    position: "absolute",
+                    flex: 1,
+                    width: '100%',
+                    height: '100%',
+                    zIndex: -1,
+                    opacity:0.5
+                }}>
+            </ImageBackground>
             <Navbar conversation={conversation} />
             <KeyboardGestureArea
                 showOnSwipeUp
@@ -187,6 +199,7 @@ const ChatScreen = memo(function ChatScreen({ route }: Props) {
                     removeClippedSubviews={true}
                     onEndReachedThreshold={0.5}
                     refreshing={false}
+                    keyboardShouldPersistTaps='handled'
                     keyExtractor={(item) => item.id}
                     showsVerticalScrollIndicator={false}
                     onEndReached={onEndReached}
@@ -236,6 +249,7 @@ const ChatScreen = memo(function ChatScreen({ route }: Props) {
             <Animated.View style={textInputStyle}>
                 <Input conversation={conversation} />
             </Animated.View>
+
         </View>
     )
 }, (prev, next) => prev.route.params.id === next.route.params.id)

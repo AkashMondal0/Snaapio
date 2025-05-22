@@ -96,6 +96,7 @@ export const logoutApi = createAsyncThunk(
     async (_, thunkAPI) => {
         try {
             await deleteSecureStorage(configs.sessionName);
+            await deleteSecureStorage(configs.notificationName);
             thunkAPI.dispatch(resetAccountState());
             thunkAPI.dispatch(resetConversationState());
             return true;

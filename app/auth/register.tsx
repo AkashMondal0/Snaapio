@@ -70,7 +70,9 @@ const RegisterScreen = () => {
     }, []);
 
     return (
-        <KeyboardAwareScrollView ScrollViewComponent={ScrollView}>
+        <KeyboardAwareScrollView
+            ScrollViewComponent={ScrollView}
+            keyboardShouldPersistTaps='handled'>
             <View
                 style={{
                     flex: 1,

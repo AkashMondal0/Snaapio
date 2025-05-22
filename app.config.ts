@@ -40,6 +40,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       }
     },
     package: "com.akashmondal0.snaapio",
+    googleServicesFile:"./google-services.json",
     intentFilters: [
       {
         action: "VIEW",
