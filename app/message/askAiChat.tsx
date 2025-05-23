@@ -8,7 +8,7 @@ import AiChatScreenInput from "@/components/message/AiChatInput";
 import AiMessageList from "@/components/message/AiMessageList";
 import { useTheme } from 'hyper-native-ui';
 import { useNavigation } from "@react-navigation/native";
-
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 const AskAiChatScreen = memo(function AskAiChatScreen() {
     const navigation = useNavigation()
     const PressBack = useCallback(() => {
@@ -18,15 +18,21 @@ const AskAiChatScreen = memo(function AskAiChatScreen() {
     }, []);
 
     return (
-        <View style={{
-            flex: 1,
-            width: '100%',
-            height: '100%',
-        }}>
-            <AskAiChatScreenNavbar pressBack={PressBack} />
-            <AiMessageList />
-            <AiChatScreenInput />
-        </View>
+        <KeyboardAvoidingView
+            behavior={"padding"}
+            style={{
+                flex: 1
+            }}>
+            <View style={{
+                flex: 1,
+                width: '100%',
+                height: '100%',
+            }}>
+                <AskAiChatScreenNavbar pressBack={PressBack} />
+                <AiMessageList />
+                <AiChatScreenInput />
+            </View>
+        </KeyboardAvoidingView>
     )
 })
 export default AskAiChatScreen;

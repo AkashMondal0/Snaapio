@@ -1,5 +1,6 @@
 const _configs = {
     sessionName: "Snaapio-sessionName",
+    notificationName: "Snaapio-notificationName",
     themeName: "Snaapio-themeName",
     themeSchema: "Snaapio-themeSchema",
     serverApi: {
@@ -33,32 +34,10 @@ const _configs = {
             requestForCall: "request-for-call",
             answerIncomingCall: "answer-incoming-call",
             peerLeft: "peerLeft"
-            // prepareSession: "prepare-session",
-            // joinSession: "join-session",
-            // currentRoom: "current-room",
-            // sendOffer: "send-offer",
-            // sendAnswer: "send-answer",
-            // sendIceCandidate: "send-ice-candidate",
-            // toggleAction: "toggle-action", // toggle-video,toggle-muted,toggle-video                
-            // sendEmoji: "send-emoji",
-            // sendChat: "send-chat",
-            // hangUp: "hang-up",
-            // // client
-            // error: "error",
-            // sessionInfo: "session-info",
-            // allParticipants: "all-participants",
-            // newParticipant: "new-participant",
-            // receiveOffer: "receive-offer",
-            // receiveAnswer: "receive-answer",
-            // receiveIceCandidate: "receive-ice-candidate",
-            // emojiUpdate: "emoji-update",
-            // receiveChat: "receive-chat",
-            // participantActionUpdate: "participant-action-update",
-            // participantLeft: "participant-left",
         }
     },
     AppDetails: {
-        version: "0.1.5",
+        version: "0.1.6",
         name: "Snaapio",
         description: "Snaapio is a social media platform that allows users to share their thoughts and ideas with the world.",
         appUrl: 'https://snaapio.vercel.app',

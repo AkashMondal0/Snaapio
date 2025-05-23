@@ -13,7 +13,7 @@ import { RootState } from '@/redux-stores/store';
 import { useSelector } from 'react-redux';
 
 // import all pages
-import { SettingScreen, ThemeSettingScreen } from '@/app/setting';
+import { NotificationsSettingScreen, SettingScreen, ThemeSettingScreen } from '@/app/setting';
 import { InitialScreen, LoginScreen, RegisterScreen } from '@/app/auth';
 import {
     AskAiChatScreen,
@@ -197,6 +197,12 @@ const RootStack = createNativeStackNavigator({
                     screen: ThemeSettingScreen,
                     linking: {
                         path: "/settings/theme"
+                    }
+                },
+                 Notifications: {
+                    screen: NotificationsSettingScreen,
+                    linking: {
+                        path: "/settings/notifications"
                     }
                 },
             }

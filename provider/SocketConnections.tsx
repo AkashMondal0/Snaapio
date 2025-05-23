@@ -13,6 +13,10 @@ import { fetchUnreadMessageNotificationCountApi } from "@/redux-stores/slice/not
 import React from "react";
 import { setCallStatus } from "@/redux-stores/slice/call";
 import { Audio } from 'expo-av';
+import * as Notifications from 'expo-notifications';
+import { registerForPushNotificationsAsync } from "@/lib/registerForPushNotificationsAsync";
+
+
 // create socket context 
 export const SocketContext = React.createContext<{
     socket: Socket | null,
@@ -122,7 +126,13 @@ const SocketConnectionsProvider = ({
     }, [])
 
 
+    //   const [expoPushToken, setExpoPushToken] = useState('');
+    // const [notification, setNotification] = useState<Notifications.Notification | undefined>(
+    //   undefined
+    // );
+
     useEffect(() => {
+        registerForPushNotificationsAsync();
         SocketConnection();
         if (socketRef.current && session?.id) {
             // socketRef.current?.on("test", systemMessageFromServerSocket);
@@ -138,7 +148,17 @@ const SocketConnectionsProvider = ({
             socketRef.current?.on(configs.eventNames.conversation.typing, typingRealtime);
             socketRef.current?.on(configs.eventNames.notification.post, notification);
             socketRef.current?.on("send-call", incomingCall);
-
+            const notificationListener = Notifications.addNotificationReceivedListener(notification => {
+                console.log(notification);
+            });
+            Notifications.getLastNotificationResponseAsync()
+                .then(response => {
+                    const url = response?.notification.request.content.data.url;
+                    Linking.openURL(url);
+                });
+            const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
+                console.log(response);
+            });
             return () => {
                 // socketRef.current?.off('connect')
                 // socketRef.current?.off('disconnect')
@@ -148,6 +168,9 @@ const SocketConnectionsProvider = ({
                 socketRef.current?.off(configs.eventNames.conversation.typing, typingRealtime)
                 socketRef.current?.off(configs.eventNames.notification.post, notification)
                 socketRef.current?.off("send-call", incomingCall)
+                // 
+                notificationListener.remove();
+                responseListener.remove();
             }
         }
     }, [session])

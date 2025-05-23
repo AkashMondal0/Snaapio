@@ -40,3 +40,5 @@ yarn-error.*
 /project
 example.ts
 package-lock.json
+google-account.json
+google-services.json

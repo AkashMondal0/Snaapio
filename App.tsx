@@ -15,6 +15,17 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { registerGlobals } from 'react-native-webrtc';
 import StripProvider from './provider/StripProvider';
 import { StatusBar } from 'react-native';
+import { KeyboardProvider } from "react-native-keyboard-controller";
+import * as Notifications from 'expo-notifications';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }) as any,
+});
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
@@ -49,33 +60,35 @@ function Root() {
 
   return (<>
     <StatusBar barStyle={themeScheme === "dark" ? "light-content" : "dark-content"} />
-    <GestureHandlerRootView style={{
-      flex: 1,
-      backgroundColor: background,
-    }}>
-      <SafeAreaProvider style={{
+    <KeyboardProvider>
+      <GestureHandlerRootView style={{
         flex: 1,
-        backgroundColor: background
+        backgroundColor: background,
       }}>
-        <PreConfiguration>
-          <StripProvider>
-            {session.user ? <>
-              <BottomSheetProvider>
-                <SocketConnections>
-                  <Navigation
-                    onReady={() => { SplashScreen.hide() }}
-                    theme={theme} linking={{ prefixes }} />
-                </SocketConnections>
-              </BottomSheetProvider>
-            </> :
-              <AuthNavigation
-                onReady={() => { SplashScreen.hide() }}
-                theme={theme} linking={{ prefixes }} />
-            }
-          </StripProvider>
-        </PreConfiguration>
-      </SafeAreaProvider>
-    </GestureHandlerRootView>
+        <SafeAreaProvider style={{
+          flex: 1,
+          backgroundColor: background
+        }}>
+          <PreConfiguration>
+            <StripProvider>
+              {session.user ? <>
+                <BottomSheetProvider>
+                  <SocketConnections>
+                    <Navigation
+                      onReady={() => { SplashScreen.hide() }}
+                      theme={theme} linking={{ prefixes }} />
+                  </SocketConnections>
+                </BottomSheetProvider>
+              </> :
+                <AuthNavigation
+                  onReady={() => { SplashScreen.hide() }}
+                  theme={theme} linking={{ prefixes }} />
+              }
+            </StripProvider>
+          </PreConfiguration>
+        </SafeAreaProvider>
+      </GestureHandlerRootView>
+    </KeyboardProvider>
   </>)
 }
 

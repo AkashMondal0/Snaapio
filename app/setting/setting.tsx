@@ -28,7 +28,7 @@ const SettingScreen = memo(function HomeScreen() {
             icon: "Pencil",
             onPress: () => {
                 navigation.navigate("AccountEdit")
-             }
+            }
         },
         {
             name: "About",
@@ -41,6 +41,14 @@ const SettingScreen = memo(function HomeScreen() {
             description: "Get help",
             icon: "MonitorSmartphone",
             onPress: () => { }
+        },
+        {
+            name: "Notifications",
+            description: "Message, group, call",
+            icon: 'Bell',
+            onPress: () => {
+                navigation.navigate("Notifications")
+            }
         },
         {
             name: "Log Out",

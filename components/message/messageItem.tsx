@@ -13,8 +13,9 @@ const MessageItem = memo(function Item({
     navigateToImagePreview: (data: Message) => void
 }) {
     const { currentTheme } = useTheme();
-    const color = myself ? currentTheme?.primary_foreground : currentTheme?.foreground
-    const bg = myself ? currentTheme?.primary : currentTheme?.muted
+    const color = myself ? currentTheme?.primary_foreground : currentTheme?.card_foreground;
+    const border = currentTheme?.border;
+    const bg = myself ? currentTheme?.primary : currentTheme?.card;
 
     const TimeFooter = () => {
         return (<View style={{
@@ -38,6 +39,7 @@ const MessageItem = memo(function Item({
 
     if (data.fileUrl.length > 0) {
         return <ImageComponent
+            border={border}
             navigateToImagePreview={navigateToImagePreview}
             bg={bg}
             data={data} myself={myself}
@@ -62,9 +64,12 @@ const MessageItem = memo(function Item({
     }}>
         <View style={{
             backgroundColor: bg,
+            elevation: 2,
             paddingHorizontal: 8,
             paddingVertical: 4,
             borderRadius: 16,
+            borderTopLeftRadius: myself ? 16 : 0,
+            borderBottomRightRadius: myself ? 0 : 16,
             width: 'auto',
             maxWidth: '96%',
         }}>
@@ -89,12 +94,14 @@ const ImageComponent = ({
     myself,
     footer,
     bg,
+    border,
     navigateToImagePreview
 }: {
     data: Message,
     myself: boolean,
     footer?: React.ReactNode
     bg?: string
+    border?: string
     navigateToImagePreview: (data: Message, index?: number) => void
 }) => {
     // 4+ images
@@ -114,6 +121,8 @@ const ImageComponent = ({
                 aspectRatio: 1 / 1,
                 borderRadius: 16,
                 backgroundColor: bg,
+                borderWidth: 1,
+                borderColor: border,
                 padding: 5,
                 flexWrap: 'wrap',
                 flexDirection: 'row',

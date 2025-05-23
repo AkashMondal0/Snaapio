@@ -54,7 +54,9 @@ const ChatScreenNavbar = memo(function ChatScreenNavbar({
             paddingHorizontal: 3,
             borderBottomWidth: 1,
             borderColor: currentTheme?.border,
-            marginTop: StatusBar.currentHeight,
+            paddingTop: StatusBar.currentHeight,
+            backgroundColor:currentTheme.background,
+            zIndex:100
         }}>
             <View style={{
                 display: 'flex',
