@@ -20,6 +20,8 @@ export type AuthState = {
 
   registerLoading: boolean
   registerError: string | null
+
+  location: { lat: number; lon: number, status: "granted" | "denied" };
 }
 
 
@@ -38,13 +40,23 @@ const initialState: AuthState = {
   loginLoading: false,
   registerLoading: false,
   loginError: null,
-  registerError: null
+  registerError: null,
+
+  location: {
+    lat: 0,
+    lon: 0,
+    status: "denied"
+  },
 }
 
 export const AuthSlice = createSlice({
   name: 'Auth',
   initialState,
   reducers: {
+    setLocation: (state, action: PayloadAction<{ lat: number; lon: number, status: "granted" | "denied" }>) => {
+      if (!action.payload) return;
+      state.location = action.payload;
+    },
     setThemeSchema: (state, action: PayloadAction<ThemeSchemaType>) => {
       if (!action.payload) return;
       state.theme.themeSchema = action.payload;
@@ -132,6 +144,11 @@ export const AuthSlice = createSlice({
     builder.addCase(logoutApi.fulfilled, (state) => {
       state.session.user = null
       state.loading = false
+      state.location = {
+        lat: 0,
+        lon: 0,
+        status: "denied"
+      };
     })
     builder.addCase(logoutApi.rejected, (state) => {
       state.error = 'Failed to logout'
@@ -147,6 +164,7 @@ export const {
   setThemeSchema,
   setThemeName,
   clearLoginError,
+  setLocation,
 } = AuthSlice.actions
 
 export default AuthSlice.reducer

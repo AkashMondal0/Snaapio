@@ -8,7 +8,6 @@ import { AuthorData, Conversation, disPatchResponse, loadingType, NavigationProp
 import { memo } from "react";
 import ErrorScreen from "@/components/error/page";
 import ListEmpty from "@/components/ListEmpty";
-import { setConversation } from "@/redux-stores/slice/conversation";
 import { CreateConversationApi } from "@/redux-stores/slice/conversation/api.service";
 import { Button, Loader, Text, TouchableOpacity } from "hyper-native-ui";
 import { StackActions, useNavigation } from "@react-navigation/native";
@@ -89,11 +88,6 @@ const FollowingItem = memo(function FollowingItem({
             if (!data || data?.id === session?.id) return ToastAndroid.show("Something's went Wrong", ToastAndroid.SHORT)
             const res = await dispatch(CreateConversationApi([data]) as any) as disPatchResponse<Conversation>
             if (res.error) return ToastAndroid.show("Something's went Wrong", ToastAndroid.SHORT)
-            dispatch(setConversation({
-                id: res.payload.id,
-                isGroup: false,
-                user: data,
-            } as Conversation))
             navigation?.navigate("MessageRoom", { id: res.payload.id })
         } catch (error) {
             ToastAndroid.show("Something's went Wrong", ToastAndroid.SHORT)

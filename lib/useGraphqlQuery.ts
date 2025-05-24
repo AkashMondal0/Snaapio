@@ -189,7 +189,12 @@ export const useGQArray = <T>({
     order = "normal"
 }: {
     query: string;
-    variables?: { limit?: number; id?: string; offset?: number };
+    variables?: {
+        limit?: number; id?: string; offset?: number,
+        latitude?: number;
+        longitude?: number;
+        distance?: number;
+    };
     url?: string;
     withCredentials?: boolean;
     errorCallBack?: (error: GraphqlError[]) => void;
@@ -258,6 +263,7 @@ export const useGQArray = <T>({
                     query,
                     variables: {
                         graphQlPageQuery: {
+                            ...variables,
                             id: variables?.id ?? null,
                             limit,
                             offset: totalItemCount.current,

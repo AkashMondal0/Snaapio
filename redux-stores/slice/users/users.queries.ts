@@ -8,5 +8,17 @@ export const QUsers = {
       email
       publicKey
     }
-  }`
+  }`,
+  findNearestUsers: `query FindNearestUsers($graphQlPageQuery: GraphQLLocationQuery!) {
+  findNearestUsers(graphQLPageQuery: $graphQlPageQuery) {
+    id
+    username
+    publicKey
+    profilePicture
+    name
+    email
+    followed_by
+    following
+  }
+}`
 }

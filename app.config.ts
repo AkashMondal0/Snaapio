@@ -40,7 +40,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       }
     },
     package: "com.akashmondal0.snaapio",
-    googleServicesFile:"./google-services.json",
+    googleServicesFile: "./google-services.json",
     intentFilters: [
       {
         action: "VIEW",
@@ -72,7 +72,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   extra: {
     eas: {
-      projectId: "0b900a43-57ae-4ed2-8fb9-9eb29fa77ddb"
+      projectId: "e770baf5-26d4-41f8-a7f2-27e885f6c51f"
     }
   },
   plugins: [
@@ -150,7 +150,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         "merchantIdentifier": "com.akashmondal0.snaapio",
         "enableGooglePay": true
       }
+    ],
+    [
+      "expo-location",
+      {
+        "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location."
+      }
     ]
   ],
-  owner: "akashmondal0"
+  owner: "skysolo"
 });

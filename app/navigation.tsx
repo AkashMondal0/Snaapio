@@ -34,13 +34,14 @@ import RoomScreen from './call/videoCall';
 import { NotificationScreen } from '@/app/notification';
 import { NotFound } from './NotFound';
 import PickupImages from './SelectFiles/pickup-images';
+import { DiscoverPeopleScreen } from '@/app/discover';
 
 export const HomeTabs = createBottomTabNavigator({
     screenOptions: {
         headerShown: false,
         tabBarShowLabel: false,
         animation: "fade",
-        tabBarItemStyle: { margin: 3}
+        tabBarItemStyle: { margin: 3 }
     },
     screens: {
         Home: {
@@ -199,7 +200,7 @@ const RootStack = createNativeStackNavigator({
                         path: "/settings/theme"
                     }
                 },
-                 Notifications: {
+                Notifications: {
                     screen: NotificationsSettingScreen,
                     linking: {
                         path: "/settings/notifications"
@@ -505,6 +506,16 @@ const RootStack = createNativeStackNavigator({
                         path: "/CallRoom"
                     }
                 }
+            }
+        },
+        discover: {
+            screens: {
+                DiscoverPeople: {
+                    screen: DiscoverPeopleScreen,
+                    linking: {
+                        path: 'discover/people'
+                    }
+                },
             }
         },
         NotFound: {
