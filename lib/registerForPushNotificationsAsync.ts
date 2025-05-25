@@ -43,14 +43,14 @@ export async function registerForPushNotificationsAsync() {
           projectId,
         })
       ).data;
-
-      if (pushTokenString === isNotificationId) return;
-      setSecureStorage(configs.notificationName, pushTokenString)
+      
       // console.log("pushTokenString", pushTokenString);
+      // if (pushTokenString === isNotificationId) return;
+      setSecureStorage(configs.notificationName, pushTokenString)
       
        const BearerToken = await getSecureStorage<Session["user"]>(configs.sessionName);
       if (!BearerToken?.accessToken) {
-        console.error("Error retrieving token from SecureStorage")
+        console.error("Error retrieving token from SecureStorage");
         return;
       };
 

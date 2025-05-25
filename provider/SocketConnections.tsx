@@ -148,17 +148,18 @@ const SocketConnectionsProvider = ({
             socketRef.current?.on(configs.eventNames.conversation.typing, typingRealtime);
             socketRef.current?.on(configs.eventNames.notification.post, notification);
             socketRef.current?.on("send-call", incomingCall);
-            const notificationListener = Notifications.addNotificationReceivedListener(notification => {
-                console.log(notification);
-            });
+
             Notifications.getLastNotificationResponseAsync()
                 .then(response => {
                     const url = response?.notification.request.content.data.url;
                     Linking.openURL(url);
                 });
-            const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
-                console.log(response);
-            });
+            // const notificationListener = Notifications.addNotificationReceivedListener(notification => {
+            //     console.log(notification);
+            // });
+            // const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
+            //     console.log(response);
+            // });
             return () => {
                 // socketRef.current?.off('connect')
                 // socketRef.current?.off('disconnect')
@@ -169,8 +170,8 @@ const SocketConnectionsProvider = ({
                 socketRef.current?.off(configs.eventNames.notification.post, notification)
                 socketRef.current?.off("send-call", incomingCall)
                 // 
-                notificationListener.remove();
-                responseListener.remove();
+                // notificationListener.remove();
+                // responseListener.remove();
             }
         }
     }, [session])

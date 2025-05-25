@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useRef, useState } from 'react';
-import { View, ScrollView, ToastAndroid } from 'react-native';
+import { View, ToastAndroid } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import * as MediaLibrary from 'expo-media-library';
 import {
@@ -19,6 +19,8 @@ import { RootState } from '@/redux-stores/store';
 import { AddImage, PreviewImage } from '@/components/upload/preview-image';
 import { uploadFilesApi } from '@/redux-stores/slice/account/api.service';
 import { StackActions, useNavigation } from '@react-navigation/native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const PostUploadScreen = memo(function PostUploadScreen({
     route
@@ -66,8 +68,7 @@ const PostUploadScreen = memo(function PostUploadScreen({
         <>
             {/* <PageLoader loading={loading} text='Uploading' /> */}
             <AppHeader title="New Post" titleCenter />
-            <ScrollView
-                keyboardDismissMode='on-drag'
+            <KeyboardAwareScrollView ScrollViewComponent={ScrollView}
                 keyboardShouldPersistTaps='handled'
                 style={{ flex: 1, width: "100%" }}>
                 {/* Review Photos */}
@@ -124,7 +125,7 @@ const PostUploadScreen = memo(function PostUploadScreen({
                 <Separator value={0.6} style={{ marginVertical: 2 }} />
                 {/* description and details */}
                 <InfoComponent />
-            </ScrollView>
+            </KeyboardAwareScrollView>
             <View style={{
                 width: "100%",
                 alignItems: "center",

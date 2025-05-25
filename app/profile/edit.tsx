@@ -125,7 +125,8 @@ const ProfileEditScreen = memo(function ProfileEditScreen() {
         width: "100%"
     }}>
         <AppHeader title="Edit Profile" />
-        <KeyboardAwareScrollView ScrollViewComponent={ScrollView}>
+        <KeyboardAwareScrollView ScrollViewComponent={ScrollView}
+            keyboardShouldPersistTaps='handled'>
             <View
                 style={{
                     width: 120,

@@ -6,8 +6,9 @@ import { RootState } from "@/redux-stores/store";
 import { createFriendshipApi, destroyFriendshipApi } from "@/redux-stores/slice/profile/api.service";
 import { CreateConversationApi } from "@/redux-stores/slice/conversation/api.service";
 // import { setConversation } from "@/redux-stores/slice/conversation";
-import { Button } from "hyper-native-ui";
+import { Button, PressableButton } from "hyper-native-ui";
 import { useNavigation } from "@react-navigation/native";
+import { Icon } from "../skysolo-ui";
 
 
 const ProfileActionsButton = memo(function ProfileActionsButton({
@@ -80,11 +81,6 @@ const ProfileActionsButton = memo(function ProfileActionsButton({
             if (!userData || userData?.id === session?.id) return ToastAndroid.show("Something's went Wrong", ToastAndroid.SHORT)
             const res = await dispatch(CreateConversationApi([userData]) as any) as disPatchResponse<Conversation>
             if (res.error) return ToastAndroid.show("Something's went Wrong", ToastAndroid.SHORT)
-            // dispatch(setConversation({
-            //     id: res.payload.id,
-            //     isGroup: false,
-            //     user: userData,
-            // } as Conversation))
             navigation?.navigate("MessageRoom", { id: res.payload.id })
         } catch (error) {
             ToastAndroid.show("Something's went Wrong", ToastAndroid.SHORT)
@@ -97,13 +93,14 @@ const ProfileActionsButton = memo(function ProfileActionsButton({
         return (<View style={{
             flexDirection: 'row',
             justifyContent: 'space-around',
+            alignItems: "center",
             paddingTop: 20,
             gap: 10,
         }}>
             <Button
                 onPress={() => navigation?.navigate("AccountEdit")} style={{
                     flex: 1,
-                    borderRadius:16
+                    borderRadius: 10
                 }}>
                 Edit Profile
             </Button>
@@ -111,10 +108,19 @@ const ProfileActionsButton = memo(function ProfileActionsButton({
                 variant="secondary"
                 style={{
                     flex: 1,
-                    borderRadius:16
+                    borderRadius: 10
                 }}>
                 Share Profile
             </Button>
+            <PressableButton
+                variant="secondary"
+                style={{ padding: 10, borderRadius: 10 }}
+                radius={10} onPress={() => { navigation?.navigate("DiscoverPeople") }}>
+                <Icon
+                    onPress={() => { navigation?.navigate("DiscoverPeople") }}
+                    iconName={'UserPlus'}
+                    size={18} />
+            </PressableButton>
         </View>)
     }
     return (<View style={{
@@ -129,7 +135,7 @@ const ProfileActionsButton = memo(function ProfileActionsButton({
             variant={isFollowing ? "secondary" : "default"}
             style={{
                 flex: 1,
-                borderRadius:16
+                borderRadius: 10
             }}>
             {isFollowing ? "Following" : "Follow"}
         </Button>
@@ -138,7 +144,7 @@ const ProfileActionsButton = memo(function ProfileActionsButton({
             onPress={messagePageNavigate}
             variant="secondary" style={{
                 flex: 1,
-                borderRadius:16
+                borderRadius: 10
             }}>
             Message
         </Button>
