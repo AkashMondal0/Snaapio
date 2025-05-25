@@ -135,7 +135,7 @@ const ProfileActionsButton = memo(function ProfileActionsButton({
             variant={isFollowing ? "secondary" : "default"}
             style={{
                 flex: 1,
-                borderRadius: 16
+                borderRadius: 10
             }}>
             {isFollowing ? "Following" : "Follow"}
         </Button>
@@ -144,7 +144,7 @@ const ProfileActionsButton = memo(function ProfileActionsButton({
             onPress={messagePageNavigate}
             variant="secondary" style={{
                 flex: 1,
-                borderRadius: 16
+                borderRadius: 10
             }}>
             Message
         </Button>

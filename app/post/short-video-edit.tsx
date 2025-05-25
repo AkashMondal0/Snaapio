@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect, memo, useCallback } from 'react';
+import React, { useState, useRef, useEffect, memo } from 'react';
 import * as MediaLibrary from 'expo-media-library';
-import { View, Animated, PanResponder, Dimensions, ScrollView, ToastAndroid } from 'react-native';
+import { View, Animated, PanResponder, Dimensions, ToastAndroid } from 'react-native';
 import { Button, Input, PressableButton, Text, useTheme } from "hyper-native-ui";
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { Icon } from '@/components/skysolo-ui';
@@ -12,6 +12,8 @@ import { useDispatch } from 'react-redux';
 import { uploadVideoApi } from '@/redux-stores/slice/account/api.service';
 import { ShortVideoTypes } from '@/types';
 import { hapticVibrate } from '@/lib/RN-vibration';
+import { ScrollView } from 'react-native-gesture-handler';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -166,7 +168,7 @@ const ShortVideoEditScreen = memo(function ShortVideoEditScreen({ route }: {
     }
 
     return (
-        <ScrollView keyboardDismissMode='on-drag'
+        <KeyboardAwareScrollView ScrollViewComponent={ScrollView}
             keyboardShouldPersistTaps='handled'>
             {/* header */}
             <View style={{ paddingHorizontal: 20, paddingTop: 40 }}>
@@ -405,7 +407,7 @@ const ShortVideoEditScreen = memo(function ShortVideoEditScreen({ route }: {
                 </Button>
                 <View style={{ height: 18 }} />
             </View>
-        </ScrollView>
+        </KeyboardAwareScrollView>
     );
 });
 

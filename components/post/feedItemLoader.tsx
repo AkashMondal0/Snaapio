@@ -10,6 +10,7 @@ const FeedItemLoader = ({ size }: { size?: number }) => {
                 style={{
                     width: "100%",
                     paddingVertical: 14,
+                    paddingHorizontal: "2%",
                 }}>
                 {/* header */}
                 <View style={{
@@ -57,7 +58,7 @@ const FeedItemLoader = ({ size }: { size?: number }) => {
                         padding: 4,
                         width: "100%",
                         height: "100%",
-                        borderRadius: 0,
+                        borderRadius: 16,
                         backgroundColor: background
                     }} />
                 {/* action */}
