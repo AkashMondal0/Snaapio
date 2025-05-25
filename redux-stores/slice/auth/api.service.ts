@@ -95,6 +95,19 @@ export const logoutApi = createAsyncThunk(
     'logout/get',
     async (_, thunkAPI) => {
         try {
+            const BearerToken = await getSecureStorage<Session["user"]>(configs.sessionName);
+            if (!BearerToken?.accessToken) {
+                console.error("Error retrieving token from SecureStorage")
+                return;
+            };
+            await fetch(`${configs.serverApi.baseUrl}/auth/logout`, {
+                method: 'POST',
+                credentials: "include",
+                headers: {
+                    'Authorization': `${BearerToken.accessToken}`,
+                },
+                cache: 'no-cache',
+            });
             await deleteSecureStorage(configs.sessionName);
             await deleteSecureStorage(configs.notificationName);
             thunkAPI.dispatch(resetAccountState());
@@ -137,7 +150,11 @@ export const profileUpdateApi = createAsyncThunk(
                 await graphqlQuery({
                     query: AQ.updateUserProfile,
                     variables: {
-                        updateUsersInput: { profilePicture: imgUrls[0].square, fileUrl: imgUrls }
+                        updateUsersInput: {
+                            ...updateUsersInput.updateUsersInput,
+                            profilePicture: imgUrls[0].square,
+                            fileUrl: imgUrls
+                        }
                     }
                 });
                 // _data = res;

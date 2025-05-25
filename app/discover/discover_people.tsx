@@ -229,6 +229,7 @@ const Item = memo(function FollowingItem({
                             display: 'flex',
                             flexDirection: 'row',
                             alignItems: 'center',
+                            justifyContent:"center",
                             gap: 10,
                         }}>
                             <Text variant="H6">

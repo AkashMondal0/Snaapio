@@ -77,7 +77,6 @@ environment variables:
 # user config
 EXPO_PUBLIC_SERVER_URL=http://localhost:5000/v1
 EXPO_PUBLIC_SUPABASE_STORAGE_URL=supabaseUrl + /storage/v1/object/public/snaapio-production/
-EXPO_PUBLIC_VIDEO_SERVER_URL=http://localhost:5100
 EXPO_PUBLIC_STRIPE_PK=pk_test_51Nn5qw....
 ```
 

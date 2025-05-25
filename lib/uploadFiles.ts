@@ -104,7 +104,7 @@ export const uploadVideo = async (data: ShortVideoTypes): Promise<any | null> =>
             caption: data.caption  // Video caption
         });
         
-        const response = await fetch(`${configs.serverApi.videoServerUrl}/video/upload?${queryParams.toString()}`,
+        const response = await fetch(`${configs.serverApi.baseUrl}/file/video/upload?${queryParams.toString()}`,
             {
                 method: "POST",
                 body: formData,
