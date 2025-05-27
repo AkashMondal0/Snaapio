@@ -1,11 +1,11 @@
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { Navbar, Input } from "@/components/message";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { StaticScreenProps, useFocusEffect, useNavigation } from "@react-navigation/native";
 import { NotFound } from "../NotFound";
 import { View, Dimensions, ImageBackground } from "react-native";
-import { disPatchResponse, Message } from "@/types";
+import { Conversation, disPatchResponse, Message } from "@/types";
 import MessageItem from "@/components/message/messageItem";
 import { Loader, PressableView, Text } from "hyper-native-ui";
 import { conversationSeenAllMessage, fetchConversationAllMessagesApi, fetchConversationApi } from "@/redux-stores/slice/conversation/api.service";
@@ -14,6 +14,7 @@ import React from "react";
 import { Avatar } from "@/components/skysolo-ui";
 import {
     KeyboardGestureArea,
+    KeyboardStickyView,
     useKeyboardHandler,
 } from "react-native-keyboard-controller";
 import Reanimated, {
@@ -54,9 +55,16 @@ const ChatScreen = memo(function ChatScreen({ route }: Props) {
     const navigation = useNavigation();
     const dispatch = useDispatch();
     const session = useSelector((Root: RootState) => Root.AuthState.session.user);
-    const conversation = useSelector((Root: RootState) => Root.ConversationState.conversationList?.find((item) => item?.id === id), ((pre, next) => pre === next));
+    const conversation = useSelector((Root: RootState) => Root.ConversationState.conversationList?.find((item) => item?.id === id));
     const cMembers = conversation?.members?.map((m) => m).length;
     const totalFetchedItemCount = conversation?.messages?.length || 0;
+    const cMessages = useMemo(() => {
+        if ((conversation?.messages?.length ?? 0) <= 0) return [];
+        // sort messages by createdAt in descending order
+        return [...(conversation?.messages ?? [])].sort((a, b) => {
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        });
+    }, [conversation?.messages]);
     const [loading, setLoading] = useState(false);
     const [loadingC, setLoadingC] = useState(true);
     let loaded = false;
@@ -70,15 +78,17 @@ const ChatScreen = memo(function ChatScreen({ route }: Props) {
         }),
         [],
     );
-    const textInputStyle = useAnimatedStyle(
-        () => ({
-            height: 60,
-            width: "100%",
-            backgroundColor: "transparent",
-            transform: [{ translateY: -height.value }],
-        }),
-        [],
-    );
+    // const textInputStyle = useAnimatedStyle(
+    //     () => ({
+    //         height: 60,
+    //         minHeight: 60,
+    //         // position: "absolute",
+    //         width: "100%",
+    //         backgroundColor: "transparent",
+    //         transform: [{ translateY: -height.value }],
+    //     }),
+    //     [],
+    // );
 
     const loadMoreMessages = useCallback(async (offset: number) => {
         if (!conversation?.id || loading || stopFetch) return;
@@ -131,12 +141,11 @@ const ChatScreen = memo(function ChatScreen({ route }: Props) {
 
     useFocusEffect(
         useCallback(() => {
+            fetchInitial();
             if (conversation?.id && !loaded) {
                 fetchInitialMessage();
-                fetchInitial();
                 loaded = true;
             };
-
             return () => {
 
             };
@@ -150,10 +159,10 @@ const ChatScreen = memo(function ChatScreen({ route }: Props) {
     }, [conversation?.id, conversation?.messages?.length])
 
     const onEndReached = useThrottle(() => {
-        if (conversation) {
+        if (conversation && cMessages.length > 19) {
             loadMoreMessages(totalFetchedItemCount)
         }
-    }, 1000)
+    }, 1000);
 
     if (!conversation && !loadingC) return <NotFound />;
     if (!conversation) return <></>
@@ -173,7 +182,7 @@ const ChatScreen = memo(function ChatScreen({ route }: Props) {
                     width: '100%',
                     height: '100%',
                     zIndex: -1,
-                    opacity:0.5
+                    opacity: 0.5
                 }}>
             </ImageBackground>
             <Navbar conversation={conversation} />
@@ -189,13 +198,17 @@ const ChatScreen = memo(function ChatScreen({ route }: Props) {
             >
                 <Reanimated.FlatList
                     inverted
-                    data={conversation.messages}
+                    data={cMessages}
                     windowSize={16}
                     style={[scrollViewStyle, {
                         transform: [{ rotate: "180deg" }],
                     }]}
                     bounces={false}
-                    scrollEventThrottle={16}
+                    contentContainerStyle={{
+                        paddingBottom: 60,
+                        paddingTop: 10,
+                        flexGrow: 1,
+                    }}
                     removeClippedSubviews={true}
                     onEndReachedThreshold={0.5}
                     refreshing={false}
@@ -208,49 +221,65 @@ const ChatScreen = memo(function ChatScreen({ route }: Props) {
                         data={item} seenMessage={cMembers === item.seenBy?.length}
                         key={item.id} myself={session?.id === item.authorId} />}
                     ListFooterComponent={() => {
-                        return <View style={{
-                            height: SH, width: "100%",
-                            justifyContent: "center",
-                            alignItems: "center"
-                        }} >
-                            <View style={{
-                                display: 'flex',
-                                alignItems: "center",
-                                gap: 10,
-                            }}>
-                                <Avatar
-                                    size={180}
-                                    url={conversation.user?.profilePicture} />
-                                <Text
-                                    style={{ fontWeight: "600" }}
-                                    variant="H5">
-                                    {conversation?.user?.name}
-                                </Text>
-                                <Text
-                                    style={{ fontWeight: "600" }}
-                                    variant="body1">
-                                    {conversation?.user?.email}
-                                </Text>
-                                <PressableView
-                                    style={{
-                                        width: "76%", padding: 10,
-                                        justifyContent: "center", alignItems: "center"
-                                    }}>
-                                    <Text center variant="caption">
-                                        Messages are end to end encrypted. only people in this chat can read.
-                                    </Text>
-                                </PressableView>
-                            </View>
+                        return <>
+                            <HeroComponent conversation={conversation} />
+                            {cMessages.length <= 0 && !loadingC ? <Text center variant="caption" style={{ marginVertical: 10 }}>
+                                No more messages
+                            </Text> : <></>}
                             {loading ? <Loader size={50} /> : <></>}
-                        </View>
+                        </>
                     }}
                 />
             </KeyboardGestureArea>
-            <Animated.View style={textInputStyle}>
+            <KeyboardStickyView offset={{closed: 0, opened: 0}}>
                 <Input conversation={conversation} />
-            </Animated.View>
-
+            </KeyboardStickyView>
         </View>
     )
 }, (prev, next) => prev.route.params.id === next.route.params.id)
 export default ChatScreen;
+
+// memo HeroComponent
+
+const HeroComponent = memo(function HeroComponent(
+    { conversation }: { conversation: Conversation }
+) {
+    return (
+        <View style={{
+            height: SH, width: "100%",
+            justifyContent: "center",
+            alignItems: "center"
+        }} >
+            <View style={{
+                display: 'flex',
+                alignItems: "center",
+                gap: 10,
+            }}>
+                <Avatar
+                    size={180}
+                    url={conversation.user?.profilePicture} />
+                <Text
+                    style={{ fontWeight: "600" }}
+                    variant="H5">
+                    {conversation?.user?.name}
+                </Text>
+                <Text
+                    style={{ fontWeight: "600" }}
+                    variant="body1">
+                    {conversation?.user?.email}
+                </Text>
+                <PressableView
+                    style={{
+                        width: "76%", padding: 10,
+                        justifyContent: "center", alignItems: "center"
+                    }}>
+                    <Text center variant="caption">
+                        Messages are end to end encrypted. only people in this chat can read.
+                    </Text>
+                </PressableView>
+            </View>
+        </View>
+    );
+},
+    (prev, next) => prev.conversation.id === next.conversation.id
+);
