@@ -1,199 +1,209 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  memo,
+  useMemo,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/redux-stores/store";
-import { memo, useCallback, useEffect, useRef, useState } from "react";
-import io, { Socket } from "socket.io-client";
-import { configs } from "@/configs";
 import { Linking, ToastAndroid } from "react-native";
-import { Typing, Notification, Message } from "@/types";
-import { setMessage, setMessageSeen, setTyping } from "@/redux-stores/slice/conversation";
-import { fetchConversationsApi } from "@/redux-stores/slice/conversation/api.service";
-import { setNotification } from "@/redux-stores/slice/notification";
-import { fetchUnreadMessageNotificationCountApi } from "@/redux-stores/slice/notification/api.service";
-import React from "react";
-import { setCallStatus } from "@/redux-stores/slice/call";
-import { Audio } from 'expo-av';
-import * as Notifications from 'expo-notifications';
+import { Audio } from "expo-av";
+import * as Notifications from "expo-notifications";
+import io, { Socket } from "socket.io-client";
+
+import { RootState } from "@/redux-stores/store";
+import { configs } from "@/configs";
 import { registerForPushNotificationsAsync } from "@/lib/registerForPushNotificationsAsync";
 
+import {
+  setMessage,
+  setMessageSeen,
+  setTyping,
+} from "@/redux-stores/slice/conversation";
+import {
+  fetchConversationsApi,
+} from "@/redux-stores/slice/conversation/api.service";
 
-// create socket context 
+import {
+  setNotification,
+} from "@/redux-stores/slice/notification";
+import {
+  fetchUnreadMessageNotificationCountApi,
+} from "@/redux-stores/slice/notification/api.service";
+
+import { setCallStatus } from "@/redux-stores/slice/call";
+
+import { Message, Notification as Notify, Typing } from "@/types";
+
+// Context
 export const SocketContext = React.createContext<{
-    socket: Socket | null,
-    callSound: (data: "END" | "START") => void
+  socket: Socket | null;
+  callSound: (type: "START" | "END") => void;
 }>({
-    socket: null,
-    callSound: (data: "END" | "START") => { }
+  socket: null,
+  callSound: () => {},
 });
-let loaded = false;
-const SocketConnectionsProvider = ({
-    children
-}: {
-    children: React.ReactNode
-}) => {
-    const dispatch = useDispatch();
-    const session = useSelector((state: RootState) => state.AuthState.session.user);
-    const list = useSelector((state: RootState) => state.ConversationState.conversationList)
-    const socketRef = useRef<Socket | null>(null)
-    const [socketConnected, setSocketConnected] = useState(false)
 
-    const SocketConnection = useCallback(async () => {
-        if (!session || !session?.accessToken || socketRef.current) return;
-        socketRef.current = io(`${configs.serverApi?.baseUrl?.replace("/v1", "")}/chat`, {
-            transports: ['websocket'],
-            withCredentials: true,
-            extraHeaders: {
-                Authorization: session?.accessToken
-            },
-            query: {
-                userId: session.id,
-                username: session.username
-            }
-        })
-        setSocketConnected(true)
-    }, [session])
+const SocketConnectionsProvider = ({ children }: { children: React.ReactNode }) => {
+  const dispatch = useDispatch();
+  const session = useSelector((state: RootState) => state.AuthState.session.user);
+  const conversations = useSelector((state: RootState) => state.ConversationState.conversationList);
+  const socketRef = useRef<Socket | null>(null);
+  const initialized = useRef(false);
+  const reconnectAttempts = useRef(0);
+  const MAX_RECONNECT_ATTEMPTS = 5;
 
-    const checkFunction = useCallback((data: Message) => {
-        if (data.authorId === session?.id) return;
-        if (list.find(con => con.id === data.conversationId)) {
-            dispatch(setMessage(data))
-        } else {
-            if (list.length > 0) {
-                dispatch(fetchConversationsApi({
-                    limit: 12,
-                    offset: 0,
-                }) as any)
-            }
-        }
-        dispatch(fetchUnreadMessageNotificationCountApi() as any)
-    }, [session, list])
+  const [socketConnected, setSocketConnected] = useState(false);
 
-    const userSeenMessages = useCallback((data: { conversationId: string, authorId: string }) => {
-        if (data.authorId === session?.id) return;
-        dispatch(setMessageSeen(data))
-    }, [session])
+  const setupSocket = useCallback(() => {
+    if (!session?.accessToken || socketRef.current) return;
 
-    const typingRealtime = useCallback((data: Typing) => {
-        if (data.authorId === session?.id) return;
-        dispatch(setTyping(data))
-    }, [session])
+    const socket = io(`${configs.serverApi?.baseUrl?.replace("/v1", "")}/chat`, {
+      transports: ["websocket"],
+      withCredentials: true,
+      reconnectionAttempts: MAX_RECONNECT_ATTEMPTS,
+      extraHeaders: {
+        Authorization: session.accessToken,
+      },
+      query: {
+        userId: session.id,
+        username: session.username,
+      },
+    });
 
-    const notification = useCallback((data: Notification) => {
-        if (data.authorId === session?.id) return;
-        dispatch(setNotification(data))
-    }, [session])
+    socket.on("connect", () => {
+      setSocketConnected(true);
+      reconnectAttempts.current = 0;
+    });
 
-    const systemMessageFromServerSocket = useCallback(() => {
-        ToastAndroid.show("Test from socket server", ToastAndroid.SHORT)
-    }, [])
+    socket.on("disconnect", () => {
+      setSocketConnected(false);
+      socketRef.current = null;
+      reconnectAttempts.current += 1;
 
-    const callSound = useCallback(async (data: "END" | "START") => {
-        if (data === "END") {
-            const { sound: End } = await Audio.Sound.createAsync(
-                require('../assets/audios/callleave.wav')
-            )
-            await End.playAsync();
-            return;
-        }
-        const { sound: Start } = await Audio.Sound.createAsync(
-            require('../assets/audios/connect.wav')
-        )
-        await Start.playAsync();
-    }, [])
+      if (reconnectAttempts.current <= MAX_RECONNECT_ATTEMPTS) {
+        setTimeout(setupSocket, 2000);
+      } else {
+        ToastAndroid.show("Socket connection failed", ToastAndroid.SHORT);
+      }
+    });
 
-    const incomingCall = useCallback(async (data: {
-        username: string;
-        email: string
-        id: string;
-        name: string;
-        profilePicture: string
-        status: "CALLING" | "HANGUP"
-        stream: "video" | "audio"
-    }) => {
-        if (data.status === "CALLING") {
-            dispatch(setCallStatus("IDLE"))
-            const url = `snaapio://incoming_call?username=${data.username}&email=${data.email}&id=${data.id}&name=${data.name}&profilePicture=${data.profilePicture}&userType=REMOTE&stream=${data.stream}`;
-            const supported = await Linking.canOpenURL(url);
-            if (supported) {
-                await Linking.openURL(url);
-            } else {
-                ToastAndroid.show("Internal Error incomingCall", ToastAndroid.SHORT);
-            }
-        }
-        if (data.status === "HANGUP") {
-            dispatch(setCallStatus("DISCONNECTED"))
-        }
-    }, [])
+    socketRef.current = socket;
+  }, [session]);
 
+  const callSound = useCallback(async (type: "START" | "END") => {
+    const soundFile =
+      type === "START"
+        ? require("../assets/audios/connect.wav")
+        : require("../assets/audios/callleave.wav");
 
-    //   const [expoPushToken, setExpoPushToken] = useState('');
-    // const [notification, setNotification] = useState<Notifications.Notification | undefined>(
-    //   undefined
-    // );
+    const { sound } = await Audio.Sound.createAsync(soundFile);
+    await sound.playAsync();
+  }, []);
 
-    useEffect(() => {
-        registerForPushNotificationsAsync();
-        SocketConnection();
-        if (socketRef.current && session?.id) {
-            // socketRef.current?.on("test", systemMessageFromServerSocket);
-            // socketRef.current?.on("connect", () => {
-            //     ToastAndroid.show("Connected to socket server", ToastAndroid.SHORT)
-            // });
-            // socketRef.current?.on("disconnect", () => {
-            //     socketRef.current = null
-            //     ToastAndroid.show("Disconnected from socket server", ToastAndroid.SHORT)
-            // });
-            socketRef.current?.on(configs.eventNames.conversation.message, checkFunction);
-            socketRef.current?.on(configs.eventNames.conversation.seen, userSeenMessages);
-            socketRef.current?.on(configs.eventNames.conversation.typing, typingRealtime);
-            socketRef.current?.on(configs.eventNames.notification.post, notification);
-            socketRef.current?.on("send-call", incomingCall);
+  const handleIncomingMessage = useCallback((data: Message) => {
+    if (data.authorId === session?.id) return;
 
-            Notifications.getLastNotificationResponseAsync()
-                .then(response => {
-                    const url = response?.notification.request.content.data.url;
-                    Linking.openURL(url);
-                });
-            // const notificationListener = Notifications.addNotificationReceivedListener(notification => {
-            //     console.log(notification);
-            // });
-            // const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
-            //     console.log(response);
-            // });
-            return () => {
-                // socketRef.current?.off('connect')
-                // socketRef.current?.off('disconnect')
-                // socketRef.current?.off('test', systemMessageFromServerSocket)
-                socketRef.current?.off(configs.eventNames.conversation.message, checkFunction)
-                socketRef.current?.off(configs.eventNames.conversation.seen, userSeenMessages)
-                socketRef.current?.off(configs.eventNames.conversation.typing, typingRealtime)
-                socketRef.current?.off(configs.eventNames.notification.post, notification)
-                socketRef.current?.off("send-call", incomingCall)
-                // 
-                // notificationListener.remove();
-                // responseListener.remove();
-            }
-        }
-    }, [session])
+    const isInConversation = conversations.some(
+      (convo) => convo.id === data.conversationId
+    );
 
+    if (isInConversation) {
+      dispatch(setMessage(data));
+    } else {
+      dispatch(fetchConversationsApi({ limit: 12, offset: 0 }) as any);
+    }
 
-    useEffect(() => {
-        if (!loaded) {
-            dispatch(fetchConversationsApi({
-                limit: 18,
-                offset: 0
-            }) as any);
-            loaded = true;
-        }
-    }, [])
+    dispatch(fetchUnreadMessageNotificationCountApi() as any);
+  }, [conversations, session]);
 
-    return <SocketContext.Provider value={{
-        socket: socketRef.current,
-        callSound
-    }}>
-        {children}
+  const handleSeenMessage = useCallback((data: { conversationId: string; authorId: string }) => {
+    if (data.authorId === session?.id) return;
+    dispatch(setMessageSeen(data));
+  }, [session]);
+
+  const handleTyping = useCallback((data: Typing) => {
+    if (data.authorId === session?.id) return;
+    dispatch(setTyping(data));
+  }, [session]);
+
+  const handleNotification = useCallback((data: Notify) => {
+    if (data.authorId === session?.id) return;
+    dispatch(setNotification(data));
+  }, [session]);
+
+  const handleCall = useCallback(async (data: {
+    username: string;
+    email: string;
+    id: string;
+    name: string;
+    profilePicture: string;
+    status: "CALLING" | "HANGUP";
+    stream: "video" | "audio";
+  }) => {
+    if (data.status === "CALLING") {
+      dispatch(setCallStatus("IDLE"));
+
+      const url = `snaapio://incoming_call?username=${data.username}&email=${data.email}&id=${data.id}&name=${data.name}&profilePicture=${data.profilePicture}&userType=REMOTE&stream=${data.stream}`;
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        Linking.openURL(url);
+      } else {
+        ToastAndroid.show("Error opening incoming call", ToastAndroid.SHORT);
+      }
+    } else if (data.status === "HANGUP") {
+      dispatch(setCallStatus("DISCONNECTED"));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!session?.id) return;
+
+    registerForPushNotificationsAsync();
+    setupSocket();
+
+    if (!initialized.current) {
+      dispatch(fetchConversationsApi({ limit: 18, offset: 0 }) as any);
+      initialized.current = true;
+    }
+  }, [session]);
+
+  useEffect(() => {
+    const socket = socketRef.current;
+    if (!socket) return;
+
+    socket.on(configs.eventNames.conversation.message, handleIncomingMessage);
+    socket.on(configs.eventNames.conversation.seen, handleSeenMessage);
+    socket.on(configs.eventNames.conversation.typing, handleTyping);
+    socket.on(configs.eventNames.notification.post, handleNotification);
+    socket.on("send-call", handleCall);
+
+    Notifications.getLastNotificationResponseAsync().then((response) => {
+      const url = response?.notification.request.content.data.url;
+      if (url) Linking.openURL(url);
+    });
+
+    return () => {
+      socket.off(configs.eventNames.conversation.message, handleIncomingMessage);
+      socket.off(configs.eventNames.conversation.seen, handleSeenMessage);
+      socket.off(configs.eventNames.conversation.typing, handleTyping);
+      socket.off(configs.eventNames.notification.post, handleNotification);
+      socket.off("send-call", handleCall);
+    };
+  }, [socketConnected]);
+
+  const contextValue = useMemo(() => ({
+    socket: socketRef.current,
+    callSound,
+  }), [socketConnected]);
+
+  return (
+    <SocketContext.Provider value={contextValue}>
+      {children}
     </SocketContext.Provider>
-}
-
+  );
+};
 
 export default memo(SocketConnectionsProvider);
