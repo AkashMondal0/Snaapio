@@ -78,27 +78,7 @@ export const AQ = {
     }
   }`,
   createPost: `mutation CreatePost($createPostInput: CreatePostInput!) {
-    createPost(createPostInput: $createPostInput) {
-      updatedAt
-      title
-      id
-      fileUrl {
-        width
-        height
-        square
-        square_sm
-        blur_square
-        original
-        original_sm
-        blur_original
-        type
-        id
-    }
-      createdAt
-      content
-      username
-      authorId
-    }
+    createPost(createPostInput: $createPostInput)
   }`,
   createStory: `mutation CreateStory($createStoryInput: CreateStoryInput!) {
   createStory(createStoryInput: $createStoryInput) {

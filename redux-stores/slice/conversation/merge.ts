@@ -1,59 +1,63 @@
 import { Conversation, Message } from "@/types";
 
-export function mergeConversations(
-	localConversations: Conversation[],
-	apiConversations: Conversation[]
-): Conversation[] {
-	const localMap = new Map(localConversations.map(conv => [conv.id, conv]));
-	const mergedConversations: Conversation[] = [];
+/**
+ * Deduplicate & merge messages.
+ * Always sorts newest first.
+ */
+export function upsertMessages(existing: Message[], incoming: Message[]): Message[] {
+    if (!existing?.length && !incoming?.length) return [];
 
-	apiConversations.forEach(apiConv => {
-		const localConv = localMap.get(apiConv.id);
+    const map = new Map(existing.map(m => [m.id, m]));
 
-		if (localConv) {
-			const mergedConv: Conversation = {
-				...localConv, // Keep local properties
-				...apiConv, // Overwrite with API data
-				messages: mergeMessages(localConv.messages, apiConv.messages),
-				lastMessageContent: apiConv.lastMessageContent || localConv.lastMessageContent,
-				totalUnreadMessagesCount: apiConv.totalUnreadMessagesCount ?? localConv.totalUnreadMessagesCount,
-				lastMessageCreatedAt: apiConv.lastMessageCreatedAt || localConv.lastMessageCreatedAt,
-				messagesAllRead: apiConv.messagesAllRead ?? localConv.messagesAllRead,
-				updatedAt: apiConv.updatedAt || localConv.updatedAt,
-			};
+    for (const msg of incoming) {
+        if (map.has(msg.id)) {
+            const local = map.get(msg.id)!;
+            map.set(msg.id, {
+                ...local,
+                ...msg,
+                seenBy: Array.from(new Set([...(local.seenBy || []), ...(msg.seenBy || [])])),
+                updatedAt: msg.updatedAt ?? local.updatedAt,
+            });
+        } else {
+            map.set(msg.id, msg);
+        }
+    }
 
-			mergedConversations.push(mergedConv);
-			localMap.delete(apiConv.id);
-		} else {
-			mergedConversations.push(apiConv);
-		}
-	});
-
-	// Add local-only conversations not present in API
-	mergedConversations.push(...localMap.values());
-
-	return mergedConversations;
+    return Array.from(map.values()).sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
 }
 
+/**
+ * Merge local & API conversations, preserving messages & local data.
+ */
+export function mergeConversations(
+    localConversations: Conversation[],
+    apiConversations: Conversation[]
+): Conversation[] {
+    const localMap = new Map(localConversations.map(conv => [conv.id, conv]));
 
-export function mergeMessages(localMessages: Message[], apiMessages: Message[]): Message[] {
-	const messageMap = new Map(localMessages.map(msg => [msg.id, msg]));
+    for (const apiConv of apiConversations) {
+        const localConv = localMap.get(apiConv.id);
 
-	apiMessages.forEach(apiMsg => {
-		if (!messageMap.has(apiMsg.id)) {
-			messageMap.set(apiMsg.id, apiMsg);
-		} else {
-			const localMsg = messageMap.get(apiMsg.id);
-			messageMap.set(apiMsg.id, {
-				...localMsg,
-				...apiMsg, // Merge API data
-				seenBy: Array.from(new Set([...(localMsg?.seenBy || []), ...apiMsg.seenBy])), // Combine seenBy users
-				updatedAt: apiMsg.updatedAt ?? localMsg?.updatedAt,
-			});
-		}
-	});
+        if (localConv) {
+            localMap.set(apiConv.id, {
+                ...localConv,
+                ...apiConv,
+                messages: upsertMessages(localConv.messages || [], apiConv.messages || []),
+                lastMessageContent: apiConv.lastMessageContent ?? localConv.lastMessageContent,
+                totalUnreadMessagesCount: apiConv.totalUnreadMessagesCount ?? localConv.totalUnreadMessagesCount,
+                lastMessageCreatedAt: apiConv.lastMessageCreatedAt ?? localConv.lastMessageCreatedAt,
+                messagesAllRead: apiConv.messagesAllRead ?? localConv.messagesAllRead,
+                updatedAt: apiConv.updatedAt ?? localConv.updatedAt,
+            });
+        } else {
+            localMap.set(apiConv.id, {
+                ...apiConv,
+                messages: upsertMessages([], apiConv.messages || []),
+            });
+        }
+    }
 
-	return Array.from(messageMap.values()).sort(
-		(a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-	);
+    return Array.from(localMap.values());
 }

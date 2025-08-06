@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, {
   useCallback,
   useEffect,
@@ -22,88 +21,43 @@ import {
   setMessageSeen,
   setTyping,
 } from "@/redux-stores/slice/conversation";
-import {
-  fetchConversationsApi,
-} from "@/redux-stores/slice/conversation/api.service";
-
-import {
-  setNotification,
-} from "@/redux-stores/slice/notification";
-import {
-  fetchUnreadMessageNotificationCountApi,
-} from "@/redux-stores/slice/notification/api.service";
-
+import { fetchConversationsApi } from "@/redux-stores/slice/conversation/api.service";
+import { setNotification } from "@/redux-stores/slice/notification";
+import { fetchUnreadMessageNotificationCountApi } from "@/redux-stores/slice/notification/api.service";
 import { setCallStatus } from "@/redux-stores/slice/call";
 
 import { Message, Notification as Notify, Typing } from "@/types";
 
-// Context
 export const SocketContext = React.createContext<{
   socket: Socket | null;
   callSound: (type: "START" | "END") => void;
+  connectSocket: () => void;
+  disconnectSocket: () => void;
+  reconnectSocket: () => void;
 }>({
   socket: null,
-  callSound: () => {},
+  callSound: () => { },
+  connectSocket: () => { },
+  disconnectSocket: () => { },
+  reconnectSocket: () => { },
 });
+
+const MAX_RECONNECT_ATTEMPTS = 5;
+const RECONNECT_DELAY_MS = 2000;
 
 const SocketConnectionsProvider = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useDispatch();
   const session = useSelector((state: RootState) => state.AuthState.session.user);
   const conversations = useSelector((state: RootState) => state.ConversationState.conversationList);
+
   const socketRef = useRef<Socket | null>(null);
-  const initialized = useRef(false);
   const reconnectAttempts = useRef(0);
-  const MAX_RECONNECT_ATTEMPTS = 5;
+  const initialized = useRef(false);
 
   const [socketConnected, setSocketConnected] = useState(false);
 
-  const setupSocket = useCallback(() => {
-    if (!session?.accessToken || socketRef.current) return;
-
-    const socket = io(`${configs.serverApi?.baseUrl?.replace("/v1", "")}/chat`, {
-      transports: ["websocket"],
-      withCredentials: true,
-      reconnectionAttempts: MAX_RECONNECT_ATTEMPTS,
-      extraHeaders: {
-        Authorization: session.accessToken,
-      },
-      query: {
-        userId: session.id,
-        username: session.username,
-      },
-    });
-
-    socket.on("connect", () => {
-      setSocketConnected(true);
-      reconnectAttempts.current = 0;
-    });
-
-    socket.on("disconnect", () => {
-      setSocketConnected(false);
-      socketRef.current = null;
-      reconnectAttempts.current += 1;
-
-      if (reconnectAttempts.current <= MAX_RECONNECT_ATTEMPTS) {
-        setTimeout(setupSocket, 2000);
-      } else {
-        ToastAndroid.show("Socket connection failed", ToastAndroid.SHORT);
-      }
-    });
-
-    socketRef.current = socket;
-  }, [session]);
-
-  const callSound = useCallback(async (type: "START" | "END") => {
-    const soundFile =
-      type === "START"
-        ? require("../assets/audios/connect.wav")
-        : require("../assets/audios/callleave.wav");
-
-    const { sound } = await Audio.Sound.createAsync(soundFile);
-    await sound.playAsync();
-  }, []);
-
-  const handleIncomingMessage = useCallback((data: Message) => {
+  // ===== Socket Event Handlers =====
+  const handleIncomingMessage = (data: Message) => {
     if (data.authorId === session?.id) return;
 
     const isInConversation = conversations.some(
@@ -117,7 +71,7 @@ const SocketConnectionsProvider = ({ children }: { children: React.ReactNode }) 
     }
 
     dispatch(fetchUnreadMessageNotificationCountApi() as any);
-  }, [conversations, session]);
+  }
 
   const handleSeenMessage = useCallback((data: { conversationId: string; authorId: string }) => {
     if (data.authorId === session?.id) return;
@@ -145,40 +99,110 @@ const SocketConnectionsProvider = ({ children }: { children: React.ReactNode }) 
   }) => {
     if (data.status === "CALLING") {
       dispatch(setCallStatus("IDLE"));
-
       const url = `snaapio://incoming_call?username=${data.username}&email=${data.email}&id=${data.id}&name=${data.name}&profilePicture=${data.profilePicture}&userType=REMOTE&stream=${data.stream}`;
       const supported = await Linking.canOpenURL(url);
-      if (supported) {
-        Linking.openURL(url);
-      } else {
-        ToastAndroid.show("Error opening incoming call", ToastAndroid.SHORT);
-      }
-    } else if (data.status === "HANGUP") {
+      if (supported) Linking.openURL(url);
+      else ToastAndroid.show("Error opening incoming call", ToastAndroid.SHORT);
+    } else {
       dispatch(setCallStatus("DISCONNECTED"));
     }
   }, []);
 
-  useEffect(() => {
-    if (!session?.id) return;
-
-    registerForPushNotificationsAsync();
-    setupSocket();
-
-    if (!initialized.current) {
-      dispatch(fetchConversationsApi({ limit: 18, offset: 0 }) as any);
-      initialized.current = true;
-    }
-  }, [session]);
-
-  useEffect(() => {
+  const removeSocketListeners = useCallback(() => {
     const socket = socketRef.current;
     if (!socket) return;
+    socket.off(configs.eventNames.conversation.message, handleIncomingMessage);
+    socket.off(configs.eventNames.conversation.seen, handleSeenMessage);
+    socket.off(configs.eventNames.conversation.typing, handleTyping);
+    socket.off(configs.eventNames.notification.post, handleNotification);
+    socket.off("send-call", handleCall);
+  }, [handleIncomingMessage, handleSeenMessage, handleTyping, handleNotification, handleCall]);
 
+  const addSocketListeners = useCallback(() => {
+    const socket = socketRef.current;
+    if (!socket) return;
     socket.on(configs.eventNames.conversation.message, handleIncomingMessage);
     socket.on(configs.eventNames.conversation.seen, handleSeenMessage);
     socket.on(configs.eventNames.conversation.typing, handleTyping);
     socket.on(configs.eventNames.notification.post, handleNotification);
     socket.on("send-call", handleCall);
+  }, [handleIncomingMessage, handleSeenMessage, handleTyping, handleNotification, handleCall]);
+
+  // ====== Socket Control ======
+
+  const connectSocket = useCallback(() => {
+    if (!session?.accessToken || socketRef.current) return;
+
+    const socket = io(`${configs.serverApi?.baseUrl?.replace("/v1", "")}/chat`, {
+      transports: ["websocket"],
+      withCredentials: true,
+      reconnectionAttempts: MAX_RECONNECT_ATTEMPTS,
+      extraHeaders: {
+        Authorization: session.accessToken,
+      },
+      query: {
+        userId: session.id,
+        username: session.username,
+      },
+    });
+
+    socket.on("connect", () => {
+      setSocketConnected(true);
+      reconnectAttempts.current = 0;
+    });
+
+    socket.on("disconnect", () => {
+      setSocketConnected(false);
+      reconnectAttempts.current++;
+      socketRef.current = null;
+
+      if (reconnectAttempts.current <= MAX_RECONNECT_ATTEMPTS) {
+        setTimeout(connectSocket, RECONNECT_DELAY_MS);
+      } else {
+        ToastAndroid.show("Socket connection failed", ToastAndroid.SHORT);
+      }
+    });
+
+    socketRef.current = socket;
+    addSocketListeners();
+  }, [session, addSocketListeners]);
+
+  const disconnectSocket = useCallback(() => {
+    const socket = socketRef.current;
+    if (socket) {
+      removeSocketListeners();
+      socket.disconnect();
+      socketRef.current = null;
+      setSocketConnected(false);
+    }
+  }, [removeSocketListeners]);
+
+  const reconnectSocket = useCallback(() => {
+    disconnectSocket();
+    connectSocket();
+  }, [disconnectSocket, connectSocket]);
+
+  const callSound = useCallback(async (type: "START" | "END") => {
+    const soundFile =
+      type === "START"
+        ? require("../assets/audios/connect.wav")
+        : require("../assets/audios/callleave.wav");
+
+    const { sound } = await Audio.Sound.createAsync(soundFile);
+    await sound.playAsync();
+  }, []);
+
+  // ===== Lifecycle =====
+  useEffect(() => {
+    if (!session?.id) return;
+
+    registerForPushNotificationsAsync();
+    connectSocket();
+
+    if (!initialized.current) {
+      dispatch(fetchConversationsApi({ limit: 18, offset: 0 }) as any);
+      initialized.current = true;
+    }
 
     Notifications.getLastNotificationResponseAsync().then((response) => {
       const url = response?.notification.request.content.data.url;
@@ -186,17 +210,17 @@ const SocketConnectionsProvider = ({ children }: { children: React.ReactNode }) 
     });
 
     return () => {
-      socket.off(configs.eventNames.conversation.message, handleIncomingMessage);
-      socket.off(configs.eventNames.conversation.seen, handleSeenMessage);
-      socket.off(configs.eventNames.conversation.typing, handleTyping);
-      socket.off(configs.eventNames.notification.post, handleNotification);
-      socket.off("send-call", handleCall);
+      disconnectSocket();
     };
-  }, [socketConnected]);
+  }, [session]);
 
+  // ===== Context =====
   const contextValue = useMemo(() => ({
     socket: socketRef.current,
     callSound,
+    connectSocket,
+    disconnectSocket,
+    reconnectSocket,
   }), [socketConnected]);
 
   return (

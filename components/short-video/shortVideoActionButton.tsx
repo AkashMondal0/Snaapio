@@ -53,8 +53,8 @@ function ShortVideoActionButton({
 	}, [like.isLike, like.likeCount])
 
 	const navigateToProfile = useCallback(() => {
-		navigation.dispatch(StackActions.push("Profile", { id: item.user?.id }))
-	}, [item.user?.id])
+		navigation.dispatch(StackActions.push("Profile", { id: item.user?.username }))
+	}, [item.user?.username])
 
 	const handleShare = useCallback(() => {
 		dispatch(setShareSheetData(item))
