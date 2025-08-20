@@ -48,66 +48,101 @@ const RECONNECT_DELAY_MS = 2000;
 const SocketConnectionsProvider = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useDispatch();
   const session = useSelector((state: RootState) => state.AuthState.session.user);
-  const conversations = useSelector((state: RootState) => state.ConversationState.conversationList);
+  const conversations = useSelector(
+    (state: RootState) => state.ConversationState.conversationList
+  );
 
   const socketRef = useRef<Socket | null>(null);
   const reconnectAttempts = useRef(0);
   const initialized = useRef(false);
+  const conversationsRef = useRef(conversations);
 
   const [socketConnected, setSocketConnected] = useState(false);
 
-  // ===== Socket Event Handlers =====
-  const handleIncomingMessage = (data: Message) => {
-    if (data.authorId === session?.id) return;
-
-    const isInConversation = conversations.some(
-      (convo) => convo.id === data.conversationId
-    );
-
-    if (isInConversation) {
-      dispatch(setMessage(data));
-    } else {
-      dispatch(fetchConversationsApi({ limit: 12, offset: 0 }) as any);
-    }
-
-    dispatch(fetchUnreadMessageNotificationCountApi() as any);
-  }
-
-  const handleSeenMessage = useCallback((data: { conversationId: string; authorId: string }) => {
-    if (data.authorId === session?.id) return;
-    dispatch(setMessageSeen(data));
-  }, [session]);
-
-  const handleTyping = useCallback((data: Typing) => {
-    if (data.authorId === session?.id) return;
-    dispatch(setTyping(data));
-  }, [session]);
-
-  const handleNotification = useCallback((data: Notify) => {
-    if (data.authorId === session?.id) return;
-    dispatch(setNotification(data));
-  }, [session]);
-
-  const handleCall = useCallback(async (data: {
-    username: string;
-    email: string;
-    id: string;
-    name: string;
-    profilePicture: string;
-    status: "CALLING" | "HANGUP";
-    stream: "video" | "audio";
-  }) => {
-    if (data.status === "CALLING") {
-      dispatch(setCallStatus("IDLE"));
-      const url = `snaapio://incoming_call?username=${data.username}&email=${data.email}&id=${data.id}&name=${data.name}&profilePicture=${data.profilePicture}&userType=REMOTE&stream=${data.stream}`;
-      const supported = await Linking.canOpenURL(url);
-      if (supported) Linking.openURL(url);
-      else ToastAndroid.show("Error opening incoming call", ToastAndroid.SHORT);
-    } else {
-      dispatch(setCallStatus("DISCONNECTED"));
-    }
+  // Executes the provided callback after 4 seconds if possible
+  const executeAfterFourSeconds = useCallback((callback: () => void) => {
+    const timer = setTimeout(() => {
+      callback();
+    }, 4000);
+    return () => clearTimeout(timer);
   }, []);
 
+  // keep conversationsRef up-to-date
+  useEffect(() => {
+    conversationsRef.current = conversations;
+  }, [conversations]);
+
+  // ===== Socket Event Handlers =====
+  const handleIncomingMessage = useCallback(
+    (data: Message) => {
+      if (data.authorId === session?.id) return;
+
+      const isInConversation = conversationsRef.current.findIndex(
+        (item) => item.id === data.conversationId
+      );
+
+      if (isInConversation !== -1) {
+        dispatch(setMessage(data));
+      } else {
+        executeAfterFourSeconds(() => {
+          // console.log("Fetching conversations...");
+          dispatch(fetchConversationsApi({ limit: 12, offset: 0 }) as any);
+        });
+      }
+
+      dispatch(fetchUnreadMessageNotificationCountApi() as any);
+    },
+    [dispatch, session?.id]
+  );
+
+  const handleSeenMessage = useCallback(
+    (data: { conversationId: string; authorId: string }) => {
+      if (data.authorId === session?.id) return;
+      dispatch(setMessageSeen(data));
+    },
+    [dispatch, session?.id]
+  );
+
+  const handleTyping = useCallback(
+    (data: Typing) => {
+      if (data.authorId === session?.id) return;
+      dispatch(setTyping(data));
+    },
+    [dispatch, session?.id]
+  );
+
+  const handleNotification = useCallback(
+    (data: Notify) => {
+      if (data.authorId === session?.id) return;
+      dispatch(setNotification(data));
+    },
+    [dispatch, session?.id]
+  );
+
+  const handleCall = useCallback(
+    async (data: {
+      username: string;
+      email: string;
+      id: string;
+      name: string;
+      profilePicture: string;
+      status: "CALLING" | "HANGUP";
+      stream: "video" | "audio";
+    }) => {
+      if (data.status === "CALLING") {
+        dispatch(setCallStatus("IDLE"));
+        const url = `snaapio://incoming_call?username=${data.username}&email=${data.email}&id=${data.id}&name=${data.name}&profilePicture=${data.profilePicture}&userType=REMOTE&stream=${data.stream}`;
+        const supported = await Linking.canOpenURL(url);
+        if (supported) Linking.openURL(url);
+        else ToastAndroid.show("Error opening incoming call", ToastAndroid.SHORT);
+      } else {
+        dispatch(setCallStatus("DISCONNECTED"));
+      }
+    },
+    [dispatch]
+  );
+
+  // ====== Manage Socket Listeners ======
   const removeSocketListeners = useCallback(() => {
     const socket = socketRef.current;
     if (!socket) return;
@@ -116,7 +151,13 @@ const SocketConnectionsProvider = ({ children }: { children: React.ReactNode }) 
     socket.off(configs.eventNames.conversation.typing, handleTyping);
     socket.off(configs.eventNames.notification.post, handleNotification);
     socket.off("send-call", handleCall);
-  }, [handleIncomingMessage, handleSeenMessage, handleTyping, handleNotification, handleCall]);
+  }, [
+    handleIncomingMessage,
+    handleSeenMessage,
+    handleTyping,
+    handleNotification,
+    handleCall,
+  ]);
 
   const addSocketListeners = useCallback(() => {
     const socket = socketRef.current;
@@ -126,25 +167,28 @@ const SocketConnectionsProvider = ({ children }: { children: React.ReactNode }) 
     socket.on(configs.eventNames.conversation.typing, handleTyping);
     socket.on(configs.eventNames.notification.post, handleNotification);
     socket.on("send-call", handleCall);
-  }, [handleIncomingMessage, handleSeenMessage, handleTyping, handleNotification, handleCall]);
+  }, [
+    handleIncomingMessage,
+    handleSeenMessage,
+    handleTyping,
+    handleNotification,
+    handleCall,
+  ]);
 
   // ====== Socket Control ======
-
   const connectSocket = useCallback(() => {
     if (!session?.accessToken || socketRef.current) return;
 
-    const socket = io(`${configs.serverApi?.baseUrl?.replace("/v1", "")}/chat`, {
-      transports: ["websocket"],
-      withCredentials: true,
-      reconnectionAttempts: MAX_RECONNECT_ATTEMPTS,
-      extraHeaders: {
-        Authorization: session.accessToken,
-      },
-      query: {
-        userId: session.id,
-        username: session.username,
-      },
-    });
+    const socket = io(
+      `${configs.serverApi?.baseUrl?.replace("/v1", "")}/chat`,
+      {
+        transports: ["websocket"],
+        withCredentials: true,
+        reconnectionAttempts: MAX_RECONNECT_ATTEMPTS,
+        extraHeaders: { Authorization: session.accessToken },
+        query: { userId: session.id, username: session.username },
+      }
+    );
 
     socket.on("connect", () => {
       setSocketConnected(true);
@@ -212,16 +256,19 @@ const SocketConnectionsProvider = ({ children }: { children: React.ReactNode }) 
     return () => {
       disconnectSocket();
     };
-  }, [session]);
+  }, [session, connectSocket, disconnectSocket, dispatch]);
 
   // ===== Context =====
-  const contextValue = useMemo(() => ({
-    socket: socketRef.current,
-    callSound,
-    connectSocket,
-    disconnectSocket,
-    reconnectSocket,
-  }), [socketConnected]);
+  const contextValue = useMemo(
+    () => ({
+      socket: socketRef.current,
+      callSound,
+      connectSocket,
+      disconnectSocket,
+      reconnectSocket,
+    }),
+    [callSound, connectSocket, disconnectSocket, reconnectSocket]
+  );
 
   return (
     <SocketContext.Provider value={contextValue}>
