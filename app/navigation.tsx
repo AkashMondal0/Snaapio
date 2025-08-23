@@ -392,7 +392,10 @@ const RootStack = createNativeStackNavigator({
                     screen: ChatListScreen,
                     linking: {
                         path: 'message'
-                    }
+                    },
+                    options: {
+                        animation: "slide_from_right"
+                    },
                 },
                 MessageRoom: {
                     screen: ChatScreen,

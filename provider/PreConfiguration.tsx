@@ -1,58 +1,81 @@
-import { createContext, memo, ReactNode, useEffect, useRef } from "react";
-import React, { useCallback } from "react";
+import React, {
+  createContext,
+  memo,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUnreadNotificationCountApi } from '@/redux-stores/slice/notification/api.service';
-import { useTheme } from 'hyper-native-ui';
-import { RootState } from "@/redux-stores/store";
-import Share_Sheet from "@/components/buttom-sheet/share-sheet";
 import BottomSheet from "@gorhom/bottom-sheet";
 
+import { fetchUnreadNotificationCountApi } from "@/redux-stores/slice/notification/api.service";
+import { RootState } from "@/redux-stores/store";
+import { useTheme } from "hyper-native-ui";
+import Share_Sheet from "@/components/buttom-sheet/share-sheet";
+
 export interface AppContextType {
-    handleSnapPress: (index: number) => void
+  handleSnapPress: (index: number) => void;
 }
+
 export const AppContext = createContext<AppContextType>({
-    handleSnapPress: () => { }
+  handleSnapPress: () => {},
 });
-let loaded = false;
 
-const PreConfiguration = ({
-    children
-}: {
-    children: ReactNode
-}) => {
-    const { initialTheme } = useTheme();
-    const theme = useSelector((state: RootState) => state.AuthState.theme)
-    const session = useSelector((state: RootState) => state.AuthState.session.user)
-    const sheetRef = useRef<BottomSheet>(null);
-    const dispatch = useDispatch();
+const PreConfiguration = ({ children }: { children: ReactNode }) => {
+  const { initialTheme } = useTheme();
+  const theme = useSelector((state: RootState) => state.AuthState.theme);
+  const session = useSelector(
+    (state: RootState) => state.AuthState.session.user
+  );
 
-    // initialize theme value
-    const initialize = useCallback(async () => {
-        if (!loaded && session) {
-            loaded = true;
-            dispatch(fetchUnreadNotificationCountApi() as any);
-        }
-    }, []);
+  const sheetRef = useRef<BottomSheet>(null);
+  const initialized = useRef(false);
+  const dispatch = useDispatch();
 
-    const initializeTheme = useCallback(async () => {
-        initialTheme({ colorScheme: theme.themeSchema, themeName: theme.themeName });
-    }, [theme]);
+  // 🎨 Initialize theme
+  const initializeTheme = useCallback(() => {
+    initialTheme({
+      colorScheme: theme.themeSchema,
+      themeName: theme.themeName,
+    });
+  }, [initialTheme, theme]);
 
-    const handleSnapPress = useCallback((index: any) => {
-        sheetRef.current?.snapToIndex(index);
-    }, []);
+  // 🔔 Initialize notifications (only once per session)
+  const initializeNotifications = useCallback(() => {
+    if (!initialized.current && session) {
+      initialized.current = true;
+      dispatch(fetchUnreadNotificationCountApi() as any);
+    }
+  }, [dispatch, session]);
 
-    useEffect(() => {
-        initializeTheme();
-        initialize();
-    }, [theme]);
+  // 📌 Handle BottomSheet actions
+  const handleSnapPress = useCallback((index: number) => {
+    sheetRef.current?.snapToIndex(index);
+  }, []);
 
-    return <AppContext.Provider value={{
-        handleSnapPress
-    }}>
-        {children}
-        <Share_Sheet sheetRef={sheetRef}/>
+  // 🔄 Effects
+  useEffect(() => {
+    initializeTheme();
+  }, [initializeTheme]);
+
+  useEffect(() => {
+    initializeNotifications();
+  }, [initializeNotifications]);
+
+  // ✅ Memoized context to prevent re-renders
+  const contextValue = useMemo(
+    () => ({ handleSnapPress }),
+    [handleSnapPress]
+  );
+
+  return (
+    <AppContext.Provider value={contextValue}>
+      {children}
+      <Share_Sheet sheetRef={sheetRef} />
     </AppContext.Provider>
+  );
 };
 
 export default memo(PreConfiguration);

@@ -13,7 +13,7 @@ import { FlatList, ToastAndroid, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 import ErrorScreen from "@/components/error/page";
-import { ConversationLoader } from "@/components/message/conversationItem";
+import ConversationLoader from "@/components/message/ConversationLoader";
 
 const NewChatScreen = memo(function NewChatScreen() {
     const users = useSelector((Root: RootState) => Root.UsersState.searchUsers)
