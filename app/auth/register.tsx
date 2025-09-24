@@ -280,6 +280,7 @@ const RegisterScreen = () => {
                 {/* bottom */}
                 <Button
                     center
+                    disabled={loading}
                     onPress={() => {
                         navigation.dispatch(StackActions.replace("Login"))
                     }}

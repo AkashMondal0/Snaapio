@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { View } from 'react-native';
 import { Conversation } from '@/types';
 import { Avatar } from '@/components/skysolo-ui';
-import { PressableView, Text, TouchableOpacity, useTheme } from "hyper-native-ui";
+import { PressableView, Text, useTheme } from "hyper-native-ui";
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux-stores/store';
 import { timeFormat } from '@/lib/timeFormat';

@@ -100,7 +100,11 @@ export const logoutApi = createAsyncThunk(
                 console.error("Error retrieving token from SecureStorage")
                 return;
             };
-            await fetch(`${configs.serverApi.baseUrl}/auth/logout`, {
+            await deleteSecureStorage(configs.sessionName);
+            await deleteSecureStorage(configs.notificationName);
+            thunkAPI.dispatch(resetAccountState());
+            thunkAPI.dispatch(resetConversationState());
+            fetch(`${configs.serverApi.baseUrl}/auth/logout`, {
                 method: 'POST',
                 credentials: "include",
                 headers: {
@@ -108,10 +112,6 @@ export const logoutApi = createAsyncThunk(
                 },
                 cache: 'no-cache',
             });
-            await deleteSecureStorage(configs.sessionName);
-            await deleteSecureStorage(configs.notificationName);
-            thunkAPI.dispatch(resetAccountState());
-            thunkAPI.dispatch(resetConversationState());
             return true;
         } catch (error) {
             console.error("Error in logging out", error);

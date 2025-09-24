@@ -194,6 +194,7 @@ const LoginScreen = () => {
                 {/* bottom */}
                 <Button
                     center
+                    disabled={loading}
                     width={"90%"}
                     variant="outline"
                     style={{ borderWidth: 2, borderRadius: 100 }}
