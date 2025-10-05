@@ -1,235 +1,367 @@
-import React, { memo, useCallback } from 'react';
-import { Message } from '@/types';
-import { FlatList, View, Text, StyleSheet, Clipboard, Image } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '@/redux-stores/store';
-import { Icon } from '@/components/skysolo-ui';
-import { useTheme } from 'hyper-native-ui';
-import { ToastAndroid } from "react-native";
-import { timeFormat } from '@/lib/timeFormat';
-import { AiMessage, completeAiMessageGenerate } from '@/redux-stores/slice/conversation';
-import Markdown, { MarkdownIt, stringToTokens, tokensToAST } from 'react-native-markdown-display';
-import AITextLoader from '@/app/message/AITextLoader';
-import ImageComponent from '../skysolo-ui/Image';
-const AiMessageList = memo(function AiMessageList() {
+import React, { memo, useCallback, useMemo } from "react";
+import {
+  FlatList,
+  View,
+  Clipboard,
+  Platform,
+  ActivityIndicator,
+} from "react-native";
+import { useSelector, shallowEqual, useDispatch } from "react-redux";
+import * as FileSystem from "expo-file-system";
+import * as MediaLibrary from "expo-media-library";
 
-    const messages = useSelector((Root: RootState) => Root.ConversationState?.ai_messages)
-    const currentGeneratingMessage = useSelector((Root: RootState) => Root.ConversationState?.ai_CurrentMessageId)
+import { RootState } from "@/redux-stores/store";
+import { Icon } from "@/components/skysolo-ui";
+import { useTheme, Text } from "hyper-native-ui";
+import { timeFormat } from "@/lib/timeFormat";
+import {
+  AiMessage,
+  completeAiMessageGenerate,
+} from "@/redux-stores/slice/conversation";
+import AITextLoader from "@/app/message/AITextLoader";
+import ImageComponent from "@/components/skysolo-ui/Image";
+import Markdown from "react-native-markdown-display";
+import { configs } from "@/configs";
 
-    const navigateToImagePreview = useCallback((data: Message) => {
-        // navigation.navigate('message/assets/preview', { data })
-    }, [])
+/**
+ * ===============================
+ * AiMessageList
+ * ===============================
+ */
+const AiMessageList = memo(
+  function AiMessageList() {
+    const { messages, currentId } = useSelector(
+      (state: RootState) => ({
+        messages: state.ConversationState.ai_messages,
+        currentId: state.ConversationState.ai_CurrentMessageId,
+      }),
+      shallowEqual
+    );
+
+    const renderItem = useCallback(
+      ({ item }: { item: AiMessage }) => (
+        <MessageItem
+          data={item}
+          myself={!item.isAi}
+          currentTyping={item.id === currentId}
+        />
+      ),
+      [currentId]
+    );
+
+    const keyExtractor = useCallback((item: AiMessage) => item.id, []);
 
     return (
-        <FlatList
-            inverted
-            removeClippedSubviews={true}
-            windowSize={16}
-            // onEndReached={fetchMore}
-            data={messages}
-            bounces={false}
-            scrollEventThrottle={16}
-            showsVerticalScrollIndicator={false}
-            keyExtractor={(_, index) => index.toString()}
-            renderItem={({ item, index: i }) => {
-                if (!item.data) {
-                    return <></>
-                }
-                if (item.data?.type === "image" && item.data.url) {
-                    return <View key={item.id} style={{
-                        padding: 6,
-                    }}>
-                        <ImageComponent url={item.data.url}
-                            style={{
-                                width: 300,
-                                height: 300,
-                                aspectRatio: 1 / 1,
-                                borderRadius: 20,
-                            }} />
-                    </View>
-                }
-                return <MessageItem
-                    navigateToImagePreview={navigateToImagePreview}
-                    data={item}
-                    currentTyping={item.id === currentGeneratingMessage}
-                    myself={!item.isAi}
-                    key={item.id} />
-            }}
-            ListHeaderComponent={<View style={{ width: "100%", height: 50 }}>
-                {/* {messagesLoading ? <Loader size={36} /> : <></>} */}
-            </View>}
-        />)
-}, () => true)
+      <FlatList
+        inverted
+        removeClippedSubviews
+        windowSize={16}
+        data={messages}
+        bounces={false}
+        scrollEventThrottle={16}
+        showsVerticalScrollIndicator={false}
+        keyExtractor={keyExtractor}
+        renderItem={renderItem}
+        initialNumToRender={10}
+        maxToRenderPerBatch={10}
+        updateCellsBatchingPeriod={50}
+      />
+    );
+  },
+  () => true
+);
 
-export default AiMessageList
+export default AiMessageList;
 
-const MessageItem = memo(function Item({
-    data, myself,
-    currentTyping,
-    navigateToImagePreview
-}: {
-    data: AiMessage, myself: boolean,
-    currentTyping: boolean
-    navigateToImagePreview: (data: Message) => void
-}) {
+/**
+ * ===============================
+ * MessageItem
+ * ===============================
+ */
+type ItemProps = {
+  data: AiMessage;
+  myself: boolean;
+  currentTyping: boolean;
+};
+
+const MessageItem = memo(
+  function MessageItem({ data, myself, currentTyping }: ItemProps) {
     const { currentTheme } = useTheme();
-    const color = myself ? currentTheme?.primary_foreground : currentTheme?.foreground;
-    const bg = myself ? currentTheme?.primary : currentTheme?.muted;
     const dispatch = useDispatch();
 
-    const markdownItInstance = MarkdownIt({ typographer: true });
+    const color = myself
+      ? currentTheme?.primary_foreground
+      : currentTheme?.foreground;
+    const bg = myself ? currentTheme?.primary : currentTheme?.muted;
 
-    const ast = tokensToAST(stringToTokens(data.data.content ?? "Something went wrong", markdownItInstance))
+    const containerAlignStyle = useMemo(
+      () => ({ justifyContent: myself ? "flex-end" : "flex-start" }),
+      [myself]
+    );
 
-    const styles = StyleSheet.create({
-        heading1: {
-            fontSize: 32,
-            color: color,
-        },
-        heading2: {
-            fontSize: 24,
-            color: color,
-        },
-        heading3: {
-            fontSize: 18,
-            color: color,
-        },
-        heading4: {
-            fontSize: 16,
-            color: color,
-        },
-        heading5: {
-            fontSize: 13,
-            color: color,
-        },
-        heading6: {
-            fontSize: 11,
-            color: color,
-        },
-        body: {
-            fontSize: 16,
-            color: "black",
-        },
-        paragraph: {
-            fontSize: 16,
-            color: color,
-        },
-        link: {
-            color: 'blue',
-            fontSize: 16,
-        },
-        code_block: {
-            color: currentTheme?.accent_foreground,
-            borderRadius: 30,
-            borderColor: currentTheme?.border,
-            borderWidth: 1,
-        },
-        code_inline: {
-            color: currentTheme?.foreground,
-            borderRadius: 30,
-            borderColor: currentTheme?.border,
-            borderWidth: 1,
+    const bubbleStyle = useMemo(
+      () => ({
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        borderRadius: 20,
+        maxWidth: "94%",
+        backgroundColor: bg,
+        elevation: 0.5,
+      }),
+      [bg]
+    );
+
+    const onCopy = useCallback(() => {
+      if (Platform.OS === "android") {
+        Clipboard.setString(
+          configs.serverApi.supabaseStorageUrl +
+            (data.data?.content ?? "Something went wrong")
+        );
+      }
+    }, [data.data?.content]);
+
+    const onDownloadImage = useCallback(async () => {
+      try {
+        const url =
+          configs.serverApi.supabaseStorageUrl + data.data?.url ||
+          configs.serverApi.supabaseStorageUrl + data.image;
+        if (!url) return;
+
+        const { status } = await MediaLibrary.requestPermissionsAsync();
+        if (status !== "granted") {
+          console.warn("MediaLibrary permission not granted");
+          return;
         }
-    });
 
-    if (data.isAi && currentTyping) {
-        return <View style={{
-            flexDirection: 'row',
-            justifyContent: myself ? 'flex-end' : 'flex-start',
-            padding: 6,
-        }}>
-            <View style={{
-                backgroundColor: bg,
-                paddingHorizontal: 8,
-                paddingVertical: 4,
-                borderRadius: 16,
-                width: 'auto',
-                maxWidth: '94%',
-                elevation: 0.4
-            }}>
-                {data.image && !data.isAi ? <Image source={{ uri: data.image }} style={{
-                    height: 250,
-                    aspectRatio: 1,
-                    borderRadius: 20,
-                }} /> : <></>}
-                <AITextLoader
-                    onComplete={() => {
-                        dispatch(completeAiMessageGenerate())
-                    }}
-                    text={data.data.content ?? "Something went wrong"}
-                />
+        const filename = url.split("/").pop() || `ai-image-${Date.now()}.jpg`;
+        const dest = `${FileSystem.documentDirectory}${filename}`;
 
-                {/* date and time */}
-                <View style={{
-                    flexDirection: 'row',
-                    justifyContent: 'flex-end',
-                    gap: 10,
-                }}>
-                    <Text
-                        style={{
-                            color: color,
-                            fontSize: 14,
-                            lineHeight: 24,
-                            fontWeight: '400',
-                        }}>
-                        {timeFormat(data?.createdAt as string)}
-                    </Text>
-                </View>
+        const { uri } = await FileSystem.downloadAsync(url, dest);
+        const asset = await MediaLibrary.createAssetAsync(uri);
+
+        const albumName = "AI Images";
+        const album = await MediaLibrary.getAlbumAsync(albumName);
+        if (album) {
+          await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
+        } else {
+          await MediaLibrary.createAlbumAsync(albumName, asset, false);
+        }
+      } catch (e) {
+        console.warn("Failed to save image:", e);
+      }
+    }, [data.data?.url, data.image]);
+
+    /**
+     * CASE 1: AI typing TEXT (loader while empty)
+     */
+    if (data.isAi && currentTyping && data.data?.type !== "image") {
+      if (!data.data?.content) {
+        return (
+          <View
+            style={[
+              { flexDirection: "row", padding: 6 },
+              containerAlignStyle as any,
+            ]}
+          >
+            <View style={bubbleStyle as any}>
+              <AITextLoader
+                onComplete={() => dispatch(completeAiMessageGenerate())}
+                text="Generating response..."
+              />
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "flex-end",
+                  marginTop: 6,
+                }}
+              >
+                <Text
+                  style={{ fontSize: 13 }}
+                  variant="caption"
+                  variantColor="secondary"
+                >
+                  {timeFormat(data.createdAt as string)}
+                </Text>
+              </View>
             </View>
-            {myself ? <></> : <Icon iconName='Copy'
-                size={24} onPress={() => {
-                    Clipboard.setString(data.data.content ?? "Something went wrong")
-                    ToastAndroid.show("Copied to clipboard", ToastAndroid.SHORT)
-                }} />}
-        </View>
+          </View>
+        );
+      }
     }
 
-
-    return <View style={{
-        flexDirection: 'row',
-        justifyContent: myself ? 'flex-end' : 'flex-start',
-        padding: 6,
-    }}>
-        <View style={{
-            backgroundColor: bg,
-            paddingHorizontal: 8,
-            paddingVertical: 4,
-            borderRadius: 16,
-            width: 'auto',
-            maxWidth: '94%',
-            elevation: 0.4
-        }}>
-            {data.image && !data.isAi ? <Image source={{ uri: data.image }} style={{
-                height: 250,
-                aspectRatio: 1,
+    /**
+     * CASE 2: AI generating IMAGE (loader while empty)
+     */
+    if (data.isAi && currentTyping && data.data?.type === "image") {
+      if (!data.data?.url && !data.image) {
+        return (
+          <View
+            style={[
+              { flexDirection: "row", padding: 6 },
+              containerAlignStyle as any,
+            ]}
+          >
+            <View
+              style={{
+                width: 280,
+                height: 280,
+                alignItems: "center",
+                justifyContent: "center",
                 borderRadius: 20,
-            }} /> : <></>}
-            <Markdown style={styles}>
-                {/* @ts-ignore */}
-                {ast}
-            </Markdown>
-
-            {/* date and time */}
-            <View style={{
-                flexDirection: 'row',
-                justifyContent: 'flex-end',
-                gap: 10,
-            }}>
-                <Text
-                    style={{
-                        color: color,
-                        fontSize: 14,
-                        lineHeight: 24,
-                        fontWeight: '400',
-                    }}>
-                    {timeFormat(data?.createdAt as string)}
-                </Text>
+                backgroundColor: "#f0f0f0",
+              }}
+            >
+              <ActivityIndicator size="large" color={currentTheme?.primary} />
+              <Text variant="body2" style={{ marginTop: 8 }}>
+                Generating image...
+              </Text>
             </View>
+          </View>
+        );
+      }
+    }
+
+    /**
+     * CASE 3: Final IMAGE message
+     */
+    if (data.data?.type === "image" && (data.data.url || data.image)) {
+      const imgUrl = data.data.url || data.image!;
+      return (
+        <View
+          style={[
+            { flexDirection: "row", padding: 6 },
+            containerAlignStyle as any,
+          ]}
+        >
+          <View
+            style={{
+              maxWidth: "94%",
+              borderRadius: 20,
+              overflow: "hidden",
+              backgroundColor: "white",
+              elevation: 1,
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 8,
+            }}
+          >
+            <ImageComponent
+              url={imgUrl}
+              style={{
+                width: 280,
+                height: 280,
+                borderRadius: 20,
+              }}
+              resizeMode="cover"
+            />
+
+            <View
+              style={{
+                position: "absolute",
+                top: 8,
+                right: 8,
+                flexDirection: "row",
+                gap: 8,
+                backgroundColor: "rgba(0,0,0,0.35)",
+                paddingHorizontal: 8,
+                paddingVertical: 6,
+                borderRadius: 29,
+              }}
+            >
+              <Icon
+                iconName="Download"
+                size={22}
+                variant="secondary"
+                isButton
+                onPress={onDownloadImage}
+              />
+              <Icon
+                iconName="Copy"
+                size={22}
+                variant="secondary"
+                isButton
+                onPress={() =>
+                  Clipboard.setString(
+                    configs.serverApi.supabaseStorageUrl + imgUrl
+                  )
+                }
+              />
+            </View>
+
+            <View
+              style={{
+                paddingHorizontal: 10,
+                paddingVertical: 6,
+                backgroundColor: "rgba(255,255,255,0.95)",
+              }}
+            >
+              <Text variant="caption" variantColor="secondary">
+                {timeFormat(data.createdAt as string)}
+              </Text>
+            </View>
+          </View>
         </View>
-        {myself ? <></> : <Icon iconName='Copy'
-            size={24} onPress={() => {
-                Clipboard.setString(data.data.content ?? "Something went wrong")
-                ToastAndroid.show("Copied to clipboard", ToastAndroid.SHORT)
-            }} />}
-    </View>
-}, (prev, next) => true)
+      );
+    }
+
+    /**
+     * CASE 4: Normal text
+     */
+    return (
+      <View
+        style={[{ flexDirection: "row", padding: 6 }, containerAlignStyle as any]}
+      >
+        <View style={bubbleStyle as any}>
+          <Markdown
+            style={{
+              body: { color, fontSize: 16, lineHeight: 22 },
+              paragraph: { color, fontSize: 16, lineHeight: 22 },
+              heading1: { color, fontSize: 28, fontWeight: "700" },
+              heading2: { color, fontSize: 24, fontWeight: "700" },
+              heading3: { color, fontSize: 20, fontWeight: "700" },
+              code_block: {
+                borderRadius: 2,
+                borderWidth: 1,
+                borderColor: currentTheme?.border,
+                padding: 10,
+              },
+              code_inline: {
+                borderRadius: 2,
+                borderWidth: 1,
+                borderColor: currentTheme?.border,
+                paddingHorizontal: 6,
+                paddingVertical: 2,
+              },
+              link: { textDecorationLine: "underline" },
+            }}
+          >
+            {data.data?.content ?? "Something went wrong"}
+          </Markdown>
+
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "flex-end",
+              marginTop: 6,
+            }}
+          >
+            <Text
+              style={{ fontSize: 13 }}
+              variant="caption"
+              variantColor="secondary"
+            >
+              {timeFormat(data.createdAt as string)}
+            </Text>
+          </View>
+        </View>
+
+        {!myself ? <Icon iconName="Copy" size={24} onPress={onCopy} /> : null}
+      </View>
+    );
+  },
+  (prev, next) =>
+    prev.data.id === next.data.id &&
+    prev.currentTyping === next.currentTyping &&
+    prev.data.data?.content === next.data.data?.content &&
+    prev.data.data?.url === next.data.data?.url
+);

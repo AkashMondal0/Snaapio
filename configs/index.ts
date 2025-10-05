@@ -36,7 +36,7 @@ const _configs = {
         }
     },
     AppDetails: {
-        version: "0.1.6",
+        version: "0.1.7",
         name: "Snaapio",
         description: "Snaapio is a social media platform that allows users to share their thoughts and ideas with the world.",
         appUrl: 'https://snaapio.vercel.app',

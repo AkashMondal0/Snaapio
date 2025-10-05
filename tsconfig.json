@@ -1,6 +1,14 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
+    "target": "esnext", // or at least ES2020
+    "module": "esnext",       // allows dynamic import()
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "jsx": "react-native",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
     "strict": true,
     "paths": {
       "@/*": [

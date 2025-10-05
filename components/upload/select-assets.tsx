@@ -1,149 +1,242 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
-import { FlatList, ToastAndroid, View } from 'react-native';
-import * as MediaLibrary from 'expo-media-library';
-import { Icon } from '@/components/skysolo-ui';
-import AppHeader from '@/components/AppHeader';
-import AppPermissionDialog from '@/components/dialogs/app-permission';
-import PhotosPermissionRequester from '@/components/upload/no-permission';
-import ImageItem from '@/components/upload/image';
-import throttle from '@/lib/throttling';
-import { PageProps } from '@/types';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '@/redux-stores/store';
-import { setDeviceAssets } from '@/redux-stores/slice/account';
-import ActionNextButton from '../ActionNextButton';
+import React, {
+  memo,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { FlatList, ToastAndroid, View, ActivityIndicator } from "react-native";
+import * as MediaLibrary from "expo-media-library";
+import { Icon } from "@/components/skysolo-ui";
+import AppHeader from "@/components/AppHeader";
+import AppPermissionDialog from "@/components/dialogs/app-permission";
+import PhotosPermissionRequester from "@/components/upload/no-permission";
+import ImageItem from "@/components/upload/image";
+import throttle from "@/lib/throttling";
+import { PageProps } from "@/types";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/redux-stores/store";
+import { setDeviceAssets } from "@/redux-stores/slice/account";
+import ActionNextButton from "../ActionNextButton";
 
-let loaded = false;
+type Props = PageProps<any> & {
+  assetsLimit?: number;
+  mediaType?: MediaLibrary.MediaTypeValue[]; // e.g. ['photo']
+  showHeader?: boolean;
+  nextAction: (selectedAssets: MediaLibrary.Asset[]) => void;
+};
+
 const SelectAssets = memo(function SelectAssets({
-    nextAction,
-    assetsLimit = 5,
-    mediaType = ['photo'],
-    showHeader = true
-}: PageProps<any> & {
-    assetsLimit?: number;
-    mediaType?: any[]
-    showHeader?: boolean
-    nextAction: (selectedAssets: MediaLibrary.Asset[]) => void;
-}) {
-    const [permission, requestPermission] = MediaLibrary.usePermissions();
-    const media = useSelector((state: RootState) => state.AccountState.deviceAssets);
-    const selectedAssets = useRef<MediaLibrary.Asset[]>([]);
-    const totalCount = useRef(media.length);
-    const [selectedCount, setSelectedCount] = useState(0);
-    const dispatch = useDispatch();
+  nextAction,
+  assetsLimit = 5,
+  mediaType = ["photo"],
+  showHeader = true,
+}: Props) {
+  const [permission, requestPermission] = MediaLibrary.usePermissions();
+  const media = useSelector(
+    (state: RootState) => state.AccountState.deviceAssets
+  );
+  const dispatch = useDispatch();
 
-    const alertMessage = throttle(() => {
-        ToastAndroid.show(`You can select up to ${assetsLimit} images`, ToastAndroid.LONG);
-    }, 5000);
+  // selection tracking
+  const selectedAssetsRef = useRef<MediaLibrary.Asset[]>([]);
+  const [selectedCount, setSelectedCount] = useState(0);
 
-    const getMediaPermission = useCallback(async () => {
-        if (!permission) return
-        const rePermission = await requestPermission();
-        if (!rePermission.granted) {
-            return;
-        }
-        return rePermission;
-    }, [permission]);
+  // pagination + loading
+  const loadedOnceRef = useRef(false);
+  const cursorRef = useRef<string | null>(null);
+  const hasNextRef = useRef(true);
+  const [loadingPage, setLoadingPage] = useState(false);
 
-    const fetchMediaPagination = useCallback(async () => {
-        const {
-            assets: mediaResult,
-            endCursor,
-            hasNextPage,
-            totalCount: totalMediaCount,
-        } = await MediaLibrary.getAssetsAsync({
-            mediaType: mediaType,
-            first: 20,
-            sortBy: MediaLibrary.SortBy.default,
-            after: totalCount.current.toString(),
-        });
+  const alertMessage = useCallback(
+    throttle(() => {
+      ToastAndroid.show(
+        `You can select up to ${assetsLimit} images`,
+        ToastAndroid.LONG
+      );
+    }, 5000),
+    [assetsLimit]
+  );
 
-        if (totalCount.current < totalMediaCount) {
-            totalCount.current = Number(endCursor);
-            dispatch(setDeviceAssets(mediaResult));
-        }
-    }, [totalCount.current]);
+  // ---- Permissions
+  const getMediaPermission = useCallback(async () => {
+    const res = await requestPermission();
+    return res;
+  }, [requestPermission]);
 
-    const throttledFunction = throttle(() => fetchMediaPagination(), 1000);
+  useEffect(() => {
+    // Auto-prompt once if we can
+    if (!permission) return;
+    if (!permission.granted && permission.canAskAgain) {
+      requestPermission();
+    }
+  }, [permission, requestPermission]);
 
-    const onPressAssetHandle = useCallback((assets: MediaLibrary.Asset) => {
-        const index = selectedAssets.current.findIndex(asset => asset.id === assets.id);
-        if (selectedAssets.current.length >= assetsLimit && index === -1) {
-            return alertMessage();
-        }
-        if (index === -1) {
-            selectedAssets.current.push(assets);
-            setSelectedCount((prev) => prev + 1);
+  // ---- Fetch page
+  const fetchMediaPage = useCallback(
+    async (reset = false) => {
+      if (loadingPage) return;
+      if (!hasNextRef.current && !reset) return;
+
+      try {
+        setLoadingPage(true);
+
+        const { assets, endCursor, hasNextPage } =
+          await MediaLibrary.getAssetsAsync({
+            mediaType,
+            first: 40,
+            sortBy: [MediaLibrary.SortBy.creationTime],
+            after: reset ? undefined : cursorRef.current ?? undefined,
+          });
+
+        cursorRef.current = endCursor ?? null;
+        hasNextRef.current = !!hasNextPage;
+
+        if (reset) {
+          // ensure store contains only fresh page
+          dispatch(setDeviceAssets(assets));
         } else {
-            selectedAssets.current.splice(index, 1);
-            setSelectedCount((prev) => prev - 1);
+          // append to existing
+          dispatch(setDeviceAssets([...(media ?? []), ...assets]));
         }
-    }, [selectedAssets.current, selectedCount]);
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.warn("Failed to fetch assets:", e);
+      } finally {
+        setLoadingPage(false);
+      }
+    },
+    [dispatch, media, mediaType, loadingPage]
+  );
 
-    const onEndReached = useCallback(() => {
-        if (totalCount.current > 10) {
-            throttledFunction();
-        }
-    }, [totalCount.current]);
-
-    const navigateToPostReview = useCallback(() => {
-        const _selectedAssets = [...selectedAssets.current];
-        // reset all selected assets
-        setSelectedCount(0)
-        selectedAssets.current = [];
-        nextAction(_selectedAssets);
-    }, [selectedAssets]);
-
-    useEffect(() => {
-        if (!loaded && permission?.granted && media.length >= 0) {
-            getMediaPermission();
-            fetchMediaPagination();
-        }
-    }, [permission?.granted]);
-
-    if (!permission) {
-        // Permission request is in progress
-        return <View />;
+  // first load once granted
+  useEffect(() => {
+    if (permission?.granted && !loadedOnceRef.current) {
+      loadedOnceRef.current = true;
+      cursorRef.current = null;
+      hasNextRef.current = true;
+      fetchMediaPage(true);
     }
+  }, [permission?.granted, fetchMediaPage]);
 
-    if (!permission.granted) {
-        // Permission was denied
-        return <>
-            <AppPermissionDialog confirm={getMediaPermission} />
-            <PhotosPermissionRequester permission={permission} />
-        </>
+  // ---- Selection
+  const onPressAssetHandle = useCallback(
+    (asset: MediaLibrary.Asset) => {
+      const idx = selectedAssetsRef.current.findIndex((a) => a.id === asset.id);
+      if (idx === -1) {
+        if (selectedAssetsRef.current.length >= assetsLimit) {
+          alertMessage();
+          return;
+        }
+        selectedAssetsRef.current.push(asset);
+        setSelectedCount((prev) => prev + 1);
+      } else {
+        selectedAssetsRef.current.splice(idx, 1);
+        setSelectedCount((prev) => Math.max(0, prev - 1));
+      }
+    },
+    [assetsLimit, alertMessage]
+  );
+
+  // ---- Infinite scroll
+  const onEndReached = useCallback(() => {
+    if (!loadingPage && hasNextRef.current) {
+      fetchMediaPage(false);
     }
+  }, [fetchMediaPage, loadingPage]);
 
+  // ---- Done / next
+  const navigateToPostReview = useCallback(() => {
+    const _selected = [...selectedAssetsRef.current];
+    // reset selection
+    selectedAssetsRef.current = [];
+    setSelectedCount(0);
+    nextAction(_selected);
+  }, [nextAction]);
+
+  // ---- Render UI
+  if (!permission) {
+    // Permission check pending
+    return <View />;
+  }
+
+  if (!permission.granted) {
     return (
-        <>
-            {showHeader ? <AppHeader
-                titleCenter
-                title={selectedCount > 0 ? `Selected ${selectedCount} ` : 'Select Items'}
-                rightSideComponent={selectedCount > 0 ? <Icon
-                    iconName='Check' isButton
-                    style={{ width: 36 }}
-                    onPress={navigateToPostReview}
-                    variant="primary" /> : <></>} /> : <></>}
-            <View style={{ flex: 1 }}>
-                <FlatList
-                    nestedScrollEnabled
-                    data={media}
-                    keyExtractor={(item, index) => index.toString()}
-                    numColumns={3}
-                    onEndReachedThreshold={0.5}
-                    scrollEventThrottle={16}
-                    onEndReached={onEndReached}
-                    columnWrapperStyle={{ gap: 2, paddingVertical: 1 }}
-                    renderItem={({ item, index }) => {
-                        return <ImageItem
-                            item={item}
-                            selectAssetIndex={selectedAssets.current.findIndex(asset => asset.id === item.id)}
-                            onPressAssetHandle={onPressAssetHandle} />
-                    }} />
-            </View>
-            {selectedCount > 0 ? <ActionNextButton onPress={navigateToPostReview} /> : <></>}
-        </>
+      <>
+        <AppPermissionDialog confirm={getMediaPermission} />
+        <PhotosPermissionRequester permission={permission} />
+      </>
     );
+  }
+
+  return (
+    <>
+      {showHeader ? (
+        <AppHeader
+          titleCenter
+          title={
+            selectedCount > 0 ? `Selected ${selectedCount}` : "Select Items"
+          }
+          rightSideComponent={
+            selectedCount > 0 ? (
+              <Icon
+                iconName="Check"
+                isButton
+                style={{ width: 36 }}
+                onPress={navigateToPostReview}
+                variant="primary"
+              />
+            ) : (
+              <></>
+            )
+          }
+        />
+      ) : (
+        <></>
+      )}
+
+      <View style={{ flex: 1 }}>
+        <FlatList
+          data={media}
+          keyExtractor={(item: MediaLibrary.Asset) => item.id}
+          numColumns={3}
+          onEndReached={onEndReached}
+          onEndReachedThreshold={0.5}
+          scrollEventThrottle={16}
+          nestedScrollEnabled
+          columnWrapperStyle={{ gap: 2, paddingVertical: 1 }}
+          renderItem={({ item }) => (
+            <ImageItem
+              item={item}
+              selectAssetIndex={selectedAssetsRef.current.findIndex(
+                (a) => a.id === item.id
+              )}
+              onPressAssetHandle={onPressAssetHandle}
+            />
+          )}
+          ListFooterComponent={
+            loadingPage ? (
+              <View
+                style={{
+                  paddingVertical: 12,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <ActivityIndicator />
+              </View>
+            ) : null
+          }
+        />
+      </View>
+
+      {selectedCount > 0 ? (
+        <ActionNextButton onPress={navigateToPostReview} />
+      ) : (
+        <></>
+      )}
+    </>
+  );
 });
 
 export default SelectAssets;
