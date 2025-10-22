@@ -6,9 +6,9 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { StackActions, useFocusEffect, useNavigation } from "@react-navigation/native";
 import { hapticVibrate } from "@/lib/RN-vibration";
-import { Session } from "@supabase/supabase-js";
 import { SocketContext } from "@/provider/SocketConnections";
 import InCallManager from 'react-native-incall-manager';
+import { Session } from "@/types";
 
 const InComingCall = memo(function InComingCall({
     route

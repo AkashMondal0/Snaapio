@@ -119,6 +119,7 @@ const ChatScreen = memo(function ChatScreen({ route }: Props) {
   const initialLoadedRef = useRef(false);
   const stopFetchRef = useRef(false);
   const lastPageCallTsRef = useRef(0);
+  const scrollViewRef = useRef<Reanimated.FlatList<Message>>(null);
 
   // Keep latest values in refs for non-stale async callbacks
   const conversationRef = useRef(conversation);
@@ -255,6 +256,10 @@ const ChatScreen = memo(function ChatScreen({ route }: Props) {
     }
   }, [cMessages.length, loadMoreMessages, totalFetchedItemCount]);
 
+  const scrollToBottom = useCallback(() => {
+    scrollViewRef.current?.scrollToIndex({ index: 0, animated: true });
+  }, []);
+
   /* ------------------------------ early exits ------------------------------ */
   if (!conversation && !loadingC) return <NotFound />;
   if (!conversation) return <></>;
@@ -279,6 +284,7 @@ const ChatScreen = memo(function ChatScreen({ route }: Props) {
       >
         <Reanimated.FlatList
           inverted
+          ref={scrollViewRef}
           data={cMessages}
           keyExtractor={keyExtractor}
           renderItem={({ item }) => (
@@ -312,12 +318,12 @@ const ChatScreen = memo(function ChatScreen({ route }: Props) {
       </KeyboardGestureArea>
 
       <KeyboardStickyView offset={{ closed: 0, opened: 0 }}>
-        <Input conversation={conversation} />
+        <Input conversation={conversation} scrollToBottom={scrollToBottom} />
       </KeyboardStickyView>
     </View>
   );
 },
-(prev, next) => prev.route.params.id === next.route.params.id);
+  (prev, next) => prev.route.params.id === next.route.params.id);
 
 export default ChatScreen;
 

@@ -1,6 +1,6 @@
 import { Icon } from "@/components/skysolo-ui";
 import { memo, useCallback, useContext, useRef, useState, useEffect } from "react";
-import { Conversation, disPatchResponse, Message } from "@/types";
+import { Conversation } from "@/types";
 import { ToastAndroid, View } from "react-native";
 import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import { RootState } from "@/redux-stores/store";
@@ -26,8 +26,10 @@ const TYPING_DEBOUNCE_MS = 1600;
 
 const ChatScreenInput = memo(function ChatScreenInput({
   conversation,
+  scrollToBottom
 }: {
   conversation: Conversation | null;
+  scrollToBottom: () => void;
 }) {
   const dispatch = useDispatch();
   const navigation = useNavigation();
@@ -116,12 +118,12 @@ const ChatScreenInput = memo(function ChatScreenInput({
         }
 
         reset();
-
         // Play send sound
         const { sound: startSound } = await Audio.Sound.createAsync(
           require("../../assets/audios/message.mp3")
         );
         await startSound.playAsync();
+        scrollToBottom();
       } catch (error) {
         ToastAndroid.show("Something went wrong", ToastAndroid.SHORT);
       } finally {
@@ -133,7 +135,7 @@ const ChatScreenInput = memo(function ChatScreenInput({
 
   /** Navigate to file picker */
   const navigateToSelectFile = useCallback(() => {
-    navigation.navigate("MessageSelectFile" as never, { conversation });
+    navigation.navigate("MessageSelectFile" as any, { conversation });
   }, [navigation, conversation]);
 
   /** Cleanup typing events on unmount */
