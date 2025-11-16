@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { Button, Image, StyleSheet, View, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
+import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 
@@ -42,7 +42,7 @@ export default function App() {
     
     // Function to compress the image
     const compressImage = async (image: string) => {
-        const compressedImage = await manipulateAsync(
+        const compressedImage = await ImageManipulator.manipulateAsync(
             image,
             [
             ],

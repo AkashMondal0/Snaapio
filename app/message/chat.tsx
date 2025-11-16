@@ -161,7 +161,16 @@ const ChatScreen = memo(function ChatScreen({ route }: Props) {
   const [loadingC, setLoadingC] = useState(true);
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
-  /* ---------------------- REF UPDATES ---------------------- */
+  // Persisted flags across renders
+  const initialLoadedRef = useRef(false);
+  const stopFetchRef = useRef(false);
+  const lastPageCallTsRef = useRef(0);
+  const scrollViewRef = useRef<Reanimated.FlatList<Message>>(null);
+
+  // Keep latest values in refs for non-stale async callbacks
+  const conversationRef = useRef(conversation);
+  const sessionRef = useRef(session);
+
   useEffect(() => {
     conversationRef.current = conversation;
   }, [conversation]);
@@ -455,7 +464,11 @@ const ChatScreen = memo(function ChatScreen({ route }: Props) {
     [session?.id, cMembers, navigateToImagePreview]
   );
 
-  /* ==================== EARLY EXITS ==================== */
+  const scrollToBottom = useCallback(() => {
+    scrollViewRef.current?.scrollToIndex({ index: 0, animated: true });
+  }, []);
+
+  /* ------------------------------ early exits ------------------------------ */
   if (!conversation && !loadingC) return <NotFound />;
   if (!conversation) return null;
 
@@ -479,6 +492,7 @@ const ChatScreen = memo(function ChatScreen({ route }: Props) {
       >
         <Reanimated.FlatList
           inverted
+          ref={scrollViewRef}
           data={cMessages}
           ref={listRef}
           keyExtractor={keyExtractor}
@@ -509,12 +523,12 @@ const ChatScreen = memo(function ChatScreen({ route }: Props) {
       </KeyboardGestureArea>
 
       <KeyboardStickyView offset={{ closed: 0, opened: 0 }}>
-        <Input conversation={conversation} />
+        <Input conversation={conversation} scrollToBottom={scrollToBottom} />
       </KeyboardStickyView>
     </View>
   );
 },
-(prev, next) => prev.route.params.id === next.route.params.id);
+  (prev, next) => prev.route.params.id === next.route.params.id);
 
 export default ChatScreen;
 /* ============================== Subcomponents ============================== */

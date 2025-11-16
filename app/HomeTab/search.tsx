@@ -1,6 +1,6 @@
 import ErrorScreen from "@/components/error/page";
 import { ListEmptyComponent } from "@/components/home";
-import { ConversationLoader } from "@/components/message/conversationItem";
+import ConversationLoader from "@/components/message/ConversationLoader";
 import { Avatar, Icon, } from "@/components/skysolo-ui";
 import debounce from "@/lib/debouncing";
 import { searchUsersProfileApi } from "@/redux-stores/slice/users/api.service";
