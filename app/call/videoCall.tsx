@@ -57,7 +57,7 @@ const CallScreen = ({
 	}
 }) => {
 	const remoteUserData = route?.params;
-	const { socket, callSound } = useContext(SocketContext);
+	const { sendDataToServer, callSound, socket } = useContext(SocketContext);
 	const { currentTheme } = useTheme();
 	const navigation = useNavigation();
 	const session = useSelector((state: RootState) => state.AuthState.session.user);
@@ -101,7 +101,7 @@ const CallScreen = ({
 			if (!offerDescription) return;
 
 			await peerConnectionRef.current?.setLocalDescription(offerDescription);
-			socket?.emit("offer", {
+			sendDataToServer("offer", {
 				userId: session.id,
 				remoteId: remoteUserData?.id,
 				data: offerDescription,
@@ -121,7 +121,7 @@ const CallScreen = ({
 			const answer = await peerConnectionRef.current?.createAnswer();
 			await peerConnectionRef.current?.setLocalDescription(answer);
 
-			socket?.emit("answer", {
+			sendDataToServer("answer", {
 				userId: session.id,
 				remoteId: remoteUserData?.id,
 				data: answer,
@@ -148,7 +148,7 @@ const CallScreen = ({
 	const handleICECandidateEvent = (event: any) => {
 		if (!session || !remoteUserData) return console.error("not found !session | !remoteUser")
 		if (event.candidate) {
-			socket?.emit("candidate", {
+			sendDataToServer("candidate", {
 				userId: session.id,
 				remoteId: remoteUserData?.id,
 				data: event.candidate,
@@ -165,7 +165,7 @@ const CallScreen = ({
 		if (event.streams && event.streams[0]) {
 			remoteStream.current = event.streams[0]
 			if (event.streams[0]?.getVideoTracks()[0]?.enabled || event.streams[0]?.getAudioTracks()[0]?.enabled) {
-				socket?.emit("call-action", {
+				sendDataToServer("call-action", {
 					remoteId: remoteUserData?.id,
 					type: "INITIAL",
 					value: {
@@ -187,7 +187,7 @@ const CallScreen = ({
 		peerConnectionRef.current?.close();
 		hapticVibrate();
 		if (!session?.id || !remoteUserData?.id) return;
-		socket?.emit("peerLeft", {
+		sendDataToServer("peerLeft", {
 			id: session?.id,
 			remoteId: remoteUserData?.id,
 			data: null,
@@ -200,7 +200,7 @@ const CallScreen = ({
 
 	const InitFunc = async () => {
 		if (remoteUserData?.userType === "LOCAL") {
-			socket?.emit("send-call", {
+			sendDataToServer("send-call", {
 				id: session?.id,
 				username: session?.username,
 				email: session?.email,
@@ -212,7 +212,7 @@ const CallScreen = ({
 			})
 		}
 		if (remoteUserData?.userType === "REMOTE" && session) {
-			socket?.emit("answer-call", {
+			sendDataToServer("answer-call", {
 				id: session?.id,
 				username: session?.username,
 				email: session?.email,
@@ -236,7 +236,7 @@ const CallScreen = ({
 	}
 
 	const hangUp = () => {
-		socket?.emit("send-call", {
+		sendDataToServer("send-call", {
 			...session,
 			status: "HANGUP",
 			stream: "video",

@@ -6,9 +6,9 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/redux-stores/store";
 import { StackActions, useFocusEffect, useNavigation } from "@react-navigation/native";
 import { hapticVibrate } from "@/lib/RN-vibration";
-import { Session } from "@supabase/supabase-js";
 import { SocketContext } from "@/provider/SocketConnections";
 import InCallManager from 'react-native-incall-manager';
+import { Session } from "@/types";
 
 const InComingCall = memo(function InComingCall({
     route
@@ -17,7 +17,7 @@ const InComingCall = memo(function InComingCall({
 }) {
     const { currentTheme } = useTheme();
     const navigation = useNavigation();
-    const { socket } = useContext(SocketContext);
+    const { sendDataToServer } = useContext(SocketContext);
     const callStatus = useSelector((state: RootState) => state.CallState.callStatus);
     const session = useSelector((state: RootState) => state.AuthState.session.user);
     const userData = route.params as any
@@ -70,7 +70,7 @@ const InComingCall = memo(function InComingCall({
     const Decline = useCallback(async () => {
         if (!userData) return
         hapticVibrate()
-        socket?.emit("answer-call", {
+        sendDataToServer("answer-call", {
             ...session,
             status: "calling",
             stream: "video",

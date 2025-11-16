@@ -72,7 +72,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   extra: {
     eas: {
-      projectId: "e770baf5-26d4-41f8-a7f2-27e885f6c51f"
+      projectId: "0b900a43-57ae-4ed2-8fb9-9eb29fa77ddb"
     }
   },
   plugins: [
@@ -158,5 +158,5 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       }
     ]
   ],
-  owner: "skysolo"
+  owner: "akashmondal0"
 });

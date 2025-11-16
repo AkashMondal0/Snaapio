@@ -31,7 +31,7 @@ const ChatScreenInput = memo(function ChatScreenInput({
 }) {
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const { socket } = useContext(SocketContext);
+  const { sendDataToServer } = useContext(SocketContext);
 
   const ConversationList = useSelector(
     (state: RootState) => state.ConversationState.conversationList,
@@ -58,7 +58,7 @@ const ChatScreenInput = memo(function ChatScreenInput({
   const typingSetter = useCallback(
     (typing: boolean) => {
       if (!session?.id || !conversation?.id) return;
-      socket?.emit(configs.eventNames.conversation.typing, {
+      sendDataToServer(configs.eventNames.conversation.typing, {
         typing,
         authorId: session.id,
         members: members.current,
@@ -66,7 +66,7 @@ const ChatScreenInput = memo(function ChatScreenInput({
         isGroup: conversation.isGroup ?? false,
       });
     },
-    [session?.id, conversation?.id, conversation?.isGroup, socket]
+    [session?.id, conversation?.id, conversation?.isGroup, sendDataToServer]
   );
 
   /** Debounced stop typing */

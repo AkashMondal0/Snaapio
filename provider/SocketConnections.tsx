@@ -25,7 +25,6 @@ import { fetchConversationsApi } from "@/redux-stores/slice/conversation/api.ser
 import { setNotification } from "@/redux-stores/slice/notification";
 import { fetchUnreadMessageNotificationCountApi } from "@/redux-stores/slice/notification/api.service";
 import { setCallStatus } from "@/redux-stores/slice/call";
-
 import { Message, Notification as Notify, Typing } from "@/types";
 
 export const SocketContext = React.createContext<{
@@ -33,6 +32,7 @@ export const SocketContext = React.createContext<{
   callSound: (type: "START" | "END") => void;
   connectSocket: () => void;
   disconnectSocket: () => void;
+  sendDataToServer: (eventName: string, data: unknown) => void;
   reconnectSocket: () => void;
 }>({
   socket: null,
@@ -40,6 +40,7 @@ export const SocketContext = React.createContext<{
   connectSocket: () => { },
   disconnectSocket: () => { },
   reconnectSocket: () => { },
+  sendDataToServer: () => { },
 });
 
 const MAX_RECONNECT_ATTEMPTS = 5;
@@ -258,20 +259,37 @@ const SocketConnectionsProvider = ({ children }: { children: React.ReactNode }) 
     };
   }, [session, connectSocket, disconnectSocket, dispatch]);
 
-  // ===== Context =====
-  const contextValue = useMemo(
-    () => ({
+  const sendDataToServer = useCallback((eventName: string, data: unknown) => {
+    const socket = socketRef.current;
+    if (socket?.connected) {
+      socket.emit(eventName, data);
+    } else {
+      ToastAndroid.show("Socket not connected", ToastAndroid.SHORT);
+    }
+  }, []);
+
+  // // ===== Context =====
+  // const contextValue = useMemo(
+  //   () => ({
+  //     socket: socketRef.current,
+  //     callSound,
+  //     connectSocket,
+  //     disconnectSocket,
+  //     reconnectSocket,
+  //     sendDataToServer
+  //   }),
+  //   [callSound, connectSocket, disconnectSocket, reconnectSocket]
+  // );
+
+  return (
+    <SocketContext.Provider value={{
       socket: socketRef.current,
       callSound,
       connectSocket,
       disconnectSocket,
       reconnectSocket,
-    }),
-    [callSound, connectSocket, disconnectSocket, reconnectSocket]
-  );
-
-  return (
-    <SocketContext.Provider value={contextValue}>
+      sendDataToServer
+    }}>
       {children}
     </SocketContext.Provider>
   );
