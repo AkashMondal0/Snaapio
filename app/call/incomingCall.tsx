@@ -17,7 +17,7 @@ const InComingCall = memo(function InComingCall({
 }) {
     const { currentTheme } = useTheme();
     const navigation = useNavigation();
-    const { socket } = useContext(SocketContext);
+    const { sendDataToServer } = useContext(SocketContext);
     const callStatus = useSelector((state: RootState) => state.CallState.callStatus);
     const session = useSelector((state: RootState) => state.AuthState.session.user);
     const userData = route.params as any
@@ -70,7 +70,7 @@ const InComingCall = memo(function InComingCall({
     const Decline = useCallback(async () => {
         if (!userData) return
         hapticVibrate()
-        socket?.emit("answer-call", {
+        sendDataToServer("answer-call", {
             ...session,
             status: "calling",
             stream: "video",
